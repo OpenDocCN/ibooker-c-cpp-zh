@@ -1,26 +1,34 @@
 - en: Preface
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 序言
 - en: In your hands you’re holding the C++ book that I wish I would have had many
     years ago. Not as one of my first books, no, but as an advanced book, after I
     had already digested the language mechanics and was able to think beyond the C++
     syntax. Yes, this book would have definitely helped me better understand the fundamental
     aspects of maintainable software, and I’m confident that it will help you too.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 你手中拿着的是我多年前就希望有的C++书籍。不是作为我的第一本书之一，而是作为一本高级书籍，在我已经消化了语言机制并能够超越C++语法后。是的，这本书肯定会帮助我更好地理解可维护软件的基本方面，我相信它也会帮助你。
 - en: Why I Wrote This Book
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 为什么我写了这本书
 - en: By the time I was really digging into the language (that was a few years after
     the first C++ standard had been released), I had read pretty much every C++ book
     there was. But despite the fact that many of these books were great and definitely
     paved the way for my current career as a C++ trainer and consultant, they were
     too focused on the little details and the implementation specifics, and too far
     away from the bigger picture of maintainable software.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我真正深入学习这门语言时（那是在第一个C++标准发布几年后），我已经读过几乎所有可能的C++书籍。但尽管许多这些书都很棒，并且绝对为我目前作为C++培训师和顾问的职业铺平了道路，它们太专注于细节和实现特定的事项，距离可维护软件的更大图景太远。
 - en: 'At the time, very few books truly focused on the bigger picture, dealing with
     the development of large software systems. Among these were John Lakos’s *Large
     Scale C++ Software Design*,^([1](preface01.xhtml#idm45043124158624)) a great but
@@ -32,8 +40,10 @@
     on maintainable software, changeability, extensibility, and testability. And if
     they try to, they unfortunately quickly fall back into the common habit of explaining
     language mechanics and demonstrating features.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 当时，真正专注于更大视角，处理大型软件系统开发的书籍很少。其中包括John Lakos的《大规模C++软件设计》^[1]，一个关于依赖管理的伟大但字面上很重的介绍，以及所谓的四人帮书籍，这是关于软件设计模式的经典之作^[2]。不幸的是，多年来，情况并没有真正改变：大多数书籍、演讲、博客等主要集中在语言的机制和功能上——小细节和具体性。很少，而且在我看来太少，新版本专注于可维护软件、可更改性、可扩展性和可测试性。如果它们尝试这样做，不幸的是很快就会回到解释语言机制和演示特性的常见习惯中。
 - en: 'This is why I’ve written this book. A book that does not, in contrast to most
     others, spend time on the mechanics or the many features of the language, but
     primarily focuses on changeability, extensibility, and testability of software
@@ -43,16 +53,22 @@
     in our code decide between it being good or bad. As such, it is a rare kind of
     book in the world of C++ indeed, as it focuses on the bigger picture: software
     design.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 这就是为什么我写了这本书。与大多数其他书籍不同，这本书不花时间讨论语言的机制或许多功能，而是主要关注软件的可更改性、可扩展性和可测试性。这本书不假装使用新的C++标准或特性会决定好坏软件的差异，而是清楚地显示，决定性的是依赖的管理，我们代码中的依赖性决定了它是好还是坏。因此，在C++世界中，这确实是一种罕见的书籍，因为它关注的是更大的视角：软件设计。
 - en: What This Book Is About
+  id: totrans-6
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 本书内容
 - en: Software Design
+  id: totrans-7
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 软件设计
 - en: From my point of view, good software design is the essence of every successful
     software project. Yet still, despite its fundamental role, there is so little
     literature on the topic, and very little advice on what to do and how to do things
@@ -60,8 +76,10 @@
     facet of writing software that we have to face. And that’s because there is no
     single “right” solution, no “golden” advice to pass on through the generations
     of software developers. It always depends.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 从我的角度来看，良好的软件设计是每个成功软件项目的核心。然而，尽管其基本作用，关于这个主题的文献很少，对于如何正确进行操作和如何做事的建议也很少。为什么？因为这很困难。非常困难。可能是我们必须面对的写软件的最困难的方面。这是因为没有单一的“正确”解决方案，没有通过软件开发人员一代代传递的“黄金”建议。它总是依赖于具体情况。
 - en: Despite this limitation, I will give advice on how to design good, high-quality
     software. I will provide design principles, design guidelines, and design patterns
     that will help you to better understand how to manage dependencies and turn your
@@ -71,12 +89,17 @@
     important details, the diversity and the pros and the cons of different designs.
     I will also formulate intrinsic design goals and demonstrate how to achieve these
     goals with Modern C++.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管如此，我将提供建议，教你如何设计优秀、高质量的软件。我将提供设计原则、设计指南和设计模式，这些将帮助你更好地理解如何管理依赖关系，并使你的软件能够在几十年间持续使用。正如前面所述，没有“黄金”建议，本书也不持有任何终极或完美的解决方案。相反，我试图展示好软件的最基本方面，最重要的细节，以及不同设计的多样性和优缺点。我还将阐述内在的设计目标，并展示如何在现代
+    C++ 中实现这些目标。
 - en: Modern C++
+  id: totrans-10
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 现代 C++
 - en: For more than a decade, we’ve been celebrating the advent of Modern C++, applauding
     the many new features and extensions of the language, and by doing so, creating
     the impression that Modern C++ will help us solve all software-related problems.
@@ -85,8 +108,11 @@
     this book won’t show Modern C++ as an assortment of new features. Instead, it
     will show how the philosophy of the language has evolved and the way we implement
     C++ solutions today.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 十多年来，我们一直在庆祝现代 C++ 的到来，赞美这门语言的许多新特性和扩展，由此给人留下印象，现代 C++ 将帮助我们解决所有与软件相关的问题。但是，本书不会如此。本书不会假装仅仅向代码中扔几个智能指针就能让代码“现代化”或自动产生良好的设计。此外，本书也不会将现代
+    C++ 描绘成一堆新特性的集合。相反，它将展示语言哲学的演变以及我们如何在今天实现 C++ 解决方案。
 - en: 'But of course, we will also see code. Lots of it. And of course this book will
     make use of the features of newer C++ standards (including C++20). However, it
     will also make an effort to emphasize that the design is independent of the implementation
@@ -95,12 +121,16 @@
     They make it easier to implement good design. So this book shows and discusses
     implementation details, but (hopefully) doesn’t get lost in them and always remains
     focused on the big picture: software design and design patterns.'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，我们也会看到代码。大量的代码。当然，本书将利用较新的 C++ 标准（包括 C++20）的特性。然而，它也会努力强调设计独立于实现细节和使用的特性。新特性并不改变好设计和坏设计的规则；它们只是改变了我们实现好设计的方式。它们使得实现好设计变得更容易。因此，本书展示并讨论实现细节，但（希望）不会在其中迷失，并始终专注于大局：软件设计和设计模式。
 - en: Design Patterns
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式
 - en: 'As soon as you start mentioning design patterns, you inadvertently conjure
     up the expectation of object-oriented programming and inheritance hierarchies.
     Yes, this book will show the object-oriented origin of many design patterns. However,
@@ -113,8 +143,11 @@
     for all problems. Instead it tries to show Modern C++ for what it truly is: the
     opportunity to combine all paradigms, weave them into a strong and durable net,
     and create software design that will last through the decades.'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦你开始提及设计模式，你不自觉地就会引发人们对面向对象编程和继承层次结构的期待。是的，本书将展示许多设计模式的面向对象起源。然而，它将强调一个事实：没有只有一种方法能有效地使用设计模式。我将展示设计模式实现如何演变和多样化，利用许多不同的范式，包括面向对象编程、泛型编程和函数式编程。本书承认现实情况：没有一个真正的范式，也不假装只有一种适用于所有问题的单一方法。相反，它试图展示现代
+    C++ 的真正面貌：结合所有范式，将它们编织成一个坚固而持久的网络，并创造能在数十年中持续发挥作用的软件设计。
 - en: I hope this book proves to be the missing piece in C++ literature. I hope it
     helps you as much as it would have helped me. I hope that it holds some answers
     you have been looking for and provides you with a couple of key insights that
@@ -122,12 +155,16 @@
     and motivated to read everything. Most importantly, however, I hope that this
     book will show you the importance of software design and the role that design
     patterns play. Because, as you will see, design patterns are everywhere!
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 我希望这本书能成为C++文献中的一块遗失的拼图。我希望它能像它本该帮助我的那样帮助你。我希望它能提供你一些你一直在寻找的答案，并为你提供一些你缺失的关键见解。而且，我也希望这本书能让你感到有趣和有动力去读完每一页。然而，最重要的是，我希望这本书能向您展示软件设计的重要性及设计模式的作用。因为正如您将看到的那样，设计模式无处不在！
 - en: Who This Book Is For
+  id: totrans-16
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 这本书的读者对象
 - en: This book is of value to every C++ developer. In particular, it is for every
     C++ developer interested in understanding the usual problems of maintainable software
     and learning about common solutions to these problems (and I assume that is indeed
@@ -141,12 +178,16 @@
     rarely dwell on explaining a particular feature, so if a feature is unknown to
     you, please consult your favorite C++ language reference. Only occasionally will
     I add some reminders, mostly about common C++ idioms (such as the [Rule of 5](https://oreil.ly/fzS3f)).
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 这本书对每个C++开发者都有价值。特别是，它适合每个对理解可维护软件的常见问题和学习解决这些问题的常见方法感兴趣的C++开发者（我假设这确实包括*每一个*C++开发者）。然而，这本书不是一本面向C++初学者的书籍。事实上，这本书中的大多数指南需要对软件开发有一定的经验，特别是对C++有经验。例如，我假设您对继承层次结构的语言机制和一些模板的使用有很好的掌握。这样，我就可以在必要和适当的时候使用相应的特性。偶尔，我甚至会使用一些C++20的特性（特别是C++20的概念）。然而，由于重点是软件设计，我很少会深入解释特定的特性，因此如果某个特性对您来说是未知的，请参考您喜欢的C++语言参考资料。我偶尔会添加一些提醒，主要是关于常见的C++习惯用法（如[五法则](https://oreil.ly/fzS3f)）。
 - en: How This Book Is Structured
+  id: totrans-18
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 本书的结构
 - en: This book is organized into chapters, each containing several guidelines. Each
     guideline focuses on one key aspect of maintainable software or one particular
     design pattern. Hence, the guidelines represent the major takeaways, the aspects
@@ -155,68 +196,105 @@
     you to also start with the guideline that attracts your attention. Still, they’re
     not independent. Therefore, each guideline contains the necessary cross-references
     to other guidelines to show you that everything is connected.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书分为几个章节，每个章节包含多条指南。每条指南都集中讨论可维护软件的一个关键方面或特定的设计模式。因此，这些指南代表了主要的收获，我希望它们能为您带来最大的价值。它们被编写成您可以从头到尾阅读，但由于它们只是松散耦合的，所以您也可以从您感兴趣的指南开始阅读。然而，它们并不是独立的。因此，每个指南都包含了必要的交叉引用，以向您展示一切是如何相互关联的。
 - en: Conventions Used in This Book
+  id: totrans-20
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 本书中使用的约定
 - en: 'The following typographical conventions are used in this book:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书使用以下印刷约定：
 - en: '*Italic*'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Italic*'
 - en: Indicates new terms, URLs, email addresses, filenames, and file extensions.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 表示新术语、网址、电子邮件地址、文件名和文件扩展名。
 - en: '`Constant width`'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Constant width`'
 - en: Used for program listings, as well as within paragraphs to refer to program
     elements such as variable or function names, databases, data types, environment
     variables, statements, and keywords.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 用于程序清单，以及段落内引用程序元素，如变量或函数名称、数据库、数据类型、环境变量、语句和关键字。
 - en: '**`Constant width bold`**'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '**`Constant width bold`**'
 - en: Shows commands or other text that should be typed literally by the user.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 显示用户应该按照字面意义输入的命令或其他文本。
 - en: '*`Constant width italic`*'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '*`Constant width italic`*'
 - en: Shows text that should be replaced with user-supplied values or by values determined
     by context.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 显示应由用户提供的值或由上下文确定的值替换的文本。
 - en: Tip
+  id: totrans-30
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: This element signifies a tip or suggestion.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 此元素表示一个提示或建议。
 - en: Note
+  id: totrans-32
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: This element signifies a general note.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个元素表示一个一般的注意事项。
 - en: Using Code Examples
+  id: totrans-34
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用代码示例
 - en: Supplemental material (code examples, exercises, etc.) is available for download
     at [*https://github.com/igl42/cpp_software_design*](https://github.com/igl42/cpp_software_design).
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 补充资料（代码示例、练习等）可在 [*https://github.com/igl42/cpp_software_design*](https://github.com/igl42/cpp_software_design)
+    下载。
 - en: If you have a technical question or a problem using the code examples, please
     send email to [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com).
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您有技术问题或使用代码示例时遇到问题，请发送电子邮件至 [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com)。
 - en: This book is here to help you get your job done. In general, if example code
     is offered with this book, you may use it in your programs and documentation.
     You do not need to contact us for permission unless you’re reproducing a significant
@@ -226,91 +304,139 @@
     book and quoting example code does not require permission. Incorporating a significant
     amount of example code from this book into your product’s documentation does require
     permission.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书旨在帮助您完成工作。通常情况下，如果本书提供示例代码，您可以在自己的程序和文档中使用它。除非您复制了大量代码，否则无需征得我们的许可。例如，编写一个使用本书多个代码片段的程序不需要许可。销售或分发来自O'Reilly图书的示例需要许可。引用本书并引用示例代码来回答问题不需要许可。将本书大量示例代码纳入产品文档需要许可。
 - en: 'We appreciate, but generally do not require, attribution. An attribution usually
     includes the title, author, publisher, and ISBN. For example: “*C++ Software Design*
     by Klaus Iglberger (O’Reilly). Copyright 2022 Klaus Iglberger, 978-1-098-11316-2.”'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们感谢您的支持，但通常不要求署名。署名通常包括标题、作者、出版商和ISBN。例如：“*C++软件设计*，作者Klaus Iglberger（O'Reilly）。版权所有2022
+    Klaus Iglberger，ISBN 978-1-098-11316-2。”
 - en: If you feel your use of code examples falls outside fair use or the permission
     given above, feel free to contact us at [*permissions@oreilly.com*](mailto:permissions@oreilly.com).
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您认为您对代码示例的使用超出了公平使用范围或上述许可，请随时通过 [*permissions@oreilly.com*](mailto:permissions@oreilly.com)
+    联系我们。
 - en: O’Reilly Online Learning
+  id: totrans-40
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: O'Reilly在线学习
 - en: Note
+  id: totrans-41
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: For more than 40 years, [*O’Reilly Media*](http://oreilly.com) has provided
     technology and business training, knowledge, and insight to help companies succeed.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 40多年来，[*O'Reilly Media*](http://oreilly.com) 提供技术和业务培训、知识和见解，帮助企业取得成功。
 - en: Our unique network of experts and innovators share their knowledge and expertise
     through books, articles, and our online learning platform. O’Reilly’s online learning
     platform gives you on-demand access to live training courses, in-depth learning
     paths, interactive coding environments, and a vast collection of text and video
     from O’Reilly and 200+ other publishers. For more information, visit [*http://oreilly.com*](http://oreilly.com).
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们独特的专家和创新者网络通过书籍、文章和我们的在线学习平台分享他们的知识和专业知识。O'Reilly的在线学习平台为您提供按需访问的实时培训课程、深度学习路径、交互式编码环境以及来自O'Reilly和200多家其他出版商的大量文本和视频。欲了解更多信息，请访问
+    [*http://oreilly.com*](http://oreilly.com)。
 - en: How to Contact Us
+  id: totrans-44
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 如何联系我们
 - en: 'Please address comments and questions concerning this book to the publisher:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 请将有关本书的评论和问题发送至出版商：
 - en: O’Reilly Media, Inc.
+  id: totrans-46
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: O'Reilly Media，Inc.
 - en: 1005 Gravenstein Highway North
+  id: totrans-47
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Gravenstein Highway North 1005
 - en: Sebastopol, CA 95472
+  id: totrans-48
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 加利福尼亚州Sebastopol，95472
 - en: 800-998-9938 (in the United States or Canada)
+  id: totrans-49
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 800-998-9938（美国或加拿大）
 - en: 707-829-0515 (international or local)
+  id: totrans-50
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 707-829-0515（国际或本地）
 - en: 707-829-0104 (fax)
+  id: totrans-51
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 707-829-0104（传真）
 - en: We have a web page for this book, where we list errata, examples, and any additional
     information. You can access this page at [*https://oreil.ly/c-plus-plus*](https://oreil.ly/c-plus-plus).
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们为本书创建了一个网页，列出勘误、示例和任何额外信息。您可以访问 [*https://oreil.ly/c-plus-plus*](https://oreil.ly/c-plus-plus)
+    这个页面。
 - en: Email [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com) to comment
     or ask technical questions about this book.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过电子邮件 [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com) 发送评论或询问有关本书的技术问题。
 - en: For news and information about our books and courses, visit [*http://oreilly.com*](http://oreilly.com).
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 有关我们的图书和课程的新闻和信息，请访问 [*http://oreilly.com*](http://oreilly.com)。
 - en: 'Find us on LinkedIn: [*https://linkedin.com/company/oreilly-media*](https://linkedin.com/company/oreilly-media).'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 在LinkedIn上找到我们：[*https://linkedin.com/company/oreilly-media*](https://linkedin.com/company/oreilly-media)。
 - en: 'Follow us on Twitter: [*http://twitter.com/oreillymedia*](http://twitter.com/oreillymedia).'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 关注我们的Twitter：[*http://twitter.com/oreillymedia*](http://twitter.com/oreillymedia)。
 - en: 'Watch us on YouTube: [*http://youtube.com/oreillymedia*](http://youtube.com/oreillymedia).'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 观看我们的YouTube频道：[*http://youtube.com/oreillymedia*](http://youtube.com/oreillymedia)。
 - en: Acknowledgments
+  id: totrans-58
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 致谢
 - en: A book such as this is never the achievement of a single individual. On the
     contrary, I have to explicitly thank many people who helped me in different ways
     to make this book a reality. First and foremost, I want to express my deep gratitude
@@ -318,34 +444,48 @@
     And who took care of our two kids to give me the necessary calm to bring all of
     this information to paper (I am still not sure which of these two was the bigger
     sacrifice).
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样的一本书绝不是单个个体的成就。相反，我要特别感谢许多在不同方面帮助我使这本书成为现实的人。首先，我要深深地感谢我的妻子Steffi，她在不了解C++的情况下阅读了整本书。还照顾我们的两个孩子，给予我必要的宁静，让我把所有这些信息都写下来（我仍然不确定这两者中哪一个是更大的牺牲）。
 - en: A special thank-you goes to my reviewers, Daniela Engert, Patrice Roy, Stefan
     Weller, Mark Summerfield, and Jacob Bandes-Storch, for investing their valuable
     time to make this a better book by constantly challenging my explanations and
     examples.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 特别感谢我的审稿人Daniela Engert，Patrice Roy，Stefan Weller，Mark Summerfield和Jacob Bandes-Storch，他们投入宝贵的时间不断挑战我的解释和示例，使这本书变得更好。
 - en: A big thank-you also goes to Arthur O’Dwyer, Eduardo Madrid, and Julian Schmidt
     for their input and feedback about the Type Erasure design pattern, and to Johannes
     Gutekunst for the discussions on software architecture and documentation.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 特别感谢Arthur O’Dwyer，Eduardo Madrid和Julian Schmidt对类型擦除设计模式的贡献和反馈，以及Johannes Gutekunst对软件架构和文档的讨论。
 - en: Furthermore, I want to say thank you to my two cold readers, Matthias Dörfel
     and Vittorio Romeo, who helped catch many last-second mistakes (and indeed they
     did).
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，我还要感谢我的两位冷读者Matthias Dörfel和Vittorio Romeo，他们帮助捕捉了许多最后一刻的错误（确实如此）。
 - en: Last, but definitely not least, a big thank-you goes to my editor, Shira Evans,
     who has spent many hours giving invaluable advice about making the book more consistent
     and more fun to read.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，但绝对不是最不重要的，我要特别感谢我的编辑，Shira Evans，她花了很多时间给予宝贵的建议，使这本书在一致性和阅读乐趣方面更加出色。
 - en: ^([1](preface01.xhtml#idm45043124158624-marker)) John Lakos, *Large-Scale C++
     Software Design* (Addison-Wesley, 1996).
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](preface01.xhtml#idm45043124158624-marker)) John Lakos，《大规模C++软件设计》（Addison-Wesley，1996年）。
 - en: '^([2](preface01.xhtml#idm45043124283376-marker)) Erich Gamma et al., *Design
     Patterns: Elements of Reusable Object-Oriented Software* (Addison-Wesley, 1994).'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](preface01.xhtml#idm45043124283376-marker)) Erich Gamma等，《设计模式：可复用面向对象软件的元素》（Addison-Wesley，1994年）。
