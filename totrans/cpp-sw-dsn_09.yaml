@@ -1,0 +1,946 @@
+- en: Chapter 9\. The Decorator Design Pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'This chapter is dedicated to another classic design pattern: the Decorator
+    design pattern. Over the years, Decorator has proven to be one of the most useful
+    design patterns when it comes to combining and reusing different implementations.
+    So it doesn’t come as a surprise that it is commonly used, even for one of the
+    most impressive reworks of a C++ Standard Library feature. My primary objective
+    in this chapter will be to give you a very good idea why, and when, Decorator
+    is a great choice for designing software. Additionally, I will show you the modern,
+    more value-based forms of Decorator.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically),
+    we will dive into the design aspects of the Decorator design pattern. You will
+    see when it is the right design choice and which benefits you’re gaining by using
+    it. Additionally, you will learn about differences compared to other design patterns
+    and its potential shortcomings.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 36: Understand the Trade-off Between Runtime and Compile Time
+    Abstraction”](#understand_the_tradeoff_between_runtime_and_compile_time_abstraction),
+    we will take a look at two more implementations of the Decorator design pattern.
+    Although both implementations will be firmly rooted in the realm of value semantics,
+    the first one will be based on static polymorphism, while the second one will
+    be based on dynamic polymorphism. Even though both have the same intent and thus
+    implement Decorator, the contrast between these two will give you an impression
+    of the vastness of the design space for design patterns.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 35: Use Decorators to Add Customization Hierarchically'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Ever since you solved the design problem of your team’s 2D graphics tool by
+    proposing a solution based on the Strategy design pattern (remember [“Guideline
+    19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)),
+    your reputation as design pattern expert has spread across the company. Therefore,
+    it does not come as a surprise that other teams are seeking you out for guidance.
+    One day, two developers of your companies merchandise management system come to
+    your office and ask for your help.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your Coworkers’ Design Issue
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The team of the two developers is dealing with a lot of different `Item`s (see
+    [Figure 9-1](#fig_decorator_item_hierarchy_1)). All of these items have one thing
+    in common: they have a `price()` tag. The two developers try to explain their
+    problem by means of two items taken from the C++ merchandise shop: a class representing
+    a C++ book (the `CppBook` class) and a C++ conference ticket (the `ConferenceTicket`
+    class).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The initial +Item+ inheritance hierarchy.](assets/cpsd_0901.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-1\. The initial `Item` inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'As the developers sketch their problem, you start to understand that their
+    problem appears to be the many different ways to modify a price. Initially, they
+    tell you, they only had to take taxes into account. For that reason, the `Item`
+    base class was equipped with a `protected` data member to represent the tax rate:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: This apparently worked well for some time, until one day, when they were asked
+    to also take different rates of discount into account. This apparently required
+    a lot of effort to refactor the large amount of the existing classes for their
+    numerous different items. You can easily imagine that this was necessary because
+    all derived classes were accessing the `protected` data members. “Yes, you should
+    always design for change…” you think to yourself.^([1](ch09.xhtml#idm45043077162960))
+  prefs: []
+  type: TYPE_NORMAL
+- en: They continue by admitting to their unfortunate misdesign. Of course they should
+    have done a better job of encapsulating the tax rates in the `Item` base class.
+    However, along with this realization came the understanding that when representing
+    price modifiers by data members in the base class, any new kind of price modifier
+    would always be an intrusive action and would always directly affect the `Item`
+    class. For that reason, they started to think about how to avoid this kind of
+    major refactoring in the future and how to enable the easy addition of new modifiers.
+    “That’s the way to go!” you think to yourself. Unfortunately, the first approach
+    that came to their mind was to factor out the different kinds of price modifiers
+    by means of an inheritance hierarchy (see [Figure 9-2](#fig_decorator_item_hierarchy_2)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The extended +Item+ inheritance hierarchy.](assets/cpsd_0902.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-2\. The extended `Item` inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Instead of encapsulating the tax and discount values inside the base class,
+    these modifiers are factored out into derived classes, which perform the required
+    price adaptation. “Uh-oh…” you start to think. Apparently your look already gives
+    away that you are not particularly fond of this idea, and so they are quick to
+    tell you that they have already discarded the idea. Obviously they have realized
+    on their own that this would cause even more problems: this solution would quickly
+    cause an explosion of types and would provide only poor reuse of functionality.
+    Unfortunately, a lot of code would be doubled, since for every specific `Item`,
+    the code for taxes and discounts had to be duplicated. Most troublesome, however,
+    would be the handling of `Item`s that are affected both by tax and some sort of
+    discount: they neither liked the approach to provide classes to handle both, nor
+    did they want to introduce another layer in the inheritance hierarchy (see [Figure 9-3](#fig_decorator_item_hierarchy_3)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The problematic +Item+ inheritance hierarchy.](assets/cpsd_0903.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-3\. The problematic `Item` inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Apparently, and surprising for them, they couldn’t deal with the price modifiers
+    in the base class or in the derived classes by means of direct inheritance. However,
+    before you have the opportunity to make any comments about separating concerns,
+    they explain that they have recently heard about your Strategy solution. This
+    finally gave them an idea how to properly refactor the problem (see [Figure 9-4](#fig_decorator_item_hierarchy_4)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: By extracting the price modifiers into a separate hierarchy, and by configuring
+    `Items` upon construction by means of a `PriceStrategy`, they had finally found
+    a working solution to nonintrusively add new price modifiers, which will save
+    them a lot of refactoring work. “Well, this is the benefit of separating concerns
+    and favoring composition over inheritance,” you think to yourself.^([2](ch09.xhtml#idm45043077012624))
+    And aloud you ask, “This is great, I’m really happy for you. Everything seems
+    to work now, you’ve figured it out on your own! Why exactly are you here?”
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The Strategy-based +Item+ inheritance hierarchy.](assets/cpsd_0904.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-4\. The Strategy-based `Item` inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: They tell you that your Strategy solution is by far the best approach they have
+    (thankful looks included). However, they admit that they are not entirely happy
+    with the approach. From their point of view, two problems remain and, of course,
+    they are hoping that you have an idea how to fix them. The first issue they see
+    is that every `Item` instance needs a Strategy class, even if no price modifier
+    applies. While they agree that this can be solved by some kind of [*null object*](https://oreil.ly/9RX5N),
+    they feel that there should be a simpler solution:^([3](ch09.xhtml#idm45043077006880))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The second problem they have appears to be a little more difficult to solve.
+    Obviously they are interested in combining different kinds of modifiers (e.g.,
+    `Discount` and `Tax` into `DiscountAndTax`). Unfortunately, they experience some
+    code duplication in their current implementation. For instance, both the `Tax`
+    and the `DiscountAndTax` classes contain tax-related computations. And while right
+    now, with only the two modifiers, there are reasonable solutions at hand to cope
+    with the duplication, they are anticipating problems when adding more modifiers
+    and arbitrary combinations of these. Therefore they are wondering if there is
+    another, better solution for dealing with different kinds of price modifiers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This is indeed an intriguing problem, and you are happy to have taken the time
+    to help them. They are absolutely correct: the Strategy design pattern is not
+    the right solution for this problem. While Strategy is a great solution to remove
+    dependencies on the complete implementation details of a function and to handle
+    different implementations gracefully, it does not enable the easy combination
+    and reuse of different implementations. Attempting to do this would quickly result
+    in an undesirably complex Strategy inheritance hierarchy.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'What they need for their problem appears to be more like a hierarchical form
+    of Strategy, a form that decouples the different price modifiers but also allows
+    for a very flexible combination of them. Hence, one key to success is a consequent
+    application of the separation of concerns: any rigid, manually encoded combination
+    in the spirit of a `DiscountAndTax` class would be prohibitive. However, the solution
+    should also be nonintrusive to enable them to implement new ideas at any time
+    without the need to modify existing code. And finally, it should not be necessary
+    to handle a default case by some artificial *null object*. Instead, it would be
+    more reasonable to consequently build on composition instead of inheritance and
+    implement a price modifier in the form of a wrapper. With this realization, you
+    start to smile. Yes, there is just the right design pattern for this purpose:
+    what your two guests need is an implementation of the Decorator design pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Decorator Design Pattern Explained
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The Decorator design pattern also originates from the GoF book. Its primary
+    focus is the flexible combination of different pieces of functionality through
+    composition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Decorator Design Pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Intent: “Attach additional responsibilities to an object dynamically. Decorators
+    provide a flexible alternative to subclassing for extending functionality.”^([4](ch09.xhtml#idm45043076871952))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 9-5](#fig_decorator_item) shows the UML diagram for the given `Item`
+    problem. As before, the `Item` base class represents the abstraction from all
+    possible items. The deriving `CppBook` class, on the other hand, acts as a representative
+    for different implementations of `Item`. The problem in this hierarchy is the
+    difficult addition of new modifiers for the existing `price()` function(s). In
+    the Decorator design pattern, this addition of new “responsibilities” is identified
+    as a *variation point* and extracted in the form of the `DecoratedItem` class.
+    This class is a separate, special implementation of the `Item` base class and
+    represents an added responsibility for any given item. On the one hand, a `DecoratedItem`
+    derives from `Item` and hence must adhere to all expectations of the `Item` abstraction
+    (see [“Guideline 6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)).
+    On the other hand, it also contains an `Item` (either through composition or aggregation).
+    Due to that, a `DecoratedItem` acts as a wrapper around each and every item, potentially
+    one that itself can extend the functionality. For that reason, it provides the
+    foundation for a hierarchical application of modifiers. Two possible modifiers
+    are represented by the `Discounted` class, which represents a discount for a specific
+    item, and the `Taxed` class, which represents some kind of tax.^([5](ch09.xhtml#idm45043076856336))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML representation of the _Decorator_ design pattern.](assets/cpsd_0905.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-5\. The UML representation of the Decorator design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: By introducing the `DecoratedItem` class and separating the aspect that’s required
+    to change, you adhere to the SRP. By separating this concern and therefore allowing
+    the easy addition of new price modifiers, you also adhere to the *Open-Closed
+    Principle (OCP)*. Due to the hierarchical, recursive nature of the `DecoratedItem`
+    class, and due to the gained ability to reuse and combine different modifiers
+    easily, you also follow the advice of the *Don’t Repeat Yourself (DRY)* principle.
+    Last but not least, because of the wrapper approach of Decorator, there’s no need
+    to define any default behavior in the form of a *null object*. Any `Item` that
+    does not require a modifier can be used as is.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 9-6](#fig_decorator_dependency_graph) illustrates the dependency graph
+    of the Decorator design pattern. In this figure, the `Item` class resides on the
+    highest level of the architecture. All other classes depend on it, including the
+    `DecoratedItem` class, which resides one level below. Of course, this is not a
+    requirement: it’s perfectly acceptable if both the `Item` and the `DecoratedItem`
+    are introduced on the same architectural level. However, this example demonstrates
+    that it’s always possible (anytime, anywhere) to introduce a new Decorator without
+    needing to modify existing code. The concrete types of `Item`s are implemented
+    on the lowest level of the architecture. Note that there is no dependency between
+    these items: all items, including modifiers like `Discounted`, can be introduced
+    independently by anyone at any time and, due to the structure of Decorator, be
+    flexibly and arbitrarily combined.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The dependency graph for the _Decorator_ design pattern.](assets/cpsd_0906.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-6\. Dependency graph for the Decorator design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: A Classic Implementation of the Decorator Design Pattern
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s take a look at a complete, GoF-style implementation of the Decorator
+    design pattern by means of the given `Item` example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `Item` base class represents the abstraction for all possible items. The
+    only requirement is defined by the pure virtual `price()` function, which can
+    be used to query for the price of the given item. The `DecoratedItem` class represents
+    one possible implementation of the `Item` class ([![1](assets/1.png)](#code_g35_1)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: A `DecoratedItem` derives from the `Item` class but also contains an `item_`
+    ([![2](assets/2.png)](#code_g35_2)). This `item_` is specified via the constructor,
+    which accepts any non-null `std::unique_ptr` to another `Item` ([![3](assets/3.png)](#code_g35_3)).
+    Note that this `DecoratedItem` class is still abstract, since the pure virtual
+    `price()` function is not yet defined. `DecoratedItem` provides only the necessary
+    functionality to store an `Item` and to access the `Item` via `protected` member
+    functions ([![4](assets/4.png)](#code_g35_4)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Equipped with these two classes, it’s possible to implement concrete `Item`s:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `CppBook` and `ConferenceTicket` classes represent possible specific `Item`
+    implementations ([![5](assets/5.png)](#code_g35_5) and [![6](assets/6.png)](#code_g35_6)).
+    While a C++ book is represented by means of the title of the book, a C++ conference
+    is represented by means of the name of the conference. Most importantly, both
+    classes override the `price()` function by returning the specified `price_`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Both `CppBook` and `ConferenceTicket` are oblivious to any kind of tax or discount.
+    But obviously, both kinds of `Item` are potentially subject to both. These price
+    modifiers are implemented by means of the `Discounted` and `Taxed` classes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `Discounted` class ([![7](assets/7.png)](#code_g35_7)) is initialized by
+    passing a `std::unique_ptr` to an `Item` and a discount value, represented by
+    a double value in the range of 0.0 to 1.0\. While the given `Item` is immediately
+    passed to the `DecoratedItem` base class, the given discount value is used to
+    compute a discount `factor_`. This factor is used in the implementation of the
+    `price()` function to modify the price of the given item ([![8](assets/8.png)](#code_g35_8)).
+    This can either be a specific item like `CppBook` or `ConferenceTicket` or any
+    Decorator like `Discounted`, which in turn modifies the price of another `Item`.
+    Thus, the `price()` function is the point where the hierarchical structure of
+    Decorator is fully exploited.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `Taxed` class is very similar to the `Discounted` class. The major difference
+    is the evaluation of a tax-related factor in the constructor ([![9](assets/9.png)](#code_g35_9)).
+    Again, this factor is used in the `price()` function to modify the price of the
+    wrapped `Item`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'All of this functionality is put together in the `main()` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: As a first `Item`, we create a `CppBook`. Let’s assume that this book is subject
+    to a 7% tax, which is applied by means of wrapping a `Taxed` decorator around
+    the item. The resulting `item1` therefore represents a taxed C++ book ([![10](assets/10.png)](#code_g35_10)).
+    As a second `Item`, we create a `ConferenceTicket` instance, which represents
+    [CppCon](https://cppcon.org). We were lucky to get one of the early-bird tickets,
+    which means that we are granted a discount of 20%. This discount is wrapped around
+    the `ConferenceTicket` instance by means of the `Discounted` class. The ticket
+    is also subject to 19% tax, which, as before, is applied via the `Taxed` decorator.
+    Hence, the resulting `item2` represents a discounted and taxed C++ conference
+    ticket ([![11](assets/11.png)](#code_g35_11)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Second Decorator Example
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Another, impressive example that shows the benefits of the Decorator design
+    pattern can be found in the C++17 rework of the STL allocators. Since the allocators’
+    implementation is based on Decorator, it’s possible to create arbitrarily complex
+    hierarchies of allocators, which fulfill even the most special of memory requirements.
+    Consider, for instance, the following example using a [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/UPPxK)
+    ([![12](assets/12.png)](#code_g35_12)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `std::pmr::monotonic_buffer_resource` is one of several available allocators
+    in the `std::pmr` namespace. In this example, it’s configured such that whenever
+    the `strings` vector asks for memory, it will dispense only chunks of the given
+    byte array `raw`. Memory requests that cannot be handled, for instance because
+    the `buffer` is out of memory, are dealt with by throwing a `std::bad_alloc` exception.
+    This behavior is specified by passing a [`std::pmr::null_memory_resource`](https://oreil.ly/E1t7V)
+    during construction. There are many other possible applications for a `std::pmr::monotonic_buffer_resource`,
+    though. For instance, it would also be possible to build on dynamic memory and
+    to let it reallocate additional chunks of memory via `new` and `delete` by means
+    of [`std::pmr::new_delete_resource()`](https://oreil.ly/0oSzS) ([![13](assets/13.png)](#code_g35_13)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: This flexibility and hierarchical configuration of allocators is made possible
+    by means of the Decorator design pattern. The `std::pmr::​monotonic_buffer_resource`
+    is derived from the [`std::pmr::memory_resource`](https://oreil.ly/8A1sk) base
+    class but, at the same time, also acts as a wrapper around another allocator derived
+    from `std::pmr::memory_resource`. The upstream allocator, which is used whenever
+    the `buffer` goes out of memory, is specified on construction of a `std::pmr::monotonic_buffer_resource`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Most impressive, however, is that you can easily and nonintrusively customize
+    the allocation strategy. That might, for instance, be interesting to enable you
+    to deal with requests for large chunks of memory differently than requests for
+    small chunks. All you have to do is to provide your own, custom allocator. Consider
+    the following sketch of a `CustomAllocator`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: To be recognized as a C++17 allocator, the `CustomAllocator` class derives from
+    the `std::pmr::memory_resource` class, which represents the set of requirements
+    for all C++17 allocators ([![14](assets/14.png)](#code_g35_14)). Coincidentally,
+    the `CustomAllocator` also owns a pointer to a `std::pmr::memory_resource` ([![15](assets/15.png)](#code_g35_15)),
+    which is initialized via its constructor ([![16](assets/16.png)](#code_g35_16)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The set of requirements for C++17 allocators consists of the virtual functions
+    `do_allocate()`, `do_deallocate()`, and `do_is_equal()`. The `do_allocate()` function
+    is responsible for acquiring memory, potentially via its upstream allocator ([![17](assets/17.png)](#code_g35_17)),
+    while the `do_deallocate()` function is called whenever memory needs to be given
+    back ([![18](assets/18.png)](#code_g35_18)). Last but not least, the `do_is_equal()`
+    function is called whenever the equality of two allocators needs to be checked
+    ([![19](assets/19.png)](#code_g35_19)).^([6](ch09.xhtml#idm45043074899200))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'By just introducing the `CustomAllocator` and without the need to change any
+    other code, in particular in the Standard Library, the new kind of allocator can
+    be easily plugged in between the `std::pmr::monotonic_buffer_resource` and the
+    `std::pmr::new_delete_resource()` ([![20](assets/20.png)](#code_g35_20)), thus
+    allowing you to nonintrusively extend the allocation behavior:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Comparison Between Decorator, Adapter, and Strategy
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'With the names *Decorator* and *Adapter*, these two design patterns sound like
+    they have a similar purpose. On closer examination, however, these two patterns
+    are very different and hardly related at all. The intent of the Adapter design
+    pattern is to adapt and change a given interface to an expected interface. It
+    is not concerned about adding any functionality but only about mapping one set
+    of functions onto another (see also [“Guideline 24: Use Adapters to Standardize
+    Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces)). The Decorator
+    design pattern, on the other hand, preserves a given interface and isn’t at all
+    concerned about changing it. Instead, it provides the ability to add responsibilities
+    and to extend and customize an existing set of functions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Strategy design pattern is much more like Decorator. Both patterns provide
+    the ability to customize functionality. However, both patterns are intended for
+    different applications and therefore provide different benefits. The Strategy
+    design pattern is focused on removing the dependencies on the implementation details
+    of a specific functionality and enables you to define these details from the outside.
+    Thus from this perspective, it represents the core—the “guts”—of this functionality.
+    This form makes it particularly suited to represent different implementations
+    and to switch between them (see [“Guideline 19: Use Strategy to Isolate How Things
+    Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)). In comparison,
+    the Decorator design pattern is focused on removing the dependency between attachable
+    pieces of implementation. Due to its wrapper form, Decorator represents the “skin”
+    of a functionality.^([7](ch09.xhtml#idm45043074841888)) In this form, it is particularly
+    well suited to combine different implementations, which enables you to augment
+    and extend functionality, rather than replacing it or switching between implementations.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Obviously, both Strategy and Decorator have their individual strengths and
+    should be selected accordingly. However, it’s also possible to combine these two
+    design patterns to gain the best of both worlds. For instance, it would be possible
+    to implement `Item`s in terms of the Strategy design patterns but allow for a
+    more fine-grained configuration of Strategy by means of Decorator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This combination of design patterns is particularly interesting if you already
+    have a Strategy implementation in place: while Strategy is intrusive and requires
+    the modification of a class, it’s always possible to nonintrusively add a Decorator
+    such as the `DecoratedPriceStrategy` class. But of course it depends: whether
+    or not this is the right solution is something you’ll have to decide on a case-by-case
+    basis.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analyzing the Shortcomings of the Decorator Design Pattern
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'With its ability to hierarchically extend and customize behavior, the Decorator
+    design pattern is clearly one of the most valuable and flexible patterns in the
+    catalogue of design patterns. However, despite its benefits, it also comes with
+    a couple of disadvantages. First and foremost, the flexibility of a Decorator
+    comes with a price: every level in a given hierarchy adds one level of indirection.
+    As a specific example, in the object-oriented implementation of the `Item` hierarchy,
+    this indirection comes in the form of one virtual function call per Decorator.
+    Thus an extensive use of Decorators may incur a potentially significant performance
+    overhead. Whether or not this possible performance penalty poses a problem depends
+    on the context. You’ll have to decide from case to case using benchmarks to determine
+    whether the flexibility and the structural aspects of Decorator outweigh the performance
+    problem.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another shortcoming is the potential danger of combining Decorators in a nonsensical
+    way. For instance, it’s easily possible to wrap a `Taxed` Decorator around another
+    `Taxed` Decorator or to apply a `Discounted` on an already-taxed `Item`. Both
+    scenarios would make your government happy but still should never happen and therefore
+    should be avoided by design. This rational is nicely expressed by Scott Meyers’s
+    universal design principle:^([8](ch09.xhtml#idm45043074664624))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Make interfaces easy to use correctly and hard to use incorrectly.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'Thus the enormous flexibility of Decorators is extraordinary, but can also
+    be dangerous (depending on the scenario, of course). Since in this scenario taxes
+    appear to play a special role, it seems to be very reasonable not to deal with
+    them as Decorator, but differently. Since in reality taxes turn out to be a rather
+    complex topic, it appears to be reasonable to separate this concern via the Strategy
+    design pattern:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `TaxStrategy` class represents the many different ways to apply taxes to
+    an `Item` ([![21](assets/21.png)](#code_g35_21)). Such a `TaxStrategy` is combined
+    with an `Item` in the `TaxedItem` class ([![22](assets/22.png)](#code_g35_22)).
+    Note that `TaxedItem` is not an `Item` itself and therefore cannot be decorated
+    by means of another `Item`. It therefore serves as a kind of terminating Decorator,
+    which can only be applied as the very last decorator. It also does not provide
+    a `price()` function: instead, it provides the `netPrice()` ([![23](assets/23.png)](#code_g35_23))
+    and `grossPrice()` ([![24](assets/24.png)](#code_g35_24)) functions to enable
+    queries for both the price including taxes and the original price of the wrapped
+    `Item`.^([9](ch09.xhtml#idm45043074358192))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The only other problem that you might see is the reference semantics–based
+    implementation of the Decorator design pattern: lots of pointers, including `nullptr`
+    checks and the danger of dangling pointers, explicit lifetime management by means
+    of `std::unique_ptr` and `std::make_unique()`, and the many small, manual memory
+    allocations. However, luckily you still have an ace up your sleeve and can show
+    them how to implement Decorators based on value semantics (see the following guideline).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To summarize, the Decorator design pattern is one of the essential design patterns
+    and despite some drawbacks will prove to be a very valuable addition to your toolbox.
+    Just make sure you’re not too excited about Decorator and start to use it for
+    everything. After all, for every pattern there is a thin line between good use
+    and overuse.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 36: Understand the Trade-off Between Runtime and Compile Time Abstraction'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically),
+    I introduced you to the Decorator design pattern and hopefully gave you a strong
+    incentive to add this design pattern to your toolbox. However, so far I have illustrated
+    Decorator only by means of classic, object-oriented implementations and again
+    not followed the advice of [“Guideline 22: Prefer Value Semantics over Reference
+    Semantics”](ch05.xhtml#prefer_value_semantics_to_reference_semantics). Since I
+    assume that you are eagerly waiting to see how to implement Decorator based on
+    value semantics, it’s time to show you two possible approaches. Yes, *two* approaches:
+    I will make up for the deferral by demonstrating two very different implementations.
+    Both are firmly based on value semantics, but in comparison, they are almost on
+    opposite sides of the design space. While the first approach will be an implementation
+    based on static polymorphism, which enables you to exploit all compile-time information
+    you may have, the second approach will rather exploit all the runtime advantages
+    of dynamic polymorphism. Both approaches have their merits but, of course, also
+    their characteristic demerits. Therefore, these examples will nicely demonstrate
+    the broadness of design choices available to you.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Value-Based Compile Time Decorator
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s start with the Decorator implementation based on static polymorphism.
+    “I assume that this will again be very heavy on templates, right?” you ask. Yes,
+    I will use templates as the primary abstraction mechanism, and yes, I will use
+    a C++20 concept and even forwarding references. But no, I will try not to make
+    it particularly heavy on templates. On the contrary, the major focus still lies
+    on the design aspects of the Decorator design pattern and the goal to make it
+    easy to add new kinds of Decorators and new kinds of regular items. One such item
+    is the `ConferenceTicket` class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `ConferenceTicket` perfectly fulfills the expectations of a value type:
+    there is no base class involved and there are no virtual functions. This indicates
+    that items are no longer decorated via pointer-to-base, but instead by means of
+    composition, or alternatively, by means of direct non-`public` inheritance. Two
+    examples for this are the following implementations of the `Discounted` and `Taxed`
+    classes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Both `Discounted` ([![1](assets/1.png)](#code_g36_1)) and `Taxed` ([![2](assets/2.png)](#code_g36_2))
+    serve as Decorators for other kinds of `Item`s: the `Discounted` class represents
+    a certain discount on a given item, and the `Taxed` class represents some kind
+    of tax. This time, however, both are implemented in the form of class templates.
+    The first template argument specifies the discount and the tax rate, respectively,
+    and the second template argument specifies the type of the decorated `Item`.^([10](ch09.xhtml#idm45043074027232))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Most noteworthy, however, is the `PricedItem` constraint on the second template
+    argument ([![3](assets/3.png)](#code_g36_3)). This constraint represents the set
+    of semantic requirements, i.e. the expected behavior. Due to this constraint,
+    you can only provide types that represent items with a `price()` member function.
+    Using any other type would immediately result in a compilation error. Thus `PricedItem`
+    plays the same role as the `Item` base class in the classic Decorator implementation
+    in [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically).
+    For the same reason, it also represents the separation of concerns based on the
+    *Single-Responsibility Principle (SRP)*. Furthermore, if this constraint is owned
+    by some high level in your architecture, then you, as well as anyone else, are
+    able to add new kinds of items *and* new kinds of Decorators on any lower level.
+    This feature perfectly fulfills the *Open-Closed Principle (OCP)*, and due to
+    the proper ownership of the abstraction, also the *Dependency Inversion Principle
+    (DIP)* (see [Figure 9-7](#fig_decorator_static)).^([11](ch09.xhtml#idm45043073889344))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The dependency graph for the compile time _Decorator_.](assets/cpsd_0907.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-7\. Dependency graph for the compile time Decorator
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Both the `Discounted` and `Taxed` class templates are very similar, except
+    for the way they handle the decorated `Item`: while the `Discounted` class template
+    stores the `Item` in the form of a data member and therefore follows [“Guideline
+    20: Favor Composition over Inheritance”](ch05.xhtml#favor_composition_over_inheritance),
+    the `Taxed` class template privately inherits from the given `Item` class. Both
+    approaches are possible, reasonable, and have their individual strengths, but
+    you should consider the composition approach taken by the `Discounted` class template
+    as the more common approach. As explained in [“Guideline 24: Use Adapters to Standardize
+    Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces), there are only
+    five reasons to prefer non-`public` inheritance to composition (some of them are
+    *very* rare):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you have to override a virtual function
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you need access to a `protected` member function
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you need the adapted type to be constructed *before* another base class
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you need to share a common virtual base class or override the construction
+    of a virtual base class
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you can draw *significant* advantage from the [*Empty Base Optimization (EBO)*](https://oreil.ly/nvqMn)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Arguably, for a large number of adapters, *EBO* may be a reason to favor inheritance,
+    but you should make sure that your choice is backed up by numbers (for instance,
+    by means of representative benchmarks).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With these three classes in place, you’re able to specify a `ConferenceTicket`
+    with a discount of 20% and a tax of 15%:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The biggest advantage of this compile-time approach is the significant performance
+    improvement: since there are no pointer indirections, and due to the possibility
+    of inlining, the compiler is able to go all out on optimizing the resulting code.
+    Also, the resulting code is arguably much shorter and not bloated with any boilerplate
+    code, and therefore easier to read.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“Could you be a little more specific about the performance results? In C++,
+    developers are bickering about a 1% performance difference and call it *significant*.
+    So seriously: how much faster is the compile-time approach?” I see, you seem familiar
+    with the performance zeal of the C++ community. Well, as long as you promise me,
+    again, that you won’t consider my results the definitive answer but only a single
+    example, and if we agree that this comparison won’t evolve into a performance
+    study, I can show you some numbers. But before I do, let me quickly outline the
+    benchmark that I will use: I am comparing the classic object-oriented implementation
+    from [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically)
+    with the described compile-time version. Of course, there is an arbitrary number
+    of decorator combinations, but I am restricting myself to the following four item
+    types:^([12](ch09.xhtml#idm45043073557088))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Since in the compile time solution these four types do not have a common base
+    class, I am filling four specific `std::vector`s with these. In comparison, for
+    the classic runtime solution, I use a single `std::vector` of `std::unique_ptr<Item>`s.
+    In total, I am creating 10,000 items with random prices for both solutions and
+    calling `std::accumulate()` 5,000 times to compute the total price of all items.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With this background information, let’s take a look at the performance results
+    ([Table 9-1](#table_decorator_benchmark_results_1)). Again, I am normalizing the
+    results, this time to the performance of the runtime implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 9-1\. Performance results for the compile-time Decorator implementation
+    (normalized performance)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|  | GCC 11.1 | Clang 11.1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Classic Decorator | 1.0 | 1.0 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Compile-time Decorator | 0.078067 | 0.080313 |'
+  prefs: []
+  type: TYPE_TB
+- en: 'As stated before, the performance of the compile-time solution is significantly
+    faster than the runtime solution: for both GCC and Clang, it only takes approximately
+    8% of the time of the runtime solution, and is therefore faster by more than one
+    order of magnitude. I know, this sounds amazing. However, while the performance
+    of the compile-time solution is extraordinary, it comes with a couple of potentially
+    severe limitations: due to the complete focus on templates, there is no runtime
+    flexibility left. Since even the discount and tax rates are realized via template
+    parameters, a new type needs to be created for each different rate. This may lead
+    to longer compile times and more generated code (i.e., larger executables). Additionally,
+    it stands to reason that all class templates reside in header files, which again
+    increases compile time and may reveal more implementation details than desired.
+    More importantly, changes to the implementation details are widely visible and
+    may cause massive recompilations. However, the most limiting factor appears to
+    be that the solution can only be used in this form if all information is available
+    at compile time. Thus, you may be able to get to this performance level for only
+    a few special cases.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Value-Based Runtime Decorator
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Since the compile time Decorator may be fast but very inflexible at runtime,
+    let’s turn our attention to the second value-based Decorator implementation. With
+    this implementation, we will return to the realm of dynamic polymorphism, with
+    all of its runtime flexibility.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As you now know the Decorator design pattern, you realize that we need to be
+    able to easily add new types: new kinds of `Item`, as well as new price modifiers.
+    Therefore *the* design pattern of choice to turn the Decorator implementation
+    from [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically)
+    into a value semantics–based implementation is Type Erasure.^([13](ch09.xhtml#idm45043073438048))
+    The following `Item` class implements an owning Type Erasure wrapper for our priced
+    item example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: In this implementation, the `Item` class defines a nested `Concept` base class
+    in its `private` section ([![4](assets/4.png)](#code_g36_4)). As usual, the `Concept`
+    base class represents the set of requirements (i.e. the expected behavior) for
+    the wrapped types, which are expressed by the `price()` and `clone()` member functions.
+    These requirements are implemented by the nested `Model` class template ([![5](assets/5.png)](#code_g36_5)).
+    `Model` implements the `price()` function by forwarding the call to the `price()`
+    member function of the stored `item_` data member, and the `clone()` function
+    by creating a copy of the stored item.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `public` section of the `Item` class should look familiar:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: Next to the usual implementation of the [Rule of 5](https://oreil.ly/fzS3f),
+    the class is again equipped with a templated constructor that accepts all kinds
+    of items ([![6](assets/6.png)](#code_g36_6)). Last but not least, the class provides
+    a `price()` member function, which mimics the expected interface of all items
+    ([![7](assets/7.png)](#code_g36_7)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With this wrapper class in place, you are able to add new items easily: neither
+    any intrusive modification of existing code nor any use of a base class is required.
+    Any class that provides a `price()` member function and is copyable will work.
+    Luckily, this includes the `ConferenceTicket` class from our compile-time Decorator
+    implementation, which provides everything we need and is firmly based on value
+    semantics. Unfortunately, this is not true for the `Discounted` and `Taxed` classes,
+    since they expect decorated items in the form of a template argument. Therefore,
+    we re-implement `Discounted` and `Taxed` for use in the Type Erasure context:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It’s particularly interesting to note that neither of these two classes are
+    derived from any base class, yet both perfectly implement the Decorator design
+    pattern. On the one hand, they implement the operations required by the `Item`
+    wrapper to count as an item (in particular, the `price()` member function and
+    the copy constructor), but on the other hand, they own an `Item`. Therefore, both
+    enable you to combine Decorators arbitrarily, as demonstrated in the following
+    `main()` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: '“Wow, this is beautiful: there are no pointers, no manual allocations, and
+    it feels very natural and intuitive. But at the same time, it’s extremely flexible.
+    This is too good to be true—there must be a catch. What about the performance?”
+    you say. Well, you sound like you expect a total performance breakdown. So let’s
+    benchmark this solution. Of course, I’m using the same benchmark as for the compile-time
+    version of Decorator and just adding the third solution based on Type Erasure.
+    The performance numbers are shown in [Table 9-2](#table_decorator_benchmark_results_2).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 9-2\. Performance results for the Type Erasure Decorator implementation
+    (normalized performance)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '|  | GCC 11.1 | Clang 11.1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Classic Decorator | 1.0 | 1.0 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Compile-time Decorator | 0.078067 | 0.080313 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Type Erasure Decorator | 0.997510 | 0.971875 |'
+  prefs: []
+  type: TYPE_TB
+- en: 'As you can see, the performance is not worse than the performance of the other,
+    classic runtime solution. In fact, the performance even appears to be a tiny bit
+    better, but although this is an average of many runs, I wouldn’t put too much
+    emphasis on that. However, remember that there are multiple options to improve
+    the performance of the Type Erasure solution, as demonstrated in [“Guideline 33:
+    Be Aware of the Optimization Potential of Type Erasure”](ch08.xhtml#know_about_the_optimization_potential_of_type_erasure).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: While performance may not be the primary strength of the runtime solution(s)
+    (at least in comparison to a compile-time solution), it definitely shines when
+    it comes to runtime flexibility. For instance, it is possible to decide at runtime
+    to wrap any `Item` in another Decorator (based on user input, based on the result
+    of a computation, …). This, of course, will again yield an `Item`, which, together
+    with many other `Item`s, can be stored in a single container. It indeed gives
+    you an enormous runtime flexibility.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Another strength is the ability to hide implementation details in source files
+    more easily. While this may result in a loss of runtime performance, it will likely
+    result in better compile times. Most importantly: any modification to the hidden
+    code will not affect any other code and thus save you a lot of recompilations,
+    because the implementation details are more strongly encapsulated.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In summary, both the compile-time and runtime solutions are value based and
+    lead to simpler, more comprehensible user code. However, they also come with individual
+    strengths and weaknesses: while the runtime approach offers more flexibility,
+    the compile-time approach dominates with respect to performance. In reality, you
+    will rarely end up with a pure compile time or runtime approach, but you will
+    very often find yourself somewhere between these two extremes. Make sure you know
+    your options: weigh them against each other and find a compromise that perfectly
+    combines the best of both worlds and fits your particular situation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([1](ch09.xhtml#idm45043077162960-marker)) Remember [“Guideline 2: Design
+    for Change”](ch01.xhtml#design_for_change) and [Core Guideline C.133](https://oreil.ly/SrAkz):
+    “Avoid `protected` data.”'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([2](ch09.xhtml#idm45043077012624-marker)) See [“Guideline 20: Favor Composition
+    over Inheritance”](ch05.xhtml#favor_composition_over_inheritance) for a discussion
+    on why so many design patterns draw their power from composition rather than inheritance.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch09.xhtml#idm45043077006880-marker)) A *null object* represents an object
+    with neutral (null) behavior. As such, it can be seen as a default for a Strategy
+    implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([4](ch09.xhtml#idm45043076871952-marker)) Erich Gamma et al., *Design Patterns:
+    Elements of Reusable Object-Oriented Software*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([5](ch09.xhtml#idm45043076856336-marker)) You may be wondering if this is
+    the most reasonable approach for dealing with taxes. No, unfortunately it’s not.
+    That’s because first, as usual, reality is so much more complex than this simple,
+    educational example, and second, because in this form it’s easy to apply taxes
+    incorrectly. While I can’t help with the first point (I’m just a mere mortal),
+    I will go into detail about the second point at the end of this guideline.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([6](ch09.xhtml#idm45043074899200-marker)) If you’re wondering about the incomplete
+    implementation: the focus here is entirely on how to *design* allocators, not
+    on how to *implement* an allocator. For a thorough introduction on how to implement
+    a C++17 allocator, see Nicolai Josuttis’s *C++17 - The Complete Guide*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([7](ch09.xhtml#idm45043074841888-marker)) The metaphor of Strategy being the
+    guts of an object and Decorator being the skin originates from the GoF book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([8](ch09.xhtml#idm45043074664624-marker)) Scott Meyers, *Effective C++*, 3rd
+    ed. (Addison-Wesley, 2005).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([9](ch09.xhtml#idm45043074358192-marker)) If you’re thinking that the original
+    `price()` function should be renamed `netPrice()` to reflect its true purpose,
+    then I agree.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([10](ch09.xhtml#idm45043074027232-marker)) Note that it is only possible to
+    use floating-point values as [non-type template parameters (NTTPs)](https://oreil.ly/peHM2)
+    since C++20. Alternatively, you could store the discount and tax rates in the
+    form of data members.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([11](ch09.xhtml#idm45043073889344-marker)) Alternatively, in particular if
+    you cannot use C++20 concepts yet, this is an opportunity to use the *Curiously
+    Recurring Template Pattern (CRTP)*; see [“Guideline 26: Use CRTP to Introduce
+    Static Type Categories”](ch06.xhtml#use_crtp_to_introduce_static_type_categories).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([12](ch09.xhtml#idm45043073557088-marker)) To avoid a visit from the tax
+    collection office, I should explicitly state that I’m aware of the questionable
+    nature of the `Discounted<0.2,Taxed<0.19,ConferenceTicket>>` class (see also the
+    list of potential problems of Decorator at the end of [“Guideline 35: Use Decorators
+    to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically)).
+    In my defense: it’s an obvious permutation of decorators, which is well suited
+    for this benchmark.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([13](ch09.xhtml#idm45043073438048-marker)) For a thorough overview of Type
+    Erasure, see [Chapter 8](ch08.xhtml#type_erasure) and in particular [“Guideline
+    32: Consider Replacing Inheritance Hierarchies with Type Erasure”](ch08.xhtml#consider_replacing_inheritance_hierarchies_with_type_erasure).'
+  prefs: []
+  type: TYPE_NORMAL

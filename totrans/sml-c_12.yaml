@@ -1,0 +1,314 @@
+- en: Chapter 12\. Next Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: First off, congratulations for making it this far! We have toured a pretty impressive
+    breadth of the C programming language and the Arduino microcontroller ecosystem.
+    Remember that first “Hello, World” program or that first blinking LED? You know
+    a lot more about both worlds now, and I hope you’re eager to continue expanding
+    your skills.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In this final chapter, we’ll look at one last project that connects your Arduino
+    skills to the Internet of Things. The world of IoT is growing daily and will provide
+    plenty of opportunities to try out new things, but we’ll also cover a few other
+    topics you might look into next.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Intermediate and Advanced Topics
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There are so many paths you can take from here. The array of sensors and displays
+    available these days is truly astonishing. Go exploring! You’ll find your own
+    inspirations and projects to tackle, which will lead to more exploring and more
+    inspiration. My most enjoyable adventures have come from specific project ideas.
+    I wanted an animated LED hourglass for part of a Halloween costume, so I found
+    a capable, wearable microcontroller and some dense LED strips.^([1](ch12.xhtml#idm45018711193992))
+    I had such fun with the LEDs on that project that I decided to create some weatherproof
+    lighting for my backyard. With WiFi available to makers like us on small budgets,
+    I could even let guests pick the colors and other effects. The success of the
+    WiFi feature in turn propelled me to create a miniature weather station to feed
+    my inner meteorologist.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The key to success for all those projects was picking a fairly focused goal.
+    For example, in the next section we’ll dip our toes into the world of IoT with
+    a simple project that takes a temperature reading from the TMP36 components we’ve
+    used already and reports it to a cloud service over WiFi. If you really want to
+    cement the new knowledge and skills you’ve gained through the projects and examples
+    in this book, pick your own mini project and make it a reality!
+  prefs: []
+  type: TYPE_NORMAL
+- en: IoT and Arduino
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: It wouldn’t do to have a chapter with no code, so let’s look at one last project
+    that introduces some really fun avenues you can explore on the way to creating
+    your own gadgets. The Internet of Things is exploding, and Arduino is perfectly
+    suited for playing in that space. Let’s look at a simplified version of my weather
+    station project. We’ll use a WiFi-capable microcontroller to report sensor data
+    to a cloud API.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The circuit for this project is fairly simple. We need a WiFi-capable microcontroller
+    or a WiFi breakout that you can connect to your controller like we did with the
+    RF breakout in [“Importing Custom Libraries”](ch11.xhtml#smallerc-CHP-11-SECT-3).
+    I chose the [HUZZAH32 Feather](https://oreil.ly/aySPa) from Adafruit. It has some
+    impressive specs like more than 500KB of SRAM and 4MB of flash in addition to
+    the integrated WiFi support. The sensor is the same TMP36 we used in [“Sensors
+    and Analog Input”](ch09.xhtml#smallerc-CHP-9-SECT-2.1). I also added an OLED display
+    so I could watch the output without being tied to a computer to access the Serial
+    Monitor, but this display is definitely optional. [Figure 12-1](#smallerc-CHP-12-FIG-iot-wiring-pic)
+    shows the wiring diagram and my actual “station” up and running on a breadboard.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1201](Images/smac_1201.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 12-1\. Connecting the HUZZAH32, TMP36, and OLED
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The OLED uses a library provided by Adafruit that you can import through the
+    Manage Libraries dialog of the IDE. Enter **`SSD1306`** in the search field and
+    look for the “Adafruit SSD1306” library. It should be close to the top.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We also need to pick a cloud service provider and find a library for communicating
+    with them. I use [Adafruit.io](https://io.adafruit.com) for these types of projects,
+    but any IoT cloud service will likely work. AWS, Google, and Azure all have IoT
+    solutions, for example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For Adafruit.io, we can use the Library Manager to find our communication library.
+    Search for “adafruit io arduino” and then scroll down a bit to find the actual
+    library called “Adafruit IO Arduino.” Installing this library requires quite a
+    few dependencies, such as the HTTP and message queue libraries, but the Library
+    Manager will handle that for you automatically and prompt you to install those
+    dependencies. You might have some of the listed dependencies like the NeoPixel
+    library already, but the Library Manager isn’t quite smart enough to show only
+    the missing ones. When you do install the dependencies, though, only those that
+    are missing will be added.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'I won’t go through the details of signing up, but once you have an account
+    with your chosen provider, you’ll almost certainly need a few credentials to configure
+    the library. Adafruit.io, for example, requires a unique username and access key.
+    Let’s put this cloud service information in a separate [*config.h*](https://oreil.ly/t6UO6)
+    file where we can also include our WiFi details:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Happily, that library also contains a more generic WiFi library as a dependency.
+    That double duty is nice for us—we don’t have to go through separate steps to
+    configure both the WiFi and our access to the cloud. But we do still have to do
+    a little bit of setup work to make sure we can communicate with the cloud. We’ll
+    add that code in with the stuff necessary to use our nifty OLED display in the
+    `setup()` function. As always, feel free to type this in yourself, or grab [*ch12/temp_web/temp_web.ino*](https://oreil.ly/muYAu):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_next_next_steps_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Include the various header files needed to communicate with the libraries that
+    draw on our OLED.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_next_next_steps_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: With the credentials from *config.h*, create an I/O object (`io`) and establish
+    a connection to the Adafruit IO service, then specify which feed we will update.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_next_next_steps_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instantiate our `display` object using constants and referencing the `Wire`
+    library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_next_next_steps_CO1-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Attempt to connect to the display. If that fails, print an error message and
+    do not continue. If you do get stuck here, it’s likely a problem in your wiring.
+    Double-check the connections and make sure your display also has power.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_next_next_steps_CO1-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Make sure we can use the feed from ![2](Images/2.png). Wait (potentially forever)
+    until it’s ready. If you can’t connect, you might try using your credentials in
+    a browser to verify the combination of user and key works. You can also test out
+    your WiFi connection with a separate project. Under the File menu in the IDE,
+    look for the Examples submenu, find your board, and pick something simple like
+    *HTTPClient*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_next_next_steps_CO1-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Read the current analog value from our TMP36 sensor and update the average,
+    running temperature.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![7](Images/7.png)](#co_next_next_steps_CO1-7)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Update our display with some nice text on the temperature and the current cloud
+    status. The API for this display is similar to the functions we use with `Serial`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![8](Images/8.png)](#co_next_next_steps_CO1-8)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once a minute, report the simple temperature in Fahrenheit to our feed. The
+    next time through `loop()`, we’ll note the update in our status line on the OLED.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can certainly turn controllers like the HUZZAH32 into their own web servers
+    and just get readings directly in your browser, but services like Adafuit.io make
+    it easy to get fancier reports, such as the small graph of temperatures over a
+    few minutes shown in [Figure 12-2](#smallerc-CHP-12-FIG-iot-graph). These services
+    typically support connecting to yet more services as well. For example, [If This
+    Then That (IFTTT)](https://ifttt.com) allows you to use events reported to Adafruit.io
+    to trigger actions like sending an email or turning on smart home devices.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1202](Images/smac_1202.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 12-2\. Graph of our reported temperatures
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This little project is just the briefest of introductions to the Internet of
+    Things. Heck, just the fun combinations possible through IFTTT could fill their
+    own book. IoT books and blog posts abound, covering everything from user interface
+    design for small devices to enterprise mesh configurations. This is a fun, dynamic
+    area, and you certainly have the skills to dive in if you’re curious to learn
+    more.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Arduino Source Code
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: There are so many neat Arduino projects out there and so many of their authors
+    are doing it for the joy of creating. They put their hardware specs and source
+    code online and actively participate in the [Arduino forums](https://forum.arduino.cc).
+    I heartily encourage you to read some of that source code. You have the skills
+    to understand the code in those projects now, and seeing how other programmers
+    tackle problems can help you learn new tricks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can also access the [source code](https://oreil.ly/ekC2v) behind the many
+    boards supported out of the gate by the Arduino IDE. The various ArduinoCore packages
+    cover the C and C++ content that goes into the Arduino “language” we discussed
+    in [“The Arduino Environment”](ch09.xhtml#smallerC-CHP-9-SECT-1). It’ll be dense
+    reading, to be sure, but you might be surprised how much of the basics you can
+    pick up.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Other Microcontrollers
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Of course, Arduino isn’t the only microcontroller game in town. Mitchel Davis
+    has a really [enjoyable series](https://oreil.ly/iN1Fj) on YouTube documenting
+    his journey from programming on Arduino to more limited controllers like the STM8\.
+    His examples are often in C, and you can see some of the more arcane topics we
+    covered like bit-wise operators on full display.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Going the other direction toward more powerful controllers, the [Raspberry Pi](https://raspberrypi.org)
+    platform deserves a mention as well. These tiny computers are full-fledged desktop
+    systems capable of running a complete Linux distribution—including running all
+    of the developer tools like *gcc*. What’s more, Pis come with the same kinds of
+    GPIO (general purpose I/O) connections as the microcontrollers we’ve worked with
+    in this book. You can use the same types of sensors and outputs and write C programs
+    to drive them. And you get to compile those programs right on the hardware where
+    the peripherals are attached! You can take some of the really clever projects,
+    such as the [MagicMirror](https://oreil.ly/p4emq), and add motion detectors so
+    the mirror lights up only when someone is nearby to make use of it, making it
+    even more magical.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If nothing else, I hope this book has given you the confidence to try tackling
+    these types of projects. It’s a gratifying world that lends itself to mastery.
+    Unlike enterprise engineering projects that literally span the globe, you can
+    concentrate on really learning the details of something like the Metro Mini controller
+    from so many of our examples. You don’t need eight different toolchains to get
+    that LED blinking. You don’t need a dozen programmers to debug a photoresistor
+    night-light. As one of the reviewers for this book, Alex Faber, put it, there’s
+    no cruft to get in the way of the craft. I couldn’t agree more.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Industry C/C++
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'You also aren’t limited to tinkering with C at home. Arthur C. Clarke’s many
+    futures (*2001: A Space Odyssey*, *2010: Odyssey Two*) are now our past, but computers
+    and artificial intelligence figure quite prominently in our present. If you are
+    interested in pursuing C programming as a career, search any tech job site and
+    you will find hundreds of jobs for C programmers from entry level positions to
+    senior architects. You can intern with a Linux kernel group or help program embedded
+    controllers. You can get a job working on tiny toy drones or program sensors that
+    keep the world’s largest factories running.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Legacy code maintenance still requires good C programmers and pays well enough
+    for said programmers to build a nice financial legacy for their progeny. Gaming
+    systems need really, *really* fast code for both the game engines and the consoles
+    they run on.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Supercomputers and microcontrollers both make use of C in a variety of environments.
+    While it might be more obvious that microcontrollers need efficient code, massive
+    supercomputers want every possible cycle of CPU (or, these days, GPU) time to
+    go toward completing their calculations. C excels at providing that level of control,
+    and companies know they need programmers who excel at making their expensive machines
+    go fast. Just about any field you can think of these days is computerized, and
+    anywhere they are pushing the limits of hardware (the tiniest, the deepest, the
+    coldest, the fastest, etc.), you can find C programmers helping push those boundaries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Back to the Future
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Many languages have cropped up since C was first developed in the 1970s. Many
+    more languages will undoubtedly appear in the years and decades to come. C remains
+    so relevant precisely because of that extra control and speed it provides. Many
+    more “advanced” languages like Java retain the ability to load native libraries
+    written in C with the same kinds of header files we wrote for Arduino. Go can
+    also call C functions. Working on embedded systems with Rust, but that one component
+    only has C support? Rust can pull in C as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Just about everywhere you go in the computer programming world these days, you
+    will find C. From its ubiquitous control statements to integration via native
+    libraries, knowing C connects you to so much more of this world than you probably
+    imagined. All I can say in closing is that I hope you keep imagining. Imagine
+    new projects. Imagine new libraries. And then get that imagination running on
+    hardware. C is a great tool for reifying those digital dreams. After working through
+    this book, I hope you feel confident using it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch12.xhtml#idm45018711193992-marker)) Again from Adafruit, I used the
+    [Gemma M0](https://oreil.ly/ZQ5JB) and carved up one of their [144 LED/meter](https://oreil.ly/HlJGk)
+    RGBW strips to sew the hourglass onto a shirt. I powered the whole thing with
+    a [USB battery pack](https://oreil.ly/2fpE0) and barely dented the charge after
+    more than four hours of continuous operation.
+  prefs: []
+  type: TYPE_NORMAL

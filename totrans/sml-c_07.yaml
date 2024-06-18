@@ -1,0 +1,767 @@
+- en: Chapter 7\. Libraries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'One of C’s best qualities is the minimal adornment present in its compiled
+    code. A favorite snipe at some more modern languages like Java is the size of
+    the “Hello, World” program. Our very first program back in [“Creating a C ‘Hello,
+    World’”](ch01.xhtml#smallerc-CHP-1-SECT-2.2) takes up a little over 16Kb on my
+    Linux machine without any optimizations. Achieving the same output from a standalone
+    executable on the same system using Java, though, requires tens of megabytes and
+    much, much more effort to build. That’s not an entirely fair comparison since
+    the Java hello application needs the entire Java runtime baked into the executable,
+    but that’s also the point: C makes it easy to create lean code for a given system.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: That ease is great when we’re tackling small things like “Hello, World” or even
+    most of the examples from past chapters. But as we get ready to jump into the
+    world of microcontrollers and Arduino, we’re left worrying about re-creating our
+    own solutions to some pretty mundane problems. For example, we’ve written some
+    of our own functions to compare strings. We wrote a fancier program to encode
+    base64 content. That stuff is fun, but do we always have to do this type of work
+    from scratch?
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Happily, the answer to that question is: no. C supports the notion of using
+    a *library* for quick, friendly expansion of its capabilities—without losing its
+    lean profile for the final executable. A library is a bundle of code that can
+    be imported into your projects to add new capabilities, like working with strings
+    or talking to a wireless network. But the key to using libraries is that you only
+    need to add the one that contains the features you need. That Java hello application
+    would have latent support for creating an entire graphical interface and opening
+    network connections, even though they would not be used just to print some text
+    in a terminal window.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: With Arduino, for example, you’ll find libraries for most of the popular sensors
+    like temperature components or light-level resistors and outputs like LEDs and
+    LCD displays. You won’t have to write your own device driver to use a piece of
+    electronic paper or change the color of an RGB LED. You can load up a library
+    and get to work on *what* you want to display on that e-paper, and not worry about
+    *how*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The C Standard Library
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We have already used a couple libraries on our path to this point in the book.
+    Even our very first program needed the *stdio.h* header for access to the `printf()`
+    function. And our most recent work on pointers in [Chapter 6](ch06.xhtml#smallerc-CHP-6)
+    required the `malloc()` function found in the *stdlib.h* header. We didn’t have
+    to do much to get access to those bits. Indeed, we just wrote an `#include` statement
+    at the top of our program and off we went!
+  prefs: []
+  type: TYPE_NORMAL
+- en: The reason these functions are so easy to incorporate is that they belong to
+    the C standard library. Every C compiler or development environment will have
+    this library available. It may be packaged differently on different platforms
+    (such as including or excluding the math functions), but you can always count
+    on the overall content being ready for inclusion. I can’t cover everything in
+    the library, but I do want to highlight some useful functions and the headers
+    that provide them. In [“Putting It Together”](#smallerc-CHP-7-SECT-2), I’ll also
+    cover where to look for other libraries that tackle a wider range of features.
+  prefs: []
+  type: TYPE_NORMAL
+- en: stdio.h
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Obviously we’ve been using the *stdio.h* header from the very start. We have
+    already used the two most useful functions (for our purposes): `printf()` and
+    `scanf()`. The other functions in this header revolve around access to files.
+    The microcontrollers we’ll be working with in the coming chapters do sometimes
+    have filesystems, but the types of programs we’ll be writing won’t need that particular
+    feature. Still, if you do want to work with files on a desktop or high-powered
+    microcontroller, this header is a good place to start!'
+  prefs: []
+  type: TYPE_NORMAL
+- en: stdlib.h
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We have also seen a few functions from *stdlib.h*, namely `malloc()` and `free()`.
+    But this header has a few more useful tricks worth mentioning.
+  prefs: []
+  type: TYPE_NORMAL
+- en: atoi()
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'In [“Command-Line Arguments and main()”](ch05.xhtml#smallerc-CHP-5-SECT-7.2),
+    I gave you an exercise to convert a string to a number. The “extra credit” note
+    mentioned using *stdlib.h* to get access to C’s standard conversion function:
+    `atoi()`. There are two other converters for other base types: `atol()` converts
+    to a `long` value, and `atof()` converts to a floating point type, but contrary
+    to the final letter in the function’s name, `atof()` returns a `double` value.
+    (You can always cast that to the lower-precision `float` type if needed.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The solution to that extra exercise, [*ch07/sum2.c*](https://oreil.ly/x8J8O),
+    highlights just how simple converting can be if you include the necessary header
+    file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Pretty easy! Which is, of course, the hope in using a library function like
+    this. You *could* write this conversion code yourself, but you can save a lot
+    of time (and a fair amount of debugging) if you can find an appropriate library
+    function to use instead.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Do be a little careful with these functions. They stop parsing the string when
+    they hit a nondigit character. If you attempt to convert the word “one” to a number,
+    for example, that parsing stops immediately and `atoi()` (or the others) will
+    return a 0 without any errors. If 0 can appear as a legitimate value in your string,
+    you’ll need to add your own validity checks before calling them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: rand() and srand()
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Random values play a fun role in many situations. Want to vary the colors of
+    your LED lamp? Want to shuffle a virtual deck of cards? Need to simulate potential
+    communication delays? Random numbers to the rescue!
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `rand()` function returns a pseudorandom number between 0 and a constant
+    (well, technically a *macro*; more on these in [“Special Values”](ch09.xhtml#smallerC-CHP-9-SECT-1.1)),
+    `RAND_MAX`, also defined in *stdlib.h*. I say “pseudorandom” because the “random”
+    number you get back is the product of an algorithm.^([1](ch07.xhtml#idm45018721966312))
+  prefs: []
+  type: TYPE_NORMAL
+- en: A related function, `srand()`, can be used to *seed* the random number generating
+    algorithm. The “seed” value is the starting point for the algorithm before it
+    goes hopping around producing a nice variety of values. You can use `srand()`
+    to supply new values every time your program runs—using the current timestamp,
+    for example—or you can use the seed to produce a known list of numbers. That might
+    seem like a strange thing to want, but it can be useful in testing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s try out these two functions to get a feel for their use. Take a look
+    at [*ch07/random.c*](https://oreil.ly/sst4C):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And let’s compile and run it to see the output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: On my system, then, the maximum value returned by `rand()` is 2147483647\. The
+    first number we generate should be between 0 and 2147483647, and so it is. The
+    second number we generate will be in the same range, but it comes after we provide
+    a new seed value to `srand()`, so hopefully it’s different than `r1`, and that
+    bears out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But look at those first two “random” numbers in the output of our second run.
+    They’re exactly the same! Hardly random. As I mentioned, `rand()` is a pseudorandom
+    generator. The default seed for the generating algorithm is 1 if you never call
+    `srand()`. But if you call it with a constant like 5, that’s no better. It will
+    be a different sequence of numbers, but every time you run the program it will
+    be the same “different” sequence.
+  prefs: []
+  type: TYPE_NORMAL
+- en: So, in order to get different pseudorandom numbers, you need to provide a seed
+    that changes every time you run your program. The most common trick is to do what
+    I did by including yet another header, *time.h* (see [“time.h”](#smallerc-CHP-7-SECT-1.5))
+    and pull in the current timestamp (seconds since January 1, 1970). As long as
+    we don’t manage to start the program twice in one second, we’ll get new sequences
+    each run. You can see that seed turned out fine in the two runs above as the third
+    number is indeed different between them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With that better seed^([2](ch07.xhtml#idm45018721851352)) in place, subsequent
+    calls to `rand()` should look random from execution to execution. We can see that
+    benefit with the PIN we generate for our final random number. The PIN is bounded
+    using a popular trick for getting a random number in a range. You use the remainder
+    operator to make sure you get an appropriately limited range, and then add a base
+    value. For the PIN to have exactly four digits, we use a base of 1000 and a range
+    of 9000 (0 to 8999 inclusive).
+  prefs: []
+  type: TYPE_NORMAL
+- en: exit()
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The final function from *stdlib.h* that I want to highlight is the `exit()`
+    function. In [“Return values and main()”](ch05.xhtml#smallerc-CHP-5-SECT-7.1)
+    we looked at using the `return` statement to end your program and optionally return
+    a value from the `main()` function to provide some status information to the operating
+    system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There is also a separate `exit()` function that takes an `int` argument that
+    is used for the same exit code value as the `return` statement in the `main()`
+    method. The difference between using `exit()` and returning from `main()` is that
+    `exit()` can be called from any function and immediately quits the application.
+    For example, we could write a “confirmation” function that asks the user if they
+    are sure they want to quit. If they answer with a `*y*`, then we can use `exit()`
+    at that point rather than returning some sentinel value to `main()` and then using
+    `return`. Take a look at [*ch07/areyousure.c*](https://oreil.ly/W5lIr):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And here is the output from two runs:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice that when we use `exit()`, we don’t go back to the `main()` function
+    or even finish the code in our `confirm()` function itself. We really do exit
+    the program and supply an exit code to the operating system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inside `main()`, by the way, it mostly doesn’t matter whether you use `return`
+    or `exit()`, although the former is more “polite.” (For example, any cleanup from
+    completing the `main()` function will still run if you use `return`. That same
+    cleanup would be skipped if you use `exit()`.) It is also worth noting that simply
+    making it to the end of the `main()` body as we have been doing all along is a
+    fine and popular way to finish your program when there were no errors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: string.h
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Strings are so common and so useful that they even have their own header file.
+    The *string.h* header can be added to any program where you need to compare or
+    manipulate strings beyond simply storing and printing them. This header describes
+    more functions than we have time to cover here, but there are some import utilities
+    we want to highlight in [Table 7-1](#smallerc-CHP-7-TABLE-string-lib).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 7-1\. Useful string functions
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Function | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strlen(char *s)` | Calculate the length of a string (not including the final
+    null character) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strcmp(char *s1, char *s2)` | Compare two strings. Return -1 if s1 < s2,
+    0 if s1 == s2, and 1 if s1 > s2 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strncmp(char *s1, char *s2, int n)` | Compare at most n bytes of s1 and
+    s2 (results similar to strcmp) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strcpy(char *dest, char *src)` | Copy src to dest |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strncpy(char *dest, char *src, int n)` | Copy at most n bytes of src to
+    dest |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strcat(char *dest, char *src)` | Append src to dest |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `strncat(char *dest, char *src, int n`) | Append at most n bytes of src to
+    dest |'
+  prefs: []
+  type: TYPE_TB
+- en: We can demonstrate all of these functions in a simple program, [*ch07/fullname.c*](https://oreil.ly/dzycy),
+    by asking the user for their full name in pieces and (safely!) putting it together
+    at the end. If we find we’re interacting with Dennis M. Ritchie, we’ll thank him
+    for writing C.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And an example run:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Give this program a try yourself. If you do enter Dennis’s name (including
+    the period after his middle initial: “M.”), do you get the thank-you message as
+    expected?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: It’s a common mistake to set the maximum number of characters to concatenate
+    in `strncat()` to the length of the source string. Instead, you should set it
+    to the maximum number of characters remaining in your destination. Your compiler
+    may warn you about this mistake with a “specified bound X equals source length”
+    message. (X, of course, would be the bound you specified when calling `strncat()`.)
+    It’s just a warning, and you might well have exactly the length of your source
+    remaining. But if you see the warning, double-check that you didn’t use the source
+    length by accident.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As another example, we can revisit the notion of default values and overwriting
+    arrays from [“Initializing strings”](ch04.xhtml#smallerc-CHP-4-SECT-1.2.1). You
+    can delay the initialization of a character array until you know what the user
+    has done. We can declare—but not initialize—a string, use it with `scanf()`, and
+    then go back to the default if the user didn’t give us a good alternate value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s try this with a question about the background color of some future, amazing
+    application. We might assume a dark theme with a black background. We can prompt
+    the user for a different value, or have them simply hit the Return key without
+    entering a value if they want to keep the default. Here’s [*ch07/background.c*](https://oreil.ly/a89Jd):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_libraries_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Declare a string with enough capacity, but don’t set it to anything.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_libraries_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Get input from the user and store it in our array.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_libraries_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the array is empty after prompting the user, store our default.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_libraries_CO1-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Show the final value, either from the user or from our default.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'And here are some sample runs, including one where we keep the black background:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If you are inviting the user to supply a value, just remember to allocate sufficient
+    room in your array to contain whatever response the user might give you. If you
+    can’t trust your users, `scanf()` has another trick that you can deploy. Just
+    like the format specifiers in `printf()`, you can add a width to any input field
+    in `scanf()`. For our previous example, say, we could change to an explicit limit
+    of 19 (saving room for that final `''\0''` character):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Easy peasy. It does look quite dense, but it’s a nice option for limited devices
+    where you might not be able to allocate a lot of extra space in case of verbose
+    users.
+  prefs: []
+  type: TYPE_NORMAL
+- en: math.h
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The *math.h* header declares several useful functions for performing a variety
+    of arithmetic and trigonometric calculations. [Table 7-2](#smallerc-CHP-7-TABLE-math-lib)
+    includes several of the more popular functions. All of these functions return
+    a `double` value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 7-2\. Handy functions from *math.h*
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Function | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Trigonometric Functions |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `cos(double rad)` | Cosine |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `sin(double rad)` | Sine |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `atan(double rad)` | Arctangent |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `atan2(double y, double x)` | Two-argument arctangent (angle between positive
+    X axis and point (x,y)) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Roots and Exponents |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `exp(double x)` | *e*^x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `log(double x)` | Natural logarithm (base *e*) of x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `log10(double x)` | Common logarithm (base 10) of x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `pow(double x, double y)` | x^y |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `sqrt(double x)` | Square root of x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Rounding |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `ceil(double x)` | Ceiling function, next bigger integer from x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `floor(double x)` | Floor function, next smaller integer from x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Signs |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `fabs(double x)`^([a](#idm45541405640408)) | Return the absolute value of
+    x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| ^([a](#idm45541405640408-marker)) Oddly, the absolute value function for
+    integer types, `abs()`, is declared in *stdlib.h*. |'
+  prefs: []
+  type: TYPE_TB
+- en: 'For any situation where you want an `int` or `long` answer, you just have to
+    cast. For example, we could write a simple program ([*ch07/rounding.c*](https://oreil.ly/rEMTv))
+    to average several integers and then round them to the nearest `int` value like
+    this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Since we (may) need to help the compiler with this library, let’s take a look
+    at the compile command:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Again, *math.h* declares functions in the C standard library, but those functions
+    are not necessarily implemented in the same place as other functions. The binary
+    containing most of the functions we’re discussing is *libc* (or *glibc* for GNU’s
+    version). However, on many systems, the math functions live in a separate binary,
+    *libm*, which requires that trailing **`-lm`** flag to make sure the compiler
+    knows to link in the math library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Your system may differ. There’s no harm in trying to compile without the **`-lm`**
+    option to see if your system automatically includes *libm* (or has all of the
+    functions already included in *libc*). If you try compiling without the flag and
+    you don’t get any errors, you’re in good shape! If you do need the library flag,
+    you’ll see something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Try it yourself (with or without the library flag as needed). You should get
+    85 as an answer. If rounding is something you do often, you can write your own
+    function to simplify things and avoid littering your code with the slightly clunky
+    business of adding the 0.5 value before calling `floor()` and casting the result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: time.h
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'This header gives you access to a number of utilities to help with determining
+    and displaying time. It uses two types of storage for handling dates and times:
+    a simple timestamp (with a type alias, `time_t`, representing the number of seconds
+    since January 1, 1970, UTC) and a much more detailed structure, `struct tm`, with
+    the following definition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'I won’t be using this nifty structure with all the separated fields, but it
+    can be useful if you are doing any work with dates and times, like you might find
+    in a calendaring application. I will be using timestamps from, uh, time to time,
+    as we’ve already seen in [“rand() and srand()”](#smallerc-CHP-7-SECT-1.2.2) for
+    supplying a changing seed to the `srand()` function. [Table 7-3](#smallerc-CHP-7-TABLE-time-lib)
+    shows some functions that work with these simple values:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 7-3\. Working with timestamps
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Function | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `char *ctime(time_t *t)` | Return a string of the local time |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `struct tm *localtime(time_t *t)` | Expand a timestamp into the detailed
+    structure |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `time_t mktime(struct tm *t)` | Reduce a structure to a timestamp |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `time_t time(time_t *t)` | Return the current time as a timestamp |'
+  prefs: []
+  type: TYPE_TB
+- en: The definition of that last function, `time()`, might look a little weird. It
+    both takes and returns a `time_t` pointer. You can call `time()` with either a
+    `NULL` value or with a valid pointer to a variable of type `time_t`. If you use
+    `NULL`, the current time is simply returned. If you supply a pointer, the current
+    time is returned, but the variable pointed to is also updated with the current
+    time. We only need the `NULL` option for our work with random numbers, but you’ll
+    stumble on a few utility functions that use this pattern. It can be useful if
+    you are working with heap memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ctype.h
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Many situations where you process input from users require you to validate that
+    the input conforms to some expected type or value. For example, a ZIP code should
+    be five digits and a US state abbreviation should be two uppercase letters. The
+    *ctype.h* header declares several handy functions for checking individual characters.
+    It also has two helper functions that convert between upper- and lowercase. [Table 7-4](#smallerc-CHP-7-TABLE-ctype-lib)
+    highlights several of these functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 7-4\. Working with characters using *ctype.h*
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Function | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Testing |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `isalnum(int c)` | Is `c` a numeric character or a letter |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `isalpha(int c)` | Is `c` a letter |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `isdigit(int c)` | Is `c` a decimal digit |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `isxdigit(int c)` | Is `c` a hexadecimal digit (case-insensitive) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `islower(int c)` | Is `c` a lowercase letter |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `isupper(int c)` | Is `c` an uppercase letter |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `isspace(int c)` | Is `c` a space, tab, newline, carriage return, vertical
+    tab, or form feed |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Conversion |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `tolower(int c)` | Return the lowercase version of `c` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `toupper(int c)` | Return the uppercase version of `c` |'
+  prefs: []
+  type: TYPE_TB
+- en: 'Don’t forget your Boolean operators! You can easily expand these tests to ask
+    questions like “is not whitespace” with the `!` operator:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: As with the math functions and getting a `double` result where you need an `int`,
+    the conversion functions in *ctype.h* return an `int`, but you can easily cast
+    it to a `char` as needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Putting It Together
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Let’s pull in a few of these new headers and use some of the topics from previous
+    chapters to make a more rounded example. We’ll create a structure to store information
+    on a simple bank account. We can use the new *string.h* utilities to add a name
+    field to each account. And we’ll use the *math.h* functions to calculate a sample
+    compound interest payment on the balance of the account. Here are the includes
+    this example will require:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: With our headers ready, let’s dive in and get the program itself going.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Filling In Strings
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s start our example by creating our account type including a string “name”
+    field. The new `struct` is simple enough:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can now use our string functions to load up `name` with actual content after
+    our structure is created. We can also use `malloc()` to create that structure
+    in a function and return the address of our account. Here’s the new function,
+    with some of the safety checks omitted just for readability:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice I chose to use `strncpy()` here. The idea is that I cannot guarantee
+    the incoming `name` parameter will fit. Since I wrote the entire program, of course,
+    I certainly can guarantee that detail, but that’s not the point. I want to make
+    sure if I ever allow user input, say, by prompting the user for details, my `create()`
+    function has some safeguards in place.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Let’s go ahead and create a function to print our account details. Hopefully,
+    this code looks familiar from our work in [Chapter 6](ch06.xhtml#smallerc-CHP-6).
+    We can also start our `main()` function to try out everything we’ve written so
+    far:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let’s compile and run [*ch07/account1.c*](https://oreil.ly/i8vvr). Here’s our
+    output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hooray! So far, so good. Next up is figuring out an interest payment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Finding Our Interest
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Using the `pow()` function from the *math.h* library, we can calculate a monthly
+    compounded interest in one expression. I know I was taught this formula in high
+    school, but I still have to look it up online any time I actually need to use
+    it. Then we’ll update `main()` to add a year’s worth of interest (at 5%) to our
+    account and print out the details again. Here are the new parts from [*ch07/account2.c*](https://oreil.ly/EAOwS):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'That’s looking pretty good! Let’s compile and run *account2.c*. If your system
+    needs the **`-lm`** math library flag, be sure to add it when you compile:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Everything worked! Although you are reading the final output from my code *after*
+    I fixed the various little mistakes I made while writing it. I reversed the order
+    of the source and destination strings in `strncpy()`, for example. It’s rare to
+    get everything right the first time. The compiler will usually let you know what
+    you got wrong. You just head back to your editor and fix it. Getting comfortable
+    with mistakes—and with fixing them!—is one of the reasons I encourage you to type
+    in some of these examples. Nothing like actually writing code to get better at
+    writing code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Finding New Libraries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There are many more libraries out there for your consumption than I can possibly
+    cover here. Indeed, there are more functions just in the C standard library; you
+    can dig much deeper with the [GNU C Library](https://oreil.ly/58fLM) documentation
+    online.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Beyond the standard library, though, there are other libraries that can help
+    with your projects. For those situations where you want a specialized library,
+    your best bet these days is to search online. If you want to interact directly
+    with a USB-connected device, for example, you could search for “C USB library”
+    and wind up with the nifty *libusb* from [*https://libusb.info*](https://libusb.info).
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can also find some lists of popular libraries, but those lists vary in quality
+    and upkeep. Sadly, there is no central repository for “all things C” like one
+    has with some languages. My advice is to look over the search results for links
+    to reputable sites like [GitHub](https://github.com) or [gnu.org](https://gnu.org).
+    And don’t be afraid to just read through the source code of the library. If anything
+    you see raises a flag, pay attention. Most times you’ll be getting exactly what
+    you expected, but a little caution is always advisable when using things you find
+    online.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Helping you get better at writing code is certainly one of the goals for this
+    book. We’ve covered a number of the more common and popular libraries (and the
+    header files that we must include to make use of their functions) in this chapter.
+    There are certainly more libraries out there! Hopefully, you see how libraries
+    and headers interact with your own code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll be tackling microcontrollers next, and we’ll start looking at writing
+    *tighter* code along the way. Good code isn’t necessarily a prerequisite for doing
+    optimization work, but it sure helps. Feel free to review some of the examples
+    from past chapters before forging ahead. Try making some changes. Try breaking
+    things. Try fixing the things you broke. Every successful compile should count
+    as a notch in your programmer belt.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch07.xhtml#idm45018721966312-marker)) That algorithm is deterministic
+    and while that’s fine for most developers, it is not truly random.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch07.xhtml#idm45018721851352-marker)) I don’t have space to cover good
+    generators, but searching online for “C random generator” will net you some interesting
+    options. There are better algorithms such as Blum Blum Shub or a Mersenne Twister,
+    but you can also find hardware-dependent generators that are better still.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,1320 @@
+- en: Chapter 2\. Storing and Stating
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The essence of programming is the manipulation of data. A programming language
+    provides humans an interface for telling the computer what that data is and what
+    you want to do to that data. Languages designed for powerful machines may hide
+    (or infer) a lot of the details about storing data, but C remains fairly simple
+    in this regard. Perhaps simple is the wrong word, but its approach to data storage
+    is straightforward while still allowing for complex manipulation. As we’ll see
+    in [Chapter 6](ch06.xhtml#smallerc-CHP-6), C also provides the programmer with
+    a window into the low-level aspects of where the data is stored in the computer’s
+    memory. When we start working directly with microcontrollers in the latter half
+    of this book, that access will become more important.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For now though, I want to tackle some of the basics of C’s syntax so that we
+    can start composing original programs rather than just copying lines of code from
+    a book. This chapter has plenty of those lines, and you are heartily encouraged
+    to copy them as you read! But hopefully, we’ll get to the point where you can
+    create novel answers to your own programming challenges.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If you already feel comfortable with programming from your experience in another
+    language, feel free to skim this chapter. You should read [“printf() and scanf()”](#smallerc-CHP-2-SECT-3)
+    on the `printf()` and `scanf()` functions, but other sections will likely be familiar.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Statements in C
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Another concept you hear about as a fundamental element of programming is the
+    notion of an *algorithm*. Algorithms are sets of instructions that process data
+    and generally get things done on computers. One classic analogy for an algorithm
+    is a kitchen recipe. Given a set of ingredients, here are the individual steps
+    you take to turn those ingredients into something like a cake. In programming,
+    those “individual steps” are statements.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In C, statements come in a variety of flavors. In this chapter, I’ll be looking
+    at declaration statements, initialization statements, function calls, and comments.
+    Later chapters will tackle control statements and not-quite statements like creating
+    your own functions and preprocessor commands.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Statement Separators
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Statements are separated from each other using a semicolon. Semicolons in C
+    work a lot like periods do in English. Long sentences in English might span multiple
+    lines, but you know to keep going until you see a period. Likewise, you might
+    have several short sentences bunched up together on a single line, but you can
+    easily distinguish them based on those periods. It can be easy to forget the semicolon
+    at the end of a statement. If each statement fits on its own line, it becomes
+    tempting to assume the compiler “sees” the same structure that humans can so easily
+    pick out. Unfortunately, the compiler cannot. Even with our first, very simple
+    program from [“Creating a C ‘Hello, World’”](ch01.xhtml#smallerc-CHP-1-SECT-2.2),
+    the statement we used to print out some text in our terminal window needs to end
+    with a semicolon. If you’re curious, try deleting that semicolon, save your file,
+    and then recompile it. You’ll end up with something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Yuck. An error. But at least the error message is useful. It tells us two critical
+    things: *what* went wrong (“expected ‘;'' after expression”) and *where* the compiler
+    had trouble (“hello.c:4:27”, or the *hello.c* file, line 4, column 27). I don’t
+    want to scare you off with an error message so early in your exploration of C,
+    but you will definitely run into them. A lot. Happily, it just means you need
+    to look at your source code a little closer and then try again.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Statement Flow
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The separators tell the compiler where one statement ends and where the next
+    begins. That order matters, too. The flow of statements is top to bottom, or left
+    to right if multiple statements are on the same line. And multiple statements
+    are definitely allowed! We can quickly expand our simple “Hello, World” program
+    to be a little more verbose.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: When you have the time and energy, I highly recommend transcribing the source
+    code by hand. This will give you a little more practice with C’s syntax. You’ll
+    often make a mistake or two, as well. Spotting and fixing those mistakes is a
+    great way to learn! Even if those mistakes can be a little frustrating from time
+    to time.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Consider the following program, [*ch02/verbose.c*](https://oreil.ly/wqnYC):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_storing_and_stating_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We start with a very similar statement to the one we used in *hello.c*. The
+    only real difference is the text we print. Note that we end the line with our
+    semicolon separator.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_storing_and_stating_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We have a second `printf()` statement similar to the first. It will indeed be
+    executed second.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_storing_and_stating_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: And just to drive the point home, this third statement will be called after
+    the first two. And the last two calls will come after this one.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here’s the output of our simple multiline upgrade:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Nice. You can see how the output precisely follows the order of the statements
+    in our program. Try switching them around and confirm for yourself that the flow
+    of the program goes top to bottom. Or try putting two `printf()` calls on the
+    same line. This isn’t meant to be tricky. I just want you to practice writing,
+    running, and compiling code as often as possible. The more examples you try, the
+    better you’ll get at avoiding the simple mistakes and the easier it will be to
+    follow along with new code examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Variables and Types
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We can do much more than just print text, of course. We can also store and
+    manipulate data as we work to implement an algorithm or perform a task. In C (and
+    in most languages), you store data in *variables*, which are powerful tools in
+    problem solving. Those variables have *types*, which dictate what kinds of data
+    you can store. Both of these concepts figure heavily in two of the statement flavors
+    I mentioned: declarations and initializations.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A variable is a placeholder for a value. A variable can hold simple values like
+    numbers (how many students are in the class? what’s the total cost of the items
+    in my shopping cart?) or more complex things (what’s the name of this particular
+    student? what are each student’s grades? or even an actual complex value like
+    the square root of –1). Variables can store data received from users, and they
+    allow you to write programs that can solve general problems without rewriting
+    the program itself.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Getting User Input
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We’ll be exploring the details of defining and initializing variables shortly,
+    but let’s first run with that idea of getting some input for the user to create
+    dynamic output without recompiling our program every time. We’ll return to our
+    “Hello, World” program and upgrade it a little. We can ask the user to give us
+    their name and then greet them personally!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You’ve seen one output statement so far, our `printf()` function call we used
+    to greet the planet. There is a counterpart, input function, too: `scanf()`. You
+    can use print/scan pairs to prompt the user and then wait for them to type in
+    an answer. We’ll store that answer in a variable. If you have done some programming
+    in other languages, this next program should look familiar. If you’re new to programming
+    and to C, the listing may be a little dense or weird—and that’s OK! Typing in
+    these programs and getting them to run after fixing any typos you make is a useful
+    way to learn.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'A lot of programming is just thoughtful plagiarism. That’s a bit of a joke,
+    but only a bit. You start out much the way humans start out with spoken language:
+    repeating something you see (or hear) without necessarily understanding everything
+    about it. If you perform that repetition enough, you discover the patterns inherent
+    in the language and learn where you can make useful changes. Make enough of those
+    useful changes, and you discover how to create new, meaningful things from scratch.
+    That is our goal.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This [*ch02/hello2.c*](https://oreil.ly/OrUqu) program is simply another bit
+    of code you can copy as you start down the path of programming discovery:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hopefully, the structure of this program looks familiar. We include our standard
+    I/O library, we have a `main()` function, and that function has a body with multiple
+    statements inside a pair of curly braces. That body, though, contains several
+    new items. Let’s go through each line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here is our first example of the declaration of a variable. The variable’s name
+    is, well, “name”. Its type is `char`, which is what C uses to refer to a single
+    (ASCII) character.^([1](ch02.xhtml#idm45018742699768)) It is also an *array*,
+    meaning it stores multiple `char` values in sequence. In our case, 20 such values
+    can be stored. More on arrays in [Chapter 4](ch04.xhtml#smallerc-CHP-4). For now,
+    just note that this variable can keep a person’s name as long as it is less than
+    20 characters long.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is a fairly standard `printf()` call—very similar to the one we used in
+    our first program back in [“Creating a C ‘Hello, World’”](ch01.xhtml#smallerc-CHP-1-SECT-2.2).
+    The only meaningful difference is the last characters inside the set of double
+    quote marks. If you look at *hello.c* or *verbose.c*, you’ll notice the last two
+    characters are a backslash and the letter “n”. The combination of those two characters
+    (`\n`) represents a single “newline” character. If you add `\n` at the end, you
+    are printing one line and any subsequent call to `printf()` will go on the next
+    line. Conversely, if you omit the `\n`, the cursor in the terminal stays on the
+    current line. This can be handy if you want to do things like print out a table
+    but do so one table cell at a time. Or, in our case, if you want to prompt the
+    user for some input, and then allow them to enter their response on the same line
+    as the question.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here is that new function I mentioned at the beginning of this section. The
+    `scanf()` function “scans in” characters and can convert them into C data types
+    like numbers, or in this case, an array of characters. Once converted, `scanf()`
+    expects to store each “thing” in a variable. In this line, then, we’re scanning
+    for a bunch of characters and we’ll store them in our `name` variable. We’ll look
+    at the very strange syntax of the stuff inside the parentheses in [“printf() and
+    scanf()”](#smallerc-CHP-2-SECT-3).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And lastly, we want to print our greeting. Again, this should look familiar,
+    but now we have more strange syntax. If the `%s` jumps out at you as the same
+    weird thing that was in the call to `scanf()`, congrats! You just spotted a very
+    useful pattern. That pair of characters is exactly what C uses when printing or
+    scanning an array of characters. An array of characters is such a common type
+    in C that it has a simpler name: string. Hence the use of an “s” in this pair.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: So what’s happening with `name`? The `scanf()` call took whatever name you typed
+    in (not including the Return key^([2](ch02.xhtml#idm45018742586888)) you pressed)
+    and stored it in memory. Our `name` variable contains the memory location of those
+    characters. When we come along with our `printf()` call, our first argument (the
+    `"Well hello, %s!\n"` part) contains a few literal characters such as those in
+    the word “Well” and a placeholder for a string (the `%s` part). Variables are
+    great for filling placeholders. Whatever name you typed in will now be displayed
+    back to you!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Also notice that we do include the special `\n` newline here on our greeting.
+    That means we’ll print the greeting and then “hit the Return key” so that anything
+    else to be shown in the terminal will go on the next line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s go ahead and run the program to see how things work. You can use the Terminal
+    tab at the bottom of VS Code, or the Terminal or Command app for your platform.
+    You’ll need to compile it first with `gcc` then run either `a.out` or whatever
+    name you chose using the `-o` option. You should get something similar to [Figure 2-1](#smallerc-CHP-2-FIG-hello2).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Notice that when you type in a name, it appears on the same line as the prompt
+    asking you to enter it. That is exactly what we wanted when we left off the newline
+    (`\n`) character. But try running it again and type in a different name. Did you
+    get the results you expected? Try a third time. This dynamic behavior of responding
+    to user input makes variables invaluable in computer programming. The same program
+    can produce different output based on different input without being recompiled.
+    That ability, in turn, has helped make computer programs invaluable to our everyday
+    lives.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0201](Images/smac_0201.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 2-1\. Our tailored Hello World output
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Strings and Characters
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s look a little closer at the `char` type as well as its close cousin,
+    the array of characters—`char[]`—better known as a string. When you declare a
+    variable in C, you give it both a name and a type. The simplest declaration looks
+    something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Here we create a variable named `response` with a type of `char`. The `char`
+    type holds one character. We could store a “y” or an “n”, for example. [Chapter 5](ch05.xhtml#smallerc-CHP-5)
+    will go through the memory address and reference details, but for now, just remember
+    that a variable declaration sets aside a spot in memory with enough space to store
+    one of whatever type you specified. If we had a series of questions to ask, then
+    we could create a series of variables:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Each of these variables can hold one character. But again, when you use a variable,
+    you don’t have to predict or decide what that character will be in advance. The
+    contents can vary. (Vary…variable…get it? :)
+  prefs: []
+  type: TYPE_NORMAL
+- en: C compilers determine which encoding your source characters use. Older compilers
+    use the older ASCII^([3](ch02.xhtml#idm45018742503880)) format while more recent
+    compilers typically use UTF-8\. Both encodings include lower- and uppercase letters,
+    numbers, and most of the symbols you see on your keyboard. To talk about a specific
+    character rather than a variable of type `char`, you use single quotes to delimit
+    it. For example, `'a'`, `'A'`, `'8'`, and `'@'` are all valid.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Special characters
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: A character can also be special. C supports things like tabs and newlines. We’ve
+    seen the newline character (`\n`), but there are also a few other special characters
+    listed in [Table 2-1](#smallerc-CHP-2-TABLE-special-chars). These special characters
+    are coded using “escape sequences,” and the backslash is known as the “escape
+    character”.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2-1\. Escape sequences in C
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Char | ASCII | Name | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \a | 7 | BEL | Make the terminal “beep” when printed |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \n | 10 | LF | Line Feed (standard line ending on Mac and Linux) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \r | 13 | CR | Carriage Return (when used with `\n`, common line ending on
+    Windows) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \t | 15 | HT | (Horizontal) Tab |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \\ | 92 |  | Used to place a literal backslash in a string or char |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \'' | 39 |  | Used to place a literal single quote in a char (no escape required
+    in a string) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| \” | 34 |  | Used to place a literal double quote in a string (no escape
+    required in a char) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *This is not an exhaustive list, but covers the characters we will use in
+    this book.* |'
+  prefs: []
+  type: TYPE_TB
+- en: 'These named shortcuts only cover the most popular characters. If you have to
+    use other special characters, say an end of transmission (EOT, ASCII value 4)
+    signal from a modem, you can give the character’s ASCII value in octal with the
+    backslash. Our EOT character, then, would be `''\4''`, or sometimes you see three
+    digits: `''\004''`. (Since ASCII is a 7-bit encoding, three octal digits cover
+    the highest ASCII character. Which, if you’re curious, is delete (DEL, ASCII 127)
+    or `''\177''` as an octal escape sequence. Some folks prefer the consistency of
+    always seeing three digits.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You might not need many of these shortcuts, but since Windows path names use
+    the backslash character, it’s important to remember that some characters require
+    this special prefix. And, of course, the newline character will continue to show
+    up in many of our print statements. As you may have noticed with the octal escape
+    sequences, the prefixing backslash is included inside the single quotes. So a
+    tab is `'\t'` and the backslash is `'\\'`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Strings
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Strings are a series of `char`s, but a very formalized series. Many programming
+    languages support such series, called arrays. [Chapter 4](ch04.xhtml#smallerc-CHP-4)
+    introduces arrays in much more detail, but the array of `char` type—`char[]` in
+    C syntax—is so common that I want to mention it separately.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ve been working with strings without being very explicit about them. In our
+    very first hello program, we called `printf()` with a string argument. A string
+    in C is a collection of zero or more `char`s with a special, final “null” character,
+    `\0` (with the ASCII value of 0). You typically include the characters in your
+    code between double quotes, such as our `"Hello, world!\n"` argument. Happily,
+    when you use those double quotes, you don’t have to add the `\0` yourself. It
+    is implicit in the definition of a string literal.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Declaring string variables is as simple as declaring `char` variables:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Each of these variables could store simple things like a name, or more complex
+    things like a multipart title, e.g., “Senior Code and Tasty Pie Developer.” A
+    string can also be empty: “”. That may seem silly, but think about forms where
+    you are entering things like names. If you happen to be a wildly successful pop
+    star with just one name, the `lastname` variable above could be given the valid
+    value `""` (i.e., just the terminating `''\0''`) to indicate that Drake and Cher
+    are doing just fine without a surname.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Numbers
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Not surprisingly, C also has types that can store numeric values. Or more precisely,
+    C has types for storing numbers larger than what typically fits in variable of
+    type `char`. (Even though the examples in this chapter so far have used `char`
+    for storing actual characters, it’s still a numeric type and is good for storing
+    small numbers that have nothing to do with a character encoding.) C breaks these
+    numeric types into two subcategories: integers and floating point numbers (i.e.,
+    decimals).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integer types
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: The integer types store simple numbers. The main type is called `int`, but there
+    are many variations. The main difference in the variations is the size of the
+    biggest number that can be stored in a variable of the given type. [Table 2-2](#smallerc-CHP-2-TABLE-types-and-sizes)
+    summarizes the types and their storage capacities.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2-2\. Integer types and their typical sizes
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Type | Bytes | Range | Notes |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| char | 1 | –127 to +127 or 0 to 255 | Normally for letters; can also store
+    small numbers |'
+  prefs: []
+  type: TYPE_TB
+- en: '| short | 2 | –32,767 to +32,767 |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '| int | 2 or 4 | –32,767 to +32,767 or –2,147,483,647 to +2,147,483,647 | Varies
+    by implementation |'
+  prefs: []
+  type: TYPE_TB
+- en: '| long | 4 | –2,147,483,647 to +2,147,483,647 |  |'
+  prefs: []
+  type: TYPE_TB
+- en: '| long long | 8 | –9,223,372,036,854,775,807 to +9,223,372,036,854,775,807
+    | Introduced in C99 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *While `char` is defined as one byte, the other sizes are system dependent.*
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: Most of the types above are *signed* types,^([4](ch02.xhtml#idm45018742299128))
+    which means that they can store values less than zero. All five types also have
+    an explicit *unsigned* variation (e.g., `unsigned int` or `unsigned char`) that
+    is the same size in bits/bytes but does not store negative values. Their ranges
+    start at zero and end at roughly double the top of the signed range, as shown
+    in [Table 2-3](#smallerc-CHP-2-TABLE-unsigned-sizes).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2-3\. Unsigned integer types and their typical sizes
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Type | Bytes | Range |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| unsigned char | 1 | 0 to 255 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| unsigned short | 2 | 0 to 65535 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| unsigned int | 2 or 4 | 0 to 65535 or 0 to 4,294,967,295 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| unsigned long | 4 | 0 to 4,294,967,295 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| unsigned long long | 8 | 0 to 18,446,744,073,709,551,615 |'
+  prefs: []
+  type: TYPE_TB
+- en: Here are some sample integer type declarations. Note the declaration of the
+    `x` and `y` variables. You often see coordinates on a grid or graph discussed
+    in terms of “x and y.” C allows you to declare multipe variable names with the
+    same type using a comma to separate them. There’s nothing special about this format,
+    but if you ever have some short, related variable names, this might be a nice
+    option.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you have small values to store, say “up to one dozen” or “top 100,” remember
+    that you can use the `char` type. It is only 1 byte in length and the compiler
+    doesn’t care if you ever print the value as an actual character or as a simple
+    number.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Floating point types
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If you are storing fractional or financial numbers, you can use the `float`
+    or `double` types. These are both floating point types where the decimal point
+    is not fixed (e.g., it can float), capable of storing values like 999.9 or 3.14\.
+    But because we are talking about computers that think in discrete chunks, the
+    floating point types store an approximation of the value encoded in 1s and 0s
+    like an `int`. The `float` type is a 32-bit encoding that can store a wide range
+    of values from very small fractions to very large exponentials. But `float` is
+    most accurate in a narrow band between roughly –32k to 32k and six significant
+    places after the decimal point.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `double` type has “double” the precision of a `float`.^([5](ch02.xhtml#idm45018742233528))
+    This means roughly 15 decimal digits will be accurately represented. We’ll see
+    a few places where this approximation can cause problems, but for general purposes
+    like a receipt total or a reading from a temperature sensor, these types are sufficient.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As with the other types, you place the type before the name:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Since normal decimal numbers can also store integral values like 6 (as 6.0),
+    it might be tempting to use `float` for your default numeric type. But manipulating
+    numbers encoded with decimal points can be expensive on tiny CPUs like an Arduino.
+    And even on big chips, it is still more expensive than working with simple integers.
+    For performance and accuracy reasons, most C programmers stick with `int` unless
+    they have an explicit reason not to.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Variable Names
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Regardless of what type a variable is, it has a name. For the most part, you
+    are free to use any name you want, but there are a few rules you have to follow.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In C, variable names can start with any letter or the underscore character (“_”).
+    After that initial character, a name can have more letters, more underscores,
+    or numbers. Variable names are case sensitive (`total` and `Total` are not the
+    same variable) and are (usually) limited to 31 characters long,^([6](ch02.xhtml#idm45018742180600))
+    although convention keeps them shorter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C also has several *keywords* that are reserved for use by the C language itself.
+    Because the keywords in [Table 2-4](#smallerc-CHP-2-TAB-c-keywords) already mean
+    something to C, they cannot be used as variable names. Some implementations may
+    reserve other words (such as `asm`, `typeof`, and `inline`), but most alternate
+    keywords begin with one or two underscores to help make conflicts with your own
+    variable names unlikely.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2-4\. C keywords
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Reserved words |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| _Bool | default | if | static |'
+  prefs: []
+  type: TYPE_TB
+- en: '| _Complex | do | int | struct |'
+  prefs: []
+  type: TYPE_TB
+- en: '| _Imaginary | double | long | switch |'
+  prefs: []
+  type: TYPE_TB
+- en: '| auto | else | register | typedef |'
+  prefs: []
+  type: TYPE_TB
+- en: '| break | enum | restrict | union |'
+  prefs: []
+  type: TYPE_TB
+- en: '| case | extern | return | unsigned |'
+  prefs: []
+  type: TYPE_TB
+- en: '| char | float | short | void |'
+  prefs: []
+  type: TYPE_TB
+- en: '| const | for | signed | volatile |'
+  prefs: []
+  type: TYPE_TB
+- en: '| continue | goto | sizeof | while |'
+  prefs: []
+  type: TYPE_TB
+- en: 'If you do stumble upon a conflict with a keyword when declaring your variables,
+    you’ll see an error similar to the error you get if you use an invalid variable
+    name, such as one starting with a number:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: That phrase “expected identifier” is a strong indicator your variable is the
+    cause of the error. The compiler was expecting a variable name but found a keyword
+    instead.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Variable Assignments
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'In our *hello2.c* example, we relied on a rather implicit assignment to our
+    `name` variable. As an argument to the `scanf()` function, whatever the user types
+    is stored in that variable. But we can (and often do) make direct assignments
+    to variables. You use the equal sign (“=”) to indicate an assignment like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: You have now successfully stored the value `7` in the variable `total`. Congratulations!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You can overwrite that value at any time, too:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: While back-to-back assignments is a bit wasteful, there is nothing wrong with
+    this snippet of C. The variable `total` will only retain one integer value, though,
+    so the most recent assignment is the winner, `42` in this case.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You often see variables defined and assigned an initial value (*initialized*
+    in programmer-speak) at the same time:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Both `total` and `answer` now have values you can use, but both can still be
+    changed as needed. That’s exactly what variables do.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Literals
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'Those simple values we are plugging into variables in these examples are called
+    *literals*. A literal is just a value that needs no interpretation. Numbers, characters
+    inside single quotes, or strings inside double quotes all count as literals:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hopefully, those first two variable definitions look familiar. But notice when
+    we initialized our string called `label`, we did not give the array a length.
+    The C compiler infers the size from the literal we use in the initialization.
+    In this case, then, `label` is 12 characters long; 11 for the letters in the word
+    “Description” and one more for the terminating `'\0'`. You can give string variables
+    more room if you know you’ll need it later in your code, but you should not specify
+    too little room.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If you do try to assign a string literal that is too long for its `char[]`
+    variable, you’ll likely see a warning from the compiler:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: That’s a fairly specific error, so hopefully you’ll find it easy to fix. Your
+    program will still run, by the way. Notice that the compiler gave you a *warning*
+    rather than an *error* as we’ve seen in some previous examples with compiler problems.
+    Warnings typically mean the compiler thinks you are making a mistake, but you
+    get the benefit of the doubt. It’s usually best to address warnings anyway, but
+    it is not required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: printf() and scanf()
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We have already seen how to print out information using `printf()` and how to
+    accept user input with `scanf()`, but I glossed over many of the details of both
+    functions. Let’s look at some of those details now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: printf() Formats
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The `printf()` function is C’s primary output function. We have already used
+    it for printing simple strings like `"Hello, world\n"`. We also peeked at using
+    it to print a variable in [“Getting User Input”](#smallerc-CHP-2-SECT-2.1). It
+    can print all variable types, you just need to supply the correct *format string*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When we call `printf()`, the first thing we supply is usually a string literal.
+    That first argument is known as the format string. You can have simple strings
+    that are echoed “as is” to the terminal, or you can print (and format) the values
+    of variables. You use the format string to let `printf()` know what’s coming.
+    You do that by including *format specifiers* such as our `%s` from [*ch02/hello2.c*](https://oreil.ly/DcU5k).
+    Let’s print a few of those variables we have been creating while discussing declarations
+    and assignments. Consider [*ch02/hello3.c*](https://oreil.ly/qhIIT):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And here’s the result:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Compare the output to the source code. You can see that we mostly print out
+    the characters in our format string as is. But when we encounter a format specifier,
+    we substitute the value of one of the arguments that follow the format string.
+    Look closely at our first call to `printf()`. We have two format specifiers in
+    the format string. After that string, we supply two variables. The variables fill
+    in the format specifiers in order, left to right. If you check the output, you
+    can see that first line of output does indeed include the value of `count` first,
+    followed by the value of `total`. Neat. And we got the output of our `char` and
+    string variables, too.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you noticed that each type uses a different specifier, congratulations! You’re
+    finding the important differences in these statements. (And if it all still looks
+    a little like gibberish, don’t give up! The patterns—and the things that don’t
+    fit the patterns—will start to stand out as you read and practice more.) In fact,
+    `printf()` has quite a range of format specifiers, as shown in [Table 2-5](#smallerc-CHP-2-TAB-common-specifiers).
+    Some are obvious and are clearly associated with a particular type. Others are
+    a little more esoteric, but that’s what books are for. You’ll memorize the few
+    specifiers you use most often and can always look up the less popular ones when
+    you need them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2-5\. Common format specifier types for `printf()`
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Specifier | Type(s) | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%c` | `char` | Print out a single character |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%d` | `int, short, long` | Print integer values in base 10 (“decimal”) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%f` | `float, double` | Print floating point values |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%i` | `int, short` | Print integer values in base 10 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%li, %lli` | `long, long long` | Print long integer values in base 10 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%s` | `char[]` (string) | Print array of char as text |'
+  prefs: []
+  type: TYPE_TB
+- en: There are other formats as well, but I’ll leave those for later where we need
+    to print out odd or special bits of data. These formats will cover the vast majority
+    of what you need day-to-day. [Appendix B](app02.xhtml#smallerc-APP-B) includes
+    a more detailed discussion of all the formats used in this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tailored Output
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: But what about formatting those values? After all, C uses the phrases “format
+    string” and “format specifier.” You add information to the format specifier to
+    achieve this goal. One of the most common examples of this is printing floating
+    point numbers like bank account balances or analog sensor readings. Let’s give
+    ourselves some interesting decimals and try printing them out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We declare three variables, one `float` and two `double` types. We use the
+    `%f` format specifier in our `printf()` statements. Great! Here’s what we get
+    after compiling and running the program:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Hmm, they all had six decimal places, even though we didn’t specify how many
+    we wanted and none of our variables have exactly six decimal places. To get just
+    the right amount of information, you give the format specifier some extra details.
+    All specifiers can accept both width and precision arguments. Both are optional,
+    and you can supply either or both. The extra details look like a decimal number:
+    *`width.precision`* and these details go between the percent sign and the type
+    character, as shown in [Figure 2-2](#smallerc-CHP-2-FIG-width-precision).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0202](Images/smac_0202.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 2-2\. Implicit casting hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Using both of these options makes a lot of sense for floating point numbers.
+    We can now ask for more or less digits. Try changing the three `printf()` calls
+    in [*ch02/floats.c*](https://oreil.ly/Os37q) like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'I added the vertical bar or pipe character (`|`) just before and after the
+    expanded format specifiers so that you can see just how the width element affects
+    the output. Take a look at the new results:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_storing_and_stating_CO2-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our value, `0.5`, is displayed with two decimal places of precision in a total
+    field width of five characters. Because we don’t need all five spots, one space
+    character is added at the beginning.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_storing_and_stating_CO2-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A longer decimal number is printed within 12 spots. Notice that we get the same
+    six decimal places as we did without specifying any width or precision.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_storing_and_stating_CO2-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An even longer decimal number is shown within 12 spots but includes 10 places
+    of precision. Notice here that 12 is the *total* width—including the spots occupied
+    by the numbers after the decimal point.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: For `printf()`, the precision you request and the actual value you are printing
+    take precedence over the width if given. You regularly see floating point formats
+    like `“%0.2f”` or `“%.1f”` that give you the right number of decimal places within
+    the exact number of spots required. Applying these two example formats to π, for
+    example, would result in `3.14` and `3.1`, respectively.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With other types such as strings or ints, the width option is fairly straightforward.
+    For example, you can print tabular data quite easily, as shown in [*ch02/tabular.c*](https://oreil.ly/nQC7x),
+    by using the same widths regardless of the value being printed like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'With wonderful columnar results:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: Very nice. And notice how I tackled the column labels. I used format specifiers
+    and string literals rather than a single string with the labels manually spaced
+    apart. I did it this way to highlight the use of output widths, even though doing
+    it manually wouldn’t be difficult. In fact, it would be easier to center the labels
+    over these few columns manually. If you’re up for a little exercise, open the
+    *tabular.c* file and try adjusting that first `printf()` to see if you can get
+    the labels centered.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While the width option is straightforward for all types, for nonfloating point
+    formats, the effect of adding the precision option may not be as intuitive. For
+    strings, specifying a precision results in truncating text to fit the given field
+    width. (For `int` and `char` types, it typically has no effect, but your compiler
+    may warn you not to rely on such “typical” behavior.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: scanf() and Parsing Inputs
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'On the flip side of output is input. We took a peek at using the `scanf()`
+    function to do this at the beginning of this chapter in [“Getting User Input”](#smallerc-CHP-2-SECT-2.1).
+    By now you might recognize the `%s` we used in that simple program as a format
+    specifier. That familiarity goes deeper: you can use all of the format specifiers
+    listed in [Table 2-5](#smallerc-CHP-2-TAB-common-specifiers) with `scanf()` to
+    get those types of values from user input.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: There is one important point I need to make about the variables you use with
+    `scanf()`. We got a little lucky scanning for a string in our first example. Strings
+    in C, if you recall, are really just arrays of type `char`. We’ll see more on
+    this topic in Chapters [4](ch04.xhtml#smallerc-CHP-4) and [6](ch06.xhtml#smallerc-CHP-6),
+    but for our purpose here, I’ll just note that arrays are a special case of *pointers*
+    in C. Pointers are special values that refer to the *address* (location) of things
+    in memory. The `scanf()` function uses the address of a variable, not its value.
+    Indeed, the point of `scanf()` is to put a value into a variable. Since arrays
+    are really pointers, you can use a `char` array variable directly. But to use
+    numeric and individual `char` variables with `scanf()`, you have to use a special
+    prefix on the variable name, the ampersand (`&`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'I’ll go into the `&` prefix in a lot more detail in [Chapter 6](ch06.xhtml#smallerc-CHP-6),
+    but it tells the compiler to use the address of the variable—perfect for `scanf()`.
+    Take a look at this small snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Notice the difference in the use of the `name` variable in the `scanf()` line
+    and the use of the `&age` variable. That is solely down to `name` being an array
+    and `age` being a simple integer. This is regrettably one of those things that
+    is easy to forget. Not regrettably, it is easy to fix and the compiler will remind
+    you if you forget:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: When you see this “expects type” error, just remember that `int`, `float`, `char`,
+    and similar nonarray variables always need the `&` prefix when used with `scanf()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Operators and Expressions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: With variables and I/O statements, we now have some really powerful building
+    blocks in our programming toolbox. But storing and printing values is pretty boring
+    as coding goes. We want to start doing some work with the contents of those variables.
+    One of the first rungs up the code complexity ladder is the ability to calculate
+    new values. In C (and many other languages), you can perform calculations with
+    the help of *operators*, symbols that allow you to do things like add, subtract,
+    multiply, or compare (i.e., perform an “operation”) on two or more values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C includes several predefined operators for doing basic mathematic and logic
+    work. (Advanced math and logic can be done by writing your own functions, which
+    we’ll look at in [Chapter 5](ch05.xhtml#smallerc-CHP-5).) With the exception of
+    a special ternary operator (`?:`, discussed in [“The Ternary Operator and Conditional
+    Assignment”](ch03.xhtml#smallerc-CHP-3-SECT-2.3)), C’s operators work with either
+    one or two values. [Figure 2-3](#smallerc-CHP-2-FIG-binary-op) shows how these
+    unary and binary operators fit with values and expressions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0203](Images/smac_0203.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 2-3\. Binary operator syntax
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Notice that you can use operators on more than two values in a sequence, but
+    under the hood, C will be treating that sequence as a series of pairs. In general,
+    operators work with *expressions*. The term “expression” is quite expansive. An
+    expression can be as simple as a literal value or a single variable. It can also
+    be so complex that it requires multiple lines of code to write down. The key thing
+    to remember when you see discussions of expressions is that they have (or will
+    produce) a value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Arithmetic Operators
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Perhaps the most intuitive operators in C are those used for mathematical calculations.
+    [Table 2-6](#smallerc-CHP-2-TABLE-math-ops) shows the operators built into C.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 2-6\. Arithmetic Operators
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Operator | Operation | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `+` | Addition | Add two values |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `-` | Subtraction | Subtract the second value from the first |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `*` | Multiplication | Multiply two values |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `/` | Division | Divide the first value by the second |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%` | Remainder | Find the remainder after dividing the first (integer) value
+    by the second |'
+  prefs: []
+  type: TYPE_TB
+- en: You can do math with literals or variables or expressions, or some combination
+    of those things. Let’s try a simple program to ask the user for two integers and
+    then use those values to do some calculations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Try this short program out yourself. You can type it in or open up the [*ch02/calcs.c*](https://oreil.ly/w13kJ)
+    file. Compile and run and you should get output similar to this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hopefully, most of those answers make sense and fit with your expectations.
+    Some results that seem odd might be our attempt to divide two numbers. Instead
+    of getting a floating point approximation of something like 8.33333, we got a
+    flat-out 8. Remember that the `int` type does not support fractions. If you divide
+    two `int`s, you always get another `int` as the result and any decimal portion
+    is simply dropped. And I do mean dropped, not rounded. A division result of 8.995,
+    for example, would come back as simply 8, and a negative answer, say –7.89, would
+    come back as –7.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Order of Operations
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'But what if we make a more complex expression with two (or more) operators?
+    We can upgrade our program a little to take three integers and combine them in
+    different ways. Check out [*ch02/calcs2.c*](https://oreil.ly/wznGj):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Feel free to tweak the code to try other combinations if you like. As it stands,
+    you can compile and run this program to get the following output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: Do these answers match what you expected? If not, it’s likely due to the *precedence*
+    of different operators. C does not handle large expressions in a simple, left-to-right
+    manner. Some operators are more important than others—they have precedence over
+    lesser operators. C will perform the most important operations first, wherever
+    they are in the expression, before moving on to do the remaining operations. You’ll
+    often see the phrase “order of operations” used when talking about evaluating
+    expressions with a mix of operators.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Multiplication, division, and remainder (`*`, `/`, `%`) operations will all
+    be done before addition and subtraction (`+`, `-`) operations. Where you have
+    a series of the same or equivalent operators, then those calculations are done
+    left to right. Usually that’s fine and we can get the answer we need by being
+    a little careful in how we arrange the parts of our expression. When we can’t
+    rely on a simple arrangement, we can use parentheses to create a specific, custom
+    order of operations. Consider this snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here we have three orderings, but only the final one, `average3`, is correct.
+    The parenthetical expression, `14 + 20`, is evaluated first. One way to think
+    about this is that parentheses have a higher order of precedence than arithmetic
+    operations. You are free to use parentheses anywhere you like, by the way, even
+    if it only adds visual clarity to an otherwise correctly ordered expression.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The notion of “visual clarity” is very subjective. If the parentheses are necessary
+    for calculating the correct answer, then of course you need to use them. If they
+    are not strictly necessary, use them wherever they help you read the expression
+    more easily. It is possible to have too many parentheses, making it more difficult
+    to read your code. Above all, be consistent in your use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Parentheses can also be nested if you have particularly messy expressions similar
+    to some of these:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: In expressions like these, the innermost parenthetical expression, `(1 + 2)`,
+    is evaluated first and then you work your way back out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Type Casting
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'We’ve talked about variable types quite a bit in this chapter, but expressions
+    also have a type, and sometimes that leads to surprises for the uninitiated. Consider
+    this following snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Any guesses at what will show up if we print out `one_third` and `average`?
+    Try creating a small C program to test your theory. Your results should look like
+    this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: But “one third” should be 0.333333 and our average of 12 and 5 should be 8.5\.
+    What happened? Well, the compiler saw a bunch of integers and performed integer
+    math. If you think back to grade school, you may have learned to do long division
+    with remainders, i.e., “3 goes into 1 zero times with a remainder of 3.” For C,
+    that means that integer 1 divided by integer 3 is integer 0. (Recall that the
+    `%` operator will give you the remainder value if you need it.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Is there any way to get the floating point answer we want? Yes! In fact, there
+    are a number of ways to get the right answer. Perhaps the simplest way to do this
+    in our made-up examples is to use floating point literals in the initialization
+    expressions:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Try changing your program, and hopefully you’ll get new, correct output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: But what about cases where we are not using literals? What if we change our
+    average calculation in the snippet to use a third, `int` variable?
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'How could we get the average to come out correctly in this case? C supports
+    *type casting*, which allows you to tell the compiler to treat a value as if it
+    had some other type. Very handy for just this type of situation. We can *cast*
+    our `count` variable as a `float` like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: You put the type you want in parentheses before the value or expression that
+    you want to convert. And now that we have a floating point value in our calculation,
+    the rest of the calculation will be “upgraded” to a floating point expression
+    and we’ll get the correct answer. That process of upgrading is not just a happy
+    accident. The compiler does this on purpose and the process even has a name, *implicit
+    type casting*.^([7](ch02.xhtml#idm45018734580792)) [Figure 2-4](#smallerc-CHP-2-FIG-promotions)
+    shows you the upgrade path for many of the numeric types we have discussed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In any expression with different types involved, the “biggest” type wins and
+    everyone else will be promoted to that type. Notice that you can occasionally
+    lose some important information in such conversions. A negative number will lose
+    its sign if it gets promoted to an unsigned type. Or a long integer might be approximated
+    rather poorly if it gets promoted to `float` or even to a `double`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0204](Images/smac_0204.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 2-4\. Implicit casting hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'As with parentheses that add clarity without changing the calculation, you
+    can always use an explicit cast if it helps you understand what your expression
+    is doing. But note that the order of operations is still in effect. For example,
+    the following statements are *not* all the same:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE42]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you add those lines to your testing program and then print out the three
+    averages, you’ll notice that the first two work fine, but the third does not.
+    Do you see why? The parentheses in the third calculation cause the original, wrong
+    average with all integer types to be performed *before* that wrong answer is promoted
+    to a `float`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: I should also point out that any time you want to move down the promotion ladder
+    to a “smaller” type, you must use an explicit cast. Luckily, the compiler can
+    usually catch these situations and warn you.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Statements comprise the core of any computer language and we’ve seen the basic
+    syntax for how C uses them to assign values, perform calculations, and print results.
+    You may have to get used to including that semicolon at the end of statements,
+    but that’ll start to feel natural before long. Typing in the examples and running
+    them is your best route to that happy feeling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you did try any of the calculating demo programs, you may have been tempted
+    to enter a zero for one of the divisors. (If you weren’t tempted, go try it now!)
+    However, C cannot divide by zero and gives up. You will get an error like “Floating
+    point exception (core dumped)” or a result like “NaN” for “not a number.” How
+    could we prevent such a crash? The next chapter will look at comparison operations
+    and control statements that grant us exactly this ability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch02.xhtml#idm45018742699768-marker)) While some support for wide characters
+    was added to C in the1990s, C generally does not deal well with the more popular
+    UTF character encodings such as UTF-8, UTF-16, etc. Those encodings allow for
+    multibyte characters, and C’s `char` type was built with single bytes in mind.
+    (More on types in [“Strings and Characters”](#smallerc-CHP-2-SECT-2.2).) If you
+    work with international or localized text, you’ll want to research some libraries
+    to help. While I won’t cover localization in detail, I do go into more depth on
+    libraries in general in [Chapter 7](ch07.xhtml#smallerc-CHP-7).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch02.xhtml#idm45018742586888-marker)) You might still see discussions
+    online about including or excluding a “carriage return,” which is just old coder
+    jargon for an end-of-line marker. It is a term inherited from early typewriters
+    which had a literal mechanism to return the paper carriage to a starting position
+    so you could begin the next line of text.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch02.xhtml#idm45018742503880-marker)) American Standard Code for Information
+    Interchange, originally a 7-bit encoding built for Teletype machines. Now with
+    8-bit variants, it is still based on English. Other, more extensible encodings
+    such as Unicode and its UTF-8 option have become the norm.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([4](ch02.xhtml#idm45018742299128-marker)) The `char` type can actually be
+    either signed or unsigned depending on your compiler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([5](ch02.xhtml#idm45018742233528-marker)) These formats were specified by
+    the IEEE (Institute of Electrical and Electronics Engineers). The 32-bit version
+    is called “single precision,” and the 64-bit version is “double.” Higher precisions
+    exist, and the spec ([IEEE 754](https://oreil.ly/rxm00)) continues to be developed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([6](ch02.xhtml#idm45018742180600-marker)) The GNU C compiler, for example,
+    does not impose any limit. But for compatibility and conformity, sticking to much
+    less than 31 characters is still advisable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([7](ch02.xhtml#idm45018734580792-marker)) Sometimes you may hear the terms
+    “type promotion” or “automatic type conversion” as well.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,351 @@
+- en: Preface
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In your hands you’re holding the C++ book that I wish I would have had many
+    years ago. Not as one of my first books, no, but as an advanced book, after I
+    had already digested the language mechanics and was able to think beyond the C++
+    syntax. Yes, this book would have definitely helped me better understand the fundamental
+    aspects of maintainable software, and I’m confident that it will help you too.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Why I Wrote This Book
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: By the time I was really digging into the language (that was a few years after
+    the first C++ standard had been released), I had read pretty much every C++ book
+    there was. But despite the fact that many of these books were great and definitely
+    paved the way for my current career as a C++ trainer and consultant, they were
+    too focused on the little details and the implementation specifics, and too far
+    away from the bigger picture of maintainable software.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'At the time, very few books truly focused on the bigger picture, dealing with
+    the development of large software systems. Among these were John Lakos’s *Large
+    Scale C++ Software Design*,^([1](preface01.xhtml#idm45043124158624)) a great but
+    literally heavy introduction to dependency management, and the so-called Gang
+    of Four book, which is *the* classic book on software design patterns.^([2](preface01.xhtml#idm45043124283376))
+    Unfortunately, over the years, this situation hasn’t really changed: most books,
+    talks, blogs, etc., primarily focus on language mechanics and features—the small
+    details and specifics. Very few, and in my opinion way too few, new releases focus
+    on maintainable software, changeability, extensibility, and testability. And if
+    they try to, they unfortunately quickly fall back into the common habit of explaining
+    language mechanics and demonstrating features.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This is why I’ve written this book. A book that does not, in contrast to most
+    others, spend time on the mechanics or the many features of the language, but
+    primarily focuses on changeability, extensibility, and testability of software
+    in general. A book that does not pretend that the use of new C++ standards or
+    features will make the difference between good or bad software, but instead clearly
+    shows that it is the management of dependencies that is decisive, that the dependencies
+    in our code decide between it being good or bad. As such, it is a rare kind of
+    book in the world of C++ indeed, as it focuses on the bigger picture: software
+    design.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What This Book Is About
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Software Design
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: From my point of view, good software design is the essence of every successful
+    software project. Yet still, despite its fundamental role, there is so little
+    literature on the topic, and very little advice on what to do and how to do things
+    right. Why? Well, because it’s difficult. Very difficult. Probably the most difficult
+    facet of writing software that we have to face. And that’s because there is no
+    single “right” solution, no “golden” advice to pass on through the generations
+    of software developers. It always depends.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Despite this limitation, I will give advice on how to design good, high-quality
+    software. I will provide design principles, design guidelines, and design patterns
+    that will help you to better understand how to manage dependencies and turn your
+    software into something you can work with for decades. As stated before, there
+    is no “golden” advice, and this book doesn’t hold any ultimate or perfect solution.
+    Instead, I try to show the most fundamental aspects of good software, the most
+    important details, the diversity and the pros and the cons of different designs.
+    I will also formulate intrinsic design goals and demonstrate how to achieve these
+    goals with Modern C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Modern C++
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: For more than a decade, we’ve been celebrating the advent of Modern C++, applauding
+    the many new features and extensions of the language, and by doing so, creating
+    the impression that Modern C++ will help us solve all software-related problems.
+    Not so in this book. This book does not pretend that throwing a few smart pointers
+    at the code will make the code “Modern” or automatically yield good design. Also,
+    this book won’t show Modern C++ as an assortment of new features. Instead, it
+    will show how the philosophy of the language has evolved and the way we implement
+    C++ solutions today.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'But of course, we will also see code. Lots of it. And of course this book will
+    make use of the features of newer C++ standards (including C++20). However, it
+    will also make an effort to emphasize that the design is independent of the implementation
+    details and the used features. New features don’t change the rules about what
+    is good design or bad design; they merely change the way we implement good design.
+    They make it easier to implement good design. So this book shows and discusses
+    implementation details, but (hopefully) doesn’t get lost in them and always remains
+    focused on the big picture: software design and design patterns.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Design Patterns
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'As soon as you start mentioning design patterns, you inadvertently conjure
+    up the expectation of object-oriented programming and inheritance hierarchies.
+    Yes, this book will show the object-oriented origin of many design patterns. However,
+    it will put a strong emphasis on the fact that there isn’t just one way to make
+    good use of a design pattern. I will demonstrate how the implementation of design
+    patterns has evolved and diversified, making use of many different paradigms,
+    including object-oriented programming, generic programming, and functional programming.
+    This book acknowledges the reality that there is no one true paradigm and does
+    not pretend that there is only one single approach, one ever-working solution
+    for all problems. Instead it tries to show Modern C++ for what it truly is: the
+    opportunity to combine all paradigms, weave them into a strong and durable net,
+    and create software design that will last through the decades.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: I hope this book proves to be the missing piece in C++ literature. I hope it
+    helps you as much as it would have helped me. I hope that it holds some answers
+    you have been looking for and provides you with a couple of key insights that
+    you were missing. And I also hope that this book keeps you somewhat entertained
+    and motivated to read everything. Most importantly, however, I hope that this
+    book will show you the importance of software design and the role that design
+    patterns play. Because, as you will see, design patterns are everywhere!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Who This Book Is For
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This book is of value to every C++ developer. In particular, it is for every
+    C++ developer interested in understanding the usual problems of maintainable software
+    and learning about common solutions to these problems (and I assume that is indeed
+    *every* C++ developer). However, this book is not a C++ beginner’s book. In fact,
+    most of the guidelines in this book require some experience with software development
+    in general and C++ in particular. For instance, I assume that you have a firm
+    grasp of the language mechanics of inheritance hierarchies and some experience
+    with templates. Then I can reach for the corresponding features whenever necessary
+    and appropriate. Once in a while, I will even reach for some C++20 features (in
+    particular C++20 concepts). However, as the focus is on software design, I will
+    rarely dwell on explaining a particular feature, so if a feature is unknown to
+    you, please consult your favorite C++ language reference. Only occasionally will
+    I add some reminders, mostly about common C++ idioms (such as the [Rule of 5](https://oreil.ly/fzS3f)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: How This Book Is Structured
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This book is organized into chapters, each containing several guidelines. Each
+    guideline focuses on one key aspect of maintainable software or one particular
+    design pattern. Hence, the guidelines represent the major takeaways, the aspects
+    that I hope bring the most value to you. They’re written such that you can read
+    all of them from front to back, but since they’re only loosely coupled, they enable
+    you to also start with the guideline that attracts your attention. Still, they’re
+    not independent. Therefore, each guideline contains the necessary cross-references
+    to other guidelines to show you that everything is connected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Conventions Used in This Book
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The following typographical conventions are used in this book:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Italic*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Indicates new terms, URLs, email addresses, filenames, and file extensions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`Constant width`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Used for program listings, as well as within paragraphs to refer to program
+    elements such as variable or function names, databases, data types, environment
+    variables, statements, and keywords.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**`Constant width bold`**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Shows commands or other text that should be typed literally by the user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*`Constant width italic`*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Shows text that should be replaced with user-supplied values or by values determined
+    by context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This element signifies a tip or suggestion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This element signifies a general note.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Code Examples
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Supplemental material (code examples, exercises, etc.) is available for download
+    at [*https://github.com/igl42/cpp_software_design*](https://github.com/igl42/cpp_software_design).
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you have a technical question or a problem using the code examples, please
+    send email to [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: This book is here to help you get your job done. In general, if example code
+    is offered with this book, you may use it in your programs and documentation.
+    You do not need to contact us for permission unless you’re reproducing a significant
+    portion of the code. For example, writing a program that uses several chunks of
+    code from this book does not require permission. Selling or distributing examples
+    from O’Reilly books does require permission. Answering a question by citing this
+    book and quoting example code does not require permission. Incorporating a significant
+    amount of example code from this book into your product’s documentation does require
+    permission.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We appreciate, but generally do not require, attribution. An attribution usually
+    includes the title, author, publisher, and ISBN. For example: “*C++ Software Design*
+    by Klaus Iglberger (O’Reilly). Copyright 2022 Klaus Iglberger, 978-1-098-11316-2.”'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you feel your use of code examples falls outside fair use or the permission
+    given above, feel free to contact us at [*permissions@oreilly.com*](mailto:permissions@oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: O’Reilly Online Learning
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: For more than 40 years, [*O’Reilly Media*](http://oreilly.com) has provided
+    technology and business training, knowledge, and insight to help companies succeed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our unique network of experts and innovators share their knowledge and expertise
+    through books, articles, and our online learning platform. O’Reilly’s online learning
+    platform gives you on-demand access to live training courses, in-depth learning
+    paths, interactive coding environments, and a vast collection of text and video
+    from O’Reilly and 200+ other publishers. For more information, visit [*http://oreilly.com*](http://oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: How to Contact Us
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Please address comments and questions concerning this book to the publisher:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: O’Reilly Media, Inc.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 1005 Gravenstein Highway North
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Sebastopol, CA 95472
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 800-998-9938 (in the United States or Canada)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 707-829-0515 (international or local)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 707-829-0104 (fax)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We have a web page for this book, where we list errata, examples, and any additional
+    information. You can access this page at [*https://oreil.ly/c-plus-plus*](https://oreil.ly/c-plus-plus).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Email [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com) to comment
+    or ask technical questions about this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For news and information about our books and courses, visit [*http://oreilly.com*](http://oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Find us on LinkedIn: [*https://linkedin.com/company/oreilly-media*](https://linkedin.com/company/oreilly-media).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow us on Twitter: [*http://twitter.com/oreillymedia*](http://twitter.com/oreillymedia).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Watch us on YouTube: [*http://youtube.com/oreillymedia*](http://youtube.com/oreillymedia).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Acknowledgments
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: A book such as this is never the achievement of a single individual. On the
+    contrary, I have to explicitly thank many people who helped me in different ways
+    to make this book a reality. First and foremost, I want to express my deep gratitude
+    to my wife, Steffi, who read through the entire book without even knowing C++.
+    And who took care of our two kids to give me the necessary calm to bring all of
+    this information to paper (I am still not sure which of these two was the bigger
+    sacrifice).
+  prefs: []
+  type: TYPE_NORMAL
+- en: A special thank-you goes to my reviewers, Daniela Engert, Patrice Roy, Stefan
+    Weller, Mark Summerfield, and Jacob Bandes-Storch, for investing their valuable
+    time to make this a better book by constantly challenging my explanations and
+    examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A big thank-you also goes to Arthur O’Dwyer, Eduardo Madrid, and Julian Schmidt
+    for their input and feedback about the Type Erasure design pattern, and to Johannes
+    Gutekunst for the discussions on software architecture and documentation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Furthermore, I want to say thank you to my two cold readers, Matthias Dörfel
+    and Vittorio Romeo, who helped catch many last-second mistakes (and indeed they
+    did).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Last, but definitely not least, a big thank-you goes to my editor, Shira Evans,
+    who has spent many hours giving invaluable advice about making the book more consistent
+    and more fun to read.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](preface01.xhtml#idm45043124158624-marker)) John Lakos, *Large-Scale C++
+    Software Design* (Addison-Wesley, 1996).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([2](preface01.xhtml#idm45043124283376-marker)) Erich Gamma et al., *Design
+    Patterns: Elements of Reusable Object-Oriented Software* (Addison-Wesley, 1994).'
+  prefs: []
+  type: TYPE_NORMAL

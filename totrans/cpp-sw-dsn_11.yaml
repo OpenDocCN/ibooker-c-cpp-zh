@@ -1,0 +1,198 @@
+- en: Chapter 11\. The Last Guideline
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'There is only one more guideline, one more piece of advice that I can bestow
+    upon you. So here it is: the last guideline.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 39: Continue to Learn About Design Patterns'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '“That’s it? This is all you’ve got? Come on, there are so many more design
+    patterns out there. We barely touched the surface!” you say. Well, honestly, you
+    are completely correct; there is nothing I can add to that. But in my defense,
+    I was planning for many more patterns until reality struck me: there is only so
+    much information that you can fit into a book with 400 pages. But don’t fret:
+    in these 400 pages I’ve taken you on a journey through the most important pieces
+    of advice for any design that you will need anywhere, anytime in your software
+    development career:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Minimize dependencies
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Dealing with dependencies is the core of software design. And whatever kind
+    of software you write, if you are seriously interested in making it last, you
+    will have to deal with dependencies: the necessary ones, but primarily the artificial
+    ones. Of course, your major goal is to reduce dependencies and hopefully even
+    minimize them. To achieve this goal, you will inevitably deal with design patterns.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Separate concerns
+  prefs: []
+  type: TYPE_NORMAL
+- en: This may be the most important, central design guideline that you can take away
+    from this book. Separate concerns and your software structures will detangle and
+    become easier to understand, change, and test. All design patterns, without exception,
+    provide you with some way to separate concerns. The major difference between patterns
+    is the way they separate concerns, their *intent*. Although design patterns may
+    be structurally similar, their intent is always unique.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prefer composition to inheritance
+  prefs: []
+  type: TYPE_NORMAL
+- en: While inheritance is a powerful feature, the true strength of many design patterns
+    stems from building on composition. For instance, the Strategy design pattern,
+    one of the patterns that is used *everywhere* (and hopefully this has become obvious
+    by now), primarily builds on composition to separate concerns, but then also offers
+    you the option to use inheritance to extend the functionality. The same is true
+    for Bridge, Adapter, Decorator, External Polymorphism, and Type Erasure.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prefer a nonintrusive design
+  prefs: []
+  type: TYPE_NORMAL
+- en: True flexibility and extendibility arise when it isn’t necessary to modify existing
+    code but possible to just add new code. Therefore, any design that is nonintrusive
+    is preferable to design that intrusively modifies existing code. Hence, design
+    patterns such as Decorator, Adapter, External Polymorphism, and Type Erasure are
+    such valuable additions to your design pattern toolbox.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prefer *value semantics* over *reference semantics*
+  prefs: []
+  type: TYPE_NORMAL
+- en: To keep code simple, understandable, and away from dark corners such as nullptrs,
+    dangling pointers, lifetime dependencies, etc., you should prefer to employ values
+    instead of pointers and references. And C++ is a wonderful language to use for
+    that purpose, as C++ takes value semantics seriously. It allows you, the developer,
+    to live a happy life in the realm of value semantics. Surprisingly, as we have
+    seen with `std::variant` and Type Erasure, this philosophy does not necessarily
+    have a negative performance impact but may even increase performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In addition to these general pieces of advice about software design, you have
+    gained insight into the purpose of design patterns. Now you know what a design
+    pattern is.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A design pattern:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Has a name
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Carries an intent
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Introduces an abstraction
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Has been proven
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Equipped with this information, you will no longer fall for false claims about
+    some implementation detail being a design pattern (as I have been confronted with
+    multiple times in my career), for instance, the claim that smart pointers (`std::unique_ptr`,
+    `std::shared_ptr`, etc.) or factory functions such as `std::make_unique()` are
+    implementations of design patterns. Also, you are now familiar with several of
+    the most important and useful design patterns, which will prove to be useful again
+    and again:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Visitor*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To extend operations on a closed set of types, reach for the Visitor design
+    pattern (possibly realized by `std::variant`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Strategy*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To configure the behavior and “inject” it from outside, pick the Strategy design
+    pattern (aka policy-based design).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Command*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To abstract from different kinds of operations, possibly undoable operations,
+    utilize the Command design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Observer*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To observe state change in some entities, choose the Observer design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Adapter*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To adapt one interface to another one, nonintrusively, without changing code,
+    use the Adapter design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*CRTP*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For a static abstraction, free of virtual functions (and you can’t employ C++20
+    concepts yet), then apply the CRTP design pattern. CRTP might also prove to be
+    useful to create compile-time mixin classes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Bridge*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To hide implementation details and reduce physical dependencies, make use of
+    the Bridge design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Prototype*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To create a virtual copy, the Prototype design pattern is the right choice.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*External Polymorphism*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To promote loose coupling by adding polymorphic behavior externally, remember
+    the External Polymorphism design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Type Erasure*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For the power of External Polymorphism in combination with the advantages of
+    value semantics, consider the Type Erasure design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Decorator*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To nonintrusively add responsibilities to an object, opt for the benefits of
+    the Decorator design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, there are more design patterns. Many more! Also a lot of important
+    and useful design patterns. Therefore, you should continue to learn about design
+    patterns. And there are two ways to do that. First is getting to know more patterns:
+    learn about their intent and about their similarities and differences compared
+    to other design patterns. Also, don’t forget that design patterns are about a
+    dependency structure, not about implementation details. Second, you should also
+    get a better understanding about each pattern and experience their advantages
+    and shortcomings. For that purpose, keep an eye out for design patterns used in
+    the codebases you work on. I promise you, you will find many of them: any attempt
+    to manage and reduce dependencies is very likely proof of a design pattern. So
+    yes, design patterns are everywhere!'
+  prefs: []
+  type: TYPE_NORMAL

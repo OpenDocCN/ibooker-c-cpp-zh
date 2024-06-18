@@ -1,0 +1,1103 @@
+- en: Chapter 11\. Custom Libraries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'We’ve already seen how to include the headers of useful libraries that come
+    with the Arduino IDE as well as how to add third-party libraries for some of the
+    more interesting peripherals and sensors. But as you build up your catalog of
+    microcontroller projects, you’re likely to create some code that you reuse. I
+    regularly employ the maxim that there are only three numbers in the universe:
+    0, 1, and many. If you find a chunk of code you use a second time, you’re in that
+    “many” category and it is probably time to consider making your own library.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: That statement may seem dramatic. It certainly sounds grandiose. Happily, it
+    is a fairly straightforward process and really does make reuse a snap down the
+    road.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I do want to admit that the project in this chapter is bigger than our past
+    projects in every sense. If remote-control robotic cars don’t spike your interest,
+    feel free to skip the bulk of this chapter. I would still recommend reading [“Multifile
+    Projects”](#smallerc-CHP-11-SECT-2) and [“Creating the Library”](#smallerc-CHP-11-SECT-3.4)
+    to get a sense of the steps involved in writing a library for your own use within
+    the Arduino IDE. You can safely skip this chapter in favor of exploring an IoT
+    project in [Chapter 12](ch12.xhtml#smallerc-CHP-12).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating Your Own Library
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: To get started on a custom library, you’ll need some code to reuse. The best
+    way to find reusable code is to create some usable code first. We can kick off
+    a normal project and then extract the parts that seem likely to work well in other
+    projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For this project, we’ll create a motorized car that can be driven with simple
+    forward, backward, left, and right buttons. Once that is all working, we can break
+    out the various “drive” functions into a separate file to highlight how the Arduino
+    IDE works with multiple files. And finally, with a little multifile experience
+    in your back pocket, we’ll make the leap to radio control and see how to encapsulate
+    that communication in a library that can be shared between our car and a separate
+    navigation project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 11-1](#smallerc-CHP-11-FIG-robot-car-pic) shows the setup we’re going
+    to use. I bought these parts from Adafruit, but you can assemble a similar car
+    from other parts just as easily. (See [Appendix B](app02.xhtml#smallerc-APP-B)
+    for the exact part numbers I used.) The physical car is reasonably simple, but
+    definitely requires some assembly. I had to make a trip to my local hardware store
+    for a few of the small machine screws, but the prefabricated chassis from Adafruit
+    sure made things simpler. The chassis has perfect holes and sockets to guide the
+    attachment of both the rear motors and the loose caster on the front. I just rested
+    a breadboard and battery on top, but there are ample spots to mount these with
+    clips, screws, or zip ties.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1101](Images/smac_1101.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-1\. Our robot car
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '[Figure 11-2](#smallerc-CHP-11-FIG-robot-car-wiring) shows the wiring of our
+    microcontroller, navigation joystick, and the DRV8833 motor driver breakout board.
+    There are a lot more connections on this project, but hopefully not so many that
+    you are overwhelmed.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1102](Images/smac_1102.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-2\. Wiring for the robot car
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Robotics in general is a big interest of mine, but the mechanical elements are
+    (way) out of my field of expertise. The extra learning required to pull off this
+    project my first time around was challenging but fun—at least more fun than frustrating.
+    I’ve never worked with motors before, so getting them mounted, powered, and properly
+    connected so I could control them through software certainly required a little
+    trial and error and no small amount of exasperated utterances. But if this particular
+    project does not hold much interest for you, feel free to just follow along with
+    the deconstruction of our code and see how to pull those parts back together in
+    a library. But I will say that the first time you make a wheel spin by pressing
+    a button, you feel like you can conquer the world. :)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If looking at the diagram in [Figure 11-2](#smallerc-CHP-11-FIG-robot-car-wiring)
+    gives you the heebie-jeebies, you can look for robotic car kits that come with
+    all the necessary parts as well as detailed assembly instructions. The kits usually
+    have their own coding instructions, too. Feel free to get the kit running “as
+    is” and get comfortable with the electronics first. Then come back here to work
+    through my code examples and apply them (probably with a few modifications that
+    will reinforce the work we’re doing here) to your fully functioning car.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Preprocessor Directives
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'We’ve seen a couple of preprocessor directives already: `#include` and `#define`
+    are both handled by the preprocessor. And the name “preprocessor” probably gives
+    you a hint about its role in compiling your code. These directives are processed
+    before your code is compiled.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `#include` directive is used to bring in code defined in a separate file.
+    After inclusion, it looks to the compiler as if you had typed in that external
+    file as part of your own code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `#define` directive, as we’ve been using it, puts a human-friendly name
+    on some literal. We can then use the name in our code rather than remembering
+    the correct literal every time. And if we ever need to change that value, say,
+    move an LED connection to a different pin on our controller, we only need to change
+    it once. As with `#include`, the preprocessor replaces each instance of a `#define`
+    name with its literal as though you had typed the literal directly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For our car, let’s use `#define` for the pins on our navigation joystick as
+    we have with other connected peripherals:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'I should point out that you can use `#define` with values other than numbers.
+    Perhaps you have a standard error message or text response. Those can be defined,
+    too:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Knowing how `#define` works with the preprocessor also explains why we don’t
+    put a semicolon at the end. We don’t want the semicolon showing up in our code,
+    after all.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Preprocessor Macros
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: You can take `#define` a step further as well. Not only does it handle strings,
+    it can handle small pieces of logic, almost like a function. These snippets are
+    often referred to as *macros* to distinguish them from actual functions. A macro
+    (or macroinstruction) transforms some bit of input to a corresponding bit of output,
+    typically via substitutions. Macros are not function calls. Macros are not pushed
+    onto or popped off of the stack.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Macros are great when you have a repeated bit of code that just doesn’t rise
+    to the level of needing a function. They are also great when you want your snippet
+    to remain data-type agnostic. For example, consider a simple macro to determine
+    the minimum of two values. Here’s the definition and an example of how to use
+    it:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'To create the macro, we use `#define` and a name, like before, but then we
+    supply a variable (or variables) in parentheses. Whatever arguments you pass to
+    the macro replace the variables in the macro’s snippet. That snippet, in turn,
+    replaces the spot where it was called. It’s as if you had typed the following:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'That simple replacement process can be powerful. But do be careful. Because
+    the replacement is so simple, you can create problems if you pass complex expressions
+    to your macro. If, say, your expression uses an operator of lower precedence than
+    one used in your macro, the intended outcome can be wrong or even uncompilable.
+    You can avoid some of these problems with judicious use of parentheses, like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Even then you can create some odd code by passing just the right (er, wrong)
+    expressions. The GNU documentation on C and the C preprocessor even has an entire
+    section devoted to [macro pitfalls](https://oreil.ly/aKdZT).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We don’t need any macros just yet, but they’re common enough that I want you
+    to recognize them if you find them in the wild. The C preprocessor is actually
+    quite an interesting entity in its own right. It’s a great target for some independent
+    research after you finish this book!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Custom Type Definitions
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Beyond constants and macros, libraries often make use of another feature of
+    C: the `typedef` operator. You can use `typedef` to assign an alias to some other
+    type. That might sound unnecessary, and it technically is, but there are several
+    cases where it is very convenient and leads to more readable, maintainable code.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We saw the use of some of these `typedef` aliases in [Chapter 10](ch10.xhtml#smallerc-CHP-10).
+    The `byte`, `uint8_t`, and `uint32_t` specifiers were all created with `typedef`.
+    If the Arduino environment didn’t provide those for you, you could create them
+    yourself like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The “_t” suffix is popular for these aliases. It’s an easy way to highlight
+    the fact that the name is an alias built with `typedef`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You can also use `typedef` with the `struct` keyword to make more palatable
+    names for your custom, rich data types. For example, we could have used `typedef`
+    in [“Defining Structures”](ch06.xhtml#smallerc-CHP-6-SECT-5.1) and defined our
+    transaction like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This feature is not something strictly necessary for our simple library, but
+    many libraries do use `typedef` to provide names for types that make more sense
+    in the context of the library or that are simply easier to work with. Let’s go
+    ahead and define a type for any variables that might store one of our direction
+    constants:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We’ll stick with the signed version of `char` since we might find uses for
+    negative values down the road. Negative numbers make great error codes if you
+    are otherwise only expecting positive numbers, for example. Now let’s use our
+    new type to create some typed constants:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Recall the discussion of `const` versus `#define` in [“Constants: const versus
+    #define”](ch09.xhtml#smallerc-CHP-9-SIDEBAR-const-define). This is one of those
+    spots where we aren’t really doing anything that demands one approach or the other,
+    but the `const` approach does add some inherent documentation to our code that
+    could be useful to other readers. And I should say that 90% of the time the first
+    “other reader” that sees your code is you, but you after a few weeks or months
+    away from the project. Hints about your intentions like the `direction_t` type
+    can be very useful in jogging your own memory.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our Car Project
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Let’s get going! This will be our “version one” project with some extra abstraction
+    that should help as we break up this project into reusable pieces. (You can take
+    a look at [version 0](https://oreil.ly/Mr2ED) if you want to start with a simple
+    proof of functionality.) As you work with your own project, you may not have the
+    motors wired up exactly as I do. Your navigation input (buttons or a joystick)
+    might be connected a little differently. Test out your setup and don’t be afraid
+    of changing which pins get set `HIGH` or `LOW` in the various driving functions.
+    Happily, that can all be tweaked here in software. The end goal is simply to get
+    your car to roll forward when you push the joystick up.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here’s version 1 of our car build. As always, you can type this up yourself
+    or just open [*ch11/car1/car1.ino*](https://oreil.ly/8kqQL):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Feel free to take a break from the book at this point and just have some fun.
+    :) Can you drive both forward and backward? When you move the joystick left or
+    right, does the car turn the way you want? Can you parallel park between two stuffed
+    animal obstacles? It might feel a little awkward following your car around with
+    the tethered joystick, but we’ll fix that shortly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Multifile Projects
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Welcome back! Hope you managed to safely parallel park your new roadster. With
+    a working program as our baseline, let’s break it up into some reusable parts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C, as a language, does not really worry about where your code lives. As long
+    as *gcc* can find all of the source files, header files, and libraries you mention
+    in your code, it will produce usable output. Creating multifile projects for the
+    Arduino IDE is a little different, however. The IDE manages some integration steps
+    that would normally be left to you on the desktop. Since we’re concentrating on
+    microcontrollers at this point, we’ll stick to what needs to be done in the Arduino
+    IDE. If you are curious about building larger projects outside of Arduino, I’ll
+    again recommend Prinz and Crawford’s [*C in a Nutshell*](https://www.oreilly.com/library/view/c-in-a/0596006977/).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll start by converting our current project into a multifile project with
+    no change in functionality. Then we’ll extend our robot car to support remote
+    radio control and see how powerful shared code can be.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In our small car example, we have several functions devoted to making the car
+    move. Those related functions are perfect for separating into their own file.
+    They all serve a similiar purpose. Their related purpose is not necessary for
+    creating separate files, but it’s a popular means of organizing the pieces of
+    a larger project. A small number of files, each with a small number of functions,
+    can be easier to maintain and debug than a huge file with lots of functions. But
+    if you break up functions randomly, it will be difficult to remember which files
+    contain which functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Arduino IDE gives us a few options for breaking up our projects: we can
+    add new *.ino* files, we can include custom header files, or we can create and
+    then import a custom library. The rest of this chapter looks at all three of these
+    mechanisms.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Code (.ino) Files
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: To start, let’s save this project under a new name so that we have a backup
+    in case something goes awry and we want to refer back to a working project. From
+    the “File” menu in the Arduino IDE, select the “Save As…” option. I chose the
+    highly creative and original name *car2*. You are free to be as creative or even
+    more so if the muse strikes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now let’s take all five of our driving functions and move them to their own
+    file. To add a new file, use the downward pointing triangle button on the right-hand
+    side near the top. That button opens a small menu, as shown in [Figure 11-3](#smallerc-CHP-11-FIG-ide-new-tab).
+    Select “New Tab” from that menu.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1103](Images/smac_1103.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-3\. Creating a new tab in the Arduino IDE
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Next, you’ll be prompted to name the tab, as shown in [Figure 11-4](#smallerc-CHP-11-FIG-ide-name-new-tab).
+    Enter the name **`drive.ino`** in the field and then click the OK button.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1104](Images/smac_1104.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-4\. Naming our new file
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'You should now have a new tab named “drive” (with no suffix showing). Go ahead
+    and cut the five driving functions (including `allstop()`) from the “car2” tab
+    and then paste them into our new “drive” tab. That tab will end up with the following
+    code ([*ch11/car2/drive.ino*](https://oreil.ly/pRodD)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: That’s actually all the work required to separate these pieces of code! You
+    now have your first multifile Arduino project. Click the Verify (checkmark) button
+    to make sure your project still compiles in its new, two-file configuration. Everything
+    should still work. You can even upload this to your controller and still drive
+    your car.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the project does not verify or upload, check to make sure you didn’t drop
+    a curly brace or perhaps grab an extra line from the original file. You should
+    also make sure the name you picked for your newly separated file ends with that
+    *.ino* extension.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Arduino IDE performs a little magic for us with *.ino* files. Our main project
+    file (*car2.ino* in the *car2* folder, in this case) is prepared first. Any other
+    *.ino* files will then be included in alphabetical order. You may have noticed
+    that our *drive.ino* file has no `#include` statements. And yet, we clearly use
+    the pin constants defined in our main file. As far as the compiler is concerned,
+    there is only one large *.ino* file to compile, so successive *.ino* files see
+    all of the functions, `#defines`, and global variables from the files that came
+    before. At this time, there is no way to change the order of the separate *.ino*
+    files; they are always incorporated alphabetically.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Header Files
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: So how can all these separate files work together so seamlessly? The IDE adds
+    one more piece of magic before loading these separate files. It creates a header
+    file with *forward declarations* of all of the functions and global variables
+    in your *.ino* file. Forward declarations are brief descriptions of what your
+    function is named, what parameters it has, and what type of value it will return.
+    They allow separate files to use a function without needing to have its full implementation.
+    Each header, in turn, is automatically included in your main project file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can see the effect of this in our simple two-tab project. The *drive.ino*
+    file does not need to include any extra information to make use of our `#define`
+    pin entries. And the code in our main *car2.ino* file can call the functions defined
+    in *drive.ino* without worrying about the ordering or specific location of the
+    functions. In the end, both files fit together perfectly to complete our project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can also create your own header files. This can be nice for housekeeping.
+    For example, if you have many `#define` statements, you could place them in their
+    own header. Or if you want a low-tech means of sharing some directives between
+    projects, you can make a copy of a header and put it in another project. It is
+    largely up to you what makes the most sense for your own projects. Many successful
+    makers out there have dozens or hundreds of projects each with one single *.ino*
+    file. I just want to make sure you know how to split things into more manageable
+    pieces if that one big file starts to overwhelm you.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In service of that goal, let’s break up our main project just a little more.
+    Let’s try the trick of putting some of our `#define` directives in their own header
+    file. We’ll move the eight pin constants. Create a new tab as before, and name
+    it **`pins.h`** when prompted. The new tab should show the full name of the file,
+    *pins.h*, to help distinguish it from *.ino* files that hide the extension.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Cut the eight `#define` lines and the relevant comments from *car2* and paste
+    them into *pins.h*. The result should look like [*ch11/car2/pins.h*](https://oreil.ly/pwQM6):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now we just need to add an include statement to our *car2* tab at the top of
+    our file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can check your work against my [version 2](https://oreil.ly/EWAV9). Your
+    project should still verify (and upload) just as before. Feel free to give it
+    a try and make sure you can still drive your car.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Pay close attention to the double quotes around our *pins.h* header name. Previous
+    `#include` statements used angle brackets (<>: less than, greater than). The distinction
+    is intentional. The angle brackets tell the compiler to look for the header in
+    the standard include path. Typically, that means you are bringing in a header
+    from a known library.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The quotes tell the compiler the file to be included is in the same folder as
+    the file doing the including. Typically, that means you are bringing in a header
+    file you wrote specifically for this project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Again, divvying up a project is not a requirement or something you always do
+    with large files, but it can be helpful. It allows you to concentrate on one part
+    of your code without accidentally changing another part. If you collaborate with
+    other programmers, working on separate files can also make it easier to combine
+    your efforts at the end. In the end, though, it really is up to you and what you
+    feel comfortable with.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Importing Custom Libraries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Beyond multiple *.ino* and *.h* files, though, you can also build your own Arduino
+    IDE library. If you have code that you want to use in multiple projects or perhaps
+    share with others via public code sites like GitHub, a library is a great choice.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Happily, creating a custom library doesn’t require too much effort. You need
+    at least one *.cpp* file and a matching header (*.h*) file. You can have more
+    files, if needed, as well as a few niceties we’ll discuss in the next section.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Facilitating Communication
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Our robot car is spiffy, but following it around with a tethered joystick is
+    clunky. A *radio-controlled* robot car would be even spiffier! We can do that,
+    and using a library to manage that radio communication is a great way to guarantee
+    we don’t cross any signals—literally. We can use a library to make sure multiple
+    parties have access to common definitions (say, the value for driving “forward”).
+    We can also put the rules of a protocol into a library’s functions. It’s a bit
+    like making sure everyone is speaking the same language.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Libraries can supply more than the vocabulary of this hypothetical language.
+    They can also enforce the rules of conversation. Who speaks first? Who speaks
+    next? Is a response required? Can there be more than one listener? You answer
+    questions like these with the functions you write in your library. As long as
+    two (or more) projects use the same library, the details you encoded in the library’s
+    functions will make sure everyone plays nicely together.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s create a library to send and receive radio signals. We’ll create two separate
+    projects that both use this library. We’ll start by replacing the joystick that
+    is currently wired to our car with a radio component. Then we’ll create a controller
+    project that pairs our newly liberated joystick with a similar radio. This does
+    mean we need two microcontrollers, by the way. I’ll use another Metro Mini, but
+    they don’t have to be identical. If you have some other controller lying around
+    that is compatible with our radio and can use our library, any combination of
+    controllers should work.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Retrofitting Our Car
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Let’s swap out the joystick for a radio transceiver. I’m using the nicely packaged
+    [RFM69HCW](https://oreil.ly/JhUn8) high-power breakout from Adafruit. It’s about
+    $10 and is reasonably straightforward to connect. Plus, it comes with some nice
+    features like encrypted transmissions that can only be decrypted by a similar
+    chip with the same encryption key (that you provide in code). [Figure 11-5](#smallerc-CHP-11-FIG-radio-car-wiring)
+    shows the wiring diagram for our microcontroller, the motor driver, and our radio.
+    I had to relocate several of the DRV8833 connections as the RFM69HCW requires
+    the use of specific pins on our Metro Mini microcontroller (more on that in [“Our
+    radio-control library header”](#smallerc-CHP-11-SECT-3.4.2)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1105](Images/smac_1105.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-5\. Wiring for the robot car with radio transceiver
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Of course the power and ground pins should be connected as well. I used a 9V
+    for the microcontroller (which in turn supplies power to the radio) and a separate
+    power supply for the DRV8833\. The lonely green wire attached to the top of the
+    RFM69HCW is just a three-inch piece of wire serving as the simplest possible antenna.^([1](ch11.xhtml#idm45018712401128))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 11-6](#smallerc-CHP-11-FIG-radio-car-pic) shows the assembled components,
+    all ready to roll with no wires attached!'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1106](Images/smac_1106.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-6\. Our wire-free robot car
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Well, no wires to a joystick, that is. The breadboard is rather lousy with wires.
+    This *is* a bigger project than we’ve tackled so far. If a radio-controlled car
+    isn’t up your alley, feel free to skip to the next chapter. But before you go,
+    check out [“Creating the Library”](#smallerc-CHP-11-SECT-3.4) on creating the
+    library code and its header file.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I’m using two separate power supplies to keep the motors separate from the microcontroller
+    and the radio. If you have more experience powering Arduino projects and want
+    to use a different configuration, go right ahead! The important part is that we
+    have our radio ready to receive driving instructions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a Controller
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We also need a new project to take input from our joystick and send that information
+    out over the radio. [Figure 11-7](#smallerc-CHP-11-FIG-controller-wiring) shows
+    the wiring. Only one battery is required for the controller; the radio can be
+    safely powered from the 5V pin of our microcontroller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1107](Images/smac_1107.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-7\. Wiring for the radio controller
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: I powered the controller with a USB power pack plugged into the Metro Mini.
+    [Figure 11-8](#smallerc-CHP-11-FIG-controller-pic) shows the final result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1108](Images/smac_1108.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-8\. Our wire-free controller
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Not the most glamorous of gadgets, but it does send radio signals! At least,
+    it will once we add a little code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating the Library
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The code for both our car and our controller will require our radio library,
+    so let’s start there. We’ll be creating one header file and one *.cpp* file to
+    accommodate the C++-centric nature of the Arduino IDE. The actual code will still
+    be (mostly) vanilla C, it just needs to live in a file with that *.cpp* extension.
+  prefs: []
+  type: TYPE_NORMAL
+- en: How you go about writing this code is really up to you. You can write everything
+    in one file and then separate out the parts that go into the header (much like
+    we did earlier in this chapter). You can also use the header as a sort of outline
+    or plan. Fill out the header with your constants and names of your functions,
+    then go create the *.cpp* file to implement those functions. Regardless of which
+    path sounds better to you, we need to put the files in a specific place before
+    the IDE will recognize them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The libraries folder
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: We place all of the files for our library inside one folder that goes in the
+    *libraries* folder wherever your Arduino sketches live. On my Linux box, that’s
+    the *Arduino* folder in my home directory. If you’re not sure where that folder
+    is on your system, you can check the preferences in the Arduino IDE. From the
+    File menu, select the Preferences option. You should see a dialog similar to [Figure 11-9](#smallerc-CHP-11-FIG-ide-sketch-location).
+    Notice the “Sketchbook location” toward the top. That’s where the *libraries*
+    folder needs to go. If there isn’t one there already, go ahead and create that
+    now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1109](Images/smac_1109.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 11-9\. The Sketchbook location preference setting
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: It’s actually useful that we’re looking at this folder now, since we need to
+    manually install the library for our radio breakout. It will go in this same folder.
+    I’m using the [radio library](https://oreil.ly/YLphd) written by the folks at
+    Adafruit.^([2](ch11.xhtml#idm45018712345416)) Download the ZIP archive from the
+    green “Code” drop-down button. Unzip that file and rename the resulting folder
+    **`RadioHead`**. Place this *RadioHead* folder in the *libraries* folder, and
+    that’s it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Well, that’s it for the radio library. We still need to make a folder for our
+    own, yet to be written, library. Inside the *libraries* folder, create a new folder
+    and pick a name for your custom library. Since this is a *r*adio *c*ontrol library
+    for a *r*obot *c*ar, and the title of this book ends in those two letters, I chose
+    to name mine *SmalleRC*. You are under no pressure to use such delightful, nerdy
+    puns for your library names, by the way. This is where the “custom” adjective
+    comes in. Customize your library however you like!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our radio-control library header
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Inside your new library folder, then, let’s create our files. I’ll use the second
+    approach and start with the header file, [*SmalleRC.h*](https://oreil.ly/koHtr).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We’ll load the headers we need for our radio work as well as the *Arduino.h*
+    header in case we rely on any Arduino-specific functions in our library code.
+    We’ll define several constants and then provide some function prototypes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_custom_libraries_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll use a header guard like we did with *pins.h*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_custom_libraries_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our library code may need some of the Arduino-specific types or functions, so
+    we include this header. It is automatically included in our main project by the
+    IDE, which is why we haven’t seen this `#include` before.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_custom_libraries_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The SPI ([Serial Peripheral Interface](https://oreil.ly/eZmyO)) header allows
+    us to perform complex communication (i.e., something other than `HIGH` and `LOW`
+    or single values) with a peripheral using only a few wires. We’ll use this type
+    of connection with our radio breakout board. Our microcontroller has very specific
+    pins for SPI, so we don’t have to specify which ones to use. [Figure 11-7](#smallerc-CHP-11-FIG-controller-wiring)
+    shows the correct connections to make.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_custom_libraries_CO1-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll need the RH_RF69 library we just installed to talk to the radio.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_custom_libraries_CO1-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: While SPI takes care of most communication needs, these `define` entries fill
+    in some details needed by the RH_RF69 library to operate our radio, including
+    the frequency to use (`RF69_FREQ`; use 433 MHz in Europe and 868 or 915 MHz in
+    the Americas) and which pins handle the interrupts and resets.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_custom_libraries_CO1-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll define a few of our own constants to help coordinate the initialization
+    of our radio. We’ll distinguish failures in a way that can help us debug any issues.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![7](Images/7.png)](#co_custom_libraries_CO1-7)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can put our `typedef` here so that everyone importing this library has access
+    to the `direction_t` type alias. We’ll also include our directions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![8](Images/8.png)](#co_custom_libraries_CO1-8)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: These are the forward declarations (also called function prototypes) for our
+    library. We’ll need to write the complete functions in our *.cpp* file, and those
+    functions will have the same names and parameters as the ones declared here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: That’s quite a lot of detail in one header file! But that’s what header files
+    are for. In the absence of any other documentation, reading a header file should
+    tell you just about everything you need to know to use a library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: I’m cheating a bit with this header. For an Arduino library that you intend
+    to share with others, you wouldn’t normally dictate the pins to use in connecting
+    peripherals. We have the ability to make this header match up with our physical
+    project, but other users might not have the same controller or the same free pins.
+    See [“Sharing online”](#smallerc-CHP-11-SECT-3.8.3) for some tips on digging deeper
+    into shareable library creation. For libraries meant solely for your own projects,
+    though, you’re allowed a shortcut or two.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our radio-control library code
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'To complete our library, then, we need to write some code and implement the
+    functions that were prototyped in our header file. This code is not very complex,
+    but it does have several novel parts related to enabling and communicating with
+    our radio. You can type it in yourself or pull up [*SmalleRC.cpp*](https://oreil.ly/pc5v4)
+    in your editor:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_custom_libraries_CO2-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Include our recently built header file with all the pins, directions, and radio
+    configuration information.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_custom_libraries_CO2-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a radio control object similar to the NeoPixel objects in previous projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_custom_libraries_CO2-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Initialize the radio. This code is based on the examples included with the library
+    we installed. See [“Sharing online”](#smallerc-CHP-11-SECT-3.8.3) for a few more
+    details on examples and other library documentation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_custom_libraries_CO2-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Part of the radio initialization is setting an encryption key that will make
+    sure only other radios using the same key can communicate with us. These values
+    are exactly those from the example. Feel free to change them, just make sure the
+    key is 16 bytes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_custom_libraries_CO2-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A simple function to broadcast a direction. The radio library expects a packet
+    of `uint8_t` values, so we create a one-element array to match. The library can
+    send longer messages, of course, but we only need to send this single value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_custom_libraries_CO2-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The receiving function to read any directions coming from the controller. Again,
+    the radio library can handle longer messages, but we only need the first byte,
+    which should contain our direction. If there’s no message at all, return `-1`
+    to let the caller know nothing was ready. Otherwise, return the direction we received
+    or `STOP` as a default.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With our custom library in place, we can look at writing the actual projects
+    for the car and the controller. But we sure whizzed through this code! If you’re
+    curious about radio communication, I encourage you to [play with the examples](https://oreil.ly/7YRVZ)
+    from the radio library to get a better feel for what possibilities and limits
+    exist.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Updating the Car Project
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Now we need to write the code for the car. (Feel free to review the physical
+    setup of the car and breakouts in [“Retrofitting Our Car”](#smallerc-CHP-11-SECT-3.2).)
+    Essentially, we are going to replace the logic for polling the joystick with a
+    call to check for data from the radio. We’ll pause for a few milliseconds to avoid
+    starting and stopping the motors too quickly. Otherwise, we’ll run a pretty tight
+    loop so that the car feels responsive to our remote controller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'I based this version ([*car3*](https://oreil.ly/Dk0JC)) on the *car2* project,
+    which had the separate *pins.h* and *drive.ino* files. We no longer need the pins
+    for the joystick in this project, so the header file is a bit shorter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The driving functions are completely unchanged so I’ll leave those out, but
+    you can review the code ([“Code (.ino) Files”](#smallerc-CHP-11-SECT-2.1)) if
+    you want. The code for the main [*car3.ino*](https://oreil.ly/JcLJl) file should
+    feel familiar, but obviously we need to include the header file of our new radio
+    library:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice that I’m using the new navigation constants (like `rc_LEFT`) defined
+    in the *SmalleRC.h* file. But that’s really all the code we need now to drive
+    our car! This is one of the many benefits from separating out chunks of common
+    code. By building on that shared code, you can more quickly create some very interesting
+    projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There’s no good way to test this new *car3* project just yet, but go ahead and
+    upload it to your microcontroller. If nothing else, you can use the Serial Monitor
+    tool to ensure that there were no errors in starting up the radio to receive.
+    I went with the “no news is good news” approach to errors in the `setup()` function,
+    but feel free to alter that a bit to produce a success message if you like.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Now that the Arduino IDE knows about our *SmalleRC* library, you can actually
+    edit the source files of that library in place and then reverify or reupload the
+    project. If you do have some trouble starting the radio, for example, add some
+    debugging calls to `Serial.println()` in *SmalleRC.cpp*. Once you have the problem
+    isolated and solved, you can remove the debugging statements and upload once more.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Getting It Under Control
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Next up is getting the controller programmed. (Again, look back at [“Creating
+    a Controller”](#smallerc-CHP-11-SECT-3.3) if you still need to build the physical
+    remote control.) Here we take the joystick polling and instead of sending the
+    results to the motors, we broadcast any directional information over our radio.
+    This is a pretty small project thanks to the library, so I left it in a single
+    [*ch11/controller/controller.ino*](https://oreil.ly/rSPTh) file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: We could have put the logic of the `readDirection()` function right inside our
+    `loop()` function, but I like how concise `loop()` is with this small abstraction.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Try verifying this new project and if you hit any snags, add a few more `Serial.println()`
+    statements. And remember, you can also add those to your library code if needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: For projects like this, where so much work is done in libraries (not just our
+    custom one, but also libraries like `RF_RH69`) `println()` calls may not help
+    with every problem. Bugs in downloaded libraries do happen, but they’re pretty
+    rare. I find many problems are caused by me getting some of the wiring wrong.
+    So if things still aren’t working, try double-checking your connections between
+    the microcontroller and the various peripherals.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Go Driving!
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: No code. No diagrams. No instructions. Just another point in this chapter where
+    I wholly encourage you to go play. :) Try powering up both projects and see what
+    happens when you move the joystick. There are definitely things that could go
+    wrong! If the wiring isn’t quite right, for example, the car might move, but not
+    in the direction you meant. (I accidentally swapped the right-side motor input
+    pins when moving the project to a full-size breadboard, for example. The right
+    wheel turned, but in the wrong direction.) Or if we have the wrong pins connected
+    to the joystick, we might not send any signal at all.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If the car doesn’t budge, it’s time yet again to break out your debugging skills.
+    You can have both projects connected to your computer at the same time, by the
+    way. They will simply be on different serial ports. (Remember, you can set which
+    port you use for your microcontroller through the Tools menu in the Arduino IDE.)
+    You can use `Serial.println()` statements to make sure your inputs, sends, receives,
+    and drives are all doing what you expect them to do. Just watch out for success!
+    When you do get things working, it’s surprisingly easy to drive your car right
+    off the desk and leave a string of electronics dangling from your USB cable. Or,
+    you know, so I’m told.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Documentation and Distribution
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Once your library is working and you’ve had enough fun zipping around your room,
+    it’s time to think about adding a little documentation to your project. Documentation
+    is great. Not just for other programmers who might use your library, either. If
+    you step away from a project even just for a few days, any documentation you wrote
+    can be surprisingly useful for helping you get your own mind back up to speed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Keywords
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: One very simple piece of documentation that you can add for use with the Arduino
+    IDE is a single text file called *keywords.txt*. For a custom library, it should
+    contain two columns, separated by a tab. The first column contains functions,
+    constants, and data types defined in your library. The second column should contain
+    one entry from [Table 11-1](#smallerc-CHP-11-TAB-keywords-txt) indicating the
+    category of the name in the first column.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 11-1\. Keyword categories for documenting Arduino libraries
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Category Name | Purpose | Appearance |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| KEYWORD1 | data types | orange, bold |'
+  prefs: []
+  type: TYPE_TB
+- en: '| KEYWORD2 | functions | orange, plain |'
+  prefs: []
+  type: TYPE_TB
+- en: '| LITERAL1 | constants | blue, plain |'
+  prefs: []
+  type: TYPE_TB
+- en: While limited, these few categories can still help programmers who rely on the
+    IDE cues for things like whether or not they spelled a function name correctly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For our library, then, we could create the following entries (again, separated
+    by a tab) in our own [*keywords.txt*](https://oreil.ly/o3KjH) file:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: Basically, that list is everything we defined in our *SmalleRC.h* file minus
+    the few constants that were used only by the radio library. If you restart your
+    IDE at this point, the functions and other names listed in the file will share
+    the same syntax highlighting that the core language uses! Very cool.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Be sure to use real tab characters to separate the columns in *keywords.txt*.
+    Spaces will not work. Many editors (like VS Code, for example) have a reasonable
+    setting that turns all tabs into the appropriate number of spaces when the file
+    is saved. There are many reasons that quiet change can be useful in source files,
+    but we don’t want it here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you can’t temporarily disable this feature in your editor of choice, *keywords.txt*
+    really is just a text file. You can create or edit it using any text editor, including
+    very simple ones like Notepad in Windows 10 or TextEdit in macOS.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Including examples
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Including a few example projects with your library is another great addition
+    that doesn’t require too much effort. You simply create an *examples* folder in
+    the folder with your library code and *keywords.txt* file. Inside *examples*,
+    then, you can place a few project folders. (Use the entire folder, not just the
+    *.ino* file inside.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Example projects should be short and sweet. Don’t include unnecessary features
+    that don’t make use of the library if at all possible. You want a new user to
+    see the important parts of your library and how they fit within a sketch. If your
+    library is fairly rich, don’t be afraid of providing several smaller examples
+    that each focus on a particular aspect of the library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Of course, you will find the other end of that “smaller, focused” spectrum in
+    the wild. Sometimes a single example contains a demonstration of every single
+    feature in a library. While these expansive examples do highlight the use of a
+    library, they can make it more difficult for an outsider to extract details. If
+    you’re only trying to learn about one or two of the functions in a library, big
+    examples can be overwhelming.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But any example is better than no examples! If you only have the energy for
+    the single, comprehensive approach, include it. If you host it somewhere public
+    like GitHub, you might even invite other users to contribute some focused examples
+    from their own projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sharing online
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'If you do get serious about sharing your code, you’ll want to check out the
+    official [Library Guide](https://oreil.ly/hB0rX) online, as well as the excellent
+    [Library Specification](https://oreil.ly/uifGf) document. There are a few more
+    things you can add to your library folder if you want it to feel polished. You
+    can even get your library to work with the Library Manager in the IDE. A quick
+    heads-up, though: these docs (reasonably) use C++. C++ has many more facilities
+    for sharing the appropriate parts of your code while hiding the implementation
+    details. There are definitely bits of syntax that will be new to you, but hopefully
+    nothing too overwhelming.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: As a first step toward publishing your library, check out the [FAQ](https://oreil.ly/3y4IT)
+    direct from the Arduino team.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Even if you never publish a library, we have seen how to manage larger projects
+    with several tricks including preprocessor macros, type aliasing, and using multiple
+    tabs in the Arduino IDE. We also covered creating simple libraries that you can
+    manually install on your system to share between your own projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It’s useful to remember that the tab and library stuff is peculiar to the Arduino
+    IDE. Other IDEs or environments may have their own quirks, but you can almost
+    always find a way to use multiple files when needed. The main goal is to keep
+    you productive with whatever tools you choose.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I mentioned that you might want to know a little C++ if you publish any libraries.
+    C++ in general is an excellent topic to explore after this book. In the next chapter,
+    we’ll look at a more advanced project as a stepping-stone out into the wider world.
+    I’ll also suggest a few other topics worth considering as you continue to expand
+    your C and Arduino skills.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch11.xhtml#idm45018712401128-marker)) There are certainly [fancier options](https://oreil.ly/AEvxE)
+    available if you are so inclined or want to communicate over longer distances.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch11.xhtml#idm45018712345416-marker)) *Forked* would be a better verb
+    than *written*. The Adafruit library is based on the [AirSpayce RadioHead](https://oreil.ly/nP82M)
+    library written by Mike McCauley.
+  prefs: []
+  type: TYPE_NORMAL

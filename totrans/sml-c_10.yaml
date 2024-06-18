@@ -1,0 +1,579 @@
+- en: Chapter 10\. Faster Code
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: I mentioned at the very beginning of [Chapter 1](ch01.xhtml#smallerc-CHP-1)
+    that C was designed for machines with limited resources—at least by today’s standards.
+    Microcontrollers have many of those same limitations, making C a pretty natural
+    fit as a development language. Indeed, if you want to get the maximum possible
+    performance out of a tiny chip, C’s ability to work directly with memory addresses,
+    as we saw in [“Addresses in C”](ch06.xhtml#smallerc-CHP-6-SECT-1), is unparalleled,
+    if tedious.^([1](ch10.xhtml#idm45018716293016))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'I’m happy to say that even without diving into the depths of datasheets (seriously
+    technical specifications produced by component and microcontroller manufacturers),
+    you can employ several straightforward tricks to speed up your code. But do remember
+    that sometimes good enough is, well, good enough! Try getting your code going
+    with the patterns you know first. Does your program run? Does it do what you need?
+    If so, the interesting options I highlight in this chapter, such as using integers
+    rather than floating point numbers or unrolling loops, are just that: interesting.
+    They are not really “better” and certainly not necessary. Usually. The Arduino
+    and its cousins are definitely more limited than desktops. Sometimes your program
+    won’t run or doesn’t quite do what you need. In those instances, consider bringing
+    some of the following optimizations to bear.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Setup
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Rather than toss another slew of new gadgets and configurations and wiring diagrams
+    at you, I’m going to focus on a hardware setup similar to our first Arduino projects
+    back in [Chapter 8](ch08.xhtml#smallerc-CHP-8). We’ll use one NeoPixel strip.
+    [Figure 10-1](#smallerc-CHP-10-FIG-optimize-led) shows the usual wiring diagram
+    and my Metro Mini wired (and powered) up.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 1001](Images/smac_1001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 10-1\. Our simple LED setup
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Next, we’ll steal the “breathing” logic from [“Trying Out the Arduino ‘Stuff’”](ch09.xhtml#smallerC-CHP-9-SECT-1.4)
+    and apply it to each pixel in the strip. Rather than start with random colors,
+    we’ll simply assign some nice rainbowy ones. Feel free to tweak the colors, by
+    the way. Pick a palette you will enjoy staring at; we’ll be using this sketch
+    as the basis for every optimization in the chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pull up [*ch10/optimize/optimize.ino*](https://oreil.ly/UHE04) and try it out
+    on your own setup. Be sure to adjust the `LED_PIN` and `LED_COUNT` values if needed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: With this minimal example in place, we can look at some popular techniques for
+    gaining performance. Many of these techniques are squarely in the trade-off realm.
+    Many take up a little extra storage in flash memory or in SRAM in return for speeding
+    up the work you have to do in the `loop()` function. Some, though, are trade-offs
+    involving your time and energy as a programmer. But again, if your program is
+    already working the way you want, there’s not really anything overly superior
+    in the alterations that follow. :)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Floating-Point Versus Integer Math
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: A lot of computer hardware press these days discusses the ever more powerful
+    GPUs (graphics processing units, impressive chips devoted to displaying and manipulating
+    graphics) available from various venders. But not so long ago, you could also
+    talk about separate FPUs, or floating-point units (impressive chips devoted to
+    performing—and speeding up—floating-point calculations).^([2](ch10.xhtml#idm45018716049464))
+    Floating-point math takes power, and it took a while for computers to get generally
+    powerful enough that such niceties could be integrated.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Happily, our computers have really grown in power (while shrinking in size)
+    and Arduino projects do have access to good floating-point support and fancier
+    things that use floating-point math like trigonometric functions. But doing that
+    math still takes more horsepower than doing purely integer math. If you hang around
+    the [Arduino forums](https://oreil.ly/xT1E6), you’ll see anecdotes about floating-point
+    math taking twice (or more!) the time that comparable calculations take with integer
+    operands.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: It’s worth pointing out that on microcontrollers, `float` and `double` are not
+    always 4- and 8-byte types like they usually are on desktops. On the Metro Mini
+    (with a 16MHz ATmega328P chip), for example, both types are 4 bytes. It’s unlikely
+    this fact will cause much trouble, but on the off chance you need really high-precision
+    floating-point numbers, you may need to look for a library to help out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Floating-Point Math Alternatives
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Many times, programmers use floating-point numbers without really considering
+    the costs. Decimal numbers and fractions are everywhere around us: gas gauges,
+    gas prices, tax rates, tip percentages, and on and on and on. It can make sense
+    to use them in some cases, especially when outputting information meant to be
+    read by humans. (For example, we converted the raw voltage readings of our TMP36
+    sensor from [“Segmented Displays”](ch09.xhtml#smallerc-CHP-9-SECT-2.4) to floating-point
+    degrees.)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'But if we are just doing some internal work, and not showing those results
+    to users, sometimes we can get the same results with integers. Consider these
+    two calculations:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Both `six` and `half_a_dozen` will contain the `int` value 6, but multiplying
+    by 0.5 is more expensive. This example is obviously contrived, but only slightly.
+    Let’s look at our `breath` calculation and think about what, exactly, we are trying
+    to do:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: We are taking an ever-increasing count and turning it into a value between 0.0
+    and 1.0. We then multiply that value to give us a “portion” of our various colors.
+    The net result, though, is still a `byte` value. We never use 140.7 units of red,
+    we only use 140\. What we’re really trying to do is convert a value from the range
+    (0 to `RATE`) to a value in the range (0 to 255) along a wave-like curve.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It just so happens that this task is very common for LED applications—it makes
+    for nice fading animations, as we’ve seen. There is a very spiffy `sine8()` function
+    in the NeoPixel library that approximates the sine calculation with `uint8_t`
+    values^([3](ch10.xhtml#idm45018715776888)) as both inputs and outputs. `sine8()`
+    treats the input range of (0 to 255) as if it were the classic radian range of
+    (0 to 2π). In turn, it outputs values between 0 and 255 as though it were the
+    classic (–1 to 1) range of the sine wave.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'That might sound too mathy, but the upshot is that we can get our brightness
+    animation by constraining our (increasing) milliseconds to the range (0 to 255)
+    and using the `sine8()` function to get a cycling value between 0 and 255\. We
+    can then treat `breath / 255` as a fraction with all integer parts. That allows
+    us to apply our `half_a_dozen` trick. Rather than multiply by a floating-point
+    value between 0.0 and 1.0, we multiply by `breath` and then divide by 255:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Slick! But be careful not to use parentheses around our “fraction” `breath /
+    255`. While it might read nicer and highlight the proportional value we’re after,
+    in integer math, dividing a smaller number (something between 0 and 255) by a
+    larger number (always 255) will just give us 0, except for the very last case
+    of 255 / 255, which does result in 1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Integer Math Versus No Math
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'You know what’s better than integer math? No math at all! Sometimes a little
+    planning can make a big difference. Look at how we use the `colors` array. We
+    use the actual, full 32-bit values only once in `setup()`. Inside `loop()`, though,
+    we break up those colors into their respective red, green, and blue parts. And
+    we do that every 10 milliseconds. Yikes! So rather than store single 32-bit values,
+    why not store individual bytes from the get-go? We could use a two-dimensional
+    `byte` array if we want:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We could also store them in a single, simple array and do the tiny amount of
+    math required to get the green and blue index values as needed:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'What’s more, both options save us eight bytes of storage! Since both options
+    require either a second index or a bit of math on the lone index, it’s up to you
+    which feels easier. Here’s how we can alter both the initial show in `setup()`
+    and the more interesting uses in `loop()` with the two-dimensional approach:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: That definitely feels simpler. And while it isn’t always true, one of the things
+    I love about C is that looks are rarely deceiving. C can certainly work magic
+    on small devices, but that magic is usually out in the open. So writing clean,
+    simple code often increases both readability *and* performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Lookup Tables
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'While not quite as good as no math, performing a common calculation just once
+    and then storing the answer for reuse is a close second. If we look at the calculations
+    we’re performing inside our `loop()` function, there are basically two: one to
+    convert the current `millis()` value into a fraction, and then one to apply that
+    function to our color channels (albeit separately for each channel). It would
+    be great to get rid of those calculations.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: When you have more storage space than processing power (another trade-off),
+    a popular trick is to use *lookup tables*. You essentially run every calculation
+    you need ahead of time, and store the answers in an array. Then when you need
+    one of those answers, all you have to do is pluck the correct entry out of that
+    array.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Depending on how expensive the calculation you want to store actually is, you
+    have two options for creating your lookup table. If it’s not too expensive, you
+    can build the table up at runtime before it’s needed. (For example, in an Arduino
+    project, we can use the `setup()` function to do this work. Then we read from
+    the array in the `loop()` function.) If the calculation is just impossibly expensive,
+    you can do all the work “offline” and then simply transcribe the results into
+    your program and initialize your array with a litany of literal values.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With limited memory, this type of optimization won’t always make sense. Filling
+    up a large global array might put too much of a squeeze on the rest of your program.
+    But if the calculation is expensive enough, even reading from the slightly slower
+    flash memory becomes feasible and you can store your lookup table there. In the
+    latter case, of course, you have to do the offline calculation and initialize
+    the array in `PROGMEM` when you declare it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Project So Far
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s put our lookup table (we’ll build ours in `setup()`) and our simpler
+    math to work. When you do sit down to optimize one of your projects, it’s a good
+    idea to try out your ideas in small steps. This incremental approach makes it
+    less likely you’ll break anything. But when you do break something, the incremental
+    approach should make it easier to fix—or rip out and start over if worse comes
+    to worst. Here’s [*ch10/optimize2/optimize2.ino*](https://oreil.ly/eDKmd):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_faster_code_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Break out our pixel colors into a two-dimensional array (for easier calculations
+    in `loop()`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_faster_code_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Make a global for our lookup table so we can initialize it in `setup()` and
+    refer to it in `loop()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_faster_code_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use an alternate function to set the pixel colors that accepts the red, green,
+    and blue values individually.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_faster_code_CO1-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Fill in our sine value lookup table using the handy (and speedy) `sine8()` function
+    from the NeoPixel library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_faster_code_CO1-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Simplify our translation from milliseconds to lookup index.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_faster_code_CO1-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now put our lookup table value to use in calculating the current brightness.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can certainly give this a try on your controller, but hopefully the behavior
+    of your LED strip is the same. The intent is to make sure you understand the changes
+    we made before tackling more tweaks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Notice that I used an `int` variable for the `breaths` array initialization.
+    Since we need to go right to the edge of what a `byte` can store (namely, we need
+    to use 255), we can’t use a byte-sized variable for the index value. The adjustment
+    step where we increment `s` will occur one more time when `s` is 255, pushing
+    it to 256\. Except that for a `byte` variable, that push will force the variable
+    to rollover back to 0\. After that rollover, we check the loop condition. Since
+    0 is less than or equal to 255, we keep going. I made this mistake the first time
+    I wrote up the initialization loop. It took me a few minutes to figure out why
+    the `setup()` function never ended!
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Power of Powers of 2
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'One more math-related optimization to keep in your bag of tricks: use bitwise
+    operations instead of multiplication and division. Multiplication is not cheap.
+    Division is downright expensive. On microcontrollers, these operations can be
+    *very* expensive—except when you are multiplying or dividing by 2 or a power of
+    2 (i.e., 4, 8, 1024, etc.). The remainder operation (`%`) is really a division
+    operation as well, so it is also expensive, except where a power of 2 can be used.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We have removed a lot of expensive steps from our breathing loop, but we do
+    still have some remainder and division operations. Let’s see how powers of 2 help
+    on these calculations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'When we multiply a color by our `breath` variable and divide by 255 to get
+    the correct shade of that color, we’re trying to make sure that the shade is somewhere
+    in the 0 to 255 range. That fraction we create has a denominator tanalizingly
+    close to a power of 2, namely 255 is almost 256\. For example, consider our brightest
+    red. Ideally, we would display the value 255 on our LED. The calculation we currently
+    use looks like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This calculation results in 255, which is exactly what we want. But I said
+    dividing by 256 would speed things up. I’ll show you how shortly, but first let’s
+    explore an important question: is it OK to divide by 256 rather than 255? Well,
+    65025 / 256 is ~254.004\. For an LED, that is definitely close enough. So how
+    is dividing by 256 faster than dividing by 255?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It turns out that for computers with their binary brains, dividing by a power
+    of two is the same thing as using the right shift operator, `>>`. That is marvelously
+    fast compared to division. So our `red` approximation can now be calculated like
+    this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: You simply shift by the “power” part of your power of 2; e.g., dividing by 2
+    (2¹) means shifting right by 1\. Dividing by 256 (2⁸) means shifting right by
+    8\. Multiplication by a power of 2, then, works the same way; you just shift left.
+    Need to quadruple a value? Shift it left by 2 (2² == 4). Neat! And more importantly,
+    speedy. All the computer has to do is scoot some bits left or right. That type
+    of work is very simple compared to the algorithms for multiplying and dividing,
+    even though the results are the same.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'But what about remainders? They are just as expensive as division since you
+    perform the division on the way to finding the leftover amount. But if you are
+    using `%` and a power of two, that can be expressed with the bitwise `&` operation
+    and the correct *mask*. You’ll often hear about bit “masks,” which are simply
+    numbers that keep certain bits but hide (or mask) others. To find the remainder
+    of a division by 64 (2⁶), say, you create a mask of 6 bits: 0x3f. (That turns
+    out to be 63, or 64–1.) If we were to adjust our breathing rate to about four
+    seconds (4096 milliseconds, or 2^(12), to be precise), we could rewrite our millisecond
+    conversion like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And since we really want that `ms` value to lie in the range of 0 to 255 so
+    it is an appropriate index into our lookup table, we can turn that division into
+    another shift operaion with a small adjustment to our divisor (5000 / 20 is roughly
+    4095 / 16):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Not bad. Not bad at all. We did have to fudge our breath rate, though. Remember
+    my caveat at the top of the chapter: if it’s working, it’s working! If you get
+    a satisfactory animation with all the floating-point math and nice round numbers
+    like 5 seconds, your project is a success. But if you aren’t getting the results
+    you want, consider making adjustments to take advantage of these optimization
+    tricks.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Loop Optimizations
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We have one more clever alteration we could make to our breathing LED sketch
+    to make it run even faster.^([4](ch10.xhtml#idm45018714600472)) Looping sections
+    often sacrifice a little performance for the sake of readable, reusable code.
+    When performance is the top goal, you can steal back a little of that speed by
+    reducing that reusability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Unrolling for Fun and Profit
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The motivation behind this optimization is that it takes a little bit of time
+    to manage a loop. In our `loop()` function, we have a `for` loop that sets the
+    color for each LED on our little stick. After one LED has been updated, we have
+    to increment the `p` variable and then test to see if there are more LEDs to process.
+    Those few steps are tiny, but they are not nothing. If you are counting microseconds,
+    this might not be time you can spare.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To get those microseconds back, you can *unroll* or *unwind* your loop. Basically,
+    you take the body of your loop and simply copy it once for every iteration required,
+    then hardcode the controlling variable (`p` in our case). I want you to try some
+    of this optimizing as good practice, so I won’t fully unwind the `for` loop. We
+    can also use the `>>` trick to replace the division required when calculating
+    the red/blue/green values. Updating the first couple LEDs would then look like
+    this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'As with other optimizations, there is a trade-off here: we will consume more
+    program space with the unrolled loop. But again, we’re here for performance—as
+    long as we have the space. Just make sure you get the loop working correctly before
+    you unroll it. Any bug hiding in an unrolled loop will require tedious copying
+    and pasting to fix each and every expanded chunk.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Recursion Versus Iteration
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: There is another loop option that is not quite an optimization, but one worth
+    mentioning. On devices with limited memory, recursive algorithms can run amok
+    rather quickly. Happily, every recursive algorithm can also be written iteratively.
+    Sometimes the loop approach is not intuitive or looks unwieldy, but it will work.
+    If you are worried about recursive calls in your code, consider converting them
+    into a loop with some extra variables to help out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As a quick demonstration, let’s look at a loop approach to finding the nth
+    Fibonacci number (to replace the recursive algorithm we coded up back in [“Recursive
+    Functions”](ch05.xhtml#smallerc-CHP-5-SECT-5.1)). We can use a `for` loop and
+    three variables:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: You might recall that the recursive algorithm got sluggish with larger numbers.
+    That won’t happen here. The numbers will eventually grow quite large, so you might
+    need something like a `long long` to store the results, but the algorithm would
+    continue to run quickly. So why don’t we always use the iterative option? It’s
+    not obvious with the Fibonacci series, but sometimes the recursive algorithm is
+    simply, well, simpler (occasionally *much* simpler) to understand and translate
+    into code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Again we have a trade-off: complexity versus performance. In this case, though,
+    the trade-off may be a no-brainer. If you can’t finish performing a calculation,
+    using a potentially more complex algorithm that *can* complete the calculation
+    will win.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: String Versus char[]
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The `String` class that you can use with the Arduino IDE for storing and processing
+    text is another candidate for optimization. Our simple LED project didn’t really
+    use any text, but if you tackle any projects with text output, say on a mini LCD
+    screen or over a WiFi connection, you may be tempted to use `String` as it has
+    some convenient features. If you are running out of room, though, consider using
+    (and reusing) boring old `char[]` variables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Many examples you’ll find online make use of `String` precisely because of those
+    convenient extras like converting numbers to text in a given base, or functions
+    like `toLowerCase()`, or using the `+` operator to concatenate `String` objects
+    together. (You can read about all of these extras in the [String documentation](https://oreil.ly/8SZ50).)
+    The examples with `String` read well, and the text involved is often incidental
+    to the project.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But if you are doing something more serious with text like driving an LED or
+    LCD display, or shipping JSON blobs to a web service (we’ll do something similar
+    in [“IoT and Arduino”](ch12.xhtml#smallerc-CHP-12-SECT-1.1)), the convenience
+    of all those `String` objects flying around can start to eat into your SRAM. Using
+    an array of characters that you control can keep that memory consumption to a
+    minimum. At the very least, you’ll be aware of exactly how much room is required
+    to accomplish your goals.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Don’t forget that you can store text in flash for on-demand use as we saw in
+    [“Flash (PROGMEM)”](ch09.xhtml#smallerc-CHP-9-SECT-3.1). Sometimes that `F()`
+    macro is all you need. But relying on flash will slow your program down a little
+    bit and you can’t programmatically alter those messages you store in flash. The
+    control you get with `char[]` can be a win all around; the trade-off here is your
+    time and energy.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our Final Offer
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Even for such a simple project, there were a surprising number of optimizations
+    available. Here’s our final version of the project, [*ch10/optimize3/optimize3.ino*](https://oreil.ly/J8Myy):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: The only change from our previous version is the use of integer math and bitwise
+    operations in our `loop()` function. We convert the current millisecond count
+    to an index we can use with our sine lookup table and simplify the current shade
+    calculation for each of our red, green, and blue values. All told, this is quite
+    the set of improvements! The extra efficiency leaves room to do other things.
+    Now we could handle more LEDs or work on fancier animations. Or we could include
+    some sensors and integrate their readings into our output. All in 2K of RAM. Your
+    programmer ancestors would be proud. :)
+  prefs: []
+  type: TYPE_NORMAL
+- en: But I shouldn’t forget the practice I mentioned. If you want to try your own
+    bit of optimizing, unroll the `for` loop like we started to do in [“Unrolling
+    for Fun and Profit”](#smallerc-CHP-10-SECT-5.1) and make sure the project still
+    behaves as expected.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We’ve seen quite an array of optimization tricks in this chapter. There are
+    other, more esoteric tricks, but they require more knowledge of the specific hardware
+    you plan to use. I don’t have any specific exercises this time, but I hope you’ll
+    revisit this chapter after you get some of your own Arduino projects off the ground.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you end up with any useful functions that you optimize and tune to perfection,
+    you can put them in a custom library for reuse with future projects. You can even
+    publish them for others to use! Either way, Arduino makes making libraries relatively
+    easy. Let’s see how it’s done in the next chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch10.xhtml#idm45018716293016-marker)) Making use of this feature requires
+    understanding the really low-level details of your chip. That understanding comes
+    with a pretty steep learning curve that’s well beyond our goals in this book.
+    Even the SAM D21 heart of tiny controllers like Adafruit’s Trinket M0 has a 1000+
+    page datasheet for your reading pleasure!
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch10.xhtml#idm45018716049464-marker)) I had the distinct pleasure of upgrading
+    my 8086 CPU with an *amazing* 8087 FPU coprocessor. I’ll leave it to you, gentle
+    reader, to suss out the incriminating dates of this lovely bit of nostalgia.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch10.xhtml#idm45018715776888-marker)) The [NeoPixel documentation](https://oreil.ly/hMmZw)
+    uses the type `uint8_t` rather than `byte`, so I will follow suit for the temporary
+    variables.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([4](ch10.xhtml#idm45018714600472-marker)) An important side effect of “running
+    faster” is that you also make room for more calculations—or more complex calculations—to
+    run in the same amount of time as your old calculations used to run. So without
+    losing any performance, we could support longer strips of LEDs instead, or LEDs
+    with more than just red, green, and blue channels.
+  prefs: []
+  type: TYPE_NORMAL

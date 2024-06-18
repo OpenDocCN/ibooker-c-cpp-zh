@@ -1,0 +1,860 @@
+- en: Chapter 10\. The Singleton Pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In this chapter, we take a look at the (in-)famous *Singleton* pattern. I know,
+    you may already be acquainted with Singleton, and you may already have a strong
+    opinion about it. It is even possible that you consider Singleton an antipattern
+    and thus ask yourself how I mustered the courage to include it in this book. Well,
+    I am aware that Singleton is not particularly popular and in many circles has
+    a rather bad reputation, in particular because of the global nature of Singletons.
+    From that perspective, however, it might be very surprising to learn that there
+    are a couple of “Singleton”-like instances in the C++ Standard Library. Seriously!
+    And, honestly, they work fantastically! Therefore, we should seriously talk about
+    *what* a Singleton is, *when* Singleton works, and *how* to deal with Singleton
+    properly.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 37: Treat Singleton as an Implementation Pattern, Not a Design
+    Pattern”](#treat_singleton_as_an_implementation_pattern_not_a_design_pattern),
+    I will explain the Singleton pattern and demonstrate how it works by a very commonly
+    used implementation, the so-called *Meyers’ Singleton*. I will, however, also
+    make a strong argument to *not* treat Singleton as a design pattern but as an
+    *implementation pattern*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 38: Design Singletons for Change and Testability”](#design_singletons_for_change_and_testability),
+    we accept the fact that sometimes we need a solution to represent the few global
+    aspects in our code. This is what the Singleton pattern is often used for. This
+    also means that we are confronted by the usual problems of Singletons: global
+    state; many strong, artificial dependencies; and an impeded changeability and
+    testability. While these sound like excellent reasons to avoid Singleton after
+    all, I will show you that by proper software design, you can combine the Singleton
+    benefits with excellent changeability and testability.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 37: Treat Singleton as an Implementation Pattern, Not a Design Pattern'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Let me start by addressing the elephant in the room:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Singleton is *not* a design pattern.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'If you haven’t heard about Singleton before, then this might not make any sense
+    at all, but bear with me. I promise to explain Singleton shortly. If you *have*
+    heard about Singleton before, then I assume you’re either nodding in agreement
+    with a sympathizing “I know” look on your face, or you are utterly stunned and
+    initially don’t know what to say. “But why not?” you eventually dare to ask. “Isn’t
+    it one of the original design patterns from the Gang of Four book?” Yes, you’re
+    correct: Singleton is one of the 23 original patterns documented in the GoF book.
+    At the time of writing, [Wikipedia](https://oreil.ly/jzuFw) calls it a design
+    pattern, and it is even listed as a design pattern in Steve McConnell’s bestseller
+    *Code Complete*.^([1](ch10.xhtml#idm45043072392832)) Nevertheless, it still isn’t
+    a design pattern, because it doesn’t have the properties of a design pattern.
+    Let me explain.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Singleton Pattern Explained
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Sometimes you may want to guarantee that there is only one, and *exactly* one,
+    instance of a particular class. In other words, you have a Highlander situation:
+    “There can be only one.”^([2](ch10.xhtml#idm45043072387744)) This might make sense
+    for the system-wide database, the one and only logger, the system clock, the system
+    configuration, or, in short, any class that should not be instantiated multiple
+    times, since it represents something that exists only once. That is the intent
+    of the Singleton pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Singleton Pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Intent: “Ensure a class has only one instance, and provide a global point of
+    access to it.”^([3](ch10.xhtml#idm45043072383840))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This intent is visualized by the Gang of Four with the UML diagram in [Figure 10-1](#fig_singleton_original),
+    which introduces the `instance()` function as the global point of access to the
+    unique instance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML representation of the _Singleton_ pattern.](assets/cpsd_1001.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 10-1\. The UML representation of the *Singleton* pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'There are multiple ways to restrict the number of instantiations to exactly
+    one. Definitely one of the most useful and therefore most commonly used forms
+    of Singleton is the Meyers’ Singleton.^([4](ch10.xhtml#idm45043072376432)) The
+    following `Database` class is implemented as a Meyers’ Singleton:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The Meyers’ Singleton evolves around the fact that it’s possible to access
+    the single instance of the `Database` class onlhy via the `public`, `static` `instance()`
+    function ([![1](assets/1.png)](#code_g37_1)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Indeed, this function is the only way to get a `Database`: all functionality
+    that could possibly be used to create, copy, or move an instance is either declared
+    in the `private` section or is explicitly `delete`d.^([5](ch10.xhtml#idm45043072064080))
+    Although this appears to be pretty straightforward, one implementation detail
+    is of special interest: note that the default constructor is explicitly defined
+    and not `default`ed ([![2](assets/2.png)](#code_g37_2)). The reason is if it were
+    `default`ed, up to C++17, it would be possible to create a `Database` with an
+    empty set of braces, i.e., via [*value initialization*](https://oreil.ly/9h4IB):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Up to C++17, the `Database` class counts as an *aggregate type*, which means
+    that *value initialization* would be performed via [*aggregate initialization*](https://oreil.ly/HSuYl).
+    *Aggregate initialization*, in turn, ignores the default constructor, including
+    the fact that it is `private`, and simply performs a *zero initialization* of
+    the object. Thus, value initialization enables you to still create an instance.
+    If, however, you provide the default constructor, then the class does not count
+    as an aggregate type, which prevents aggregate initialization.^([6](ch10.xhtml#idm45043071990224))
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `instance()` function is implemented in terms of a [*static local variable*](https://oreil.ly/mqUoK).
+    This means that the first time control passes through the declaration, the variable
+    is initialized in a thread-safe way, and on all further calls the initialization
+    is skipped.^([7](ch10.xhtml#idm45043071987280)) On every call, the first and all
+    subsequent calls, the function returns a reference to the static local variable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The rest of the `Database` class is pretty much what you would expect from
+    a class representing a database: there are some `public`, database-related functions
+    (e.g., `write()` and `read()`) and there could be some data members, including
+    access functions. In other words, except for the `instance()` member function
+    and the special members, `Database` is just a normal class.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Singleton Does Not Manage or Reduce Dependencies
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Now, with one possible implementation of a Singleton in mind, let’s go back
+    to my claim that Singleton is not a design pattern. First, let’s remind ourselves
+    of the properties of a design pattern, which I defined in [“Guideline 11: Understand
+    the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A design pattern:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Has a name
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Carries an intent
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Introduces an abstraction
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Has been proven
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The Singleton pattern definitely has a name, and it definitely has an intent.
+    No question there. I would also claim that it has been proven over the years (although
+    there may be skeptical voices that point out that Singleton is rather infamous).
+    However, there is no kind of abstraction: no base class, no template parameters,
+    nothing. Singleton does not represent an abstraction itself, and it does not introduce
+    an abstraction. In fact, it isn’t concerned with the structure of code or with
+    the interaction and interdependencies of entities, and hence it isn’t aiming at
+    managing or reducing dependencies.^([8](ch10.xhtml#idm45043071938896)) This, though,
+    is what I defined to be an integral part of software design. Instead, Singleton
+    is focused on restricting the number of instantiations to exactly one. Thus, Singleton
+    is not a design pattern but merely an implementation pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: “Then why is it listed as a design pattern in so many important sources?” you
+    ask. This is a fair and good question. There may be three answers to that. First,
+    in other programming languages, in particular languages where every class can
+    automatically represent an abstraction, the situation may be different. While
+    I acknowledge this, I still believe that the intent of the Singleton pattern is
+    primarily targeted for implementation details and not for dependencies and decoupling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Second, Singleton is very commonly used (although often also *mis*used), so
+    it is definitely a pattern. Since there are Singletons in many different programming
+    languages, it does not appear to be just an idiom of the C++ programming language.
+    As a consequence, it appears reasonable to call it a design pattern. This chain
+    of arguments may sound plausible to you, but I feel it falls short of distinguishing
+    between software design and implementation details. This is why in [“Guideline
+    11: Understand the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns),
+    I introduced the term *implementation pattern* to distinguish between different
+    kinds of language-agnostic patterns such as Singleton.^([9](ch10.xhtml#idm45043071934080))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'And third, I believe that we are still in the process of understanding software
+    design and design patterns. There is no common definition of software design.
+    For that reason, I came up with one in [“Guideline 1: Understand the Importance
+    of Software Design”](ch01.xhtml#understand_the_importance_of_software_design).
+    There is no common definition of design patterns, either. This is why I came up
+    with one in [“Guideline 11: Understand the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns).
+    I strongly believe that we must talk more about software design and more about
+    patterns to come to a common understanding of the necessary terminology, especially
+    in C++.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In summary, you do not use a Singleton to decouple software entities. So despite
+    the fact that it is described in the famous GoF book, or in *Code Complete*, or
+    even listed as a design pattern on [Wikipedia](https://oreil.ly/i8lyX), it does
+    not serve the purpose of a design pattern. Singleton is merely dealing with implementation
+    details, and as such you should treat it as an implementation pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 38: Design Singletons for Change and Testability'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Singleton is indeed a rather infamous pattern: there are many voices out there
+    that describe Singleton as a general problem in code, as an antipattern, as dangerous,
+    or even as evil. Therefore, there is a lot of advice out there to avoid the pattern,
+    among others, [Core Guideline I.3](https://oreil.ly/Mai2n):^([10](ch10.xhtml#idm45043071911616))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Avoid singletons.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'One of the primary reasons why people dislike Singleton is that it often causes
+    artificial dependencies and obstructs testability. As such, it runs contrary to
+    two of the most important and most general guidelines in this book: [“Guideline
+    2: Design for Change”](ch01.xhtml#design_for_change) and [“Guideline 4: Design
+    for Testability”](ch01.xhtml#design_for_testability). From that perspective, Singleton
+    indeed appears to be a problem in code and should be avoided. However, despite
+    all the good-intentioned warnings, the pattern is persistently used by many developers.
+    The reasons for that are manifold but probably mainly related to two facts: first,
+    sometimes (and let’s agree on *sometimes*) it is desirable to express the fact
+    that something exists only once and should be available for many entities in the
+    code. Second, sometimes Singleton appears to be the proper solution, as there
+    *are* global aspects to represent.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'So, let’s do the following: instead of arguing that Singleton is always bad
+    and evil, let’s focus on those few situations where we need to represent a global
+    aspect in our program and discuss how to represent this aspect properly, but still
+    design for change and testability.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Singletons Represent Global State
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Singletons are mostly used to represent entities in a program that logically
+    and/or physically exist only once and that should be used by many other classes
+    and functions.^([11](ch10.xhtml#idm45043071900224)) Common examples are the system-wide
+    database, logger, clock, or configuration. These examples, including the term
+    *system-wide*, give an indication of the nature of these entities: they commonly
+    represent globally available functionality or data, i.e., global state. From that
+    perspective, the Singleton pattern appears to make sense: by preventing everyone
+    from creating new instances, and by forcing everyone to use *the one* instance,
+    you can guarantee uniform and consistent access to this global state across all
+    using entities.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This representation and introduction of global state, however, explains why
+    Singleton is commonly considered a problem. As Michael Feathers expressed it:^([12](ch10.xhtml#idm45043071898096))
+  prefs: []
+  type: TYPE_NORMAL
+- en: The singleton pattern is one of the mechanisms people use to make global variables.
+    In general, global variables are a bad idea for a couple of reasons. One of them
+    is opacity.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'Global variables are indeed a bad idea, particularly for one important reason:
+    the term *variable* suggests that we are talking about *mutable* global state.
+    And that kind of state can indeed cause a lot of headaches. To be explicit, mutable
+    global state is frowned upon (in general, but especially in a multithreaded environment),
+    as it is difficult, costly, and likely both to control access and guarantee correctness.
+    Furthermore, global (mutable) state is very hard to reason about, as read and
+    write access to this state usually happens invisibly within some function, which,
+    based on its interface, does not reveal the fact that it uses the global state.
+    And last but not least, if you have several globals, whose lifetimes depend on
+    one another and that are distributed over several compilation units, you might
+    be facing the *static initialization order fiasco* (*SIOF*).^([13](ch10.xhtml#idm45043071891216))
+    Obviously, it is beneficial to avoid global state as much as possible.^([14](ch10.xhtml#idm45043071889696))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The problem of global state, however, is a problem that we can’t resolve by
+    avoiding Singletons. It’s a general problem, unrelated to any particular pattern.
+    The same problem, for instance, also exists for the Monostate pattern, which enforces
+    a single, global state but allows for any number of instantiations.^([15](ch10.xhtml#idm45043071887072))
+    So on the contrary, Singleton can help deal with the global state by constraining
+    access to it. For instance, as Miško Hevery explains in his 2008 article, Singletons
+    that provide a unidirectional data flow to *or* from some global state are acceptable:^([16](ch10.xhtml#idm45043071883440))
+    a Singleton implementing a logger would only allow you to write data but not read
+    it. A Singleton representing a system-wide configuration or clock would only allow
+    you to read the data but not write it, thus representing a global *constant*.
+    The restriction to unidirectional data flow helps avoid many of the usual problems
+    with global state. Or in the words of Miško Hevery (the emphasis being mine):^([17](ch10.xhtml#idm45043071881136))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Appropriate* use of “Global” or semi-Global states can greatly simplify the
+    design of applications […].'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Singletons Impede Changeability and Testability
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Global state is an intrinsic problem of Singletons. However, even if we feel
+    comfortable with representing global state with a Singleton, there are serious
+    consequences: functions that use Singletons depend on the represented global data
+    and thus become harder to change and harder to test. To better understand this,
+    let’s revive the `Database` Singleton from [“Guideline 37: Treat Singleton as
+    an Implementation Pattern, Not a Design Pattern”](#treat_singleton_as_an_implementation_pattern_not_a_design_pattern),
+    which is now actively used by a couple of arbitrary classes, namely `Widget` and
+    `Gadget`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`Widget` and `Gadget` both require access to the system-wide `Database`. For
+    that reason, they call the `Database::instance()` function and subsequently the
+    `read()` and `write()` functions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Since they use the `Database` and thus depend on it, we would like them to
+    reside in architecture levels *below* the level of the `Database` Singleton. That
+    is because, as you remember from [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change),
+    we can call it a proper architecture only if all dependency arrows run toward
+    the high levels (see [Figure 10-2](#fig_singleton_database_1)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The _desired_ dependency graph for a +Database+ implemented as _Singleton_.](assets/cpsd_1002.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 10-2\. The *desired* dependency graph for a `Database` implemented as
+    a *Singleton*
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Although this dependency structure may be desirable, unfortunately it is only
+    an illusion: the `Database` class is not an abstraction but a concrete implementation,
+    representing the dependency on a very specific database! Therefore, the *real*
+    dependency structure is inverted and looks something like [Figure 10-3](#fig_singleton_database_2).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The *actual* dependency structure utterly fails the Dependency Inversion Principle
+    (DIP) (see [“Guideline 9: Pay Attention to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)):
+    all dependency arrows point toward the lower level. In other words, right now
+    there is no software architecture!'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The _real_ dependency graph for a +Database+ implemented as _Singleton_.](assets/cpsd_1003.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 10-3\. The *actual* dependency graph for a `Database` implemented as
+    a *Singleton*
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Since the `Database` is a concrete class and not an abstraction, there are strong
+    and unfortunately even invisible dependencies from all over the code to the specific
+    implementation details and design choices of the `Database` class. This may—in
+    the worst case—include a dependency on vendor-specific details that become visible
+    throughout the code, manifest in many different places, and later make changes
+    excruciatingly hard or even impossible. Due to that, the code becomes much more
+    difficult to change.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Also consider how badly tests are affected by this dependency. All tests that
+    use one of the functions depending on the `Database` Singleton become themselves
+    dependent on the Singleton. This means, for instance, that for every test using
+    the `Widget::do​Something()` function, you would always have to provide the one
+    and only `Database` class. The unfortunate, but also simple, reason is that none
+    of these functions provide you with a way to substitute the `Database` with something
+    else: any kind of stub, mock, or fake.^([18](ch10.xhtml#idm45043071710704)) They
+    all treat the `Database` Singleton as their shiny, precious secret. Testability
+    is therefore severely impeded, and writing tests becomes so much harder that you
+    might be tempted to not write them at all.^([19](ch10.xhtml#idm45043071708112))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: This example indeed demonstrates the usual problems with Singletons and the
+    unfortunate artificial dependencies they introduce. These dependencies make the
+    system more inflexible and more rigid, and thus harder to change and test. That,
+    of course, should not be. On the contrary, it should be easy to replace a database
+    implementation with another one, and it should be easy to test functionality that
+    uses a database. For these exact reasons, we must make sure that the `Database`
+    becomes a true implementation detail on the low level of a proper architecture.^([20](ch10.xhtml#idm45043071706768))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“But wait a second, you just said that if the `Database` is an implementation
+    detail, there is no architecture, right?” Yes, I said that. And there is nothing
+    we can do as it is: the `Database` Singleton does not represent any abstraction
+    and does not enable us to deal with dependencies at all. Singleton is just not
+    a design pattern. So in order to remove the dependencies on the `Database` class
+    and make the architecture work, we will have to design for change and testability
+    by introducing an abstraction and using a real design pattern. To achieve that,
+    let’s take a look at an example with a good way to deal with global aspects, using
+    Singletons from the C++ Standard Library.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inverting the Dependencies on a Singleton
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'I’m returning to a true El Dorado of design patterns, which I have used several
+    times to demonstrate different design patterns: the C++17 polymorphic memory resources:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: In this example, we configure the [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/uVQoS),
+    called `buffer`, to work only with the static memory contained in the given `std::array`
+    `raw` ([![1](assets/1.png)](#code_g38_1)). If this memory is depleted, `buffer`
+    will try to acquire new memory via its upstream allocator, which we specify to
+    be [`std::pmr::null​_memory_resource()`](https://oreil.ly/p0V3c). Allocating via
+    this allocator will never return any memory but will always fail with the `std::bad_alloc()`
+    exception. Thus, `buffer` is restricted to the 1,000 bytes provided by `raw`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'While you should immediately remember and recognize this as an example of the
+    Decorator design pattern, this also serves as an example of the Singleton pattern:
+    the `std::pmr::null_memory_resource()` function returns a pointer to the same
+    allocator every time the function is called and thus acts as a single point of
+    access to the one and only instance of `std::pmr::null_memory_resource`. Thus,
+    the returned allocator acts as a Singleton. Although this Singleton does not provide
+    a unidirectional flow of data (after all, we can both allocate memory and give
+    it back), Singleton still feels like a reasonable choice, as it represents one
+    kind of global state: memory.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It is particularly interesting and important to note that this Singleton does
+    not make you depend on the specific implementation details of the allocator. Quite
+    the opposite: the `std::pmr::null_memory_resource()` function returns a pointer
+    to [`std::pmr::memory_resource`](https://oreil.ly/9wYhs). This class represents
+    a base class for all kinds of allocators (at least in the realm of C++17), and
+    thus serves as an abstraction. Still, `std::pmr::null_memory_resource()` represents
+    a specific allocator, a specific choice, which we now depend on. As this functionality
+    is in the Standard Library, we tend to not recognize it as a dependency, but generally
+    speaking it is: we are not provided with an opportunity to replace the standard-specific
+    implementation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This changes if we replace the call to `std::pmr::null_memory_resource()` with
+    a call to [`std::pmr::get_default_resource()`](https://oreil.ly/chMJ7) ([![2](assets/2.png)](#code_g38_2)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `std::pmr::get_default_resource()` function also returns a pointer to `std::pmr::memory_resource`,
+    which represents an abstraction for the system-wide default allocator. By default,
+    the returned allocator is returned by the [`std::new_delete_resource()`](https://oreil.ly/w4lHB)
+    function. However, amazingly, this default can be customized by the [`std::pmr::set_default_resource()`](https://oreil.ly/wQBy6)
+    function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'With this function, we can define the `std::pmr::null_memory_resource()` as
+    the new system-wide default allocator ([![3](assets/3.png)](#code_g38_3)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'With `std::pmr::set_default_resource()`, you are able to customize the system-wide
+    allocator. In other words, this function provides you with the ability to inject
+    the dependency on this allocator. Does this ring a bell? Does this sound familiar?
+    I very much hope this makes you think about another, essential design pattern…*drum
+    roll*…yes, correct: the Strategy design pattern.^([21](ch10.xhtml#idm45043071262592))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Indeed, this is a Strategy. Using this design pattern is a fantastic choice,
+    because it has an amazing effect on the architecture. While `std::pmr::memory_resource`
+    represents an abstraction from all possible allocators and thus can reside on
+    the high level of the architecture, any concrete implementation of an allocator,
+    including all (vendor-)specific implementation details, can reside on the lowest
+    level of the architecture. As a demonstration, consider this sketch of the `CustomAllocator`
+    class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Note that `CustomAllocator` `public`ly inherits from `std::pmr::memory_resource`
+    in order to qualify as a C++17 allocator. Due to that, you can establish an instance
+    of `CustomAllocator` as the new system-wide default allocator with the `std::pmr::set_default_resource()`
+    function ([![4](assets/4.png)](#code_g38_4)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'While the `std::pmr::memory_resource` base class resides on the highest level
+    of the architecture, `CustomAllocator` is logically introduced on the lowest architectural
+    level (see [Figure 10-4](#fig_singleton_memory_resource)). Thus, the Strategy
+    pattern causes an inversion of dependencies (see [“Guideline 9: Pay Attention
+    to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)):
+    despite the Singleton-ness of the allocators, despite representing global state,
+    you depend on an abstraction instead of the concrete implementation details.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The dependency inversion achieved via the +std::pmr::memory_resource+ abstraction.](assets/cpsd_1004.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 10-4\. The dependency inversion achieved via the `std::pmr::memory_resource`
+    abstraction
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'As a side note, it’s worth pointing out that with this approach you can trivially
+    avoid any dependency on the order of initialization of globals (i.e., SIOF), since
+    you can explicitly manage the initialization order by creating all Singletons
+    on the stack and in a single compilation unit:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Applying the Strategy Design Pattern
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Based on this previous example, you should now have an idea how to fix our
+    `Database` example. As a reminder, the goal is to keep the `Database` class as
+    the default database implementation but to make it an implementation detail, i.e.,
+    to remove all dependencies on the concrete implementation. All you need to do
+    is apply the Strategy design pattern to introduce an abstraction, alongside a
+    global point of access and a global point for *dependency injection*, on the high
+    level of our architecture. This will enable anyone (and I really mean anyone,
+    as you also follow the Open-Closed Principle (OCP); see [“Guideline 5: Design
+    for Extension”](ch01.xhtml#design_for_extension)) to introduce a custom database
+    implementation (both concrete implementations as well as test stubs, mocks, or
+    fakes) on the lowest level.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'So let’s introduce the following `PersistenceInterface` abstraction ([![5](assets/5.png)](#code_g38_5)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `PersistenceInterface` base class provides the interface for all possible
+    database implementations. For instance, it introduces a `read()` and a `write()`
+    function, split into the `public` interface part and the `private` implementation
+    part, based on the example set by the `std::pmr::memory_resource` class ([![6](assets/6.png)](#code_g38_6)
+    and [![7](assets/7.png)](#code_g38_7)).^([22](ch10.xhtml#idm45043070746416)) Of
+    course, in reality it would introduce a few more database-specific functions,
+    but let `read()` and `write()` be sufficient for this example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In addition to the `PersistenceInterface`, you would also introduce a global
+    point of access called `get_persistence_interface()` ([![8](assets/8.png)](#code_g38_8))
+    and a function to enable *dependency injection* called `set_persistence_interface()`
+    ([![9](assets/9.png)](#code_g38_9)). These two functions allow you to access and
+    set the global persistence system ([![10](assets/10.png)](#code_g38_10)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `Database` class now inherits from the `PersistenceInterface` base class
+    and implements the required interface (hopefully adhering to the Liskov Substitution
+    Principle (LSP); see [“Guideline 6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In our special setting, the `Database` class represents the default database
+    implementation. We need to create a default instance of the database, in case
+    no other persistence system is specified via the `set_persistence_interface()`
+    function. However, if any other persistence system is established as the system-wide
+    database before `Database` is created, we must not create an instance, as this
+    would cause unnecessary and unfortunate overhead. This behavior is achieved by
+    implementing the `get​_persistence_interface()` function with two *static local
+    variables* and an *Immediately Invoked Lambda Expression (IILE)* ([![11](assets/11.png)](#code_g38_11)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The first time the execution flow enters the `get_persistence_interface()`
+    function, the `init` static local variable is initialized. If, at this point in
+    time, the `instance` is already set, no `Database` is created. However, if it
+    is not, the `Database` instance is created as another static local variable inside
+    the lambda and bound to the `instance` variable:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This implementation achieves the desired effect: `Database` becomes an implementation
+    detail, which no other code depends on and which can be replaced at any time by
+    a custom database implementation (see [Figure 10-5](#fig_singleton_database_3)).
+    Thus, despite the Singleton-ness of `Database`, it does not introduce dependencies,
+    and it can be easily changed and easily replaced for testing purposes.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The dependency graph for the refactored, non-_Singleton_ +Database+.](assets/cpsd_1005.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 10-5\. The dependency graph for the refactored, non-*Singleton* `Database`
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '“Wow, this is a great solution. I bet I can use that in a few places in my
+    own codebase!” you say, with an impressed and appreciative look on your face.
+    “But I see a potential problem: since I have to inherit from an interface class,
+    this is an intrusive solution. What should I do if I can’t change a given Singleton
+    class?” Well, in that case you have two nonintrusive design patterns to choose
+    from. Either you already have an inheritance hierarchy in place, in which case
+    you can introduce an Adapter to wrap the given Singleton (see [“Guideline 24:
+    Use Adapters to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces)),
+    or you don’t have an inheritance hierarchy in place yet, in which case you can
+    put the External Polymorphism design pattern to good use (see [“Guideline 31:
+    Use External Polymorphism for Nonintrusive Runtime Polymorphism”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“OK, but I see another, more serious problem: is this code truly thread-safe?”
+    Honestly, no, it is not. To give one example for a possible problem: it could
+    happen that during the first call to `get_persistence_interface()`, which may
+    take some time due to the setup of the `Database` instance, the `set_persistence_interface()`
+    is called. In that case, either the `Database` is created in vain or the call
+    to `set_persistence_interface()` is lost. However, perhaps surprisingly, this
+    is not something that we need to address. Here’s why: remember that the `instance`
+    represents global state. If we assume that `set_persistence_interface()` can be
+    called from anywhere in the code at any time, in general we can’t expect that
+    after calling `set_persistence_interface()`, a call to `get_persistence_interface()`
+    would return the set value. Hence, calling the `set_persistence_interface()` function
+    from anywhere in the code is like pulling the rug from under somebody’s feet.
+    This is comparable to calling `std::move()` on any lvalue:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: From this perspective, the `set_persistence_interface()` function should be
+    used at the very beginning of the program or at the beginning of a single test,
+    not arbitrarily.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“Shouldn’t we make sure that the `set_persistence_interface()` function can
+    be called only once?” you ask. We most certainly could do that, but this would
+    artificially limit its use for testing purposes: we would not be able to reset
+    the persistence system at the beginning of every single test.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Moving Toward Local Dependency Injection
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '“OK, I see. One last question: since this solution involves global state that
+    can be changed, wouldn’t it be better to use a more direct and more local dependency
+    injection to the lower-level classes? Consider the following modification of the
+    `Widget` class, which is given its dependency upon construction:”'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'I completely agree with you. This may be the next step to address the problem
+    of global state. However, before we analyze this approach, keep in mind that this
+    idea is only an option since we have already inverted the dependencies. Thanks
+    to introducing an abstraction in the high level of our architecture, we suddenly
+    have choices and can talk about alternative solutions. Hence, the first and most
+    important step is to properly manage the dependencies. But back to your suggestion:
+    I really like the approach. The interface of the `Widget` class becomes more “honest”
+    and clearly displays all of its dependencies. And since the dependency is passed
+    via the constructor argument, the dependency injection becomes more intuitive
+    and more natural.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Alternatively, you could pass the dependency on the `Widget::doSomething()`
+    function directly:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: While this approach may not be the best for a member function, this may be your
+    only option for free functions. And again, the function becomes a little more
+    “honest” by explicitly stating its dependencies.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, there is a flip side to this direct dependency injection: this approach
+    may quickly become unwieldy in large call stacks. Passing a dependency through
+    several levels of your software stack to make them available at the point they
+    are needed is neither convenient nor intuitive. Additionally, especially in the
+    presence of several Singletons, the solution quickly becomes cumbersome: passing,
+    for instance, a `PersistenceInterface`, an `Allocator`, and the system-wide `Configuration`
+    through many layers of function calls just to be able to use them on the lowest
+    level truly is not the most elegant approach. For that reason, you may want to
+    combine the ideas of providing a global access point and a local dependency injection,
+    for instance, by introducing a wrapper function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: While we still provide the previous `doSomething()` function ([![12](assets/12.png)](#code_g38_12)),
+    we now additionally provide an overload that accepts a `PersistenceInterface`
+    as a function argument ([![13](assets/13.png)](#code_g38_13)). The second function
+    does all the work, whereas the first function now merely acts as a wrapper, which
+    injects the globally set `PersistenceInterface`. In this combination, it’s possible
+    to make local decisions and to locally inject the desired dependency, but at the
+    same time it is not necessary to pass the dependency through many layers of function
+    calls.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'However, truth be told, while these solutions may work very well in this database
+    example and also in the context of managing memory, it might not be the right
+    approach for every single Singleton problem. So don’t believe that this is the
+    only possible solution. After all, it depends. However, it is a great example
+    of the general process of software design: identify the aspect that changes or
+    causes dependencies, then separate concerns by extracting a fitting abstraction.
+    Depending on your intent, you will just have applied a design pattern. So consider
+    naming your solution accordingly, and by that leave traces of your reasoning for
+    others to pick up on.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In summary, the Singleton pattern certainly is not one of the glamorous patterns.
+    It simply comes with too many disadvantages, most importantly the usual flaws
+    of global state. But still, despite the many negative aspects, if used judiciously,
+    Singleton can be the right solution for representing the few global aspects in
+    your code in some situations. If it is, prefer Singletons with unidirectional
+    data flow, and design your Singletons for change and testability by inverting
+    the dependencies and enabling dependency injection with the Strategy design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([1](ch10.xhtml#idm45043072392832-marker)) Steve McConnell, *Code Complete:
+    A Practical Handbook of Software Construction*, 2nd ed. (Microsoft Press, 2004).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch10.xhtml#idm45043072387744-marker)) “There can be only one” is the tagline
+    of the 1986 movie [*Highlander*](https://oreil.ly/XT6uF) featuring Christopher
+    Lambert.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([3](ch10.xhtml#idm45043072383840-marker)) Erich Gamma et al., *Design Patterns:
+    Elements of Reusable Object-Oriented Software*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([4](ch10.xhtml#idm45043072376432-marker)) The Meyers’ Singleton is explained
+    in Item 4 of Scott Meyers’s *Effective C++*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([5](ch10.xhtml#idm45043072064080-marker)) I know that the explicit handling
+    of the copy and move assignment operators appears to be overkill, but this gives
+    me the opportunity to remind you about the [Rule of 5](https://oreil.ly/fzS3f).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([6](ch10.xhtml#idm45043071990224-marker)) This behavior has changed in C++20,
+    since the declaration of any constructor by the user is now enough to make a type
+    nonaggregate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([7](ch10.xhtml#idm45043071987280-marker)) To be precise and to avoid complaints,
+    if the static local variable is zero or constant initialized, the initialization
+    can happen before the function is entered. In our example, the variable is indeed
+    created in the first pass.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([8](ch10.xhtml#idm45043071938896-marker)) In fact, a naive implementation
+    of Singleton is creating lots of artificial dependencies itself; see [“Guideline
+    38: Design Singletons for Change and Testability”](#design_singletons_for_change_and_testability).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([9](ch10.xhtml#idm45043071934080-marker)) Without going into detail, I argue
+    that there are several more so-called “design patterns” that fall in the category
+    of implementation patterns, such as the *Monostate* pattern, the *Memento* pattern,
+    and the *RAII idiom*, which [Wikipedia](https://oreil.ly/qD1L8) lists as design
+    patterns. While this might make sense in languages other than C++, the intent
+    of RAII is most certainly not to reduce dependencies but to automate cleanup and
+    encapsulate responsibility.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([10](ch10.xhtml#idm45043071911616-marker)) Another such piece of advice is
+    the CppCon 2020 talk by Peter Muldoon’s [“Retiring the Singleton Pattern: Concrete
+    Suggestions for What to Use Instead”](https://oreil.ly/su4Xb), which provides
+    many useful techniques for how to deal with Singletons in your codebase.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([11](ch10.xhtml#idm45043071900224-marker)) If a Singleton is used for anything
+    else, you should be very suspicious and consider it a misuse of the Singleton
+    pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([12](ch10.xhtml#idm45043071898096-marker)) Michael Feathers, *Working Effectively
+    with Legacy Code*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([13](ch10.xhtml#idm45043071891216-marker)) The best summary of SIOF I’m aware
+    of is given by Jonathan Müller in his accordingly named talk [“Meeting C++ 2020”](https://oreil.ly/nvkHT).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([14](ch10.xhtml#idm45043071889696-marker)) “Globals are bad, m’kay?” as stated
+    by Guy Davidson and Kate Gregory in *Beautiful C++: 30 Core Guidelines for Writing
+    Clean, Safe, and Fast Code* (Addison-Wesley).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([15](ch10.xhtml#idm45043071887072-marker)) The Monostate pattern, to my best
+    knowledge, was first mentioned in the September issue of the 1996 *C++ Report*
+    in the article “Monostate Classes: The Power of One” by Steve Ball and John Crawford
+    (see Stanley B. Lippmann, ed., *More C++ Gems* (Cambridge University Press)).
+    It is also described in Martin Reddy’s *API Design for C++* (Morgan Kaufmann).
+    Monostate, in contrast to Singleton, allows any number of instances of a type,
+    but makes sure that there is only a single state for all instances. As such, the
+    pattern should not be confused with `std::monostate`, which is used as a well-behaved
+    empty alternative in `std::variant`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([16](ch10.xhtml#idm45043071883440-marker)) Miško Hevery, [“Root Cause of Singletons”](https://oreil.ly/wQgJC),
+    *The Testability Explorer* (blog), August 2008.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([17](ch10.xhtml#idm45043071881136-marker)) Ibid.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([18](ch10.xhtml#idm45043071710704-marker)) For an explanation about the different
+    kinds of test doubles, see Martin Fowler’s article [“Mocks Aren’t Stubs”](https://oreil.ly/K4vR3).
+    For examples of how to use these in C++, refer to Jeff Langr’s *Modern C++ Programming
+    with Test-Driven Development*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([19](ch10.xhtml#idm45043071708112-marker)) But I am sure you won’t be deterred
+    from writing the tests anyway, despite it being difficult.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([20](ch10.xhtml#idm45043071706768-marker)) This is also one of the strong
+    arguments in Robert C. Martin’s *Clean Architecture*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([21](ch10.xhtml#idm45043071262592-marker)) For the design pattern experts,
+    I should explicitly point out that the `std::pmr::get_default_resource()` function
+    itself fulfills the intent of another design pattern: the *Facade* design pattern.
+    Unfortunately, I do not go into detail about Facade in this book.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([22](ch10.xhtml#idm45043070746416-marker)) The separation into a `public`
+    interface and a `private` implementation is an example of the Template Method
+    design pattern. Unfortunately, in this book I can’t go into detail about the many
+    benefits of this design pattern.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,1945 @@
+- en: Chapter 5\. The Strategy and Command Design Patterns
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'This chapter is devoted to two of the most commonly used design patterns: the
+    Strategy design pattern and the *Command* design pattern. Most commonly used indeed:
+    the C++ Standard Library itself uses both of them dozens of times, and it’s very
+    likely that you have used them many times yourself. Both of these can be considered
+    fundamental tools for every developer.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done),
+    I will introduce you to the Strategy design pattern. I will demonstrate why this
+    is one of the most useful and most important design patterns and why you will
+    find it useful in many situations.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 20: Favor Composition over Inheritance”](#favor_composition_over_inheritance),
+    we will take a look at inheritance and why so many people complain about it. You
+    will see that it’s not bad per se, but like everything else, it has its benefits
+    as well as limitations. Most importantly, however, I will explain that many of
+    the classic design patterns do not draw their power from inheritance but rather
+    from composition.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 21: Use Command to Isolate What Things Are Done”](#use_commands_to_isolate_what_things_are_done),
+    I will introduce you to the Command design pattern. I will show you how to use
+    that design pattern productively, and also give you an idea of how Command and
+    Strategy compare.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 22: Prefer Value Semantics over Reference Semantics”](#prefer_value_semantics_to_reference_semantics),
+    we take a trip into the realm of *reference semantics*. However, we will find
+    that this realm is not particularly friendly and hospitable and makes us worry
+    about the quality of our code. Thus, we will resettle into the realm of *value
+    semantics*, which will welcome us with many benefits for our codebase.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 23: Prefer a Value-Based Implementation of Strategy and Command”](#prefer_a_value_based_implementation_of_strategy_and_command),
+    we will revisit the Strategy and Command patterns. I will demonstrate how we can
+    apply the insight we gained in the realm of value semantics and implement both
+    design patterns based on `std::function`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 19: Use Strategy to Isolate How Things Are Done'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Let’s imagine that you and your team are about to implement a new 2D graphics
+    tool. Among other requirements, it needs to deal with simple geometric primitives,
+    such as circles, squares, and so on, which need to be drawn (see [Figure 5-1](#fig_strategy_shape_hierarchy_1)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The initial +Shape+ inheritance hierarchy.](assets/cpsd_0501.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-1\. The initial `Shape` inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'A couple of classes have already been implemented, such as a `Shape` base class,
+    a `Circle` class, and a `Square` class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The most important aspect is the pure virtual `draw()` member function of the
+    `Shape` base class ([![1](assets/1.png)](#code_g19_1)). While you were on vacation,
+    one of your team members already implemented this `draw()` member function for
+    both the `Circle` and the `Square` classes using OpenGL ([![2](assets/2.png)](#code_g19_2)
+    and [![3](assets/3.png)](#code_g19_3)). The tool is already able to draw circles
+    and squares, and the entire team agrees that the resulting graphics look pretty
+    neat. Everyone is happy!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analyzing the Design Issues
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Everyone, except you, that is. Returning from your vacation, you of course immediately
+    realize that the implemented solution violates the Single-Responsibility Principle
+    (SRP).^([1](ch05.xhtml#idm45043109967248)) As it is, the `Shape` hierarchy is
+    not designed for change. First, it’s not easy to change the way a shape is drawn.
+    In the current implementation, there is only one fixed way of drawing shapes,
+    and it’s not possible to change these details nonintrusively. Since you already
+    predict that the tool will have to support multiple graphic libraries, this is
+    definitely a problem.^([2](ch05.xhtml#idm45043109965312)) And second, if you eventually
+    perform the change, you need to change the behavior in multiple, unrelated places.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But there is more. Since the drawing functionality is implemented inside `Circle`
+    and `Square`, the `Circle` and `Square` classes depend on the implementation details
+    of `draw()`, meaning they depend on OpenGL. Despite the fact that circles and
+    squares should primarily be some simple geometric primitives, these two classes
+    now carry the burden of having to use OpenGL everywhere they are used.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When pointing this out to your colleagues, they are, at first, a little dumbfounded.
+    And also a little annoyed, since they didn’t expect you to point out any flaws
+    in their beautiful solution. However, you have a very nice way of explaining the
+    problem, and eventually they agree with you and start to think about a better
+    solution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It doesn’t take them long to come up with a better approach. In the next team
+    meeting a few days later, they present their new idea: another layer in the inheritance
+    hierarchy (see [Figure 5-2](#fig_strategy_shape_hierarchy_2)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The extended +Shape+ inheritance hierarchy.](assets/cpsd_0502.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-2\. The extended `Shape` inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'To demonstrate the idea, they have already implemented the `OpenGLCircle` and
+    `OpenGLSquare` classes:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Inheritance! Of course! By simply deriving from `Circle` and `Square`, and by
+    moving the implementation of the `draw()` function further down the hierarchy,
+    it is easily possible to implement the drawing in different ways. For instance,
+    there could be a `MetalCircle` and a `VulkanCircle`, assuming that the [Metal](https://developer.apple.com/metal)
+    and [Vulkan](https://www.vulkan.org) libraries need to be supported. Suddenly,
+    change is easy, right?
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'While your colleagues are still very proud about their new solution, you already
+    realize that this approach will not work well for long. And it is easy to demonstrate
+    the shortcomings: all you have to do is consider another requirement, for instance,
+    a `serialize()` member function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `serialize()` member function ([![4](assets/4.png)](#code_g19_4)) is supposed
+    to transform a shape into a byte sequence, which can be stored in a file or a
+    database. From there, it’s possible to deserialize the byte sequence to re-create
+    the exact same shape. And just like the `draw()` member function, the `serialize()`
+    member function can be implemented in various ways. For instance, you could reach
+    for the [protobuf](https://oreil.ly/Q71oF) or [Boost.serialization](https://oreil.ly/1m84h)
+    libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Using the same strategy of moving the implementation details down the inheritance
+    hierarchy, this will quickly lead to a pretty complex and rather artificial hierarchy
+    (see [Figure 5-3](#fig_strategy_shape_hierarchy_3)). Consider the class names:
+    `OpenGLProtobufCircle`, `MetalBoostSerial​Square`, and so on. Ridiculous, right?
+    And how should we structure this: should we add another layer in the hierarchy
+    (see the `Square` branch)? That approach would quickly lead to a deep and complex
+    hierarchy. Or should we rather flatten the hierarchy out (as in the `Circle` branch
+    of the hierarchy)? And what about reusing implementation details? For instance,
+    how would it be possible to reuse the OpenGL code between the `OpenGLProtobufCircle`
+    and the `OpenGLBoostSerialCircle` classes?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Adding the +serialize()+ member function results in a deep and complex inheritance
+    hierarchy.](assets/cpsd_0503.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-3\. Adding the `serialize()` member function results in a deep and
+    complex inheritance hierarchy
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The Strategy Design Pattern Explained
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: You realize that your colleagues are just too enamored with inheritance, and
+    that it’s up to you to save the day. They appear to need someone to show them
+    how to properly design for this kind of change and present them a proper solution
+    to the problem. As the two pragmatic programmers remarked:^([3](ch05.xhtml#idm45043109522832))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inheritance is rarely the answer.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: The problem is still the violation of the SRP. Since you have to plan for changing
+    how the different shapes are drawn, you should identify the drawing aspect as
+    a *variation point*. With this realization, the correct approach is to design
+    for change, follow the SRP, and thus extract the variation point. That is the
+    intent of the Strategy design pattern, one of the classic GoF design patterns.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Strategy Design Pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Intent: “Define a family of algorithms, encapsulate each one, and make them
+    interchangeable. Strategy lets the algorithm vary independently from clients that
+    use it.”^([4](ch05.xhtml#idm45043109517728))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Instead of implementing the virtual `draw()` function in a derived class, you
+    introduce another class for the purpose of drawing shapes. In the case of the
+    classic, object-oriented (OO) form of the Strategy design pattern, this is achieved
+    by introducing the `DrawStrategy` base class (see [Figure 5-4](#fig_strategy_shape_2)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML representation of the _Strategy_ design pattern.](assets/cpsd_0504.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-4\. The UML representation of the *Strategy* design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The isolation of the drawing aspect now allows us to change the implementation
+    of drawing without having to modify the shape classes. This fulfills the idea
+    of the SRP. You are now also able to introduce new implementations of `draw()`
+    without modification of any other code. That fulfills the Open-Closed Principle
+    (OCP). Once again, in this OO setting, SRP is the enabler of the OCP.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The following code snippet shows a naive implementation of the `DrawStrategy`
+    base class:^([5](ch05.xhtml#idm45043109508880))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `DrawStrategy` class comes with a virtual destructor and two pure virtual
+    `draw()` functions, one for circles ([![5](assets/5.png)](#code_g19_5)) and one
+    for squares ([![6](assets/6.png)](#code_g19_6)). For this base class to compile,
+    you need to forward declare the `Circle` and the `Square` classes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `Shape` base class does not change due to the Strategy design pattern. It
+    still represents an abstraction for all shapes and thus offers a pure virtual
+    `draw()` member function. Strategy aims at extracting implementation details and
+    thus affects only the derived classes:^([6](ch05.xhtml#idm45043109417808))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'While the `Shape` base class does not change due to Strategy, the `Circle`
+    and `Square` classes are affected:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Both `Circle` and `Square` are now expecting a `unique_ptr` to a `DrawStrategy`
+    in their constructors ([![7](assets/7.png)](#code_g19_7)). This allows us to configure
+    the drawing behavior from the outside, commonly called *dependency injection*.
+    The `unique_ptr` is moved ([![8](assets/8.png)](#code_g19_8)) into a new data
+    member of the same type ([![9](assets/9.png)](#code_g19_9)). It is also possible
+    to provide corresponding setter functions, which would allow you to change the
+    drawing behavior at a later point. The `draw()` member function now doesn’t have
+    to implement the drawing itself but simply has to call the `draw()` function for
+    the given `DrawStrategy` ([![10](assets/10.png)](#code_g19_10)).^([7](ch05.xhtml#idm45043108959024))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analyzing the Shortcomings of the Naive Solution
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Wonderful! With this implementation in place, you are now able to locally,
+    in isolation, change the behavior of how shapes are drawn, and you enable everyone
+    to implement the new drawing behavior. However, as it is right now, our Strategy
+    implementation has a serious design flaw. To analyze this flaw, let’s assume that
+    you have to add a new kind of shape, maybe a `Triangle`. This should be easy,
+    because, as we have discussed in [“Guideline 15: Design for the Addition of Types
+    or Operations”](ch04.xhtml#design_for_the_addition_of_types_or_operations), the
+    strength of OOP is the addition of new types.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As you’re starting to introduce this `Triangle`, you realize that it’s not
+    as easy to add the new kind of shape as expected. First, you need to write the
+    new class. That is to be expected and not a problem at all. But then you have
+    to update the `DrawStrategy` base class to also enable the drawing of triangles.
+    This, in turn, will have an unfortunate impact on circles and squares: both the
+    `Circle` and `Square` classes need to be recompiled, retested, and potentially
+    redeployed. More generally speaking, *all* shapes are affected in this way. And
+    that should strike you as problematic. Why should circles and squares have to
+    recompile if you add a `Triangle` class?'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The technical reason is that via the `DrawStrategy` base class, all shapes
+    implicitly know about one another. Adding a new shape therefore affects all other
+    shapes. The underlying design reason is a violation of the Interface Segregation
+    Principle (ISP) (see [“Guideline 3: Separate Interfaces to Avoid Artificial Coupling”](ch01.xhtml#separate_interfaces_to_avoid_artificial_coupling)).
+    By defining a single `DrawStrategy` base class, you have artificially coupled
+    circles, squares, and triangles together. Due to this coupling, you have made
+    it more difficult to add new types and thus have limited the strength of OOP.
+    In comparison, you have created a very similar situation as we had when we talked
+    about a procedural solution for the drawing of shapes (see [“Guideline 15: Design
+    for the Addition of Types or Operations”](ch04.xhtml#design_for_the_addition_of_types_or_operations)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“Didn’t we unintentionally reimplement the Visitor design pattern?” you are
+    wondering. I see your point: the `DrawStrategy` looks very similar to a Visitor
+    indeed. But unfortunately, it does not fulfill the intent of a Visitor, since
+    you cannot easily add other operations. To do so, you would have to intrusively
+    add a virtual member function in the `Shape` hierarchy. “And it is not a Strategy
+    either, because we cannot add types, right?” Yes, correct. You see, from a design
+    perspective, this is the worst kind of situation.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To properly implement the Strategy design pattern, you have to extract the
+    implementation details of each shape separately. You have to introduce one `DrawStrategy`
+    class for each kind of shape:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: For the `Circle` class, you have to introduce the `DrawCircleStrategy` base
+    class ([![11](assets/11.png)](#code_g19_11)), and for the `Square` class, it is
+    the `DrawSquareStrategy` ([![12](assets/12.png)](#code_g19_12)) base class. And
+    with the addition of a `Triangle` class, you will also have to add a `DrawTriangleStrategy`
+    base class. Only in this way can you properly separate concerns and still allow
+    everyone to add new types and new implementations for the drawing of shapes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'With this functionality in place, you can easily implement new Strategy classes
+    for drawing circles, squares, and eventually triangles. As an example, consider
+    the `OpenGLCircleStrategy`, which implements the `DrawCircleStrategy` interface:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In [Figure 5-5](#fig_strategy_dependency_graph) you can see the dependency
+    graph for the `Circle` class. Note that the `Circle` and `DrawCircleStrategy`
+    classes are on the same architectural level. Even more noteworthy is the cyclic
+    dependency between them: `Circle` depends on the `DrawCircleStrategy`, but the
+    `DrawCircleStrategy` also depends on `Circle`. But don’t worry: although this
+    may look like a problem at first sight, it isn’t. It is a necessary relationship
+    that shows that `Circle` really owns the `DrawCircleStrategy` and by that creates
+    the desired dependency inversion, as discussed in [“Guideline 9: Pay Attention
+    to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: “Wouldn’t it be possible to implement the different draw Strategy classes using
+    a class template? I’m imagining something similar to the Visitor class used for
+    the Acyclic Visitor”:^([8](ch05.xhtml#idm45043108775712))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: '![The dependency graph for the _Strategy_ design pattern.](assets/cpsd_0505.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-5\. Dependency graph for the *Strategy* design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This is a great idea and exactly what you should do. By means of this class
+    template, you can lift the `DrawStrategy` up into a higher architectural level,
+    reuse code, and follow the DRY principle (see [Figure 5-6](#fig_strategy_dependency_graph_2)).
+    Additionally, if we would have used this approach from the start, we would not
+    have fallen into the trap of artificially coupling the different shape types.
+    Yes, I really like that!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Although this is how we would implement such a Strategy class, you still should
+    not expect that this will reduce the number of base classes (it’s still the same,
+    just generated) or that it will save you a lot of work. The implementations of
+    `DrawStrategy`, such as the `OpenGLCircleStrategy` class, represent most of the
+    work and will hardly change:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: '![The updated dependency graph for the _Strategy_ design pattern.](assets/cpsd_0506.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-6\. Updated dependency graph for the *Strategy* design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Assuming a similar implementation for the `OpenGLSquareStrategy`, we can now
+    put everything together and draw shapes again but this time properly decoupled
+    with the Strategy design pattern:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Comparison Between Visitor and Strategy
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: As you have now learned about both the Visitor and Strategy design patterns,
+    you might wonder what the difference between the two is. After all, the implementation
+    looks fairly similar. But while there are parallels in implementation, the properties
+    of the two design patterns are very different. With the Visitor design pattern,
+    we have identified the *general* addition of operations as the *variation point*.
+    Therefore, we created an abstraction for operations in general, which in turn
+    allowed everyone to add operations. The unfortunate side effect was that it was
+    no longer easy to add new shape types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: With the Strategy design pattern, we have identified the implementation details
+    of a *single* function as a *variation point*. After introducing an abstraction
+    for these implementation details, we’re still able to easily add new types of
+    shapes, but we are not able to easily add new operations. Adding an operation
+    would still require you to intrusively add a virtual member function. Hence, the
+    intent of the Strategy design pattern is the opposite of the intent of the Visitor
+    design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'It may sound promising to combine the two design patterns to gain the advantages
+    of both ideas (making it easy to add both types *and* operations). Unfortunately,
+    this does not work: whichever of the two design patterns you apply first will
+    fix one of the two axes of freedom.^([9](ch05.xhtml#idm45043107792496)) Therefore,
+    you should just remember the strengths and weaknesses of these two design patterns
+    and apply them based on your expectations of how your codebase will evolve.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analyzing the Shortcomings of the Strategy Design Pattern
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'I have shown you the advantages of the Strategy design pattern: it allows you
+    to reduce the dependencies on a particular implementation detail by introducing
+    an abstraction for that detail. However, there is no silver bullet in software
+    design, and every design comes with a number of drawbacks. The Strategy design
+    pattern is no exception, and it’s important to also take potential disadvantages
+    into account.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: First, while the implementation details of a certain operation have been extracted
+    and isolated, the operation itself is still part of the concrete type. This fact
+    is evidence of the aforementioned limitation that we are still not able to easily
+    add operations. Strategy, in contrast to Visitor, preserves the strength of OOP
+    and enables you to easily add new types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Second, it pays off to identify such variation points early. Otherwise a large
+    refactoring is required. Of course, this doesn’t mean you should implement everything
+    with Strategy up front, just in case, to avoid a refactoring. This could quickly
+    result in overengineering. But at the first indication that an implementation
+    detail might change, or that there is a desire to have multiple implementations,
+    you should rather quickly implement the necessary modifications. The best, but
+    of course a little insubstantial, advice is to keep things as simple as possible
+    (the [*KISS* principle](https://oreil.ly/YVUhD); Keep It Simple, Stupid).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Third, if you implement Strategy by means of a base class, the performance will
+    certainly take a hit by the additional runtime indirection. The performance is
+    also affected by the many manual allocations (the `std::make_unique()` calls),
+    the resulting memory fragmentation, and the various indirections due to numerous
+    pointers. This is to be expected, yet the flexibility of your implementation and
+    the opportunity for everyone to add new implementations may outweigh this performance
+    penalty. Of course, it depends, and you will have to decide on a case-by-case
+    basis. If you implement Strategy using templates (see the discussion about [“Policy-Based
+    Design”](#policy_based_design)), this disadvantage is of no concern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Last but not least, the major disadvantage of the Strategy design pattern is
+    that a single Strategy should deal with either a single operation or a small group
+    of cohesive functions. Otherwise you would again violate the SRP. If the implementation
+    details of multiple operations need to be extracted, there will have to be multiple
+    Strategy base classes and multiple data members, which can be set via *dependency
+    injection*. Consider, for instance, the situation with an additional `serialize()`
+    member function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: While this leads to a very unfortunate proliferation of base classes and larger
+    instances due to multiple pointers, it also raises the question of how to design
+    the class so that it’s possible to conveniently assign multiple different strategies.
+    Therefore, the Strategy design pattern appears to be strongest in situations where
+    you need to isolate a small number of implementation details. If you encounter
+    a situation where you need to extract the details of many operations, it might
+    be better to consider other approaches (see, for instance, the External Polymorphism
+    design pattern in [Chapter 7](ch07.xhtml#the_bridge_prototype_and_external_polymorphism_design_patterns)
+    or the Type Erasure design pattern in [Chapter 8](ch08.xhtml#type_erasure)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Policy-Based Design
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'As already demonstrated in previous chapters, the Strategy design pattern is
+    not limited to dynamic polymorphism. On the contrary, the intent of Strategy can
+    be implemented perfectly in static polymorphism using templates. Consider, for
+    instance, the following two algorithms from the Standard Library:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Both the `std::partition()` and the `std::sort()` algorithm make use of the
+    Strategy design pattern. The `UnaryPredicate` argument of `std::partition()` ([![13](assets/13.png)](#code_g19_13))
+    and the `Compare` argument of `std::sort()` ([![14](assets/14.png)](#code_g19_14))
+    represent a means to inject part of the behavior from outside. More specifically,
+    both arguments allow you to specify how elements are ordered. Hence, both algorithms
+    extract a specific part of their behavior and provide an abstraction for it in
+    the form of a concept (see [“Guideline 7: Understand the Similarities Between
+    Base Classes and Concepts”](ch02.xhtml#understand_the_similarities_between_base_classes_and_concepts)).
+    This, in contrast to the OO form of Strategy, does not incur any runtime performance
+    penalty.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A similar approach can be seen in the `std::unique_ptr` class template:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: For both the base template ([![15](assets/15.png)](#code_g19_15)) and its specialization
+    for arrays ([![16](assets/16.png)](#code_g19_16)), it is possible to specify an
+    explicit `Deleter` as the second template argument. With this argument, you can
+    decide whether you want to free the resource by means of `delete`, `free()`, or
+    any other deallocation function. It’s even possible to “abuse” `std::unique_ptr`
+    to perform a completely different kind of cleanup.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This flexibility is also evidence for the Strategy design pattern. The template
+    argument allows you to inject some cleanup behavior into the class. This form
+    of Strategy is also called *policy-based design*, based on a design philosophy
+    introduced by Andrei Alexandrescu in 2001.^([10](ch05.xhtml#idm45043107080048))
+    The idea is the same: extract and isolate specific behavior of class templates
+    to improve changeability, extensibility, testability, and reusability. Thus, policy-based
+    design can be considered the static polymorphism form of the Strategy design pattern.
+    And evidently, the design works really well, as the many applications of this
+    idea in the Standard Library demonstrate.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You can also apply policy-based design to the shape-drawing example. Consider
+    the following implementation of the `Circle` class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Instead of passing `std::unique_ptr` to a `DrawCircleStrategy` base class in
+    the constructor, you could specify the Strategy with a template argument ([![17](assets/17.png)](#code_g19_17)).
+    The biggest advantage would be the performance improvement due to fewer pointer
+    indirections: instead of calling through `std::unique_ptr`, you could directly
+    call to the concrete implementation provided by the `DrawCircleStrategy` ([![18](assets/18.png)](#code_g19_18)).
+    On the downside, you would lose the flexibility to adapt the drawing Strategy
+    of a specific `Circle` instance at runtime. Also, you wouldn’t have a single `Circle`
+    class anymore. You would have one instantiation of `Circle` for every drawing
+    strategy. And last but not least, you should keep in mind that class templates
+    usually completely reside in header files. You could therefore lose the opportunity
+    to hide implementation details in a source file. As always, there is no perfect
+    solution, and the choice of the “right” solution depends on the actual context.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In summary, the Strategy design pattern is one of the most versatile examples
+    in the catalog of design patterns. You will find it useful in many situations
+    in the realm of dynamic as well as static polymorphism. However, it is not the
+    ultimate solution for every problem—be aware of its potential disadvantages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 20: Favor Composition over Inheritance'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'After the enormous surge of enthusiasm for OOP in the 90s and early 2000s,
+    OOP today is on the defensive. The voices that argue against OOP and highlight
+    its disadvantages grow stronger and louder. This is not limited to the C++ communities
+    but is also in other programming language communities. While OOP in its entirety
+    indeed has some limitations, let’s focus on the one feature that appears to generate
+    most of the heat: inheritance. As Sean Parent remarked:^([11](ch05.xhtml#idm45043106795536))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Inheritance is the base class of evil.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'While inheritance is sold as a very natural and intuitive way of modeling real-world
+    relations, it turns out to be much harder to use than promised. You have already
+    seen the subtle failures of using inheritance when we talked about the Liskov
+    Substitution Principle (LSP) in [“Guideline 6: Adhere to the Expected Behavior
+    of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions).
+    But there are other aspects of inheritance that are often misunderstood.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First and foremost, inheritance is always described as simplifying reusability.
+    This seems intuitive, since it appears obvious that you can reuse code easily
+    if you just inherit from another class. Unfortunately, that’s not the kind of
+    reuse inheritance brings to you. Inheritance is not about reusing code in a base
+    class; instead, it is about being reused by other code that uses the base class
+    polymorphically. For instance, assuming a slightly extended `Shape` base class,
+    the following functions work for all kinds of shapes and thus can be reused by
+    all implementations of the `Shape` base class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: All four functions ([![1](assets/1.png)](#code_g20_1), [![2](assets/2.png)](#code_g20_2),
+    [![3](assets/3.png)](#code_g20_3), and [![4](assets/4.png)](#code_g20_4)) are
+    built on the `Shape` abstraction. All of these functions are coupled only to the
+    common interface of all kinds of shapes but not to any specific shape. All kinds
+    of shapes can be rotated around a point, merged, written to file, and sent via
+    RPC. Every shape “reuses” this functionality.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It is the ability to express functionality by means of an abstraction that creates
+    the opportunity to reuse code. This functionality is expected to create a vast
+    amount of code, in comparison to the small amount of code the base class contains.
+    Real reusability, therefore, is created by the polymorphic use of a type, not
+    by polymorphic types.^([12](ch05.xhtml#idm45043106632784))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Second, inheritance is said to help in decoupling software entities. While
+    that is most certainly true (remember, for instance, the discussion about the
+    Dependency Inversion Principle (DIP) in [“Guideline 9: Pay Attention to the Ownership
+    of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)),
+    it’s often not explained that inheritance also creates coupling. You’ve seen evidence
+    of that before. While implementing the Visitor design pattern, you experienced
+    that inheritance forces certain implementation details on you. In a classic Visitor,
+    you have to implement the pure virtual functions of a `Visitor` base class as
+    they are required, even if this is not optimal for your application. You also
+    don’t have a lot of choices with respect to the function arguments or return types.
+    These things are fixed.^([13](ch05.xhtml#idm45043106629568))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You also experienced this coupling at the beginning of the discussion on the
+    Strategy design pattern. In this case, inheritance forced a structural coupling
+    that caused a deep(er) inheritance hierarchy, resulted in questionable naming
+    of classes, and impaired reuse.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'At this point, you might get the impression that I’m trying to discredit inheritance
+    completely. Well, to be honest, I am trying to make it look just a little bad,
+    but only as much as necessary. To state it clearly: inheritance is not bad, nor
+    is it wrong to use it. On the contrary: inheritance is a very powerful feature,
+    and if used properly you can do incredible things with it. However, of course
+    you remember the Peter Parker Principle:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: With great power comes great responsibility.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: ''
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Peter Parker, aka Spider-Man
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: The problem is the “if used properly” part. Inheritance has proven to be hard
+    to use properly (definitely harder than we are led to believe; see my previous
+    reasonings), and thus is misused unintentionally. It is also overused, as many
+    developers have the habit of using it for every kind of problem.^([14](ch05.xhtml#idm45043106561024))
+    This overuse appears to be the source of many problems, as Michael Feathers remarks:^([15](ch05.xhtml#idm45043106560240))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Programming by difference]^([16](ch05.xhtml#idm45043106558560)) fell out of
+    favor in the 1990s when many people in the OO community noticed that inheritance
+    can be rather problematic if it is overused.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In many situations, inheritance is neither the right approach nor the right
+    tool. Most of the time it is preferable to use composition instead. You should
+    not be surprised by that revelation, though, because you have already seen it
+    to be true. Composition is the reason the OO form of the Strategy design pattern
+    works so well, not inheritance. It is the introduction of an abstraction and the
+    aggregation of corresponding data members that make the Strategy design pattern
+    so powerful, not the inheritance-based implementation of different strategies.
+    In fact, you will find that many design patterns are firmly based on composition,
+    not on inheritance.^([17](ch05.xhtml#idm45043106557328)) All of these enable extension
+    by means of inheritance but are themselves enabled by means of composition.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Delegate to Services: Has-A Trumps Is-A.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: ''
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Andrew Hunt and David Thomas, The Pragmatic Programmer
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: This is a general takeaway for many design patterns. I suggest you keep this
+    insight close at hand, as it will prove very useful in understanding the design
+    patterns that you will see in the remainder of this book, and will improve the
+    quality of your implementations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 21: Use Command to Isolate What Things Are Done'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Before we get started with this guideline, let’s try an experiment. Open your
+    preferred email client and write an email to me. Add the following content: “I
+    love your book! It keeps me up all night and makes me forget all my troubles.”
+    OK, great. Now click Send. Good job! Give me a second to check my emails…No, it’s
+    not here yet…No, still not here…Let’s try again: Click Resend. No, nothing. Hmm,
+    I guess some server must be down. Or all of my Commands simply failed: the `WriteCommand`,
+    the `SendCommand`, the `ResendCommand`, and so on. How unfortunate. But despite
+    this failed experiment, you now have a pretty good idea of another GoF design
+    pattern: the Command design pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Command Design Pattern Explained
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The Command design pattern focuses on the abstraction and isolation of work
+    packages that (most often) are executed once and (usually) immediately. For that
+    purpose, it recognizes the existence of different kinds of work packages as *variation
+    points* and introduces the corresponding abstraction that allows the easy implementation
+    of new kinds of work packages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Command Design Pattern
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Intent: “Encapsulate a request as an object, thereby letting you parameterize
+    clients with different requests, queue or log requests, and support undoable operations.”^([18](ch05.xhtml#idm45043106526608))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 5-7](#fig_command_original) shows the original UML formulation, taken
+    from the GoF book.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML representation of the _Command_ design pattern.](assets/cpsd_0507.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-7\. The UML representation of the *Command* design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: In this OO-based form, the Command pattern introduces an abstraction in the
+    form of the `Command` base class. This enables anyone to implement a new kind
+    of `ConcreteCommand`. That `ConcreteCommand` can do anything, even perform an
+    action on some kind of `Receiver`. The effect of a command is triggered via the
+    abstract base class by a particular kind of `Invoker`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As a concrete example of the Command design pattern, let’s consider the following
+    implementation of a calculator. The first code snippet shows the implementation
+    of a `CalculatorCommand` base class, which represents the abstraction of a mathematical
+    operation on a given integer:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `CalculatorCommand` class expects derived classes to implement both the
+    pure virtual `execute()` function ([![1](assets/1.png)](#code_g21_1)) and the
+    pure virtual `undo()` function ([![2](assets/2.png)](#code_g21_2)). The expectation
+    for `undo()` is that it implements the necessary actions to reverse the effect
+    of the `execute()` function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `Add` and `Subtract` classes both represent possible commands for a calculator
+    and therefore implement the `CalculatorCommand` base class:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: '`Add` implements the `execute()` function using an addition operation ([![3](assets/3.png)](#code_g21_3))
+    and the `undo()` function using a subtraction operation ([![4](assets/4.png)](#code_g21_4)).
+    `Subtract` implements the inverse ([![5](assets/5.png)](#code_g21_5) and [![6](assets/6.png)](#code_g21_6)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Thanks to the `CalculatorCommand` hierarchy, the `Calculator` class itself
+    can be kept rather simple:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: The only functions we need for the computing activities are `compute()` ([![7](assets/7.png)](#code_g21_7))
+    and `undoLast()` ([![8](assets/8.png)](#code_g21_8)). The `compute()` function
+    is passed a `CalculatorCommand` instance, immediately executes it to update the
+    current value ([![9](assets/9.png)](#code_g21_9)), and stores it on the stack
+    ([![10](assets/10.png)](#code_g21_10)). The `undoLast()` function reverts the
+    last executed command by popping it from the stack and calling `undo()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `main()` function combines all of the pieces:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: We first create a `calculator` ([![11](assets/11.png)](#code_g21_11)) and a
+    series of operations ([![12](assets/12.png)](#code_g21_12), [![13](assets/13.png)](#code_g21_13),
+    [![14](assets/14.png)](#code_g21_14), and [![15](assets/15.png)](#code_g21_15)),
+    which we apply one after another. After that, we revert `op4` by means of the
+    `undo()` operation before we query the final result.
+  prefs: []
+  type: TYPE_NORMAL
+- en: This design very nicely follows the SOLID principles.^([19](ch05.xhtml#idm45043105484832))
+    It adheres to the SRP since the *variation point* has already been extracted by
+    means of the Command design pattern. As a result, both `compute()` and `undo()`
+    do not have to be virtual functions. The SRP also acts as an enabler for the OCP,
+    which allows us to add new operations without having to modify any existing code.
+    Last, but not least, if the ownership for the `Command` base class is properly
+    assigned to the high level, then the design also adheres to the DIP (see [Figure 5-8](#fig_command_dependency_graph)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The dependency graph for the _Command_ design pattern.](assets/cpsd_0508.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-8\. Dependency graph for the *Command* design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'There is a second example of the Command design pattern that belongs in the
+    category of classic examples: a [thread pool](https://oreil.ly/jGZd5). The purpose
+    of a thread pool is to maintain multiple threads waiting for tasks to be executed
+    in parallel. This idea is implemented by the following `ThreadPool` class: it
+    provides a couple of member functions to offload certain tasks to a specific number
+    of available threads:⁠^([20](ch05.xhtml#idm45043105381936))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Most importantly, the `ThreadPool` allows you to schedule a task via the `schedule()`
+    function ([![16](assets/16.png)](#code_g21_16)). This can be *any* task: the `ThreadPool`
+    is not at all concerned about what kind of work its threads will have to perform.
+    With the `Command` base class, it is completely decoupled from the actual kind
+    of task you schedule ([![17](assets/17.png)](#code_g21_17)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'By simply deriving from `Command`, you can formulate arbitrary tasks:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: One possible example of such a task is a `FormattingCommand` ([![18](assets/18.png)](#code_g21_18)).
+    This task would get the necessary information to trigger the formatting of a disk
+    via the operating system. Alternatively, you can imagine a `PrintCommand` that
+    receives all data to trigger a printer job ([![19](assets/19.png)](#code_g21_19)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Also in this `ThreadPool` example, you recognize the effect of the Command
+    design pattern: the different kinds of tasks are identified as a *variation point*
+    and are extracted (which again follows the SRP), which enables you to implement
+    different kinds of tasks without the need to modify existing code (adherence to
+    the OCP).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Of course, there are also some examples from the Standard Library. For instance,
+    you will see the Command design pattern in action in the `std::for_each()` ([![20](assets/20.png)](#code_g21_20))
+    algorithm:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'With the third argument, you can specify *what* task the algorithm is supposed
+    to perform on all of the given elements. This can be any action, ranging from
+    manipulating the elements to printing them, and can be specified by something
+    as simple as a function pointer to something as powerful as a lambda:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: The Command Design Pattern Versus the Strategy Design Pattern
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: “Wait a second!” I can hear you cry out. “Didn’t you just explain that the algorithms
+    of the Standard Library are implemented by means of the Strategy design pattern?
+    Isn’t this a complete contradiction of the previous statement?” Yes, you are correct.
+    Just a few pages back, I did explain that the `std::partition()` and `std::sort()`
+    algorithms are implemented by means of the Strategy design pattern. And therefore,
+    I admit that it appears as if I am now contradicting myself. However, I did not
+    claim that *all* the algorithms are based on Strategy. So let me explain.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'From a structural point of view, the Strategy and Command design patterns are
+    identical: whether you’re using dynamic or static polymorphism, from an implementation
+    point of view, there is no difference between Strategy and Command.^([21](ch05.xhtml#idm45043104876160))
+    The difference lies entirely in the intent of the two design patterns. Whereas
+    the Strategy design pattern specifies *how* something should be done, the Command
+    design pattern specifies *what* should be done. Consider, for instance, the `std::partition()`
+    and `std::for_each()` algorithms:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: Whereas you can only control *how* to select elements in the `std::partition()`
+    algorithm ([![21](assets/21.png)](#code_g21_21)), the `std::for_each()` algorithm
+    gives you control over *what* operation is applied to each element in the given
+    range ([![22](assets/22.png)](#code_g21_22)). And whereas in the shapes example
+    you could only specify *how* to draw a certain kind of shape, in the `ThreadPool`
+    example you are completely in charge of deciding *what* operation is scheduled.^([22](ch05.xhtml#idm45043104697792))
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are two other indicators for the two design patterns you have applied.
+    First, if you have an object and configure it using an action (you perform *dependency
+    injection*), then you are (most likely) using the Strategy design pattern. If
+    you don’t use the action to configure an object, but if instead the action is
+    performed directly, then you are (most likely) using the Command design pattern.
+    In our `Calculator` example, we did not pass an action to configure the `Calculator`,
+    but instead the action was evaluated immediately. Therefore, we built on the Command
+    pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Alternatively, we could also implement `Calculator` by means of Strategy:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: In this implementation of a `Calculator`, the Strategy is injected by means
+    of a `set()` function ([![23](assets/23.png)](#code_g21_23)). The `compute()`
+    function uses the injected Strategy to perform a computation ([![24](assets/24.png)](#code_g21_24)).
+    Note, however, that this approach makes it more difficult to implement a reasonable
+    undo mechanism.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The second indicator to see whether you are using Command or Strategy is the
+    `undo()` operation. If your action provides an `undo()` operation to roll back
+    *what* it has done and encapsulates everything that is needed to perform the `undo()`,
+    then you are—most likely—dealing with the Command design pattern. If your action
+    doesn’t provide an `undo()` operation, because it’s focused on *how* something
+    is done or because it lacks the information to roll back the operation, then you
+    are—most likely—dealing with the Strategy design pattern. However, I should explicitly
+    point out that the lack of an `undo()` operation is not conclusive evidence of
+    Strategy. It could still be an implementation of Command if the intent is to specify
+    *what* should be done. For instance, the `std::for_each()` algorithm still expects
+    a `Command`, despite the fact that there is no need for an `undo()` operation.
+    The `undo()` operation should be considered an optional feature of the Command
+    design pattern, not a defining one. In my opinion, `undo()` is not a strength
+    of the Command design pattern but a pure necessity: if an action has complete
+    freedom to do whatever it desires, then only this action alone will be able to
+    roll the operation back (of course, assuming that you don’t want to store a complete
+    copy of everything for every call to a Command).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: I admit there is no clear separation between these two patterns and that there
+    is a gray area between them. However, there’s no point in arguing about whether
+    something is a Command or a Strategy and losing a couple of friends in the process.
+    More important than agreeing on which one of the two you are using is exploiting
+    their ability to extract implementation details and separate concerns. Both design
+    patterns help you isolate changes and extensions and thus help you follow the
+    SRP and OCP. After all, this ability may be the reason why there are so many examples
+    of these two design patterns in the C++ Standard Library.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analyzing the Shortcomings of the Command Design Pattern
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The advantages of the Command design pattern are similar to those of the Strategy
+    design pattern: Command helps you decouple from the implementation details of
+    concrete tasks by introducing some form of abstraction (for instance, a base class
+    or a concept). This abstraction allows you to easily add new tasks. Thus, Command
+    satisfies both the SRP and the OCP.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: However, the Command design pattern also has its disadvantages. In comparison
+    to the Strategy design pattern, the list of disadvantages is pretty short, though.
+    The only real disadvantage is the added runtime performance overhead due to the
+    additional indirection if you implement Command by means of a base class (the
+    classic GoF style). Again, it’s up to you to decide whether the increased flexibility
+    outweighs the loss of runtime performance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In summary, just like the Strategy design pattern, the Command design pattern
+    is one of the most basic and useful ones in the catalog of design patterns. You
+    will encounter implementations of Command in many different situations, both static
+    and dynamic. Thus, understanding the intent, advantages, and disadvantages of
+    Command will prove useful many times.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 22: Prefer Value Semantics over Reference Semantics'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done)
+    and [“Guideline 21: Use Command to Isolate What Things Are Done”](#use_commands_to_isolate_what_things_are_done),
+    I introduced you to the Strategy and Command design pattern, respectively. In
+    both cases, the examples were firmly built on the classic GoF style: they used
+    dynamic polymorphism by means of an inheritance hierarchy. With that classic object-oriented
+    style lacking a modern touch, I imagine that by now all your nail-biting has gotten
+    you in trouble with your manicurist. And you might be wondering: “Isn’t there
+    another, better way to implement Strategy and Command? A more ‘modern’ approach?”
+    Yes, rest assured; there is. And this approach is so important for the philosophy
+    of what we commonly call “Modern C++” that it definitely justifies a separate
+    guideline to explain the advantages. I’m pretty sure your manicurist will understand
+    the reason for this little detour.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Shortcomings of the GoF Style: Reference Semantics'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The design patterns collected by the Gang of Four and presented in their book
+    were introduced as object-oriented design patterns. Almost all of the 23 design
+    patterns described in their book are using at least one inheritance hierarchy
+    and thus are firmly rooted in the realm of OO programming. Templates, the obvious
+    second choice, did not play any part in the GoF book. This pure OO style is what
+    I refer to as the *GoF style*. From today’s perspective, that style may appear
+    to be an old, outdated way of doing things in C++, but of course we need to remember
+    that the book was released in October 1994\. At that time, templates may already
+    have been a part of the language (at least they were officially described in the
+    *Annotated Reference Manual (ARM)*), but we didn’t have template-related idioms,
+    and C++ was still commonly perceived as an OO programming language.^([23](ch05.xhtml#idm45043104345904))
+    Hence, the common way to use C++ was to primarily use inheritance.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Today we know that the GoF style comes with a number of disadvantages. One of
+    the most important, and usually one of the most-often mentioned, is performance:^([24](ch05.xhtml#idm45043104344576))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Virtual functions increase the runtime overhead and diminish the compiler’s
+    opportunities to optimize.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Many allocations of small polymorphic objects cost extra runtime, fragment the
+    memory, and lead to suboptimal cache usage.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: The way data is arranged is often counterproductive with respect to data access
+    schemes.^([25](ch05.xhtml#idm45043104340000))
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'Performance truly is not one of the strong aspects of the GoF style. Without
+    going into a complete discussion about all the possible shortcomings of the GoF
+    style, let’s instead focus on one other disadvantage that I consider of particular
+    interest: the GoF style falls into what we today call *reference semantics* (or
+    sometimes also *pointer semantics*). This style got its name because it works
+    primarily with pointers and references. To demonstrate term reference semantics
+    means and why it usually comes with a rather negative connotation, let’s take
+    a look at the following code example using the C++20 `std::span` class template:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `print()` function ([![1](assets/1.png)](#code_g22_1)) demonstrates the
+    purpose of `std::span`. The `std::span` class template represents an abstraction
+    for an array. The `print()` function can be called with any kind of array (built-in
+    arrays, `std::array`, `std::vector`, etc.) without coupling to any specific type
+    of array. In the demonstrated example of `std::span` with a dynamic extent (no
+    second template argument representing the size of the array), a typical implementation
+    of `std::span` contains two data members: a pointer to the first element of the
+    array, and the size of the array. For that reason, `std::span` is considered easy
+    to copy and is usually passed by value. Apart from that, `print()` simply traverses
+    the elements of the `std::span` (in our case, integers) and prints them via `std::cout`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the `main()` function, we first create the `std::vector<int>` `v` and immediately
+    fill it with the integers `1`, `2`, `3`, and `4` ([![2](assets/2.png)](#code_g22_2)).
+    Then we create another `std::vector` `w` as a copy of `v` ([![3](assets/3.png)](#code_g22_3))
+    and the `std::span` `s` ([![4](assets/4.png)](#code_g22_4)). Both `w` and `s`
+    are qualified with `const`. Directly after that, we try to modify both `w` and
+    `s` at index `2`. The attempt to change `w` fails with a compilation error: `w`
+    is declared `const`, and for that reason it’s not possible to change the contained
+    elements ([![5](assets/5.png)](#code_g22_5)). The attempt to change `s`, however,
+    works fine. There will be no compilation error, despite the fact that `s` is declared
+    `const` ([![6](assets/6.png)](#code_g22_6)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The reason for this is that `s` is not a copy of `v` and does not represent
+    a value. Instead, it represents a reference to `v`. It essentially acts as a pointer
+    to the first element of `v`. Thus, the `const` qualifier semantically has the
+    same effect as declaring a pointer `const`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'While the pointer `ptr` cannot be changed and will refer to the first element
+    of `v` throughout its lifetime, the referenced integer can be easily modified.
+    To prevent an assignment to the integer, you would need to add an additional `const`
+    qualifier for the `int`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Since the semantics of a pointer and `std::span` are equivalent, `std::span`
+    obviously falls into the category of reference semantics. And this comes with
+    a number of additional dangers, as demonstrated in the remainder of the `main()`
+    function. As a next step, we print the elements referred to by `s` ([![7](assets/7.png)](#code_g22_7)).
+    Note that instead, you could also pass the vector `v` directly, as the `std::span`
+    provides the necessary conversion constructors to accept `std::vector`. The `print()`
+    function will correctly result in the following output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: Because we can (and because by now, the numbers 1 through 4 probably start to
+    sound a little boring), we now assign a new set of numbers to the vector `v` ([![8](assets/8.png)](#code_g22_8)).
+    Admittedly, the choice of `5`, `6`, `7`, `8`, and `9` is neither particularly
+    creative nor entertaining, but it will serve its purpose. Directly afterward,
+    we again write to the second index by means of `s` ([![9](assets/9.png)](#code_g22_9))
+    and again print the elements referred to by `s` ([![10](assets/10.png)](#code_g22_10)).
+    Of course, we expect the output to be `( 5 6 99 8 9 )`, but unfortunately that
+    is not the case. We might get the following output:^([26](ch05.xhtml#idm45043103810576))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Maybe this completely shocks you and you end up with a few more gray hairs.^([27](ch05.xhtml#idm45043103808768))
+    Perhaps you are merely surprised. Or you knowingly smile and nod: yes, of course,
+    undefined behavior! When assigning new values to the `std::vector` `v`, we haven’t
+    just changed the values but also the size of the vector. Instead of four values,
+    it now needs to store five elements. For that reason, the vector has (possibly)
+    performed a reallocation and has thus changed the address of its first element.
+    Unfortunately, the `std::span` `s` didn’t get the note and still firmly holds
+    onto the address of the previous first element. Hence, when we try to write to
+    `v` by means of `s`, we do not write into the current array of `v` but to an already
+    discarded piece of memory that used to be the internal array of `v`. Classic undefined
+    behavior, and a classic problem of reference semantics.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: “Hey, are you trying to discredit `std::span`?” you ask. No, I am not trying
+    to suggest that `std::span`, and also `std::string_view`, are bad. On the contrary,
+    I actually like these two a lot since they provide remarkably simple and cheap
+    abstractions from all kinds of arrays and strings, respectively. However, remember
+    that every tool has advantages and disadvantages. When I use them, I use them
+    consciously, fully aware that any nonowning reference type requires careful attention
+    to the lifetime of the value it references. For instance, while I consider both
+    to be very useful tools for function arguments, I tend to not use them as data
+    members. The danger of lifetime issues is just too high.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Reference Semantics: A Second Example'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '“Well, of course I knew that,” you argue. “I also wouldn’t store `std::span`
+    for a longer period of time. However, I’m still not convinced that references
+    and pointers are a problem.” OK, if that first example wasn’t startling enough,
+    I have a second example. This time I use one of the STL algorithms, `std::remove()`.
+    The `std::remove()` algorithm takes three arguments: a pair of iterators for the
+    range that is traversed to remove all elements of a particular value, and a third
+    argument that represents the value to be removed. In particular, note that the
+    third argument is passed by a reference-to-`const`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let’s take a look at the following code example:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: We start with the `std::vector` `v`, which is initialized with a few random
+    numbers ([![11](assets/11.png)](#code_g22_11)). Now we are interested in removing
+    all the elements that represent the greatest value stored in the vector. In our
+    example, that is the value `42`, which is stored in the vector twice. The first
+    step in performing the removal is to determine the greatest value using the `std::max_element()`
+    algorithm. `std::max_element()` returns an iterator to the greatest value. If
+    several elements in the range are equivalent to the greatest element, it returns
+    the iterator to the first such element ([![12](assets/12.png)](#code_g22_12)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The second step in removing the greatest values is a call to `std::remove()`
+    ([![13](assets/13.png)](#code_g22_13)). We pass the range of elements using `begin(vec)`
+    and `end(vec)`, and the greatest value by dereferencing the `pos` iterator. Last
+    but not least, we finish the operation with a call to the `erase()` member function:
+    we erase all the values between the position returned by the `std::remove()` algorithm
+    and the end of the vector. This sequence of operations is commonly known as the
+    [*erase-remove idiom*](https://oreil.ly/fc50R).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We expect that both `42` values are removed from the vector, and therefore
+    we expect to get the following result:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Unfortunately, this expectation does not hold. Instead, the vector now contains
+    the following values:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Note that the vector still contains a `42` but is now missing a `4` instead.
+    The underlying reason for this misbehavior is, again, reference semantics: by
+    passing the dereferenced iterator to the `remove()` algorithm, we implicitly state
+    that the value stored in that location should be removed. However, after removing
+    the first `42`, this location holds the value `4`. The `remove()` algorithm removes
+    all elements with the value `4`. Hence, the next value that is removed is not
+    the next `42` but the next `4`, and so on.^([28](ch05.xhtml#idm45043103549472))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“OK, I got it! But that problem is history! Today we don’t use the erase-remove
+    idiom anymore. C++20 finally provided us with the free `std::erase()` function!”
+    Well, I would love to agree with that statement, but unfortunately I can only
+    acknowledge the existence of the `std::erase()` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `std::erase()` function also takes its second argument, the value that
+    is to be removed, by means of a reference-to-`const`. Therefore, the problem that
+    I just described remains. The only way to resolve this problem is to explicitly
+    determine the greatest element and pass it to the `std::remove()` algorithm ([![14](assets/14.png)](#code_g22_14)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: '“Are you seriously suggesting that we shouldn’t use reference parameters anymore?”
+    No, absolutely not! Of course you should use reference parameters, for instance,
+    for performance reasons. However, I hope to have raised a certain awareness. Hopefully,
+    you now understand the problem: references, and especially pointers, make our
+    life so much harder. It’s harder to understand the code, and therefore it is easier
+    to introduce bugs into our code. And pointers in particular raise so many more
+    questions: is it a valid pointer or a `nullptr`? Who owns the resource behind
+    the pointer and manages the lifetime? Of course, lifetime issues are not much
+    of an issue since we have expanded our toolbox and have smart pointers at our
+    disposal. As [Core Guideline R.3](https://oreil.ly/keyuZ) clearly states:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A raw pointer (a T*) is non-owning.
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: In combination with knowing that smart pointers are taking on the responsibility
+    of ownership, this cleans up the semantics of pointers quite significantly. But
+    still, despite the fact that smart pointers are of course an immensely valuable
+    tool and, for good reasons, are celebrated as a huge achievement of “Modern C++,”
+    in the end they are only a fix for the holes that reference semantics has torn
+    in the fabric of our ability to reason about code. Yes, reference semantics makes
+    it harder to understand code and to reason about the important details, and thus
+    is something we would like to avoid.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Modern C++ Philosophy: Value Semantics'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '“But wait,” I can hear you object, “what other choice do we have? What should
+    we do? And how else should we cope with inheritance hierarchies? We can’t avoid
+    pointers there, right?” If you’re thinking something along these lines, then I
+    have very good news for you: yes, there is a better solution. A solution that
+    makes your code easier to understand and easier to reason about, and might even
+    have a positive impact on its performance (remember we also talked about the negative
+    performance aspects of reference semantics). The solution is value semantics.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Value semantics is nothing new in C++. The idea was already part of the original
+    STL. Let’s consider the most famous of the STL containers, `std::vector`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: We start with a `std::vector` called `v1`, filled with five integers. In the
+    next line, we create a copy of `v1`, called `v2` ([![15](assets/15.png)](#code_g22_15)).
+    Vector `v2` is a real copy, sometimes also referred to as a *deep copy*, which
+    now contains its own chunk of memory and its own integers, and doesn’t refer to
+    the integers in `v1`.^([29](ch05.xhtml#idm45043103166160)) We can assert that
+    by comparing the two vectors (they prove to be equal; see [![16](assets/16.png)](#code_g22_16)),
+    but the addresses of the first elements are different ([![17](assets/17.png)](#code_g22_17)).
+    And changing one element in `v2` ([![18](assets/18.png)](#code_g22_18)) has the
+    effect that the two vectors are not equal anymore ([![19](assets/19.png)](#code_g22_19)).
+    Yes, both vectors have their own arrays. They do not share their content, i.e.,
+    they do not try to “optimize” the copy operation. You might have heard about such
+    techniques, for instance, the [copy-on-write](https://oreil.ly/lZae0) technique.
+    And yes, you might even be aware that this was a common implementation for `std::string`
+    prior to C++11\. Since C++11, however, `std::string` is [no longer allowed to
+    use copy-on-write](https://oreil.ly/hYbsO) due to its [requirements](https://oreil.ly/lW1kV)
+    formulated in the C++ standard. The reason is that this “optimization” easily
+    proves to be a pessimization in a multithreaded world. Hence, we can count on
+    the fact that copy construction creates a real copy.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Last but not least, we create another copy called `v3`, which we declare as
+    `const` ([![20](assets/20.png)](#code_g22_20)). If we now try to change a value
+    of `v3`, we will get a compilation error. This shows that a `const` vector does
+    not just prevent adding and removing elements but that all elements are also considered
+    to be `const`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'From a semantic perspective, this means that `std::vector`, just as any container
+    in the STL, is considered to be a value. Yes, a value, like an `int`. If we copy
+    a value, we don’t copy just a part of the value but the entire value. If we make
+    a value `const`, it is not just partially `const` but completely `const`. That
+    is the rationale of value semantics. And we’ve seen a couple of advantages already:
+    values are easier to reason about than pointers and references. For instance,
+    changing a value does not have an impact on some other value. The change happens
+    locally, not somewhere else. This is an advantage that compilers heavily exploit
+    for their optimization efforts. Also, values don’t make us think about ownership.
+    A value is in charge of its own content. A value also makes it (much) easier to
+    think about threading issues. That does not mean that there are no problems anymore
+    (you wish!), but the code is definitely easier to understand. Values just don’t
+    leave us with a lot of questions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“OK, I get the point about code clarity,” you argue, “but what about performance?
+    Isn’t it super expensive to deal with copy operations all the time?” Well, you
+    are correct; copy operations can be expensive. However, they are only expensive
+    if they really happen. In real code, we can often rely on [copy elision](https://oreil.ly/Bc4jM),
+    move semantics, and well…pass-by-reference.^([30](ch05.xhtml#idm45043103081488))
+    Also, we have already seen that, from a performance point of view, value semantics
+    might give us a performance boost. Yes, of course I am referring to the `std::variant`
+    example in [“Guideline 17: Consider std::variant for Implementing Visitor”](ch04.xhtml#consider_std_variant_for_implementing_visitors).
+    In that example, the use of values of type `std::variant` has significantly improved
+    our performance because of fewer indirections due to pointers and a much better
+    memory layout and access pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Value Semantics: A Second Example'
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Let’s take a look at a second example. This time we consider the following `to_int()`
+    function:^([31](ch05.xhtml#idm45043103076080))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: This function parses the given string (and yes, I am using `std::string_view`
+    for the purpose of performance) and converts it to an `int`. The most interesting
+    question for us now is how the function should deal with errors, or in other words,
+    what the function should do if the string cannot be converted to an `int`. The
+    first option would be to return `0` for that case. This approach, however, is
+    questionable, because `0` is a valid return from the `to_int()` function. We would
+    not be able to distinguish success from failure.^([32](ch05.xhtml#idm45043103053328))
+    Another possible approach would be to throw an exception. Although exceptions
+    may be the C++ native tool to signal error cases, for this particular problem,
+    depending on your personal style and preferences, this may appear as overkill
+    to you. Also, knowing that exceptions cannot be used in a large fraction of the
+    C++ community, that choice might limit the usability of the function.^([33](ch05.xhtml#idm45043103051664))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'A third possibility is change the signature by a little bit:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Now the function takes a reference to a mutable `int` as the second parameter
+    and returns a `bool`. If it succeeds, the function returns `true` and sets the
+    passed integer; if it fails, the function returns `false` and leaves the `int`
+    alone. While this may seem like a reasonable compromise to you, I would argue
+    that we have now strayed further into the realm of reference semantics (including
+    all potential misuse). At the same time, the clarity of the code has diminished:
+    the most natural way to return a result is via the return value, but now the result
+    is produced by an output value. This, for instance, prevents us from assigning
+    the result to a `const` value. Therefore, I would rate this as the least favorable
+    approach so far.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The fourth approach is to return by pointer:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Semantically, this approach is pretty attractive: if it succeeds, the function
+    returns a valid pointer to an `int`; if it fails, it returns a `nullptr`. Hence,
+    code clarity is improved, as we can clearly distinguish between these two cases.
+    However, we gain this advantage at the cost of a dynamic memory allocation, the
+    need to deal with lifetime management using `std::unique_ptr`, and we’re still
+    lingering in the realm of reference semantics. So the question is: how can we
+    leverage the semantic advantages but stick to value semantics? The solution comes
+    in the form of `std::optional`:^([34](ch05.xhtml#idm45043102967280))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[`std::optional`](https://oreil.ly/6p55b) is a value type, which represents
+    any other value, in our example, an `int`. Therefore, `std::optional` can take
+    all the values that an `int` can take. The specialty of `std::optional`, however,
+    is that it adds one more state to the wrapped value, a state that represents no
+    value. Thus, our `std::optional` is an `int` that may or may not be present:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE42]'
+  prefs: []
+  type: TYPE_PRE
+- en: Semantically, this is equivalent to the pointer approach, but we don’t pay the
+    cost of dynamic memory allocation, and we don’t have to deal with lifetime management.^([35](ch05.xhtml#idm45043102922992))
+    This solution is semantically clear, understandable, and efficient.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Prefer to Use Value Semantics to Implement Design Patterns
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '“And what about design patterns?” you ask. “Almost all GoF patterns are based
+    on inheritance hierarchies and therefore reference semantics. How should we deal
+    with this?” That is an excellent question. And it provides us with a perfect bridge
+    to the next guideline. To give a short answer here: you should prefer to implement
+    design patterns using a value semantics solution. Yes, seriously! These solutions
+    usually lead to more comprehensive, maintainable code and (often) better performance.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 23: Prefer a Value-Based Implementation of Strategy and Command'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done),
+    I introduced you to the Strategy design pattern, and in [“Guideline 21: Use Command
+    to Isolate What Things Are Done”](#use_commands_to_isolate_what_things_are_done),
+    I introduced you to the Command design pattern. I demonstrated that these two
+    design patterns are essential decoupling tools in your daily toolbox. However,
+    in [“Guideline 22: Prefer Value Semantics over Reference Semantics”](#prefer_value_semantics_to_reference_semantics),
+    I gave you the idea that it’s preferable to use value semantics instead of reference
+    semantics. And this of course raises the question: how can you apply that wisdom
+    for the Strategy and Command design patterns? Well, here is one possible value
+    semantics solution: draw on the abstracting power of `std::function`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Introduction to std::function
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'In case you have not yet heard about `std::function`, allow me to introduce
+    you. `std::function` represents an abstraction for a callable (e.g., a function
+    pointer, function object, or lambda). The only requirement is that the callable
+    satisfies a specific function type, which is passed as the only template parameter
+    to `std::function`. The following code gives an impression:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE43]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In the `main()` function, we create an instance of `std::function`, called
+    `f` ([![1](assets/1.png)](#code_g23_1)). The template parameter specifies the
+    required function type. In our example, this is `void(int)`. “Function type…”
+    you say. “Don’t you mean function *pointer* type?” Well, since this is indeed
+    something that you might have rarely seen before, allow me to explain what a function
+    type is and contrast it with the thing you’ve probably seen more often: function
+    pointers. The following example uses both a function type and a function pointer
+    type:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE44]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The first line shows a function type. This type represents *any* function that
+    takes a `double` and returns a `double`. Examples for this function type are the
+    corresponding overloads of [`std::sin`](https://oreil.ly/1n7fa), [`std::cos`](https://oreil.ly/LuGeK),
+    [`std::log`](https://oreil.ly/ZBNt3), or [`std::sqrt`](https://oreil.ly/V1XOS).
+    The second line shows a function pointer type. Note the little asterisk in parentheses—that
+    makes it a pointer type. This type represents the address of *one* function of
+    function type `FunctionType`. Hence, the relationship between function types and
+    function pointer types is pretty much like the relationship between an `int` and
+    a pointer to an `int`: while there are many `int` values, a pointer to an `int`
+    stores the address of exactly *one* `int`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Back to the `std::function` example: initially, the instance is empty, therefore
+    you cannot call it. If you still try to do so, the `std::function` instance will
+    throw the `std::bad_function_call` exception at you. Better not provoke it. Let’s
+    rather assign some callable that fulfills the function type requirements, for
+    instance, a (possibly stateful) lambda ([![2](assets/2.png)](#code_g23_2)). The
+    lambda takes an `int` and doesn’t return anything. Instead, it prints that it
+    has been called by means of a descriptive output message ([![3](assets/3.png)](#code_g23_3)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE45]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'OK, that worked well. Let’s try something else: we now create another `std::function`
+    instance `g` by means of `f` ([![4](assets/4.png)](#code_g23_4)). Then we assign
+    another callable to `f` ([![5](assets/5.png)](#code_g23_5)). This time, we assign
+    a pointer to the function `foo()`. Again, this callable fulfills the requirements
+    of the `std::function` instance: it takes an `int` and returns nothing. Directly
+    after the assignment, you call `f` with the `int` `2`, which triggers the expected
+    output ([![6](assets/6.png)](#code_g23_6)):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE46]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'That was probably an easy one. However, the next function call is much more
+    interesting. If you call `g` with the integer `3` ([![7](assets/7.png)](#code_g23_7)),
+    the output demonstrates that `std::function` is firmly based on value semantics:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE47]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'During the initialization of `g`, the instance `f` was copied. And it was copied
+    as a value should be copied: it does not perform a “shallow copy,” which would
+    result in `g` being affected when `f` is subsequently changed, but it performs
+    a complete copy (deep copy), which includes a copy of the lambda.^([36](ch05.xhtml#idm45043102297200))
+    Thus, changing `f` does not affect `g`. That’s the benefit of value semantics:
+    the code is easy and intuitive, and you don’t have to be afraid that you are accidentally
+    breaking something anywhere else.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'At this point, the functionality of `std::function` may feel a little like
+    magic: how is it possible that the `std::function` instance can take any kind
+    of callable, including things like lambdas? How can it store any possible type,
+    even types that it can’t know, and even though these types apparently have nothing
+    in common? Don’t worry: in [Chapter 8](ch08.xhtml#type_erasure), I will give you
+    a thorough introduction to a technique called *Type Erasure*, which is the magic
+    behind `std::function`.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Refactoring the Drawing of Shapes
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '`std::function` provides everything we need to refactor our shape-drawing example
+    from [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done):
+    it represents the abstraction of a single callable, which is pretty much exactly
+    what we need to replace the `DrawCircleStrategy` and `DrawSquareStrategy` hierarchies,
+    which each contain a single virtual function. Hence, we rely on the abstracting
+    power of `std::function`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE48]'
+  prefs: []
+  type: TYPE_PRE
+- en: First, in the `Circle` class, we add a type alias for the expected type of `std::function`
+    ([![8](assets/8.png)](#code_g23_8)). This `std::function` type represents any
+    callable that can take a `Circle`, and potentially several more drawing-related
+    arguments, and does not return anything. Of course, we also add the corresponding
+    type alias in the `Square` class ([![9](assets/9.png)](#code_g23_9)). In the constructors
+    of both `Circle` and `Square`, we now take an instance of type `std::function`
+    ([![10](assets/10.png)](#code_g23_10)) as a replacement for the pointer to a Strategy
+    base class (`Draw​Cir⁠cleStrategy` or `DrawSquareStrategy`). This instance is
+    immediately moved ([![11](assets/11.png)](#code_g23_11)) into the data member
+    `drawer_`, which is also of type `DrawStrategy` ([![12](assets/12.png)](#code_g23_12)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '“Hey, why are you taking the `std::function` instance by value? Isn’t that
+    terribly inefficient? Shouldn’t we prefer to pass by reference-to-`const`?” In
+    short: no, passing by value is not inefficient, but an elegant compromise to the
+    alternatives. I admit, though, that this may be surprising. Since this is definitely
+    an implementation detail worth noting, let’s take a closer look.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If we used a reference-to-`const`, we would experience the disadvantage that
+    *rvalues* would be unnecessarily copied. If we were passed an rvalue, this rvalue
+    would bind to the (*lvalue*) reference-to-`const`. However, when passing this
+    reference-to-`const` to the data member, it would be copied. Which is not our
+    intention: naturally we want it to be moved. The simple reason is that we cannot
+    move from `const` objects (even when using `std::move`). So, to efficiently deal
+    with rvalues, we would have to provide overloads of the `Circle` and `Square`
+    constructors that would take a `DrawStrategy` by means of an rvalue reference
+    (`DrawStrategy&&`). For the sake of performance, we would provide two constructors
+    for both `Circle` and `Square`.^([37](ch05.xhtml#idm45043101840800))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The approach to provide two constructors (one for lvalues, one for rvalues)
+    does work and is efficient, but I would not necessarily call it elegant. Also,
+    we should probably save our colleagues the trouble of having to deal with that.^([38](ch05.xhtml#idm45043101839408))
+    For this reason, we exploit the implementation of `std::function`. `std::function`
+    provides both a copy constructor and a move constructor, and so we know that it
+    can be moved efficiently. When we pass a `std::function` by value, either the
+    copy constructor or the move constructor will be called. If we are passed an lvalue,
+    the copy constructor is called, copying the lvalue. Then we would move that copy
+    into the data member. In total, we would perform one copy and one move to initialize
+    the `drawer_` data member. If we are passed an rvalue, the move constructor is
+    called, moving the rvalue. The resulting argument `strategy` is then moved into
+    the data member `drawer_`. In total, we would perform two move operations to initialize
+    the `drawer_` data member. Therefore, this form represents a great compromise:
+    it is elegant, and there is hardly any difference in efficiency.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Once we’ve refactored the `Circle` and `Square` classes, we can implement different
+    drawing strategies in any form we like (in the form of a function, a function
+    object, or a lambda). For instance, we can implement the following `OpenGLCircleStrategy`
+    as a function object:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE49]'
+  prefs: []
+  type: TYPE_PRE
+- en: The only convention we need to follow is that we need to provide a call operator
+    that takes a `Circle` and potentially several more drawing-related arguments,
+    and doesn’t return anything (fulfill the function type `void(Circle const&, /*…*/)`)
+    ([![13](assets/13.png)](#code_g23_13)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Assuming a similar implementation for an `OpenGLSquareStrategy`, we can now
+    create different kinds of shapes, configure them with the desired drawing behavior,
+    and finally draw them:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE50]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The `main()` function is very similar to the original implementation using
+    the classic Strategy implementation (see [“Guideline 19: Use Strategy to Isolate
+    How Things Are Done”](#use_strategy_to_isolate_how_things_are_done)). However,
+    this nonintrusive, base class–free approach with `std::function` further reduces
+    the coupling. This becomes evident in the dependency graph for this solution (see
+    [Figure 5-9](#fig_function_dependency_graph)): we can implement the drawing functionality
+    in any form we want (as a free function, a function object, or a lambda) and we
+    don’t have to abide by the requirements of a base class. Also, by means of `std::function`
+    we have automatically inverted the dependencies (see [“Guideline 9: Pay Attention
+    to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![Dependency graph for the +std::function+ solution.](assets/cpsd_0509.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-9\. Dependency graph for the `std::function` solution
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Performance Benchmarks
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: '“I like the flexibility, the freedom. This is great! But what about performance?”
+    Yes, spoken like a true C++ developer. Of course performance is important. Before
+    showing you the performance results, though, let me remind you of the benchmark
+    scenario that we also used to get the numbers for [Table 4-2](ch04.xhtml#table_cyclic_visitor_benchmark_results)
+    in [“Guideline 16: Use Visitor to Extend Operations”](ch04.xhtml#use_visitors_to_extend_operations).
+    For the benchmark, I have implemented four different kinds of shapes (circles,
+    squares, ellipses, and rectangles). Again, I’m running 25,000 translate operations
+    on 10,000 randomly created shapes. I use both GCC 11.1 and Clang 11.1, and for
+    both compilers I’m adding only the `-O3` and `-DNDEBUG` compilation flags. The
+    platform I’m using is macOS Big Sur (version 11.4) on an 8-Core Intel Core i7
+    with 3.8 GHz, 64 GB of main memory.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: With this information in mind, you are ready for the performance results. [Table 5-1](#table_strategy_benchmark_results)
+    shows the performance numbers for the Strategy-based implementation of the drawing
+    example and the resulting solution using `std::function`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 5-1\. Performance results for different *Strategy* implementations
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Strategy implementations | GCC 11.1 | Clang 11.1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `std::function` | 2.1782 s | 1.4884 s |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Manual implementation of `std::function` | 1.6354 s | 1.4465 s |'
+  prefs: []
+  type: TYPE_TB
+- en: '| Classic Strategy | 1.6372 s | 1.4046 s |'
+  prefs: []
+  type: TYPE_TB
+- en: 'For reference purposes, the first line shows the performance of the object-oriented
+    solution from [“Guideline 15: Design for the Addition of Types or Operations”](ch04.xhtml#design_for_the_addition_of_types_or_operations).
+    As you can see, this solution gives the best performance. This is not unexpected,
+    however: since the Strategy design pattern, irrespective of the actual implementation,
+    introduces additional overhead, the performance is anticipated to be reduced.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: What is not expected, though, is that the `std::function` implementation incurs
+    a performance overhead (even a significant one in case of GCC). But wait, before
+    you throw this approach into your mental trash can, consider the third line. It
+    shows a manual implementation of `std::function` using Type Erasure, the technique
+    I will explain in [Chapter 8](ch08.xhtml#type_erasure). This implementation performs
+    much better, in fact as good (or nearly as good for Clang) as a classic implementation
+    of the Strategy design pattern (see the fourth line). This result demonstrates
+    that the problem is not value semantics but the specific implementation details
+    of `std::function`.^([39](ch05.xhtml#idm45043101384208)) In summary, a value semantics
+    approach is not worse in terms of performance than the classic approach, but instead,
+    as shown before, it improves many important aspects of your code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Analyzing the Shortcomings of the std::function Solution
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Overall, the `std::function` implementation of the Strategy design pattern
+    provides a number of benefits. First, your code gets cleaner and more readable
+    since you don’t have to deal with pointers and the associated lifetime management
+    (for instance, using `std::unique_ptr`), and since you don’t experience the usual
+    problems with reference semantics (see [“Guideline 22: Prefer Value Semantics
+    over Reference Semantics”](#prefer_value_semantics_to_reference_semantics)). Second,
+    you promote loose coupling. Very loose coupling, actually. In this context, `std::function`
+    acts like a compilation firewall, which protects you from the implementation details
+    of the different Strategy implementations but at the same time provides enormous
+    flexibility for developers on how to implement the different Strategy solutions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Despite these upsides, no solution comes without downsides—even the `std::function`
+    approach has its disadvantages. I have already pointed out the potential performance
+    disadvantage if you rely on the standard implementation. While there are solutions
+    to minimize this effect (see [Chapter 8](ch08.xhtml#type_erasure)), it’s still
+    something to consider in your codebase.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There is also a design-related issue. `std::function` can replace only a single
+    virtual function. If you need to abstract multiple virtual functions, which could
+    occur if you want to configure multiple aspects using the Strategy design pattern,
+    or if you need an `undo()` function in the Command design pattern, you would have
+    to use multiple `std::function` instances. This would not only increase the size
+    of a class due to the multiple data members, but also incur an interface burden
+    due to the question of how to elegantly handle passing multiple `std::function`
+    instances. For this reason, the `std::function` approach works best for replacing
+    a single or a very small number of virtual functions. Still, this does not mean
+    that you can’t use a value-based approach for multiple virtual functions: if you
+    encounter that situation, consider generalizing the approach by applying the technique
+    used for `std::function` directly to your type. I will explain how to do that
+    in [Chapter 8](ch08.xhtml#type_erasure).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Despite these shortcomings, the value semantics approach proves to be a terrific
+    choice for the Strategy design pattern. The same is true for the Command design
+    pattern. Therefore, keep this guideline in mind as an essential step towards modern
+    C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([1](ch05.xhtml#idm45043109967248-marker)) See [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([2](ch05.xhtml#idm45043109965312-marker)) You may correctly argue that there
+    are multiple solutions for this problem: you could have one source file per graphics
+    library, you could rely on the preprocessor by sprinkling a couple of `#ifdef`s
+    across the code, or you could implement an abstraction layer around the graphics
+    libraries. The first two options feel like technical workarounds to a flawed design.
+    The latter option, however, is a reasonable, alternative solution to the one that
+    I will propose. It’s a solution based on the *Facade* design pattern, which, unfortunately,
+    I don’t cover in this book.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch05.xhtml#idm45043109522832-marker)) David Thomas and Andrew Hunt, *The
+    Pragmatic Programmer*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([4](ch05.xhtml#idm45043109517728-marker)) Erich Gamma et al., *Design Patterns:
+    Elements of Reusable Object-Oriented Software*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([5](ch05.xhtml#idm45043109508880-marker)) Please explicitly note that I said
+    *naive*. Although the code example is didactically a little questionable, I will
+    show a common misconception before showing a proper implementation. My hope is
+    that this way you will never fall into this common trap.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([6](ch05.xhtml#idm45043109417808-marker)) Although this is not a book about
+    implementation details, please allow me to highlight one implementation detail
+    that I find to be the source of many questions in my training classes. I’m certain
+    you’ve heard about the Rule of 5—if not, please see the [C++ Core Guidelines](https://oreil.ly/fzS3f).
+    Hence, you realize that the declaration of a virtual destructor disables the move
+    operations. Strictly speaking, this is a violation of the Rule of 5\. However,
+    as [Core Guideline C.21](https://oreil.ly/fzS3f) explains, for base classes this
+    is not considered to be a problem, as long as the base class does not contain
+    any data members.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([7](ch05.xhtml#idm45043108959024-marker)) As I have referenced Core Guideline
+    C.21 before, it is also worth mentioning that both the `Circle` and `Square` classes
+    fulfill the *Rule of 0*; see [Core Guideline C.20](https://oreil.ly/Gt5Sz). By
+    not falling into the habit of adding a destructor, the compiler itself generates
+    all special member functions for both classes. And yes, worry not—the destructor
+    is still virtual since the base class destructor is virtual.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([8](ch05.xhtml#idm45043108775712-marker)) See [“Guideline 18: Beware the
+    Performance of Acyclic Visitor”](ch04.xhtml#beware_the_performance_of_acyclic_visitors)
+    for a discussion about the Acyclic Visitor design pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([9](ch05.xhtml#idm45043107792496-marker)) I should explicitly state that it
+    does not work in dynamic polymorphism. It does work in static polymorphism, even
+    quite well. Consider, for instance, templates and function overloading.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([10](ch05.xhtml#idm45043107080048-marker)) Andrei Alexandrescu, *Modern C++
+    Design: Generic Programming and Design Patterns Applied* (Addison-Wesley, 2001).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([11](ch05.xhtml#idm45043106795536-marker)) Sean Parent, [“Inheritance Is the
+    Base Class Of Evil”](https://oreil.ly/F8FDL), GoingNative, 2013.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([12](ch05.xhtml#idm45043106632784-marker)) According to Sean Parent, there
+    are no polymorphic types, only polymorphic usage of similar types; see [“Better
+    Code: Runtime Polymorphism”](https://oreil.ly/5HwgM) from the NDC London conference
+    in 2017\. My statement supports that opinion.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([13](ch05.xhtml#idm45043106629568-marker)) Another example of inheritance
+    creating coupling is discussed in Herb Sutter’s *Exceptional C++: 47 Engineering
+    Puzzles, Programming Problems, and Exception-Safety Solutions* (Pearson Education).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([14](ch05.xhtml#idm45043106561024-marker)) Are they really to blame for this
+    habit? Since they’ve been taught that this is the way to go for decades, who can
+    blame them for thinking this way?
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([15](ch05.xhtml#idm45043106560240-marker)) Michael C. Feathers, *Working Effectively
+    with Legacy Code*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([16](ch05.xhtml#idm45043106558560-marker)) Programming by difference is a
+    rather extreme form of inheritance-based programming, where even small differences
+    are expressed by introducing a new derived class. See Michael’s book for more
+    details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([17](ch05.xhtml#idm45043106557328-marker)) See, for instance, the Strategy
+    design pattern in [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done),
+    the Observer design pattern in [“Guideline 25: Apply Observers as an Abstract
+    Notification Mechanism”](ch06.xhtml#apply_observers_as_an_abstract_notification_mechanism),
+    the Adapter design pattern in [“Guideline 24: Use Adapters to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces),
+    the Decorator design pattern in [“Guideline 35: Use Decorators to Add Customization
+    Hierarchically”](ch09.xhtml#use_decorators_to_add_customization_hierarchically),
+    or the Bridge design pattern in [“Guideline 28: Build Bridges to Remove Physical
+    Dependencies”](ch07.xhtml#build_bridges_to_remove_physical_dependencies).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([18](ch05.xhtml#idm45043106526608-marker)) Erich Gamma et al., *Design Patterns:
+    Elements of Reusable Object-Oriented Software*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([19](ch05.xhtml#idm45043105484832-marker)) Yes, it follows the SOLID principles,
+    although of course by means of the classic form of the Command design pattern.
+    If you are right now biting your fingernails in frustration or simply wondering
+    if there isn’t a better way, then please be patient. I will demonstrate a much
+    nicer, much more “modern” solution in [“Guideline 22: Prefer Value Semantics over
+    Reference Semantics”](#prefer_value_semantics_to_reference_semantics).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([20](ch05.xhtml#idm45043105381936-marker)) The given `ThreadPool` class is
+    far from being complete and primarily serves as an illustration for the Command
+    design pattern. For a working, professional implementation of a thread pool, please
+    refer to Anthony William’s book *C++ Concurrency in Action*, 2nd ed. (Manning).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([21](ch05.xhtml#idm45043104876160-marker)) This is another example of my
+    statement that design patterns are not about implementation details; see [“Guideline
+    12: Beware of Design Pattern Misconceptions”](ch03.xhtml#beware_of_design_pattern_misconceptions).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([22](ch05.xhtml#idm45043104697792-marker)) For the complete shape example,
+    see [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([23](ch05.xhtml#idm45043104345904-marker)) Margaret A. Ellis and Bjarne Stroustrup,
+    *The Annotated C++ Reference Manual* (Addison-Wesley, 1990).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([24](ch05.xhtml#idm45043104344576-marker)) To get an overview of C++ performance
+    aspects in general and performance-related issues with inheritance hierarchies
+    in particular, refer to Kurt Guntheroth’s book, [*Optimized C{plus}{plus}*](https://learning.oreilly.com/library/view/optimized-c/9781491922057/)
+    (O’Reilly).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([25](ch05.xhtml#idm45043104340000-marker)) A possible solution for that is
+    to employ techniques from data-oriented design; see Richard Fabian, *Data-Oriented
+    Design: Software Engineering for Limited Resources and Short Schedules*.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([26](ch05.xhtml#idm45043103810576-marker)) Mark my choice of words: “We might
+    get the following output.” Indeed, we might get this output but also something
+    else. It depends, as we have inadvertently entered the realm of undefined behavior.
+    Therefore, this output is my best guess, not a guarantee.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([27](ch05.xhtml#idm45043103808768-marker)) Now not only your manicurist but
+    also your hairdresser has work to do…
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([28](ch05.xhtml#idm45043103549472-marker)) More gray hairs, more work for
+    your hairdresser.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([29](ch05.xhtml#idm45043103166160-marker)) I should explicitly point out
+    that the notion of a “deep copy” depends on the type `T` of elements in the vector:
+    if `T` performs a deep copy, then so does the `std::vector`, but if `T` performs
+    a shallow copy, then semantically `std::vector` also performs a shallow copy.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([30](ch05.xhtml#idm45043103081488-marker)) The best and most complete introduction
+    to move semantics is Nicolai Josuttis’s book on the subject, *C++ Move Semantics
+    - The Complete Guide* (NicoJosuttis, 2020).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([31](ch05.xhtml#idm45043103076080-marker)) See Patrice Roy’s CppCon 2016 talk,
+    [“The Exception Situation”](https://oreil.ly/REqOG), for a similar example and
+    discussion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([32](ch05.xhtml#idm45043103053328-marker)) Yet this is exactly the approach
+    taken by the [`std::atoi()` function](https://oreil.ly/fByFB).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([33](ch05.xhtml#idm45043103051664-marker)) In his standard proposal [P0709](https://oreil.ly/E6Qd7),
+    Herb Sutter explains that 52% of C++ developers have no or limited access to exceptions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([34](ch05.xhtml#idm45043102967280-marker)) The experienced C++ developer also
+    knows that C++23 will bless us with a very similar type called `std::expected`.
+    In a few years, this might be the appropriate way to write the `to_int()` function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([35](ch05.xhtml#idm45043102922992-marker)) From a functional programming point
+    of view, `std::optional` represents a [*monad*](https://oreil.ly/IowBp). You’ll
+    find much more valuable information on *monad*s and functional programming in
+    general in Ivan Čukić’s book, *Functional Programming in C++*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([36](ch05.xhtml#idm45043102297200-marker)) In this example, the `std::function`
+    object performs a deep copy, but generally speaking, `std::function` copies the
+    contained callable according to its copy semantics (“deep” or “shallow”). `std::function`
+    has no way of forcing a deep copy.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([37](ch05.xhtml#idm45043101840800-marker)) This implementation detail is explained
+    thoroughly by Nicolai Josuttis in this CppCon 2017 talk, [“The Nightmare of Move
+    Semantics for Trivial Classes”](https://oreil.ly/IbZHb).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([38](ch05.xhtml#idm45043101839408-marker)) One more example of the [*KISS*
+    principle](https://oreil.ly/N7c3B).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([39](ch05.xhtml#idm45043101384208-marker)) A discussion about the reasons
+    for the performance deficiencies of some `std::function` implementations would
+    go beyond the scope and purpose of this book. Still, please keep this detail in
+    mind for performance-critical sections of your code.
+  prefs: []
+  type: TYPE_NORMAL

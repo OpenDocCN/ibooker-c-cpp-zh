@@ -1,0 +1,167 @@
+- en: Appendix B. printf() Format Specifier Details
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The formats supported by the `printf()` function almost comprise their own language.
+    While not an exhaustive list, this appendix details all of the options I use throughout
+    this book. I also describe how the options work with the different types of output,
+    even if I do not use a given combination. As with so much of programming, it is
+    useful to try stuff out yourself to see how the pieces fit together.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The code examples include a simple C program that goes through the more popular
+    combinations of flags, widths, precisions, and types. You can compile and run
+    *popular_formats.c* as is, or you can edit it to tweak some of the lines and test
+    your own combinations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you want to know even more about the things you can specify in `printf()`,
+    including nonstandard and implementation-specific options, I recommend the Wikipedia
+    page devoted to [just this topic](https://oreil.ly/Adirl).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Specifier Syntax
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The specifier as I use it throughout this book contains three optional elements
+    and one required type arranged like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Again, the flag (or flags), width, and precision are not required.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Specifier Types
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: How `printf()` interprets a given value to print depends on the type specifier
+    you use. The value 65, for example, would print as the letter “A” with `%c` (characters)
+    but as “41” with `%x` (hexadecimal integers). [Table B-1](#smallerc-APP-B-TAB-printf-types)
+    summarizes the types we have used throughout this book, although it is not an
+    exhaustive list.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table B-1\. Format specifier types for `printf()`
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Specifier | Type(s) | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%c` | `char` | Print out a single character |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%d` | `char, int, short, long` | Print signed integer values in decimal
+    (base 10) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%f` | `float, double` | Print floating point values |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%i` | `char, int, short` | Print integer values in base 10 (same as `%d`
+    for output) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%o` | `int, short, long` | Print integer values in octal (base 8) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%p` | address | Print pointers (as hexadecimal address) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%s` | `char[]` | Print a string (array of char) as text |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%u` | `unsigned (char, int, short)` | Print unsigned integer values in decimal
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `%x` | `char, int, short, long` | Print integer values in hexadecimal (base
+    16) |'
+  prefs: []
+  type: TYPE_TB
+- en: The `%i` and `%u` integer types can use length modifiers. `l` or `ll` (e.g.,
+    `%li` or `%llu`) tell `printf()` to expect `long` or `long long` length arguments.
+    For floating point types, `L` can be used (e.g., `%Ld`) to indicate a `long double`
+    argument.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Specifier Flags
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Each type you specify can be modified with one or more flags. [Table B-2](#smallerc-APP-B-TAB-printf-flags)
+    lists the specifier flags. Not all flags have an effect on every type, and all
+    flags are optional.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table B-2\. Format specifier flags for `printf()`
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Specifier | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `-` | Left-align output within its field |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `+` | Force plus sign (`+`) prefix on positive numeric values |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `(space)` | Force space prefix on positive numeric values (as opposed to
+    no prefix at all) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `0` | Pad left of numeric values with 0s (if they do not fill a field where
+    width is specified) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `#` | Print a prefix (`0`, `0x`, or `0X`) when used with `o`, `x`, or `X`
+    types |'
+  prefs: []
+  type: TYPE_TB
+- en: You see these flags used more often when you have numeric, columnar output,
+    although flags like the “-” can be used on strings as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Width and Precision
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: For any specifier, you can supply a minimum width for the output field. (The
+    minimum qualifier means that no truncation occurs for values that are larger than
+    the given width.) The default is to align output to the right, but that can be
+    changed with the `-` flag noted in [Table B-2](#smallerc-APP-B-TAB-printf-flags).
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can also supply a precision, which can affect the maximum width for output.
+    For floating point types, it dictates the number of digits to the right of the
+    decimal separator. For strings, it truncates over-long values. It is ignored for
+    integer types.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Common Formats
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'To see some of the more common or popular formats in action, take a look at
+    [*appB/popular_formats.c*](https://oreil.ly/R2vNI). It’s just a big batch of `printf()`
+    calls, but it contains a wide variety of examples using different format specifiers.
+    I won’t bother with the source listing here, but the output makes for a quick
+    reference:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The Wikipedia page on the [printf format string](https://oreil.ly/xvtiC) has
+    a comprehensive overview of the options available.
+  prefs: []
+  type: TYPE_NORMAL

@@ -1,0 +1,91 @@
+- en: Chapter 12\. Conclusion
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: What You’ve Learned
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: After reading this book, you are now familiar with several advanced C programming
+    concepts. When looking at larger code examples, you now know why the code looks
+    the way it does. You now know the reasoning behind the design decisions made in
+    that code. For example, in the Ethernet driver sample code presented in the [Preface](preface01.xhtml#preface_id)
+    of this book, you now understand why there is an explicit `driverCreate` method
+    and why there is a `DRIVER_HANDLE` that holds state information. The patterns
+    from [Part I](part01.xhtml#part_1) guided the decisions made in this example and
+    many others discussed throughout the book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The pattern stories from [Part II](part02.xhtml#part_2) showed you the benefits
+    of applying the patterns from this book and how to grow code bit by bit through
+    the application of patterns. When facing your next C programming problem, review
+    the problem sections of the patterns and see whether one of them matches your
+    problem. In that case, you are very lucky because then you can benefit from the
+    guidance provided by the patterns.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Further Reading
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'This book helps C programming novices to become advanced C programmers. Here
+    are some other books that particularly helped me improve my C programming skills:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Clean Code: A Handbook of Agile Software Craftsmanship* by Robert C. Martin
+    (Prentice Hall, 2008) discusses the basic principles of how to implement high-quality
+    code that lasts over time. It is a good read for any programmer and covers topics
+    like testing, documentation, code style, and others.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Test-Driven Development for Embedded C* by James W. Grenning (Pragmatic Bookshelf,
+    2011) uses a running example to explain how to implement unit-tests with C in
+    the context of hardware-near programs.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '*Expert C Programming* by Peter van der Linden (Prentice Hall, 1994) is an
+    early book on advanced C programming guidance. It describes how the C syntax works
+    in detail and how to avoid common pitfalls. It also discusses concepts like C
+    memory management and tells you how the linker works.'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Closely related to my book is the book *Patterns in C* by Adam Tornhill (Leanpub,
+    2014). It also presents patterns and focuses on how to implement the Gang of Four
+    design patterns with C.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Closing Remarks
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Compared to a C programmer fresh out of their studies, you now have advanced
+    knowledge on which techniques to use to compose larger-scale and industrial-strength
+    C code. You can now:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: perform error handling, even though you don’t have a mechanism like exceptions
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: manage your memory, even though you don’t have a garbage collector and you don’t
+    have destructors to clean up the memory
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: implement flexible interfaces, even though you don’t have native abstraction
+    mechanisms
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: structure files and code, even though you don’t have classes or packages
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: You are now able to work with C, despite it lacking some of the conveniences
+    of modern programming languages.
+  prefs: []
+  type: TYPE_NORMAL

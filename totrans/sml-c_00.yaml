@@ -1,0 +1,323 @@
+- en: Preface
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In a world where new JavaScript frameworks come and go almost daily, why would
+    you dive into an aging, bare-bones language like C? Well, for one, if you hope
+    to keep up with all those framework fads (ouch, opinion alert), you might want
+    a background in just such aging, bare-bones technologies that provide a foundation
+    for so many “modern” languages. Did you look up popular programming languages
+    on a site like [TIOBE](https://oreil.ly/ZTdwN) and find C consistently at the
+    top? Maybe you’re interested in the amazingly advanced video cards and want to
+    see how the software that drives them works. Or perhaps you’re exploring newer—and
+    much smaller—gadgets like Arduinos and heard that C is the right tool for the
+    job.
+  prefs: []
+  type: TYPE_NORMAL
+- en: No matter the reason, it’s great to have you here. All of those reasons are
+    valid ones, by the way. C is a foundational language and understanding its syntax
+    and quirks will give you a very long-lived computer language literacy that will
+    help you pick up new languages and styles more easily. C (and its cousin C++)
+    are still widely used when writing low-level code for device drivers or operating
+    systems. And the Internet of Things is breathing new life into microcontrollers
+    with limited resources. C is a great fit for wringing the most of those tiny environments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While I’ll be focusing on that last idea of writing clean, tight code for tiny,
+    limited machines, I’ll still start with the basics of computer programming and
+    cover a variety of rules and patterns that apply to C anywhere you might find
+    it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: How to Use This Book
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: This book aims to cover all the basics of good C programming for any of the
+    situations mentioned above. We’ll look at control structures, operators, functions,
+    and other elements of C’s syntax along with examples of alternate patterns that
+    can shave a few bytes off the size of your compiled program. We’ll also be looking
+    at the Arduino environment as a great application for lean C code. To best enjoy
+    the Arduino section, you should have some basic experience with building simple
+    circuits and using components like LEDs and resistors.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here’s a preview of the chapters:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 1, *The ABCs of C*](ch01.xhtml#smallerc-CHP-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A brief look at the history of the C language and steps to set up your development
+    environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 2, *Storing and Stating*](ch02.xhtml#smallerc-CHP-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An introduction to statements in C, including basic I/O, variables, and operators.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 3, *Flow of Control*](ch03.xhtml#smallerc-CHP-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here I cover branching and looping statements and go a little deeper on variables
+    and their scope.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 4, *Bits and (Many) Bytes*](ch04.xhtml#smallerc-CHP-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: A quick return to storing data. I show you C’s facilities for manipulating individual
+    bits and storing lots of bigger things in arrays.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 5, *Functions*](ch05.xhtml#smallerc-CHP-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: I’ll look at how to break up your code into manageable chunks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 6, *Pointers and References*](ch06.xhtml#smallerc-CHP-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Getting a little more advanced, I create more complex data structures and learn
+    how to pass them to, and return them from, functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 7, *Libraries*](ch07.xhtml#smallerc-CHP-7)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Learn how to find and use popular bits of code that can help you with common
+    or intricate tasks.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 8, *Real-World C With Arduino*](ch08.xhtml#smallerc-CHP-8)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The real fun begins! We’ll set up the Arduino development environment and make
+    some LEDs blink.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 9, *Smaller Systems*](ch09.xhtml#smallerc-CHP-9)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Try out several electronic peripherals including sensors, buttons, and LCD displays
+    with complete Arduino projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 10, *Faster Code*](ch10.xhtml#smallerc-CHP-10)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Learn some tricks for writing code especially designed to help small processors
+    get the most out of their resources.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 11, *Custom Libraries*](ch11.xhtml#smallerc-CHP-11)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Build on your C library skills with tips and tricks for writing friendly, well-documented
+    libraries compatible with the Arduino IDE.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Chapter 12, *Next Next Steps*](ch12.xhtml#smallerc-CHP-12)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Try a quick Internet of Things project with a few parting thoughts and some
+    ideas for what to try next as you continue to improve your lean coding skills.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The appendices include a handy collection of links to the hardware and software
+    I use, as well as information on downloading and configuring the C and Arduino
+    examples shown throughout the book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Conventions Used in This Book
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The following typographical conventions are used in this book:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Italic*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Indicates new terms, URLs, email addresses, filenames, and file extensions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`Constant width`'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Used for program listings, as well as within paragraphs to refer to program
+    elements such as variable or function names, databases, data types, environment
+    variables, statements, and keywords.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '**`Constant width bold`**'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Shows commands or other text that should be typed literally by the user.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*`Constant width italic`*'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Shows text that should be replaced with user-supplied values or by values determined
+    by context.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This element signifies a tip or suggestion.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This element signifies a general note.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This element indicates a warning or caution.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Code Examples
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Many of the code examples in this book are quite succinct, and you’ll often
+    benefit from typing them in by hand. But that isn’t always fun and sometimes you
+    want to start with a known, working copy and modify stuff. You can grab the source
+    for all of the examples from GitHub at [*https://github.com/l0y/smallerc*](https://github.com/l0y/smallerc).
+    [Appendix A](app01.xhtml#smallerc-APP-A) has detailed instructions on downloading
+    the code and setting up the files for use with your development environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you have a technical question or a problem using the code examples, please
+    send an email to [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: This book is here to help you get your job done. In general, you may use the
+    example code offered with this book in your programs and documentation. You do
+    not need to contact us for permission unless you’re reproducing a significant
+    portion of the code. For example, writing a program that uses several chunks of
+    code from this book does not require permission. Selling or distributing examples
+    from O’Reilly books does require permission. Answering a question by citing this
+    book and quoting example code does not require permission. Incorporating a significant
+    amount of example code from this book into your product’s documentation does require
+    permission.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We appreciate, but generally do not require, attribution. An attribution usually
+    includes the title, author, publisher, and ISBN. For example: “*Smaller C* by
+    Marc Loy (O’Reilly). Copyright 2021 Marc Loy, 978-1-098-10033-9.”'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you feel your use of code examples falls outside fair use or the permission
+    given above, feel free to contact us at [*permissions@oreilly.com*](mailto:permissions@oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: O’Reilly Online Learning
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: For more than 40 years, [*O’Reilly Media*](http://oreilly.com) has provided
+    technology and business training, knowledge, and insight to help companies succeed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our unique network of experts and innovators share their knowledge and expertise
+    through books, articles, and our online learning platform. O’Reilly’s online learning
+    platform gives you on-demand access to live training courses, in-depth learning
+    paths, interactive coding environments, and a vast collection of text and video
+    from O’Reilly and 200+ other publishers. For more information, visit [*http://oreilly.com*](http://oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: How to Contact Us
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'Please address comments and questions concerning this book to the publisher:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: O’Reilly Media, Inc.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 1005 Gravenstein Highway North
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Sebastopol, CA 95472
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 800-998-9938 (in the United States or Canada)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 707-829-0515 (international or local)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 707-829-0104 (fax)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: We have a web page for this book, where we list errata, examples, and any additional
+    information. You can access this page at [*https://oreil.ly/smaller-c*](https://oreil.ly/smaller-c).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Email [*bookquestions@oreilly.com*](mailto:bookquestions@oreilly.com) to comment
+    or ask technical questions about this book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For news and information about our books and courses, visit [*http://oreilly.com*](http://oreilly.com).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Find us on Facebook: [*http://facebook.com/oreilly*](http://facebook.com/oreilly).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Follow us on Twitter: [*http://twitter.com/oreillymedia*](http://twitter.com/oreillymedia).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Watch us on YouTube: [*http://youtube.com/oreillymedia*](http://youtube.com/oreillymedia).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Acknowledgments
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: I would like to thank Amelia Blevins for shepherding another book for me through
+    the publication process. Her project management skills are surpassed only by her
+    ability to improve my writing through her artful suggestions. Thanks also go to
+    Amanda Quinn and Suzanne McQuade for helping me get the project off the ground
+    in the first place, and Danny Elfanbaum for his superb tech support. The entire
+    crew at O’Reilly are peerless.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Our technical reviewers brought a wide range of expertise to the table, and
+    I could not have asked for better feedback. Tony Crawford tightened up my C code
+    discussions, and I heartily recommend you read his book: [*C in a Nutshell*](https://www.oreilly.com/library/view/c-in-a/0596006977/).
+    Alex Faber ran every example in the book on multiple platforms and made sure I
+    kept new programmers in mind. Eric Van Hoose made my writing clearer and helped
+    focus the flow of the book overall. Chaim Krause filled in at the last minute
+    and highlighted a few gaps that have been duly filled in turn.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Personal thanks to my husband Ron for wordsmithing advice and general moral
+    support. Reg Dyck also provided some welcome encouragement. If you ever want to
+    really learn a topic, explain it to friends and family like Reg and Ron. Neither
+    gent has much interest in programming or electronics, but their friendly questions
+    helped me suss out the core of what I wanted to say on many difficult topics.
+  prefs: []
+  type: TYPE_NORMAL

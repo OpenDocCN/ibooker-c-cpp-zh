@@ -1,0 +1,973 @@
+- en: Chapter 3\. The Purpose of Design Patterns
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: '*Visitor*, *Strategy*, *Decorator*. These are all names of design patterns
+    that we’ll deal with in the upcoming chapters. However, before taking a detailed
+    look at each of these design patterns, I should give you an idea about the general
+    purpose of a design pattern. Thus in this chapter, we will first take a look at
+    the fundamental properties of design patterns, why you would want to know about
+    them and use them.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 1: Understand the Importance of Software Design”](ch01.xhtml#understand_the_importance_of_software_design),
+    I already used the term *design pattern* and explained on which level of software
+    development you use them. However, I have not yet explained in detail what a design
+    pattern *is*. That will be the topic of [“Guideline 11: Understand the Purpose
+    of Design Patterns”](#understand_the_purpose_of_design_patterns): you will understand
+    that a design pattern has a name that expresses an intent, introduces an abstraction
+    that helps to decouple software entities, and has been proven over the years.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 12: Beware of Design Pattern Misconceptions”](#beware_of_design_pattern_misconceptions),
+    I will focus on several misconceptions about design patterns and explain what
+    a design pattern *is not*. I will try to convince you that design patterns are
+    not about implementation details and do not represent language-specific solutions
+    to common problems. I will also do my best to show you that they are not limited
+    to object-oriented programming nor to dynamic polymorphism.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 13: Design Patterns Are Everywhere”](#design_patterns_are_everywhere),
+    I will demonstrate that it’s hard to avoid design patterns. They are everywhere!
+    You will realize that the C++ Standard Library in particular is full of design
+    patterns and makes good use of their strengths.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In [“Guideline 14: Use a Design Pattern’s Name to Communicate Intent”](#use_a_design_patterns_name_to_communicate_intent),
+    I will make the point that part of the strength of a design pattern is the ability
+    to communicate intent by using its name. Thus I will show you how much more information
+    and meaning you can add to your code by using the name of a design pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 11: Understand the Purpose of Design Patterns'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'There’s a good chance that you have heard about design patterns before and
+    a fairly good chance that you’ve used some of them in your programming career.
+    Design patterns are nothing new: they have been around at least since the Gang
+    of Four (GoF) released their book on design patterns in 1994.^([1](ch03.xhtml#idm45043117876336))
+    And while there are always critics, their special value has been acknowledged
+    throughout the software industry. Yet, despite the long existence and importance
+    of design patterns, despite all the knowledge and accumulated wisdom, there are
+    many misconceptions about them, especially in the C++ community.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To use design patterns productively, as a first step you need to understand
+    what design patterns are. A design pattern:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Has a name
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Carries an intent
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Introduces an abstraction
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Has been proven
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: A Design Pattern Has a Name
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: First of all, a design pattern has a name. While this sounds very obvious and
+    necessary, it is indeed a fundamental property of a design pattern. Let’s assume
+    that the two of us are working on a project together and are tasked with finding
+    a solution to a problem. Imagine I told you, “I would use a *Visitor* for that.”^([2](ch03.xhtml#idm45043117867680))
+    Not only would this tell you what I understand to be the real problem, but it
+    would also give you a precise idea about the kind of solution I’m proposing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The name of a design pattern allows us to communicate on a very high level
+    and to exchange a lot of information with very few words:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'ME: I would use a Visitor for that.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: ''
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'YOU: I don’t know. I thought of using a Strategy.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: ''
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'ME: Yes, you may have a point there. But since we’ll have to extend operations
+    fairly often, we probably should consider a Decorator as well.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'By just using the names *Visitor*, *Strategy*, and *Decorator*, we’ve discussed
+    the evolution of the codebase, and described how we expect things to change and
+    to be extended in years to come.^([3](ch03.xhtml#idm45043117861184)) Without these
+    names, we would have a much harder time expressing our ideas:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'ME: I think we should create a system that allows us to extend the operations
+    without the need to modify existing types again and again.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: ''
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'YOU: I don’t know. Rather than new operations, I would expect new types to
+    be added frequently. So I prefer a solution that allows me to add types easily.
+    But to reduce coupling to the implementation details, which is to be expected,
+    I would suggest a way to extract implementation details from existing types by
+    introducing a variation point.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: ''
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: 'ME: Yes, you may have a point there. But since we’ll have to extend operations
+    fairly often, we probably should consider designing the system in such a way that
+    we can build on and reuse a given implementation easily.'
+  prefs:
+  - PREF_BQ
+  type: TYPE_NORMAL
+- en: Do you see the difference? Do you *feel* the difference? Without names, we have
+    to talk about a lot more details explicitly. Obviously this kind of precise communication
+    is possible only if we share the same understanding of design patterns. That is
+    why it’s so important to know about design patterns and to talk about them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Design Pattern Carries an Intent
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'By using the name of a design pattern, you can express your intent concisely
+    and limit possible misunderstandings. This leads to the second property of a design
+    pattern: an intent. The *name* of a design pattern conveys its *intent*. If you
+    use the name of a design pattern, you implicitly state what you consider to be
+    the problem and what you see as a solution.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Hopefully you realized that in our little conversion, we weren’t talking about
+    any kind of implementation. We didn’t talk about implementation details, any features,
+    or any particular C++ standard. We didn’t even talk about any particular programming
+    language. And please don’t assume that by giving you the name of a design pattern
+    I have implicitly told you how to implement the solution. That is not what a design
+    pattern is about. On the contrary: the name should tell you about the structure
+    that I propose, about how I plan to manage dependencies and about how I expect
+    the system to evolve. That is the intent.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In fact, many design patterns have a similar structure. In the GoF book, many
+    of the design patterns look very much alike, which, of course, raises a lot of
+    confusion and questions. For instance, structurally, there appears to be almost
+    no difference between the Strategy, the *Command*, and the *Bridge* design patterns.^([4](ch03.xhtml#idm45043117851760))
+    However, their intent is very different and you would therefore use them to solve
+    different problems. As you will see in various examples in the following chapters,
+    there are almost always many different implementations you can choose from.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Design Pattern Introduces an Abstraction
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: A design pattern always provides some way to reduce dependencies by introducing
+    some kind of abstraction. This means that a design pattern is always concerned
+    with managing the interaction between software entities and decoupling pieces
+    of your software. For example, consider the Strategy design pattern, one of the
+    original GoF design patterns, in [Figure 3-1](#fig_strategy_original). Without
+    going into too much detail, the Strategy design pattern introduces an abstraction
+    in the form of the `Strategy` base class. This base class decouples the `Strategy`
+    user (the `Context` class in the high level of your architecture) from the implementation
+    details of the concrete strategies (`Concrete​StrategyA` and `ConcreteStrategyB`
+    in the low level of your architecture). As such, Strategy fulfills the properties
+    of a design pattern.^([5](ch03.xhtml#idm45043117838768))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML diagram of the GoF Strategy design pattern](assets/cpsd_0301.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 3-1\. The GoF Strategy design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'A similar example is the *Factory Method* design pattern (yet another GoF design
+    pattern; see [Figure 3-2](#fig_factory_method_original)). The intent of *Factory
+    Method* is to decouple from the creation of specific products. For that purpose,
+    it introduces two abstractions in the form of the `Product` and `Creator` base
+    classes, which architecturally reside in the high level. The implementation details,
+    given by means of the `ConcreteProduct` and `Concrete​Crea⁠tor` classes, reside
+    on the low level of the architecture. With this architectural structure, *Factory
+    Method* also qualifies as a design pattern: it has a name, the intent to decouple,
+    and it introduces abstractions.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML diagram of the GoF _Factory Method_ design pattern](assets/cpsd_0302.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 3-2\. The GoF *Factory Method* design pattern
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Note that the abstraction introduced by a design pattern is not necessarily
+    introduced by means of a base class. As I will show you in the following sections
+    and chapters, this abstraction can be introduced in many different ways, for instance,
+    by means of templates or simply by function overloading. Again, a design pattern
+    does not imply any specific implementation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As a counter example, let us consider the `std::make_unique()` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In the C++ community, we often talk about the `std::make_unique()` function
+    as a *factory function*. It’s important to note that although the term *factory
+    function* gives the impression that `std::make_unique()` is one example of the
+    *Factory Method* design pattern, this impression is incorrect. A design pattern
+    helps you to decouple by introducing an abstraction, which allows you to customize
+    and defer implementation details. In particular, the intent of the *Factory Method*
+    design pattern is to introduce a *customization point* for the purpose of object
+    instantiation. `std::make_unique()` does not provide such a *customization point*:
+    if you use `std::make_unique()`, you know that you will get a `std::unique_ptr`
+    to the type you are asking for and that the instance will be created by means
+    of `new`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Since `std::make_unique()` doesn’t provide you with any way to customize that
+    behavior, it can’t help to reduce coupling between entities, and thus it cannot
+    serve the purpose of a design pattern.^([6](ch03.xhtml#idm45043117735120)) Still,
+    `std::make_unique()` is a recurring solution for a specific problem. In other
+    words, it is a pattern. However, it isn’t a *design pattern* but an *implementation
+    pattern*. It is a popular solution to encapsulate implementation details (in this
+    case, the generation of an instance of `Widget`), but it does not abstract from
+    what you get or how it will be created. As such, it is part of the *Implementation
+    Details* level but not the *Software Design* level (refer back to [Figure 1-1](ch01.xhtml#fig_level_overview)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The introduction of abstractions is the key to decoupling software entities
+    from one another and to designing for change and extension. There is no abstraction
+    in the `std::make_unique()` function template, and thus no way for you to extend
+    the functionality (you cannot even properly overload or specialize). In contrast,
+    the *Factory Method* design pattern *does* provide an abstraction from *what*
+    is created and *how* this something is created (including actions before and after
+    the instantiation). Due to that abstraction you’ll be able to write new factories
+    at a later point, without having to change existing code. Therefore, the design
+    pattern helps you decouple and extend your software, while `std::make_unique()`
+    is only an *implementation pattern*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: A Design Pattern Has Been Proven
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Last but not least, a design pattern has been proven over the years. The Gang
+    of Four did not collect all possible solutions, only solutions that were commonly
+    used in different codebases to solve the same problem (although potentially with
+    different implementations). Thus a solution has to demonstrate its value several
+    times before it emerges as a pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To summarize: a design pattern is a proven, named solution, which expresses
+    a very specific intent. It introduces some kind of abstraction, which helps to
+    decouple software entities and thus helps to manage the interaction between software
+    entities. Just as we should use the term *Design* to denote the art of managing
+    dependencies and decoupling (see [“Guideline 1: Understand the Importance of Software
+    Design”](ch01.xhtml#understand_the_importance_of_software_design)), we should
+    use the term *Design Pattern* accurately and on purpose.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 12: Beware of Design Pattern Misconceptions'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The last section focused on explaining the purpose of a design pattern: the
+    combination of a name, an intent, and some form of abstraction to decouple software
+    entities. However, just as it’s important to understand what a design pattern
+    *is*, it’s important to understand what a design pattern *is not*. Unfortunately,
+    there are several common misconceptions about design patterns:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Some consider design patterns as a goal and as a guarantee for achieving good
+    software quality.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Some argue that design patterns are based on a particular implementation and
+    thus are language-specific idioms.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Some say that design patterns are limited to object-oriented programming and
+    dynamic polymorphism.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Some consider design patterns outdated or even obsolete.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'These misconceptions come as no surprise since we rarely talk about design
+    but instead focus on features and language mechanics (see [“Guideline 1: Understand
+    the Importance of Software Design”](ch01.xhtml#understand_the_importance_of_software_design)).
+    For that reason, I will debunk the first three misconceptions in this guideline
+    and will deal with the fourth one in the next section.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Design Patterns Are Not a Goal
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Some developers love design patterns. They are so infatuated with them that
+    they try to solve all their problems by means of design patterns, whether it is
+    reasonable or not. Of course, this way of thinking potentially increases the complexity
+    of code and decreases comprehensibility, which may prove to be counterproductive.
+    Consequently, this overuse of design patterns may result in frustration in other
+    developers, in a bad reputation of design patterns in general, or even in rejection
+    of the general idea of patterns.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To spell it out: design patterns are *not* a goal. They are a means to achieve
+    a goal. They may be part of the solution. But they are not a goal. As Venkat Subramaniam
+    would say: if you get up in the morning, thinking “What design pattern will I
+    use today?”, then this is a telltale sign that you are missing the purpose of
+    design patterns.⁠^([7](ch03.xhtml#idm45043117663968)) There is no reward, no medal,
+    for using as many design patterns as possible. The use of a design pattern shouldn’t
+    create complexity but, on the contrary, decrease complexity. The code should become
+    simpler, more comprehensible, and easier to change and maintain, simply because
+    the design pattern should help to resolve dependencies and create a better structure.
+    If using a design pattern leads to higher complexity and creates problems for
+    other developers, it apparently isn’t the right solution.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Just to be clear: I’m not telling you not to use design patterns. I’m merely
+    telling you not to overuse them, just as I would tell you not to overuse any other
+    tool. It always depends on the problem. For instance, a hammer is a great tool,
+    as long as your problem is nails. As soon as your problem changes to screws, a
+    hammer becomes a somewhat inelegant tool.^([8](ch03.xhtml#idm45043117662480))
+    To properly use design patterns, to know when to use them and when *not* to use
+    them, it’s so important to have a firm grasp of them, to understand their intent
+    and structural properties, and to apply them wisely.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Design Patterns Are Not About Implementation Details
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: One of the most common misconceptions about design patterns is that they are
+    based on a specific implementation. This includes the opinion that design patterns
+    are more or less language-specific idioms. This misconception is easy to understand,
+    as many design patterns, in particular the GoF patterns, are usually presented
+    in an object-oriented setting and explained by means of object-oriented examples.
+    In such a context, it’s easy to mistake the implementation details for a specific
+    pattern and to assume that both are the same.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Fortunately, it’s also easy to demonstrate that design patterns are *not* about
+    implementation details, any particular language feature, or any C++ standard.
+    Let’s take a look at different implementations of the same design pattern. And
+    yes, we will start with the classic, object-oriented version of the design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Consider the following scenario: we want to draw a given shape.^([9](ch03.xhtml#idm45043117656144))
+    The code snippet demonstrates this by means of a circle, but of course it could
+    be any other kind of shape, like a square or a triangle. For the purpose of drawing,
+    the `Circle` class provides the `draw()` member function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'It now appears self-evident that you need to implement the `draw()` function.
+    Without further thought, you might do this by means of a common graphics library
+    such as OpenGL, Metal, Vulcan, or any other graphics library. However, it would
+    be a big design flaw if the `Circle` class provides an implementation of the `draw()`
+    functionality itself: by implementing the `draw()` function directly, you would
+    introduce a strong coupling to your chosen graphics library. This comes with a
+    couple of downsides:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: For every possible application of `Circle`, you would always need the graphics
+    library to be available, even though you might not be interested in graphics but
+    only need it as a geometric primitive.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Every change to the graphics library might have an effect on the `Circle` class,
+    resulting in necessary modifications, retesting, redeployment, etc.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Switching to another library in the future would mean everything but a smooth
+    transition.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'These problems all have a common source: implementing the `draw()` function
+    directly within the `Circle` class violates the *Single-Responsibility Principle*
+    (SRP; see [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change)). The
+    class wouldn’t change for a single reason anymore and would strongly depend on
+    that design decision.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The classic object-oriented solution for this problem is to extract the decision
+    about how to draw the circle and introduce an abstraction for that by means of
+    a base class. Introducing such a *variation point* is the effect of the Strategy
+    design pattern (see [Figure 3-3](#fig_strategy_shape_1)).^([10](ch03.xhtml#idm45043117617504))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![The UML diagram of the GoF _Strategy_ design pattern, applied to drawing
+    shapes.](assets/cpsd_0303.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 3-3\. The *Strategy* design pattern applied to drawing circles
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'The intent of the Strategy design pattern is to define a family of algorithms
+    and encapsulate each one, therefore making them interchangeable. Strategy lets
+    the algorithm vary independently from clients that use it. By introducing the
+    `DrawStrategy` base class, it becomes possible to easily vary the `draw()` implementation
+    of the given `Circle`. This also enables everyone, not just you, to implement
+    a new drawing behavior without modifying existing code and to inject it from the
+    outside into the `Circle`. This is what we commonly call *dependency injection*:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This approach vastly increases the flexibility with respect to different drawing
+    behavior: it factors out all dependencies on specific libraries and other implementation
+    details and thus makes the code more changeable and extensible. For instance,
+    it’s now easily possible to provide a special implementation for testing purposes
+    (i.e., a `TestStrategy`). This demonstrates that the improved flexibility has
+    a very positive impact on the testability of the design.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Strategy design pattern is one of the classic GoF design patterns. As such,
+    it is often referred to as an object-oriented design pattern and is often considered
+    to require a base class. However, the intent of Strategy is not limited to object-oriented
+    programming. Just as it’s possible to use a base class for the abstraction, it
+    is just as easily possible to rely on a template parameter:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'In this form, deciding how to draw the circle happens at compile time: instead
+    of writing a base class `DrawStrategy` and passing a pointer to a `DrawStrategy`
+    at runtime, the implementation details for drawing are provided by means of the
+    `DrawStrategy` template argument. Note that while the template parameter allows
+    you to inject the implementation details from the outside, the `Circle` is still
+    not depending on any implementation details. Therefore you have still decoupled
+    the `Circle` class from the used graphics library. In comparison to the runtime
+    approach, though, you will have to recompile every time the `DrawStrategy` changes.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: While it’s true that the template-based solution fundamentally changes the properties
+    of the example (i.e., no base class and no virtual functions, no runtime decisions,
+    no single `Circle` class, but one `Circle` type for every concrete `DrawStrategy`),
+    it still implements the intent of the Strategy design pattern perfectly. Thus
+    this demonstrates that a design pattern is not restricted to a particular implementation
+    or a specific form of abstraction.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Design Patterns Are Not Limited to Object-Oriented Programming or Dynamic Polymorphism
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s consider another use case for the Strategy design pattern: the Standard
+    Library `accumulate()` function template from the `<numeric>` header:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'By default, `std::accumulate()` sums up all elements in the given range. The
+    third argument specifies the initial value for the sum. Since `std::accumulate()`
+    uses the type of that argument as the return type, the type of the argument is
+    explicitly highlighted as `int{0}` instead of just `0` to prevent subtle misunderstandings.
+    However, summing up elements is only the tip of the iceberg: if you need to, you
+    can specify how elements are accumulated by providing a fourth argument to `std::accumulate()`.
+    For instance, you could use `std::plus` or `std::multiplies` from the `<functional>`
+    header:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: By means of the fourth argument, `std::accumulate()` can be used for any kind
+    of reduction operation, and thus the fourth argument represents the implementation
+    of the reduction operation. As such, it enables us to vary the implementation
+    by injecting the details of how the reduction should work from the outside. `std::accumulate()`
+    therefore does not depend on a single, specific implementation but can be customized
+    by anyone to a specific purpose. This represents exactly the intent of the Strategy
+    design pattern.^([11](ch03.xhtml#idm45043117184368))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`std::accumulate()` draws its power from a generic form of the Strategy design
+    pattern. Without the ability to change this behavior, it would be useful in only
+    a very limited number of use cases. Due to the Strategy design pattern, the number
+    of possible uses is endless.^([12](ch03.xhtml#idm45043117181696))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The example of `std::accumulate()` demonstrates that design patterns, even
+    the classic GoF patterns, are not tied to one particular implementation and additionally
+    are not limited to object-oriented programming. Clearly the intent of many of
+    these patterns is also useful for other paradigms like functional or generic programming.^([13](ch03.xhtml#idm45043117179232))
+    Therefore, design patterns are not limited to dynamic polymorphism, either. On
+    the contrary: design patterns work equally well for static polymorphism and can
+    therefore be used in combination with C++ templates.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To further emphasize the point and to show you an additional example of the
+    Strategy design pattern, consider the declarations for the `std::vector` and `std::set`
+    class templates:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: All containers in the Standard Library (with the exception of `std::array`)
+    provide you with the opportunity to specify a custom allocator. In the case of
+    `std::vector` it’s the second template argument, and for `std::set` it’s the third
+    argument. All memory requests from the container are handled via the given allocator.
+  prefs: []
+  type: TYPE_NORMAL
+- en: By exposing a template argument for the allocator, the Standard Library containers
+    give you the opportunity to customize memory allocation from the outside. They
+    enable you to define a family of algorithms (in earlier case, an algorithm for
+    the memory acquisition) and encapsulate each one and therefore make them interchangeable.
+    Consequently you’re able to vary this algorithm independently from clients (in
+    this case, the containers) that use it.^([14](ch03.xhtml#idm45043117095392))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Having read that description, you should recognize the Strategy design pattern.
+    In this example, Strategy is again based on static polymorphism and implemented
+    by means of a template argument. Clearly, Strategy is not limited to dynamic polymorphism.
+  prefs: []
+  type: TYPE_NORMAL
+- en: While it’s obviously true that design patterns in general aren’t limited to
+    object-oriented programming or dynamic polymorphism, I should still explicitly
+    state that there are some design patterns whose intent is targeted to alleviate
+    the usual problems in object-oriented programming (e.g., the *Visitor* and *Prototype*
+    design patterns).⁠^([15](ch03.xhtml#idm45043117018416)) And of course there are
+    also design patterns focused on functional programming or generic programming
+    (e.g., the *Curiously Recurring Template Pattern* [CRTP] and *Expression Templates*).^([16](ch03.xhtml#idm45043117014496))
+    While most design patterns are not paradigm centric and their intention can be
+    used in a variety of implementations, some are more specific.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In the upcoming chapters, you’ll see examples for both categories. You will
+    see design patterns that have a very general intent and are consequently of general
+    usefulness. Additionally, you will see some design patterns that are more paradigm-specific
+    and, due to that, will fail to be useful outside of their target domain. Still,
+    they all have the main characteristics of design patterns in common: a name, an
+    intent, and some form of abstraction.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In summary: design patterns are not limited to object-oriented programming,
+    nor are they limited to dynamic polymorphism. More specifically, design patterns
+    are not about a particular implementation and they are not language-specific idioms.
+    Instead, they are focused entirely on the intent to decouple software entities
+    in a specific way.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 13: Design Patterns Are Everywhere'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: The previous section has demonstrated that design patterns are not limited to
+    object-oriented programming or dynamic polymorphism, that they are not language-specific
+    idioms, and that they are not about a particular implementation. Still, due to
+    these common misconceptions and because we don’t consider C++ as solely object-oriented
+    programming language anymore, some people even claim that design patterns are
+    outdated or obsolete.^([17](ch03.xhtml#idm45043116999904))
+  prefs: []
+  type: TYPE_NORMAL
+- en: I imagine you’re now looking a little skeptical. “Obsolete? Isn’t that a little
+    exaggerated?” you ask. Well, unfortunately not. To tell a little war story, in
+    early 2021 I had the honor of giving a virtual talk about design patterns in a
+    German C++ user group. My main objective was to explain what design patterns are
+    and that they are very much in use today. During the talk, I felt good, invigorated
+    in my mission to help people see all the benefits of design patterns, and I sure
+    gave my best to make everybody see the light that knowledge about design patterns
+    brings. Still, a few days after the publication of the talk on YouTube, a user
+    commented on the talk with “Really? Design Patterns in 2021?”
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'I very much hope that you are now shaking your head in disbelief. Yes, I could
+    not believe it either, especially after having shown that there are hundreds of
+    examples for design patterns in the C++ Standard Library. No, design patterns
+    are neither outdated nor obsolete. Nothing could be further from the truth. To
+    prove that design patterns are still very much alive and relevant, let’s consider
+    the updated allocators facility in the C++ Standard Library. Take a look at the
+    following code example that uses allocators from the `std::pmr` (*polymorphic
+    memory resource*) namespace:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: This example demonstrates how to use a [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/E40Dn)
+    as allocator to redirect all memory allocations into a predefined byte buffer.
+    Initially we are creating a buffer of 1,000 bytes in the form of a `std::array`
+    ([![1](assets/1.png)](#code_g13_1)). This buffer is provided as a source of memory
+    to a `std::pmr::monotonic_buffer_resource` by means of passing a pointer to the
+    first element (via `raw.data()`) and the size of the buffer (via `raw.size()`)
+    ([![2](assets/2.png)](#code_g13_2)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The third argument to the `monotonic_buffer_resource` represents a backup allocator,
+    which is used in case the `monotonic_buffer_resource` runs out of memory. Since
+    we don’t need additional memory in this case, we use the `std::pmr::null​_mem⁠ory_resource()`
+    function, which gives us a pointer to the standard allocator that always fails
+    to allocate. That means that you can ask as nicely as you want, but the allocator
+    returned by `std::pmr::null_memory_resource()` will always throw an exception
+    when you ask for memory.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The created buffer is passed as allocator to the `strings` vector, which will
+    now acquire all its memory from the initial byte buffer ([![3](assets/3.png)](#code_g13_3)).
+    Furthermore, since the vector forwards the allocator to its elements, even the
+    three strings, which we add by means of the `emplace_back()` function and which
+    are all too long to rely on the *Small String Optimization (SSO)*, will acquire
+    all their memory from the byte buffer. Thus, no dynamic memory is used in the
+    entire example; all memory will be taken from the byte array.^([18](ch03.xhtml#idm45043116755712))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'At first glance, this example doesn’t look like it requires any design pattern
+    to work. However, the allocator functionality used in this example uses at least
+    four different design patterns: the Template Method design pattern, the Decorator
+    design pattern, the Adapter design pattern, and (again) the Strategy design pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'There are even five design pattern if you count the *Singleton* pattern: the
+    `null​_mem⁠ory_resource()` function ([![2](assets/2.png)](#code_g13_2)) is implemented
+    in terms of the *Singleton* pattern:^([19](ch03.xhtml#idm45043116749824)) it returns
+    a pointer to a static storage duration object, which is used to guarantee that
+    there is at most one instance of this allocator.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'All C++ allocators from the `pmr` namespace, including the allocator returned
+    by `null_memory_resource()` and the `monotonic_buffer_resource`, are derived from
+    the `std::pmr::memory_resource` base class. The first design pattern becomes visible
+    if you look at the `memory_resource` class definition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: You may notice that the three functions in the `public` section of the class
+    have a virtual counterpart in the `private` section of the class. Whereas the
+    public `allocate()`, `deallocate()`, and `is_equal()` functions represent the
+    user-facing interface of the class, the `do_allocate()`, `do_deallocate()`, and
+    `do_is_equal()` functions represent the interface for derived classes. This separation
+    of concerns is an example of the *Non-Virtual Interface (NVI)* idiom, which itself
+    is an example of the *Template Method* design pattern.^([20](ch03.xhtml#idm45043116658560))
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The second design pattern we implicitly use is the Decorator design pattern.^([21](ch03.xhtml#idm45043116657552))
+    Decorator helps you to build a hierarchical layer of allocators and to wrap and
+    extend the functionality of one allocator to another. This idea becomes clearer
+    in this line:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: By passing the allocator returned by the `null_memory_resource()` function to
+    the `monotonic_buffer_resource`, we decorate its functionality. Whenever we ask
+    the `monotonic_buffer_resource` for memory via the `allocate()` function, it may
+    forward the call to its backup allocator. This way, we can implement many different
+    kinds of allocators, which in turn can be easily assembled to form a complete
+    memory subsystem with different layers of allocation strategies. This kind of
+    combining and reusing pieces of functionality is the strength of the Decorator
+    design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You may have noticed that in the example code we have used `std::pmr::vector`
+    and `std::pmr::string`. I assume you remember that `std::string` is just a type
+    alias to `std::basic_string<char>`. Knowing that, it probably comes as no surprise
+    that the two types in the `pmr` namespace are also just type aliases:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: These type aliases still refer to the regular `std::vector` and `std::basic_string`
+    classes but do not expose a template parameter for an allocator anymore. Instead,
+    they employ a `std::pmr::polymorphic_allocator` as allocator. This is an example
+    of the Adapter design pattern.^([22](ch03.xhtml#idm45043116322624)) The intent
+    of an Adapter is to help you to glue two nonfitting interfaces together. In this
+    case, the `polymorphic_allocator` helps to transmit between the classic, static
+    interface required from the classic C++ allocators and the new, dynamic allocator
+    interface required by `std::pmr::memory_resource`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The fourth and last design pattern used in our example is, again, the Strategy
+    design pattern. By exposing a template argument for the allocator, Standard Library
+    containers like `std::vector` and `std::string` give you the opportunity to customize
+    memory allocation from outside. This is a static form of the Strategy design pattern
+    and has the same intent as customizing algorithms (see also [“Guideline 12: Beware
+    of Design Pattern Misconceptions”](#beware_of_design_pattern_misconceptions)).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This example impressively demonstrates, that design patterns are far from being
+    obsolete. On closer examination, we see them everywhere: any kind of abstraction
+    and any attempt to decouple software entities and introduce flexibility and extensibility
+    is very likely based on some design pattern. For that reason, it definitely helps
+    to know about the different design patterns and to understand their intent to
+    recognize them and apply them whenever it is necessary and appropriate.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Guideline 14: Use a Design Pattern’s Name to Communicate Intent'
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: In the last two sections, you learned what a design pattern is, what it’s not,
+    and that design patterns are everywhere. You also learned that every design pattern
+    has a name, which expresses a clear, concise, and unambiguous intent. Hence, the
+    name carries meaning.^([23](ch03.xhtml#idm45043116307104)) By using the name of
+    a design pattern you can express what the problem is and which solution you’ve
+    chosen to solve the problem, and you can describe how the code is expected to
+    evolve.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Consider, for instance, the Standard Library `accumulate()` function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'The third template parameter is named `BinaryOperation`. While this does communicate
+    the fact that the passed callable is required to take two arguments, the name
+    does not communicate the intent of the parameter. To express the intent more clearly,
+    consider calling it `BinaryReductionStrategy`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Both the term *Reduction* and the name *Strategy* carry meaning for every C++
+    programmer. Therefore, you’ve now captured and expressed your intent much more
+    clearly: the parameter enables *dependency injection* of a binary operation, which
+    allows you to specify how the reduction operation works. Therefore, the parameter
+    solves the problem of customization. Still, as you will see in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns),
+    the Strategy design pattern communicates that there are certain expectations for
+    the operation. You can only specify how the reduction operation works; you cannot
+    redefine what `accumulate()` does. If that’s what you want to express, you should
+    use the name of the *Command* design pattern:^([24](ch03.xhtml#idm45043116150400))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `std::for_each()` algorithm allows you to apply any kind of unary operation
+    to a range of elements. To express this intent, the second template parameter
+    could be named `UnaryCommand`, which unambiguously expresses that there are (nearly)
+    no expectations for the operation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Another example from the Standard Library shows how much value the name of
+    a design pattern can bring to a piece of code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: In the `main()` function, we create a `std::variant` for the three alternatives
+    `int`, `double`, and `std::string` ([![1](assets/1.png)](#code_g14_1)). In the
+    next line, we assign a C-style string literal, which will be converted to a `std::string`
+    inside the variant ([![2](assets/2.png)](#code_g14_2)). Then we print the content
+    of the variant via the `std::visit()` function and the `Print` function object
+    ([![3](assets/3.png)](#code_g14_3)).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Notice the name of the `std::visit()` function. The name directly refers to
+    the *Visitor* design pattern and therefore clearly expresses its intent: you’re
+    able to apply any operation to the closed set of types contained in the variant
+    instance.^([25](ch03.xhtml#idm45043115722672)) Also, you can extend the set of
+    operations nonintrusively.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: You see that using the name of a design pattern carries more information than
+    using an arbitrary name. Still, this shouldn’t imply that naming is easy.^([26](ch03.xhtml#idm45043116055552))
+    A name should primarily help you understand the code in a specific context. If
+    the name of a design pattern can help with that, then consider including the design
+    pattern name to express your intent.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([1](ch03.xhtml#idm45043117876336-marker)) The Gang of Four, or simply GoF,
+    is a commonly used reference to the four authors Erich Gamma, Richard Helm, Ralph
+    E. Johnson, and John Vlissides and their book on design patterns: *Design Patterns:
+    Elements of Reusable Object-Oriented Software* (Prentice Hall). The GoF book still
+    is, after several decades, *the* reference on design patterns. Throughout the
+    rest of this book, I will refer to either the GoF book, the GoF patterns, or the
+    characteristic, object-oriented GoF style.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch03.xhtml#idm45043117867680-marker)) If you do not know the *Visitor*
+    design pattern yet, don’t worry. I will introduce the pattern in [Chapter 4](ch04.xhtml#the_visitor_design_pattern).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch03.xhtml#idm45043117861184-marker)) The Strategy design pattern will
+    be explained in detail in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns),
+    the Decorator design pattern in [Chapter 9](ch09.xhtml#the_decorator_design_pattern).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([4](ch03.xhtml#idm45043117851760-marker)) I mention only the design patterns
+    that I will explain in later chapters (see the Strategy and *Command* design patterns
+    in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns) and the *Bridge*
+    design pattern in [“Guideline 28: Build Bridges to Remove Physical Dependencies”](ch07.xhtml#build_bridges_to_remove_physical_dependencies)).
+    There are a few more design patterns that share the same structure.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([5](ch03.xhtml#idm45043117838768-marker)) If you are unfamiliar with the Strategy
+    design pattern, rest assured that [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns)
+    will provide much more information, including several code examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([6](ch03.xhtml#idm45043117735120-marker)) This may be a controversial example.
+    Since I know the C++ community, I know that you may have a different opinion.
+    However, I stand by mine: due to its definition, `std::make_unique()` is incapable
+    of decoupling software entities and therefore does not play a role on the level
+    of software design. It’s merely an implementation detail (but a valuable and useful
+    one).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([7](ch03.xhtml#idm45043117663968-marker)) Venkat Subramaniam and Andrew Hunt,
+    *Practices of an Agile Developer* (The Pragmatic Programmers, LLC, 2017).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([8](ch03.xhtml#idm45043117662480-marker)) Well, it works, in some definition
+    of “works.”
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([9](ch03.xhtml#idm45043117656144-marker)) I know what you’re thinking: “You
+    cannot be serious! There is so many interesting examples out there, but you select
+    the oldest and most boring example in the book!” OK, I admit that might not be
+    the most exciting example to pick. But, still, I have two good reasons to use
+    this example. First, the scenario is so well known that I can assume that no one
+    has trouble understanding it. That means that everyone should be able to follow
+    my arguments about software design. And second, let’s agree that it’s kind of
+    a tradition in computer science to start with a shape or an animal example. And,
+    of course, I do not want to disappoint traditionalists.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([10](ch03.xhtml#idm45043117617504-marker)) [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns)
+    will provide a complete and thorough introduction of the *Strategy* design pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([11](ch03.xhtml#idm45043117184368-marker)) You may (correctly) observe that
+    even without the fourth argument you could change how the accumulation works by
+    providing a custom addition operator (i.e., `operator+()`) for the given type.
+    However, that is only of limited use. While you can provide a custom addition
+    operator for user-defined types, you cannot provide a custom addition operator
+    for fundamental types (such as the `int` in the example). Also, it’s very questionable
+    to define `operator+()` for anything other than an addition operation (or related
+    operations like the concatenation of strings). Thus, relying on the addition operator
+    would be limiting technically and semantically.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([12](ch03.xhtml#idm45043117181696-marker)) In his CppCon 2016 talk [“std::accumulate:
+    Exploring an Algorithmic Empire”](https://oreil.ly/P8qpA), Ben Deane has impressively
+    demonstrated how powerful `std::accumulate()` is thanks to that fourth argument.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([13](ch03.xhtml#idm45043117179232-marker)) For more information about STL
+    algorithms and their functional programming heritage, see Ivan Cukic’s excellent
+    introduction to *Functional Programming in C++* (Manning).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([14](ch03.xhtml#idm45043117095392-marker)) Another commonly used name for
+    that form of the Strategy design pattern is *Policy-Based Design*; see [“Guideline
+    19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([15](ch03.xhtml#idm45043117018416-marker)) I will explain the *Visitor* design
+    pattern in [Chapter 4](ch04.xhtml#the_visitor_design_pattern) and the *Prototype*
+    design pattern in [“Guideline 30: Apply Prototype for Abstract Copy Operations”](ch07.xhtml#apply_prototype_for_abstract_copy_operations).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([16](ch03.xhtml#idm45043117014496-marker)) Again, I’m referring you to Ivan
+    Cukic’s introduction to *Functional Programming in C++*. The *CRTP* design pattern
+    will be the topic of [“Guideline 26: Use CRTP to Introduce Static Type Categories”](ch06.xhtml#use_crtp_to_introduce_static_type_categories).
+    For information on *Expression Templates*, a template-based pattern, refer to
+    *the* C++ template reference: David Vandevoorde, Nicolai Josuttis, and Douglas
+    Gregor’s *C++ Templates: The Complete Guide* (Addison-Wesley).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([17](ch03.xhtml#idm45043116999904-marker)) I would argue that C++ has been
+    a multiparadigm programming language since the moment the first implementation
+    of templates was added to the language in 1989\. The impact of templates on the
+    language became clear with the addition of part of the Standard Template Library
+    (STL) to the Standard Library in 1994\. Since then, C++ has provided object-oriented,
+    functional, and generic capabilities.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([18](ch03.xhtml#idm45043116755712-marker)) The *Small String Optimization
+    (SSO)* is a common optimization for small strings. Instead of allocating dynamic
+    memory on the heap via the provided allocator, the string would store the small
+    number of characters directly into the stack part of the string. Since a string
+    usually occupies between 24 and 32 bytes on the stack (which is not a C++ standard
+    requirement but a property of common implementations of `std::string`), anything
+    beyond 32 bytes will require a heap allocation. That is the case with the three
+    given strings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([19](ch03.xhtml#idm45043116749824-marker)) *Singleton* is one of the original
+    23 GoF design patterns. But I will do my best in [“Guideline 37: Treat Singleton
+    as an Implementation Pattern, Not a Design Pattern”](ch10.xhtml#treat_singleton_as_an_implementation_pattern_not_a_design_pattern)
+    to convince you that *Singleton* is not actually a design pattern but an implementation
+    detail. For that reason, I will refer to *Singleton* not as a design pattern but
+    simply as an implementation pattern.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([20](ch03.xhtml#idm45043116658560-marker)) Unfortunately, I won’t cover the
+    *Template Method* design pattern in this book. This isn’t because it’s not important
+    but simply due to a lack of available pages. Please refer to the GoF book for
+    more details.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([21](ch03.xhtml#idm45043116657552-marker)) I will give a complete introduction
+    of the Decorator design pattern in [Chapter 9](ch09.xhtml#the_decorator_design_pattern).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([22](ch03.xhtml#idm45043116322624-marker)) The Adapter design pattern will
+    be the topic of [“Guideline 24: Use Adapters to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([23](ch03.xhtml#idm45043116307104-marker)) Good names always carry meaning.
+    This is why they are so fundamentally important.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([24](ch03.xhtml#idm45043116150400-marker)) I will explain the *Command* design
+    pattern alongside the Strategy design pattern in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([25](ch03.xhtml#idm45043115722672-marker)) The *Visitor* design pattern, including
+    the modern implementation with `std::variant`, will be our focus in [Chapter 4](ch04.xhtml#the_visitor_design_pattern).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([26](ch03.xhtml#idm45043116055552-marker)) Naming is hard, as Kate Gregory
+    aptly remarks in her highly recommended talk [“Naming Is Hard: Let’s Do Better”](https://oreil.ly/nyeOv)
+    at CppCon 2019.'
+  prefs: []
+  type: TYPE_NORMAL

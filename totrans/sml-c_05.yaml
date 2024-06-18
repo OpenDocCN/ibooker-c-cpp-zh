@@ -1,0 +1,908 @@
+- en: Chapter 5\. Functions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: With the various assignment statements and flow of control options we’ve seen
+    so far, you are now primed to solve just about any problem meant for computers.
+    But solving a problem turns out to be only about half of the, uh, problem. Whether
+    you are coding for work or for fun, you invariably need to go back to code you
+    have already written. You might be fixing a small bug or adding a missing feature.
+    You may be using a previous project as a starting point for a new one. In all
+    of these moments, the maintainability of your code becomes almost as important
+    as the initial effort to get the code working. Breaking up a problem to make it
+    manageable while you are solving it can have a beneficial effect on the code you
+    end up writing—which also has a beneficial effect on its readability and maintainability.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Core to this idea of tackling smaller problems on the way to tackling the whole
+    one is the use of *functions* or *procedures*. Functions help you encapsulate
+    logic—the statements and control structures you are learning to code. In C, you
+    can write and call as many functions as you need.^([1](ch05.xhtml#idm45018727721800))
+    C doesn’t really distinguish between the word “function” and the word “procedure,”
+    although some languages do. (In those languages, the difference is often whether
+    or not a piece of code returns a value or simply executes a set of statements.)
+    I’ll mostly use the term *function*, but if you see discussions of a procedure
+    (or *routine*, same idea) here or in any of your other reading, it still refers
+    to a block of code you can call from some other block of code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Familiar Functions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We’ve actually been using functions all along. The `main()` block of code is
+    a function. In our very first “Hello, World” program, we used the `printf()` function
+    to produce some output. We use the `scanf()` function to get input from the user.
+    Both of those functions come from the `stdio.h` library we include in our programs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Function Flow
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: What is going on inside these functions? What does it mean to “call” them? Functions
+    and procedures are another form of flow control. They allow you to jump between
+    chunks of code in an orderly way—and return to where you came from when you’re
+    done. [Figure 5-1](#smallerc-CHP-5-FIG-function-basics) illustrates this flow
+    a little more formally.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0501](Images/smac_0501.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-1\. Following the flow of control through a function
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: This flow is what I mean by *calling* a function. You go from your current statement
+    to the first statement of the function. You work your way through the function
+    (which, by the way, can contain calls to other functions) and then come back.
+    On your way back, you can bring along a result, but that’s optional. For example,
+    we don’t use any return value from our `printf()` and `scanf()` calls. (There
+    is one, but we can safely ignore it.) We do, however, rely on the return value
+    from many functions to know things like whether two strings match, or if a character
+    is a numeric digit, or what the square root of some number is.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We’ll look at many of the functions that make up the “standard library” of C
+    in [Chapter 7](ch07.xhtml#smallerc-CHP-7). But we don’t have to rely solely on
+    the standard functions, either. C allows us to create our own functions. [Figure 5-2](#smallerc-CHP-5-FIG-function-layout)
+    shows the basic structure of a function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0502](Images/smac_0502.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-2\. The basic parts of a C function
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: We’ll work through all the variations on these key parts of a function in this
+    chapter.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Simple Functions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'The simplest form of a C function is one where we only jump to the function,
+    execute its statements, and jump back. We don’t pass any information in and we
+    don’t expect any information back. This might sound a little boring or even wasteful,
+    but it can be incredibly useful for breaking up large programs into manageable
+    pieces. It also makes it possible to reuse popular chunks of code. For example,
+    your program might come with some helpful instructions. Anywhere the user gets
+    stuck, you print those to the screen to help get them unstuck. You can put those
+    instructions in a function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note the type of our function; it’s a new one. This *void* type tells the compiler
+    this function does not have a return value. C’s default is to return an `int`
+    like our `main()` function, but functions can return any type of value that C
+    supports—including no value at all, like we do here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Function names in C follow the same rules as variable names. You have to start
+    with a letter or the underscore, and then you can have any number of following
+    letters, numbers, or underscores. Also, like variables, you cannot use any of
+    the reserved words from [Table 2-4](ch02.xhtml#smallerc-CHP-2-TAB-c-keywords).
+  prefs: []
+  type: TYPE_NORMAL
+- en: We can then call this function anytime we need to nudge the user or if they
+    ask for help. Here’s the rest of the program, [*ch05/help_demo.c*](https://oreil.ly/LilAh).
+    We’ll print the help information when the program starts, and if the user simply
+    hits the Return key when prompted for a name, we’ll print it again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And here’s the output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice that in reusing our simple `print_help()` function, we did not save much
+    by way of lines of code. Sometimes, using a function is more about consistency
+    than reducing space or complexity. If we end up changing how our program works,
+    say, asking the user for their name and address, for example, we can update just
+    this one function and everywhere it gets used will automatically benefit from
+    the new content.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sending Information to Functions
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: While there are a surprising number of times where simple functions such as
+    our `print_help()` come in handy, more often you’ll need to pass some information
+    that the function can use to do its work. Think back to our second iteration of
+    saying hello to the user. We prompted them to enter their name and then printed
+    a personalized greeting. We can create a function that has that same tailoring
+    capacity. To do that, we’ll specify a function *parameter*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Parameters go inside the pair of parentheses and look a lot like variable declarations.
+    In a very real sense, they are variable declarations. But there are a few key
+    differences between parameters and variables. First, you must supply a type for
+    each parameter. You can’t “piggyback” on another parameter’s type, even though
+    the second type is the same. Secondly, you cannot initialize a parameter. Parameters
+    get their initial value from the *arguments* you supply when you call the function.
+    Here are a few valid and invalid examples:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: The names “parameter” and “argument” are just programmer-speak for variables
+    and values. But it’s useful to have distinct names when talking about the structure
+    of your program with other developers. When you say “parameter,” other programmers
+    know you are talking about defining a function and its inputs. By contrast, when
+    you talk about arguments, it is clear you mean the values passed to an already
+    defined function that you are calling. Knowing this terminology can also help
+    you ask better questions when you search online for help.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Passing Simple Types
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s try passing some things to a function and using them. A canonical function
+    with parameters is one that calculates a numeric average. We can define a function
+    that accepts two floating point numbers and prints out the average like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We can now call `print_average()` from some other part of our program like
+    this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Notice that our parameters, `a` and `b`, do not share a name with the variables
+    we use as arguments, `num1` and `num2`. It is not the names of things that tie
+    arguments to parameters, it is their position. The first argument, whether it
+    is a literal value, a variable, or even an expression, must match the type of
+    the first parameter and will be used to give that first parameter its starting
+    value. The second argument goes with the second parameter, and so on. All of the
+    following calls to `print_average()` are valid:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: Passing arguments to functions is fundamental to C programming. We won’t go
+    through the output here, but take a look at [*ch05/averages.c*](https://oreil.ly/v9VLq).
+    Run it and see if you get the output you expect. Try adding some of your own variables
+    or use `scanf()` to get more input, and then print some more averages. This is
+    definitely a case where practice will pay off!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Passing Strings to Functions
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'But what about our personalized greeting function? We can pass strings (again,
+    really just an array of `char`) more or less like we pass other types. As with
+    other parameters, we do not give array parameters an initial value, so the square
+    brackets are always empty:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: When we go to call `greet()`, we’ll use the whole array as the argument, similar
+    to how we pass string variables to the `scanf()` function. We reused the variable
+    `name` because it makes sense for our program and our `greet()` function. It is
+    not required that arguments and parameters match like this. In fact, such alignment
+    is rare. We’ll look at this distinction between the parameters in a function and
+    the arguments passed to it in [“Variable Scope”](#smallerc-CHP-5-SECT-6).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: You will often see array parameters declared with a “*” prefix rather than the
+    “[]” bracket suffix (e.g., `void greet(char *name)`). This is valid notation centering
+    on the use of pointers. We’ll tackle pointers in [Chapter 6](ch06.xhtml#smallerc-CHP-6)
+    where I’ll cover how array variables work in more detail, both in terms of their
+    memory allocation and using them with functions.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here’s a complete program, [*ch05/greeting.c*](https://oreil.ly/FTudJ) that
+    defines and uses `greet()`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And here is the output of a few runs:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hopefully, nothing too surprising there. As noted above, we’ll revisit passing
+    arrays as arguments in [Chapter 6](ch06.xhtml#smallerc-CHP-6). There’s nothing
+    wrong with how we specify our `char[]` parameter in this example, but it isn’t
+    the only way to do it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Multiple Types
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'It might be obvious, but I want to point out that the parameter list in a function
+    definition can mix and match types. You are not restricted to one type. For example,
+    we can write a `repeat()` function that takes a string to print and a `count`
+    to tell us how many times to print the string:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Neat! If we call `repeat()` with the word “Dennis” and the number 5, we will
+    get the following output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Well, the answer to this little quiz is a tip, at least. :) Can you think of
+    a way to print the index numbers in the output above so that they start at 1 and
+    go to 5 instead of the less human-friendly 0 to 4 that we have now?
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exiting a Function
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'A common problem every programmer faces is making sure that the inputs to functions
+    are appropriate. In the case of our nifty `repeat()` function, for example, we
+    want a `count` that is a positive number so that we actually get some output.
+    What do we do if we get a bad number and don’t want to finish the rest of the
+    function? Fortunately, C provides a way to exit a function at any time: the `return`
+    statement.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We can upgrade `repeat()` to check for a good `count` before trying to run
+    the printing loop:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Much better. The first version of `repeat()` wouldn’t crash or anything if a
+    negative count was supplied, but the user would not see any output and would not
+    know why. Testing for legal or expected values is usually a good idea—especially
+    if you are writing code that other people might also end up using.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Returning Information
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Functions can also return information. You specify one of the data types, such
+    as `int` or `float`, in the definition, and then use the `return` statement to
+    send back an actual value. When you call such a function, you can store that returned
+    value in a variable or use it anywhere a value or an expression is allowed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, we could take `print_average()` and turn it into a function that
+    calculates the average and simply returns it, rather than printing anything out.
+    That way you are free to print the average yourself with a custom message. Or
+    you can use the average in some other calculation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here’s a simple version of such a function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: Instead of `void` for a type, we now have `float`. So our `return` statement
+    should include a float value, variable, or expression. In this example, we calculate
+    the average and store it in a temporary variable called `average`. We then use
+    that variable with the `return`. It’s important to note that what gets returned
+    is a *value*. The `average` variable disappears when we’re done with the function,
+    but its final value is sent back.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Since we do return a value, it is common for functions like `calc_average()`
+    to skip the temporary variables. You can perform this simple calculation right
+    with the `return` like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: You don’t lose any readability here, but that is probably because this is such
+    a straightforward calculation. For larger or more complex functions, feel free
+    to use whichever approach is more comfortable or seems more maintainable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Returned Values
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: To capture that average, we put the call to the `calc_average()` function somewhere
+    we would normally see a literal or expression. We can assign it to a variable.
+    We could use it in a `printf()` statement. We could include it inside a larger
+    calculation. Its type is `float`, so anywhere you could use a floating point value
+    or variable, you can call `calc_average()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here are a few examples from [*ch05/averages2.c*](https://oreil.ly/ALwA3):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: In each of these statements, you can see how `calc_average()` gets used in place
+    of a `float` value. [Figure 5-3](#smallerc-CHP-5-FIG-function-flow) illustrates
+    the flow of that first assignment statement.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0503](Images/smac_0503.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-3\. Flow of a call to `calc_average()`
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '![1](Images/1.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Call to `calc_average()` transfers control to the function; its parameters are
+    initialized from the arguments.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![2](Images/2.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Once the function completes its work, return control to the main function along
+    with the result to be stored in `avg`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![3](Images/3.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Resume processing statements in the original function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If you build your own program with the `calc_average()` function and the previous
+    snippet, you should see something like this output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can create your own file, or compile and run *averages2.c* if you would
+    like to try these examples. As an exercise, how could you expand the `calc_average()`
+    function to produce the average of three inputs?
+  prefs: []
+  type: TYPE_NORMAL
+- en: Ignoring Returned Values
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'You are not required to make use of a return value in C if it isn’t useful.
+    I didn’t mention this when introducing the `printf()` function, but it actually
+    returns an `int`: the count of how many bytes were written out. Don’t believe
+    it? Try it! I dropped this snippet in [*ch05/printf_bytes.c*](https://oreil.ly/rDKBc)
+    if you don’t want to write it up yourself:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This snippet would produce the following output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE18]'
+  prefs: []
+  type: TYPE_PRE
+- en: C is happy with all three of those calls to `printf()`. The first and the third
+    call also return a count, but we ignore it (with no ill effect). We grab the count
+    from the second call just to show that `printf()` does in fact return a value.
+    Usually, you call a function that returns a value precisely because you want that
+    returned value. Some functions, however, come with side effects that are the real
+    target, rather than the returned value. `printf()` is just such a function. It
+    is occasionally useful to keep track of how many bytes your program has written
+    (a microcontroller that reports sensor readings to a cloud service, for example,
+    might have a daily or monthly limit it cannot surpass), but you probably used
+    `printf()` because you wanted some text to show up on the screen.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Nested Calls and Recursion
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'If you look at any of the complete program files for this chapter like [*ch05/greeting.c*](https://oreil.ly/fBCrG)
+    or [*ch05/averages2.c*](https://oreil.ly/BPwIl), you will likely notice that we
+    follow a simple pattern: define a function, define the `main()` function, and
+    call our first function from inside `main()`. But that is not the only valid arrangement.
+    As I’ll show you in [Chapter 11](ch11.xhtml#smallerc-CHP-11), with just a little
+    extra code, you could swap the position of `main()` and `calc_average()`, for
+    example.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We also have the freedom to call our functions from inside yet other functions.
+    We could create a new program that reproduces the same exact output as the original
+    `print_average()` function from *averages.c*, but do it using the `calc_average()`
+    function from *averages2.c* to get the actual average value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Here’s the complete [*ch05/averages3.c*](https://oreil.ly/c3Ssi) so you can
+    see where we place the different functions and where those functions are called:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE19]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If you run it, the output will be similar to the first example back in [“Passing
+    Simple Types”](#smallerc-CHP-5-SECT-3.1):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE20]'
+  prefs: []
+  type: TYPE_PRE
+- en: Clever. We’ve actually been relying on this feature all along. In our very first
+    “Hello, World” program, we call the `printf()` function—which is indeed a real
+    function, just one defined by the built-in standard I/O library—from within our
+    `main()` function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: All C programs out there solving real-world problems will use this basic pattern.
+    Functions are written to tackle some small portion of a bigger problem. Other
+    functions call those functions to assemble the small answers into a bigger whole.
+    Some problems are so large that you will have several layers of functions that
+    call functions that call functions. But we’re getting ahead of ourselves. We’ll
+    keep practicing with simpler functions. As you get comfortable defining and calling
+    them, you’ll naturally start to build more complex hierarchies as you solve more
+    complex problems.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Recursive Functions
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'It may not be obvious unless you have worked with other languages, but a C
+    function is allowed to call itself, too. This is called *recursion* and such a
+    self-calling function is known as a *recursive* function. If you’ve spent any
+    time around programmers, perhaps you have heard the surprisingly accurate joke
+    about the definition of recursion: “I looked up recursion in the dictionary. It
+    said: ‘See recursion.’” Who says nerds don’t have a sense of humor? ;-)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'But the joke definition does hint at exactly how you write a recursive function
+    in C. There is just one big caveat: you need to have a way to stop the recursion.
+    If the subject in the joke were a computer, it would be in an endless cycle of
+    looking up the word only to be told to look up the word only to be told to look
+    up the word, etc., etc., ad infinitum. If you write such a function in C, eventually
+    the program will consume all the memory in your computer and crash.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To avoid that crash, recursive functions have at least two branches. One branch,
+    a *base case*, terminates. It produces a concrete value and completes. The other
+    branch does some sort of calculation and recurses. That “some sort of calculation”
+    must eventually lead to the base case. If that sounds a little confusing, don’t
+    panic!^([2](ch05.xhtml#idm45018726259176)) We can better illustrate this process
+    with actual code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Perhaps one of the most famous recursive algorithms is one that calculates
+    the Fibonacci numbers. You may recall these from high school math. Named for a
+    13th century Italian mathematician, they are part of a sequence that builds up
+    from a simple starting point of two numbers, either a zero and a one, or two ones.
+    You add those two numbers to produce the third. You add the second and the third
+    to produce the fourth, and so on. So the nth Fibonacci number is the sum of the
+    previous number, and the previous previous number. A more formal way to say that
+    goes like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE21]'
+  prefs: []
+  type: TYPE_PRE
+- en: Here, the function *F()* is defined in terms of the function *F()*. Aha! Recursion!
+    So what does this look like in C? Let’s take a look.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We’ll start by defining a function that takes one `int` as a parameter and
+    returns an `int`. If the value passed to us is a zero or a one, we return a zero
+    or a one, respectively, as part of the definition of the sequence. (So `F(0) ==
+    0` and `F(1) == 1`, more formally.) That sounds pretty easy:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE22]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'We have the critical part: the base case (or cases, like our 0 and 1) that
+    has a definite answer. If we get some integer greater than one, we will fall to
+    the recursive call. What does that look like? Just like any other function call.
+    What makes it special is that we call the function we are in the middle of defining,
+    `fibonacci()` in our case. The “some sort of calculation” we mentioned when introducing
+    recursion is the `n - 1` and `n - 2` elements from our formal definition:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE23]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Let’s put that all together in a complete program ([*ch05/fib.c*](https://oreil.ly/8xBXV))
+    that prints a few sample Fibonacci numbers:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE24]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If we run it, we’ll get the following output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE25]'
+  prefs: []
+  type: TYPE_PRE
+- en: Very cool. But how does it work? It would seem impossible to assign a value
+    coming from a function that needs that very same function to calculate the value!
+    [Figure 5-4](#smallerc-CHP-5-FIG-recursive-calls) shows what’s happening inside
+    `fibonacci()` using the tiny value of 4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0504](Images/smac_0504.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 5-4\. A recursive call stack
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If this process still seems a little convoluted, give it time. The more you
+    work with functions in general, the easier it will become to read (and create!)
+    more interesting functions like our recursive Fibonacci example.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But it *is* convoluted for the computer. Recursion can go too deep and cause
+    the computer to run out of memory. Even if your recursive code doesn’t go that
+    deep, it can still take quite a while to process. Try changing the program to
+    show the 50th Fibonacci number instead of the 42nd. Notice it pause at that step?
+    If not, congrats on your powerful system! Try bumping it up to 60 or 70. You will
+    eventually go high enough that the sheer number of function calls will clog your
+    CPU. Just remember that recursion is best in moderation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: It is also worth pointing out that most recursive algorithms have counterparts
+    that use more mundane tricks like loops. But sometimes using loops turns out to
+    be much more complex than the recursive option. In the right circumstances, recursion
+    makes solving some problems simpler by literally breaking them into smaller problems.
+    The Fast Fourier Transform (FFT), so common in processing audio and video streams,
+    for example, is a fairly complex algorithm that has a recursive solution that
+    is easier to understand and implement.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Variable Scope
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: 'I didn’t highlight this detail explicitly in our average-calculating functions,
+    but you can declare any variables of any type you need inside a function. These
+    are often referred to as *local* variables because they are located inside a function
+    and are removed when the function finishes. Let’s revisit that first `print_average()`
+    function we wrote in [“Passing Simple Types”](#smallerc-CHP-5-SECT-3.1):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE26]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Here, the variables `a` and `b` are the function’s parameters, and `average`
+    is a local variable. There’s nothing terribly special about local variables, but
+    because they are kept inside the function where they are defined, you can reuse
+    names between different functions. Consider two functions that calculate the average
+    for two and three parameters:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE27]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Both functions declare a local variable named `average`, but they are two wholly
+    separate variables. Even though they share a name, the compiler never confuses
+    them. Indeed, even if the calling function also has an `average` variable, they
+    won’t be confused. Each local variable is contained entirely within its function:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE28]'
+  prefs: []
+  type: TYPE_PRE
+- en: Wonderful. That means we can concentrate on using names appropriate to whatever
+    work we’re doing in a given function. We don’t have to keep track of what variables
+    were used in other functions or even in `main()`. That makes our job as programmers
+    much easier.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Global Variables
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: As a programmer, though, you will undoubtedly encounter *global* variables as
+    well as local ones. A global variable is sort of the opposite of a local variable.
+    Where local variables are contained inside a function or a loop block, global
+    variables are visible everywhere. Where local variables disappear when the loop
+    or function is done, global variables persist.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This visibility and persistence can make global variables very attractive for
+    any value that is shared or reused in several functions. But it is frustratingly
+    easy to corrupt a global variable precisely because any function can see it—and
+    modify it. Here’s an example ([*ch05/globals.c*](https://oreil.ly/5tgaO)) with
+    a global variable that we use inside a function and inside `main()`:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE29]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And here’s the output from running the program:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE30]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice that we never alter the value of the variable in `main()`, but we see
+    (and can print) the changes that were made inside the `all_caps()` function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The format string I use in *globals.c* probably looks strange. On its own, `scanf("%s",
+    buffer)` would stop scanning for a string at the first bit of white space. In
+    the sample output, that would mean only the word “This” would be captured into
+    `buffer`. The `[^\n]` qualifier borrows some syntax from the world of [regular
+    expressions](https://oreil.ly/3A61l) and means “any character except a newline.”
+    This allows us to type in a phrase with spaces and capture every word up to the
+    newline as a single string.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sometimes working with a global variable is legitimately useful. Especially
+    on smaller systems like the Arduino, this arrangement can occasionally save you
+    a few bytes. But you really do have to be careful. If too many functions use and
+    alter a global variable, debugging what is happening when things go wrong gets
+    really messy. If you don’t have a compelling reason to use a global variable,
+    I recommend passing shared values as parameters to any function that needs them.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Masking global variables
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'One other important gotcha with respect to global variables is that you can
+    still declare a local variable inside a function with the same name as the global
+    variable. Such a local variable is said to *mask* the global variable. Any printing
+    or calculating or manipulating you do inside the function only affects the *local*
+    variable. And if you also need to access the global one, you are out of luck.
+    Look at [*ch05/globals2.c*](https://oreil.ly/KO8Fe):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE31]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'And compare the output from the previous *globals.c* to this output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE32]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can see here that back in the `main()` method, the global `buffer` variable
+    was not updated, even though that may have been what we wanted. Again, I don’t
+    recommend using global variables unless it is necessary. Sometimes their convenience
+    will win you over, and that’s fine. Just be vigilant and deliberate.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The main() Function
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We’ve mentioned the `main()` function a number of times in this chapter as we
+    expand our knowledge of C functions. `main()` is indeed a real, regular C function
+    with the main (ha!) distinction of being the function where an executable C program
+    starts. Since it is “just a function,” can we return a value from it? Can we pass
+    it parameters? If so, where would the arguments used to fill those parameters
+    come from? You can indeed return values and declare parameters. This last section
+    covers `main()` in more detail if you’re interested. Luckily, the simple `main()`
+    we’ve been using so far will continue to suffice for our lean examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Return values and main()
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: But we haven’t really dug into the details of our `main()` declarations. You
+    may have already been wondering about the fact that we give a type (`int`) to
+    the `main()` function although we have never written a `return` statement in that
+    function. But it turns out we could!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Most operating systems use some mechanism for determining whether a program
+    you run has completed successfully or failed for some reason. Unix and its derivatives,
+    as well as MS DOS, use numeric values for this purpose. A return value of zero
+    is generally considered success and anything else a failure. “Anything else” leaves
+    a pretty wide range of failure options, which some programs do use. If you write
+    shell scripts or DOS batch files, you may have used these return values to suss
+    out exactly why a particular command failed, and mitigate the problem if possible.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I have not included a `return` in the `main()` function in any of our examples
+    so far. So what has been going on? The compiler has simply built a program that
+    implicitly provides `0` as the `int` return value. Let’s take a look by checking
+    the exit status of our very first program, *hello.c*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'First, let’s compile and run the program. Now we can follow up and ask the
+    operating system about that return value. On Unix/Linux and macOS systems, you
+    check the `$?` special variable:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE33]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On Windows systems, you can check the `%ERRORLEVEL%` variable:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE34]'
+  prefs: []
+  type: TYPE_PRE
+- en: But that “0” might feel a little unconvincing since that is a common value for
+    undefined or uninitialized variables. Let’s write a new program, [*ch05/exitcode.c*](https://oreil.ly/vHOfd),
+    that returns an explicit, non-zero value to prove something is being returned.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We’ll prompt the user to see if they want to succeed or fail. It’s a silly
+    prompt, but it allows you to try the two options without recompiling:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE35]'
+  prefs: []
+  type: TYPE_PRE
+- en: Let’s compile and run this one with a few different answers to see what we get
+    when checking the exit code via the operating system. (For brevity, I’ll just
+    show the Linux output, but both macOS and Windows would be similar.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE36]'
+  prefs: []
+  type: TYPE_PRE
+- en: This simple program hints at how more complex programs might use these exit
+    codes to provide more details on what happened. Notice, though, that in the end
+    the program still exited. These values are optional but can be useful if you plan
+    to write utilities that will end up in scripts.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Command-Line Arguments and main()
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'What about passing arguments to `main()`? Happily, you can use the command
+    line and a second option for defining main that helps with that exact task. This
+    alternate version looks like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE37]'
+  prefs: []
+  type: TYPE_PRE
+- en: The `argc` parameter is the “argument count,” and the `argv` string array is
+    the list of “argument values.” The asterisk in the type of `argv` might be a little
+    surprising. The `argv` variable is indeed an array of character arrays, similar
+    to the two-dimensional `char` arrays in [“Multidimensional Arrays”](ch04.xhtml#smallerc-CHP-4-SECT-2),
+    but this is a more flexible version. It is an array of `char` *pointers* (denoted
+    by that askterisk). We’ll cover pointers next in [Chapter 6](ch06.xhtml#smallerc-CHP-6),
+    where we can dive into details. For now, think of `argv` as an array of strings.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'You stock the `argv` array from the command line when you start your program.
+    Everything comes in as a string, but you can convert them to other things (well,
+    numbers or characters) if that’s what you need. Here’s a short program, [*ch05/argv.c*](https://oreil.ly/1SiYk),
+    to illustrate accessing the arguments with a common check for a “help flag.” If
+    the first command-line argument is `-h`, we’ll print a help message and ignore
+    the rest of the arguments. Otherwise we’ll list them all out, one per line:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE38]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'When you run *argv.c* with a few random words, you should see them listed out:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE39]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'But if you use just the special `-h` argument, you should get our help message:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE40]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Try running it a few times yourself. If you want to try a fairly advanced exercise,
+    create a function that converts a string of digits to an integer. Then use that
+    function to add up all of the numbers you pass on the command line. Here’s an
+    example of the expected output:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE41]'
+  prefs: []
+  type: TYPE_PRE
+- en: You can check my solution in the *sum.c* file if you want to see how I tackled
+    it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: You might suppose converting strings to numbers is a common task and that C
+    would already have a function for it, and you’d mostly be right. There is a function
+    called `atoi()` (ascii to integer) that is part of the standard library, *stdlib.h*.
+    We’ll look into libraries in [Chapter 7](ch07.xhtml#smallerc-CHP-7), but this
+    small addition saves a lot of manual labor. If you are up for another quick exercise,
+    try including the `stdlib.h` header and use the `atoi()` function to complete
+    an alternate variation. Or feel free to just peek at my solution in *sum2.c*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We’ve got all of the biggest building blocks out of the way now. You can start
+    building some really interesting programs to solve real-world problems with the
+    various control structures from previous chapters and the functions we covered
+    here. But C can do more, and as we start to look forward to working on microcontrollers,
+    some of that “more” will be critical.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next two chapters, we’ll tackle pointers and using libraries to round
+    out our C skills. Then we can dive into the world of Arduino and have a world
+    of fun!
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch05.xhtml#idm45018727721800-marker)) Within reason, of course. Or rather,
+    within your computer’s resource limits. Desktop systems have so much memory these
+    days, it would be difficult to write too many functions. On our microcontrollers,
+    though, we do have to be more careful.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch05.xhtml#idm45018726259176-marker)) If you want to experience the pinnacle
+    of nerdy humor, check out *The Hitchhiker’s Guide to the Galaxy* by Douglas Adams.
+    The words “Don’t Panic” feature prominently in large, friendly letters.
+  prefs: []
+  type: TYPE_NORMAL

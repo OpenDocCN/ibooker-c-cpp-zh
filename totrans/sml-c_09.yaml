@@ -1,0 +1,1373 @@
+- en: Chapter 9\. Smaller Systems
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Now that we have the Arduino IDE ready to go, we can embark on the physically
+    satisfying world of writing C code to control things! LED things. Sensor things.
+    Button things. So many things! We’ll also dip our toes into the Internet of Things
+    (IoT) in [“IoT and Arduino”](ch12.xhtml#smallerc-CHP-12-SECT-1.1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In this chapter, I’ll touch on several Arduino peculiarities (most of them
+    helpful, some of them frustrating) while building some small but complete projects
+    that you can try yourself. [“Getting the Hardware: Adafruit”](app01.xhtml#smallerc-APP-A-SECT-2)
+    contains links for all the various components and microcontrollers I use in case
+    you want to replicate any of the projects exactly.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Arduino Environment
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: I’m sure you noticed that we did not write “complete” C programs in [Chapter 8](ch08.xhtml#smallerc-CHP-8).
+    We had no `main()` function, and for the earlier examples, we didn’t even import
+    the usual header files. Yet we clearly had access to new functions and things
+    like the `HIGH` and `LOW` values we used to blink our first LED.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Where did those extras come from? It can feel at times like the IDE is providing
+    a bit of magic. It’s not, of course, but it is doing a lot of work behind the
+    scenes in the hopes of making you more productive. I want to point out some of
+    that hidden work so that you have a better understanding of the distinction between
+    C itself and the supporting elements provided by the Arduino IDE. Inevitably,
+    you’ll head to the web to search for examples of new topics as you build more
+    of your own projects. Knowing the difference between the language and the tools
+    can make those searches more fruitful.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Arduino IDE quietly includes several headers for you to make up what can
+    loosely be called the “Arduino language.” It’s not a distinct language like Python,
+    but it certainly feels like something more than just the C-with-headers-and-libraries
+    we’ve seen so far. The Arduino language is more a collection of useful pieces
+    (values and functions) that make programming microcontrollers easier. I’ll be
+    showing you several of the more immediately beneficial parts, but you can get
+    the complete list online. The [Language Reference](https://oreil.ly/wlwhf) at
+    the Arduino site contains a simple index of included features as well as links
+    to details and examples.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Special Values
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We relied on some of these “language” extensions just to make our first LED
+    blink. Let’s revisit that code but with more discussion of the named values (the
+    Arduino Language Reference calls these *constants*) that are specific to the Arduino
+    environment.^([1](ch09.xhtml#idm45018719041400))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_smaller_systems_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `LED_BUILTIN` constant represents the number of the pin connected to the
+    LED found on most development boards. It won’t always be the same number for every
+    controller, but the IDE grabs the correct value based on the board you select.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_smaller_systems_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`OUTPUT` is the value we use to indicate we will send information to something
+    like an LED or a motor. We’ll see analogous `INPUT` and `INPUT_PULLUP` constants
+    when we tackle sensors and buttons.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_smaller_systems_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '`HIGH` is a reference to the increased voltage used to “switch on” the device
+    attached to the pin. What “on” means depends on said device. It’s pretty self-explanatory
+    for an LED. :)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_smaller_systems_CO1-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: And `LOW` is the decreased voltage counterpart to `HIGH`, turning the LED off.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'These named values are not variables. They are technically *preprocessor macros*.
+    The preprocessor is a step your code goes through before it is compiled.^([2](ch09.xhtml#idm45018718922072))
+    You create these entities with the `define` directive. (The prefix might look
+    familiar from `#include`, and it should. Both “commands” are handled by the preprocessor.)
+    We’ll go into more depth on this directive in [“Preprocessor Directives”](ch11.xhtml#smallerc-CHP-11-SECT-1.1),
+    but its syntax is simple:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: The C preprocessor simply catches every instance of the macro’s name in your
+    code and replaces that name with the defined value. If we had a new controller
+    with fewer pins, for example, we could change our `#define` to, say, `8`. Then
+    we wouldn’t have to change any of the other parts of our program where we turn
+    the onboard LED on or off.
+  prefs: []
+  type: TYPE_NORMAL
+- en: And to be clear, `#define` *is* part of C (via the preprocessor). You can use
+    it in your own code whether you are writing for a microcontroller or for a desktop.
+    It’s the specific constants like `OUTPUT` that are part of the Arduino setup.
+    [Table 9-1](#smallerc-CHP-9-TAB-arduino-constants) shows some of the constants
+    we’ll be using in our projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 9-1\. Useful constants defined for Arduino
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Name | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `LED_BUILTIN` | If the selected board has a built-in LED, this represents
+    the pin number for that LED |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `INPUT` | For pins that can perform both input and output, expect input |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `INPUT_PULLUP` | Similar to INPUT, but use an internal pull-up resistor to
+    report `HIGH` on something like an unpressed push button, and `LOW` while it is
+    pressed |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `OUTPUT` | For pins that can perform both input and output, expect output
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `HIGH` | Friendly name for 1, meant for use with digital reading and writing
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `LOW` | Friendly name for 0, meant for use with digital reading and writing
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: You can get more details on these constants on the official [Arduino Reference](https://oreil.ly/pS11s)
+    page.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Special Types
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Beyond those constants, the headers that are loaded for your Arduino sketches
+    also include a number of other data types that I want to highlight, as you might
+    find them useful. These aren’t really new types and aren’t even restricted to
+    use in Arduino, but again, your sketches have access to these and you will likely
+    see them used in examples you find online.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Table 9-2](#smallerc-CHP-9-TAB-arduino-typedefs) lists several of these types
+    with their sizes and a brief description.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 9-2\. Useful constants defined for Arduino
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Type | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `bool` | Boolean type; `bool` variables can be assigned either `true` or
+    `false` |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `byte` | Unsigned 8-bit integer type |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `size_t` | Integer type corresponding to maximum size (in bytes) of an object
+    on the selected board. The value you get from `sizeof`, for example, is of type
+    `size_t`. |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `String` | An object-oriented way of handling strings (note the capital “S”
+    in the type) with several convenience functions available |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `int8_t`, `int16_t`, `int32_t` | Signed integer types with explicit sizes
+    (8, 16, and 32 bits, respectively) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `uint8_t`, `uint16_t`, `uint32_t` | Unsigned integer types with explicit
+    sizes (8, 16, and 32 bits, respectively) |'
+  prefs: []
+  type: TYPE_TB
+- en: 'With the exception of `String`, these types are actually *aliases* of other
+    types. This is done with C’s `typedef` and is fairly straightforward. For example,
+    the `byte` type is an alias for `unsigned char` and can be defined like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: We’ll do more work with `typedef` in [“Preprocessor Macros”](ch11.xhtml#smallerc-CHP-11-SECT-1.2),
+    but several of the types are pretty handy. I use `byte` in particular in many
+    of my own projects as it makes more sense (and takes fewer keystrokes) than `unsigned
+    char`, but that’s just a personal preference. Either type defines an 8-bit slot
+    capable of storing values from 0–255.
+  prefs: []
+  type: TYPE_NORMAL
+- en: “Built-In” Functions
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The Arduino environment includes several headers that make some popular functions
+    available to you. You can make use of the functions shown in [Table 9-3](#smallerc-CHP-9-TAB-built-in-functions)
+    without any explicit `#include` in your sketch.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 9-3\. Functions available in Arduino
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Function | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *Input/Output* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `void pinMode(pin, mode)` | Set the specified pin to input or output mode
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `int digitalRead(pin)` | Return value will be HIGH or LOW |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `void digitalWrite(pin, value)` | Value should be HIGH or LOW |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `int analogRead(pin)` | Returns 0–1023 (some boards offer 0–4095) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `void analogWrite(pin, value)` | Value is 0–255, must use PWM-capable pin
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *Time* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `void delay(ms)` | Pause execution for specified number of milliseconds |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `void delayMicroseconds(micros)` | Pause execution for specified number of
+    microseconds |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `unsigned long micros()` | Returns number of microseconds since program started
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `unsigned long millis()` | Returns number of milliseconds since program started
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *Math (Unlisted return types depend on the type of the arguments)* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `abs(x)` | Returns absolute value of x (int or float) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `constrain(x, min, max)` | Returns x, but bounded by min and max |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `map(x, fromLow, fromHigh, toLow, toHigh)` | Returns x converted from “from”
+    range to “to” range |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `max(x, y)` | Returns the larger of x or y |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `min(x, y)` | Returns the smaller of x or y |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `double pow(base, exp)` | Returns base raised to the exp power |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `double sq(x)` | Returns the square of x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `double sqrt(x)` | Returns the square root of x |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `double cos(rad)` | Returns the cosine of the angle given in radians |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `double sin(rad)` | Returns the sine of the angle given in radians |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `double tan(rad)` | Returns the tangent of the angle given in radians |'
+  prefs: []
+  type: TYPE_TB
+- en: '| *Random Numbers* |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `void randomSeed(seed)` | Initializes the generator; seed is an unsigned
+    long |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `long random(max)` | Returns a random long between 0 and max - 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `long random(min, max)` | Returns a random long between min and max - 1 |'
+  prefs: []
+  type: TYPE_TB
+- en: The many character tests from *ctype.h* such as `isdigit()` or `isupper()` are
+    also available automatically.^([3](ch09.xhtml#idm45018718661080)) See [Table 7-4](ch07.xhtml#smallerc-CHP-7-TABLE-ctype-lib)
+    for the full list.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Trying Out the Arduino “Stuff”
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Let’s put all of these new ideas into a project and see just how they work (and
+    work together). To do this, we’ll create a more interesting LED sketch. We’ll
+    make the LED “breathe” using the `analogWrite()` function and a little math.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The LED in question is not actually an analog device. It still has just the
+    on and off states. But many output devices like LEDs can simulate “degrees” of
+    on with a technique known as *Pulse Width Modulation* or PWM. The idea is that
+    you can turn the LED on and off rapidly in such a way that it appears dimmer.
+    (Or working with something like a motor, it might seem to turn slower.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: It’s important to note that not all pins on all controllers can do PWM output.
+    You need to check the datasheet or pinout diagram for your controller.^([4](ch09.xhtml#idm45018718648824))
+    On the Metro Mini I’ve been using in the projects so far, for example, only pins
+    3, 5, 6, 9, 10, and 11 support PWM.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'We’ll use a different RGB LED this time. It has four pins: one ground, and
+    one each for the red, green, and blue channels. Each color will need its own connection
+    to the controller, so we’ll define some constants for those pins. We’ll also define
+    a few values for the breathing rate and our maximum number of radians, (2 * π).
+    [Figure 9-1](#smallerc-CHP-9-FIG-breathing-led-wiring) shows the wiring I used
+    in this example. Remember that using `analogWrite()` requires paying attention
+    to which pins you connect. (I won’t bother with a picture for this project; the
+    fun is in running it yourself to see the change in brightness!)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0901](Images/smac_0901.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-1\. Wiring diagram for our breathing LED example
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: And now we can get to coding! As always, I encourage you to start a new sketch
+    and type this in yourself, but you can also just pop open *breathe.ino* and follow
+    along.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For our `setup()`, we’ll get our color pin modes set to `OUTPUT` and pick a
+    random color for the LED. We’ll show that color on the LED for a few seconds before
+    starting the animation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Our `loop()` function will drive the animation. We can use the `millis()` function
+    to get an ever-increasing number. We’ll use our breathing rate and our max radians
+    value to turn those milliseconds into radians. With the radians in hand, we’ll
+    use the `sin()` function to get a nice fractional brightness that grows and fades.
+    Finally, we’ll apply that brightness to the LED and pause a few milliseconds before
+    animating the next step. Here’s the complete listing of [*ch09/breathe/breathe.ino*](https://oreil.ly/FHdP8):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If you don’t have an RGB LED, don’t worry! You can use a regular LED and just
+    write to the one pin of the LED rather than writing to the three separate color
+    pins. You won’t need to pick a random value, either; just use 255 (the full brightness).
+    Even if you have a multicolor LED, try rewriting the example for a single-color
+    LED as an exercise.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can see that although we used several functions that are not part of C itself,
+    we did not need to manually `#include` anything. That is all down to the magic
+    of the Arduino IDE. It really does make development on these tiny boards simpler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Microcontroller I/O
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: What else can we do with these extras supplied by our IDE? Lots! Let’s try branching
+    out from LEDs to try some inputs and some other types of output.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Sensors and Analog Input
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'An easy step up from the simple sketches we’ve been building so far is to add
+    a sensor. Sensors come in all types: light, sound, temperature, air quality, humidity,
+    etc. And they’re usually inexpensive (although fancier ones do come with fancier
+    price tags). For example, the [TMP36 Analog Temperature sensor](https://oreil.ly/Bczhb)
+    is only $1.50 over at Adafruit. Let’s drop that sensor into a simple circuit like
+    the one shown in [Figure 9-2](#smallerc-CHP-9-FIG-tmp36-wiring) to see how the
+    wiring works.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0902](Images/smac_0902.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-2\. Wiring diagram for our temperature example
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Pretty easy! And this is a fairly common arrangement. Sensors need power. They
+    can either have a separate pin for power—like our TMP36—or many can draw enough
+    current directly from the data pin you connect it to (such as a photoresistor).
+    We use the `analogRead()` function to grab the current value of the sensor. Different
+    boards and different sensors support different ranges, but 10-bit (0–1023) ranges
+    are common. Exactly what those values mean depends on the sensor, of course. Our
+    TMP36 ranges from –50°C (a reading of 0) to 125°C (a reading of 1023).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Serial Monitor
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'While you likely won’t have your Arduino project tethered to your main computer
+    for long, while it is connected, we can take advantage of a very handy feature
+    of most microcontrollers: the serial port. The Arduino IDE has a Serial Port Monitor
+    you can launch, as shown in [Figure 9-3](#smallerc-CHP-9-FIG-serial-monitor-menu).
+    During development, this is an excellent tool for debugging and generally peeking
+    into how things are going.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0903](Images/smac_0903.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-3\. Accessing the Arduino IDE Serial Monitor
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The port (selected via the Tools menu, also shown in [Figure 9-3](#smallerc-CHP-9-FIG-serial-monitor-menu))
+    and speed settings (selected at the bottom of the monitor window itself) will
+    vary depending on several factors, including your OS, other devices you might
+    have attached, and the particular Arduino board you are using. For example, my
+    Metro Mini on my Linux desktop communicates at 115200 baud (the classic unit of
+    measurement for the rate of serial communication; remember modems?) on port */dev/ttyUSB0*
+    (the filesystem path to a “device” connection) but a nifty [Trinket M0](https://oreil.ly/eSsOI)
+    microcontroller uses port */dev/ttyACM0*. That same Trinket on an old Windows
+    system I have still uses a COM port.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Is It Hot in Here?
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Let’s put these two new topics to use in a project. We’ll use the circuit shown
+    in [Figure 9-2](#smallerc-CHP-9-FIG-tmp36-wiring). You can start a new sketch
+    or open [*ch09/temp_serial/temp_serial.ino*](https://oreil.ly/cal6o) and follow
+    along. The code is fairly straightforward. We set up an input pin. Then we read
+    from that pin and print the result in the serial monitor in a loop. Let’s see
+    the code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: Pretty spiffy! The bouncy nature of the readings is not uncommon. If we needed
+    a steadier reading, say, to prevent a false alarm going off, there are a few electronic
+    options we could employ, like adding resistors and capacitors. We could also read
+    from the sensor several times and take an average. Or we could get even fancier
+    and use statistics to toss any real outliers and then get the average. But we
+    mostly just wanted to prove the sensor is working and that we can see the readings
+    in the serial monitor. If you want to make sure the sensor is working, try holding
+    it gently with your fingers—they should be warmer than room temperature, and you
+    should see the trend of the readings going up.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: For a bit of fun, try popping open the “Serial Plotter” from the Tools menu
+    (just under the Serial Monitor). It tracks simple values printed via `Serial.println()`
+    as a graph. It can even track multiple values as separate lines; just print a
+    space in between the values on the same line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But as I said, you likely won’t have your Arduino plugged into your USB port
+    constantly. Let’s explore a better output option.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Segmented Displays
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: LCD and segmented LED displays come in a wealth of size and price options. You
+    can get high-resolution LCDs the size of a postage stamp, touch-capable screens
+    similar to those found in cell phones, or segmented LED displays for text or numeric
+    output. I picked up a simple 4-digit LED display (a Velleman VMA425, shown in
+    [Figure 9-4](#smallerc-CHP-9-FIG-segmented-display)) with a driver chip built
+    in (so you don’t need individual pin connections for each separate segment) for
+    less than $7 at a local Micro Center. We can use just such a display to show our
+    TMP36 readings (properly converted to Fahrenheit or Celsius) without resorting
+    to the serial monitor.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0904](Images/smac_0904.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-4\. An example of a 4-digit, 7-segment display component
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Unfortunately, these peripherals usually require a little help to operate. Fortunately,
+    that help is almost always readily available in the form of a library. We’ll go
+    over libraries in much more detail in [Chapter 11](ch11.xhtml#smallerc-CHP-11),
+    but we can take a short detour now to grab what we need for our 4-digit LED display.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The driver chip I mentioned that comes with my particular display is a TM1637\.
+    There was no magic involved in finding that name—it is noted on the package and
+    more plainly on the chip itself. Using the Arduino IDE Library Manager, I entered
+    “TM1637” as the search term.^([5](ch09.xhtml#idm45018718211544)) Several results
+    came back, and I chose a library (written by Avishay Orpaz) that looked simple
+    and stable. After clicking the Install button, I simply included the library’s
+    lone header file and was immediately ready to put up some numbers!^([6](ch09.xhtml#idm45018718210600))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Doesn’t get much easier than that. You will often follow this process for adding
+    new peripherals, both sensors and other outputs. You may also decide nothing available
+    is quite right, and roll your own code. Again, we’ll look at the mechanics of
+    creating your own libray in [Chapter 11](ch11.xhtml#smallerc-CHP-11).
+  prefs: []
+  type: TYPE_NORMAL
+- en: I shouldn’t really say I was immediately ready after installing the library.
+    I did have to wire up the display. [Figure 9-5](#smallerc-CHP-9-FIG-tmp36-led-wiring)
+    shows the connections required. I also had to read the documentation for the library
+    which I found by clicking the “More info” link in the Library Manager listing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0905](Images/smac_0905.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-5\. Wiring for temperatures on an LED display
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Ignoring the TMP36 sensor for the moment, [*ch09/display_test/display_test.ino*](https://oreil.ly/jzXm9)
+    is a simple test of the 4-digit display. We’ll display “1234” to prove our connections
+    are working and that we understand the library functions from the documentation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_smaller_systems_CO2-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The library I chose has one header, so include that to get going.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_smaller_systems_CO2-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The display needs two pins (in addition to power and ground), so name those
+    for ease of use.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_smaller_systems_CO2-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a global `display` variable similar to how we created the NeoPixel objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_smaller_systems_CO2-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use our `display` object with functions described in the documentation to initialize
+    our display and put up a simple test number, 1234 in this case.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_smaller_systems_CO2-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Nothing changes, and the display will hold whatever number it was last sent,
+    so we can leave the `loop()` function empty.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hooray! If all goes well, you’ll see something like [Figure 9-4](#smallerc-CHP-9-FIG-segmented-display).
+    If you chose a different display or library and you aren’t seeing what you hoped,
+    see if you can find other examples of using your hardware or library online. Usually
+    someone has posted useful, minimal code examples you can easily copy and try yourself.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Buttons and Digital Input
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'But we’re not done yet! We can add another peripheral to add a little more
+    functionality to our temperature display sketch and expand our coding skills at
+    the same time. Let’s attach a very common input: the push button. We’ll use it
+    to toggle our display between Fahrenheit and Celsius output.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: I grabbed a [Tactile Button](http://adafru.it/367) from Adafruit; it’s simple
+    and breadboard friendly. [Figure 9-6](#smallerc-CHP-9-FIG-tmp36-led-button) shows
+    the final connections for the TMP36 sensor, the 4-digit display, and our newly
+    added button. The diagonal connections to the button are intentional. Either diagonal
+    works; other arrangements are possible if you look at the specs for the button,
+    but this choice guarantees we get the functionality we need.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0906](Images/smac_0906.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-6\. Wiring for our sensor, display, and button
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: To use the button, we need to set one pin to be an input and then use the `digitalRead()`
+    function on that pin. In particular, this button will use the `INPUT_PULLUP` constant.
+    This common approach causes the default state of the pin (when the button is not
+    pressed) to return `HIGH`. When the button is pressed, then, the pin will read
+    `LOW`. We can watch for that `LOW` value and use it to trigger a change—like our
+    F/C choice.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'But watch out! Just because we’re using the `digitalRead()` function does not
+    mean the button is digital. It takes time to get the physical mechanism all the
+    way down. It also takes a little time to fully release. All told, it takes a human
+    much longer to press the button than it does for the Arduino to register a change.
+    Consider this naive read-and-change loop snippet:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The pin will read low for tens of milliseconds during even the fastest press.
+    Our microcontroller can read the pin and change the display much faster than we
+    can let go of the button, causing a crazy flicker as the display rapidly bounces
+    between our F and our C temperatures. We want to stop that flicker, so we have
+    to be a little more clever in our code. We need to *debounce* the button. The
+    idea of debouncing has gained traction in a lot of user interface work—it generally
+    means making sure you don’t report multiple presses (or clicks or taps or whatever)
+    in too short a period.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I’ll show you a few methods we can use to accomplish this debounce behavior.
+    It usually involves keeping some extra state information around. For the first
+    debounce technique, I simply keep a `bool` that tracks when the button state first
+    changes. If that flag is `true`, we just pause for a second. (In [“Just How Hot
+    Is It?”](#smallerc-CHP-9-SECT-2.6), we pause for exactly one second, in fact,
+    but you can certainly choose a different delay.) After that gap has passed, we
+    can read another change.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Just How Hot Is It?
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'So let’s tie all of these new topics together and create the code for the components
+    we wired up in [Figure 9-6](#smallerc-CHP-9-FIG-tmp36-led-button). We’ll initialize
+    our display in the setup. In the loop, we’ll read the temperature, print out some
+    debugging statements to the serial monitor, put the temperature on the display
+    in the correct units, and then watch the button to see if we need to change those
+    units. You can open [*ch09/temp_display/temp_display.ino*](https://oreil.ly/flVsn)
+    or type in the following code:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Notice I use a new function from the TM1637 library: `setSegments()`. This
+    function allows you to turn on any pattern of segments you want. You can make
+    cute animations or present a somewhat rough version of any English letter. You
+    can see my results in [Figure 9-7](#smallerc-CHP-9-FIG-tmp36-led-live).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0907](Images/smac_0907.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-7\. Our temperature reading on an LED display
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'Give this bigger example a try with your own setup. The project is in the *ch09*
+    folder as *temp_display*. You can adjust the debounce pause or try making the
+    “C” pattern a lowercase version. Tweaking existing projects is a great way to
+    build up your understanding of new concepts! Speaking of new concepts, there are
+    two more biggies I want to cover for the Arduino platform: memory management and
+    interrupts.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Memory Management on Arduino
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Memory management is much more important on small devices, so I want to highlight
+    how memory works on a microcontroller like Arduino. Arduino has three types of
+    memory. *Flash* memory is where our program is stored. *SRAM* is where the program
+    operates while the Arduino has power. And finally, *EEPROM* allows you to read
+    and write a small amount of data that will persist between power cycles. Let’s
+    look at each of these types of memory in more detail and see how we can use them
+    in our code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Flash (PROGMEM)
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: If the word “flash” sounds familiar, it probably is. This is the same type of
+    memory found in flash (or thumb) drives. It is much slower than something like
+    RAM, but it is generally on par with storage like hard drives. It is also persistent
+    and does not require power to retain its information. That makes it perfect for
+    storing our compiled sketches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'In microcontroller parlance, you may also hear a less familiar term: *PROGMEM*
+    or “program memory.” It’s the same memory, but the latter term tells you a little
+    more about what we’re doing with that memory.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Even though this flash is the same technology as you find in thumb drives, we
+    don’t have write access to this memory when our program is running. Writing is
+    reserved for the “upload” step in our IDE. The chip is put in a special mode for
+    modification, and the new program is loaded. After the upload is complete, the
+    chip restarts, reads the new program from flash, and off we go. We do have read
+    access, though.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Most Arduino chips have more flash storage than you need for your compiled program.
+    You can make use of the leftover space to reduce the amount of RAM needed to run
+    your program. Since RAM is almost always more limited, this feature can be a real
+    boon. You can store arrays or strings or individual values. You can use special
+    functions to grab those stored values as you need them while your program is actively
+    running.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Storing values in flash
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: 'To get a particular value into flash for use in your code, you can use the
+    special `PROGMEM` modifier when declaring and initializing the variable. For example,
+    we could store an array of 32-bit colors that would work with the RGBW NeoPixel
+    ring from [“C++ Considerations”](ch08.xhtml#smallerc-CHP-8-SECT-4.3):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: At this point, the `colors` array is no longer a simple list of 32-bit values.
+    It now contains the location of these values in flash. You need a special function
+    to get at the contents of this array.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading values from flash
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Those special functions are defined in the [*pgmspace.h* header](https://oreil.ly/nIk62).
+    In recent versions of the Arduino IDE, that header is one of the many “behind-the-scenes”
+    elements handled for you automatically. There are several functions for reading
+    absolutely every data type supported on Arduino. [Table 9-4](#smallerc-CHP-9-TAB-pgm-read)
+    lists the few functions we’ll use in our projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Table 9-4\. Program memory (flash) read functions
+  prefs: []
+  type: TYPE_NORMAL
+- en: '| Name | Description |'
+  prefs: []
+  type: TYPE_TB
+- en: '| --- | --- |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `pgm_read_byte()` | Read one byte |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `pgm_read_word()` | Read one word (two bytes, like `int` on many microcontrollers)
+    |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `pgm_read_dword()` | Read one double word (four bytes, like `long`) |'
+  prefs: []
+  type: TYPE_TB
+- en: '| `pgm_read_float()` | Read four bytes as a `float` or `double` |'
+  prefs: []
+  type: TYPE_TB
+- en: 'If we wanted to get the first entry from our `colors` array for actual use,
+    we could use the `pgm_read_dword()` function like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: This is obviously a little cumbersome. When you are running low on RAM, though,
+    cumbersome is often a fair trade-off. 32 bytes for eight colors is not much, but
+    what about a 256-color palette? At four bytes per color, that’s an entire kilobyte.
+    Some microcontrollers like our Metro Mini have a tiny 2K operating memory, so
+    offloading such a palette to flash memory is a big win.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Reading strings from flash
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Printing to the serial monitor is a great way to debug your program, or even
+    just to watch what’s going on as a sort of cheap status indicator. However, every
+    one of the strings you print consumes some precious runtime memory. Moving these
+    strings off to flash is a great way to reclaim some of that space. You simply
+    pull the string you need out of flash just at the moment you need it. If you put
+    it into a common, reusable buffer, that buffer is the only memory we have to make
+    room for at runtime.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'This is such a common memory-saving technique that the Arduino environment
+    includes a special macro to simplify the round trip: `F()`. (Again, more on macros
+    and `#define` in [“Preprocessor Macros”](ch11.xhtml#smallerc-CHP-11-SECT-1.2).)
+    `F()` is remarkably easy to use and provides an immediate savings. Say we have
+    a few debugging statements like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'There are likely other variables and such in your program, too. Verifying your
+    code in the Arduino IDE might produce some output similar to this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Great. We have plenty of room at the moment, but 1773 bytes is not much! Let’s
+    use the `F()` macro now to move those strings to flash memory:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE13]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Pretty simple to incorporate, right? And now if we verify our program, we can
+    see a small but advantageous change:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE14]'
+  prefs: []
+  type: TYPE_PRE
+- en: Our new sketch takes up a little more room in flash, but a little less room
+    at runtime. That’s exactly what we came for. Now, obviously, removing those debugging
+    statements entirely saves space in both types of memory, but there are certainly
+    times when you will have nice peripherals such as mini LCD displays that show
+    text. `F()` can give you more room to play without much added effort.
+  prefs: []
+  type: TYPE_NORMAL
+- en: SRAM
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: I’ve been tossing around the terms “at runtime” and “operating memory,” among
+    others. These terms refer to a type of memory called *SRAM*. Static random-access
+    memory is the Arduino equivalent to the generic RAM term so often applied to bigger
+    systems.^([7](ch09.xhtml#idm45018717257432)) Flash is where our program is stored,
+    SRAM is where our program operates. The stack and heap mentioned in [Figure 6-3](ch06.xhtml#smallerc-CHP-6-FIG-stack-and-heap)
+    are found here in SRAM while your program is running. The operating size of your
+    program is limited by the amount of SRAM you have. Let’s take a look at some implications
+    of this limit.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Stacks and heaps
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Recall the discussion of global variables and the heap from [“Local Variables
+    and the Stack”](ch06.xhtml#smallerc-CHP-6-SECT-1.3). I mentioned that you could
+    potentially run out of memory if you had too many variables or made too many nested
+    function calls. It is a largely theoretical discussion if you have gigabytes or
+    even terabytes of memory like modern desktop systems. But 2K? What about our Metro
+    Mini and its meager 2K of SRAM? The stack and heap—active at runtime, so not part
+    of flash memory—must fit in this limited space as we run our Arduino sketches.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Imagine redoing the addresses from [Figure 6-3](ch06.xhtml#smallerc-CHP-6-FIG-stack-and-heap)
+    to fit in 2K. That middle is *much* smaller now. It is much easier to imagine
+    too many function calls or too many global variables or `malloc()` allocations.
+    If you wrote out 32 bytes per line (64 hexadecimal characters), it would take
+    just 64 lines to represent the entire contents of SRAM on some microcontrollers.
+    That’s *one* two-sided piece of paper from a high school notepad! That means a
+    careless loop or large array can overrun our SRAM and cause our program to crash.
+  prefs: []
+  type: TYPE_NORMAL
+- en: For example, our recursive Fibonacci calculating function could easily fill
+    up available memory after a few dozen calls—especially since we will still need
+    memory for our LEDs, sensor libraries, etc. It’s not forbidden to use recursion
+    when working with microcontrollers, but it does require paying a little more attention
+    to detail on your part.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Global variables in Arduino
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Unlike desktop applications where globals (allocated on the heap) are almost
+    always optional (if convenient), the Arduino environment makes regular use of
+    them. The Arduino IDE hides a lot of the effort done on our behalf to create a
+    viable, executable program. Remember that we don’t write our own `main()` function,
+    for example. As such, if we need to initialize a variable in the `setup()` function
+    and then refer to that variable in our `loop()` function, we have to use a globally
+    declared variable.
+  prefs: []
+  type: TYPE_NORMAL
+- en: That fact is not terribly controversial. Many examples online, and certainly
+    in this book, rely on globals. But given our limited space, it does require more
+    of that attention to detail. For example, I often use `int` for any numeric variable
+    that I know isn’t going to store numbers in the billions. It’s almost muscle memory
+    to type out `int count = 0;`. Well, if I’m going to be counting successive button
+    presses so that I can distinguish between single or double (or even triple) clicks,
+    that count fits easily in a `byte`. Remembering to use the smallest appropriate
+    data type is a great habit to get into.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In fact, if you get *really* pressed for memory, remember that you can read
+    and manipulate individual bits using the operators we discussed in [“Bitwise Operators”](ch04.xhtml#smallerc-CHP-4-SECT-3.4).
+    If you had two buttons and needed to track potential triple clicks, those counts
+    could *both* fit in one `byte` variable. Indeed, you could store the count of
+    *four* buttons in that variable. That’s definitely a little extreme, but again,
+    when you need it, every byte counts. We’re not on desktops anymore, Toto.
+  prefs: []
+  type: TYPE_NORMAL
+- en: EEPROM
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: If you did come to Arduino from the land of desktop computing, you may also
+    have noticed the lack of filesystem discussions. You likely weren’t surprised
+    that a physical, 3.5” hard drive was not attached to your tiny microcontroller,
+    but the lack of long-term, read-write storage may have caught you off guard. Power
+    cycle your Arduino, and every variable starts off back at the beginning. Many,
+    many satisfying projects do not require any such storage, but some do. Happily,
+    many controllers have some (limited) capacity for storing values you can manipulate
+    in the form of electronically erasable programmable read-only memory, or *EEPROM*.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Not every microcontroller includes EEPROM. Enough don’t, in fact, that this
+    type of memory is not something the IDE expects you to use. You have to include
+    the *EEPROM.h* header manually to store and retrieve values from this area. We
+    only need two of the functions from this libray: `get()` and `put()`, but you
+    can see the other functions available in the [EEPROM library documentation](https://oreil.ly/Hbgqn).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'Both functions take two arguments: an offset into EEPROM (the “address” in
+    the documentation) and some “data,” which can be a variable or `struct` for `get()`,
+    or also a literal value for `put()`. Putting and getting a `float`, for example,
+    would look something like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE15]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice that unlike the `scanf()` function we have used to accept input from
+    users, I did *not* use `&` with the `temperature` variable in the call to `get()`.
+    This library does the work of assigning the value to the correct location for
+    you. You usually read from EEPROM during `setup()`, so hopefully it’s easy to
+    be a little careful and remember to use simple variables and not their addresses.
+    In the snippet above, `EEPROM.get()` will fill our `temperature` variable with
+    the value stored in EEPROM exactly as we expect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using `get()` and `put()` and remembering the exact byte offset of where you
+    stored your persistent values in EEPROM may seem tedious, and I agree that it
+    is. In return, however, you have total control over what goes in and how you retrieve
+    it. Just make sure that you manage your addresses correctly. If you are storing
+    two `float` numbers and a `byte`, in that order, you need to make sure the second
+    `float` is stored at address 4 and the `byte` at address 8\. Or better yet, use
+    `sizeof` to advance a running location variable by exactly the right amount.
+  prefs: []
+  type: TYPE_NORMAL
+- en: It’s important to know that reading and writing to EEPROM is “expensive,” in
+    that it is not a speedy operation. EEPROM also has limits on how often it can
+    be read and changed. You aren’t likely to hit those read/write limits, and the
+    speed is fine for initializing our tiny projects, but EEPROM is definitely not
+    a simple extension of SRAM.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Remembering Choices
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: All of this memory stuff sure is esoteric. I think it’s time for another kitchen
+    sink example! Let’s get that nifty LED ring wired back up and add a tactile button
+    to change its color. We’ll store the selected color in EEPROM, too, so that if
+    we shut off the Arduino and turn it back on later, the ring will light up with
+    our most recent choice. This project uses only the ring and the button, as shown
+    in [Figure 9-8](#smallerc-CHP-9-FIG-eeprom-button-wiring).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0908](Images/smac_0908.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 9-8\. Wiring for our EEPROM demo with our LED ring and button
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Along the way, we can use a new technique to debounce the button, and we’ll
+    even borrow the debounce concept to keep from writing to EEPROM too much. When
+    you let users change things, they often take you up on the offer and change them
+    a lot. If they press the button to change the color, we’ll wait a few seconds
+    before committing that change to EEPROM, in case they just want to quickly cycle
+    through the colors to see their options.
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you are up for a challenge, try sketching out (get it?) a solution yourself
+    before reviewing the code here. But that is a pretty hefty challenge. Feel free
+    to enter in this code or compile and upload [*ch09/ring_eeprom/ring_eeprom.ino*](https://oreil.ly/yir2G)
+    if you’d rather just get on with the joy of changing LED colors!
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE16]'
+  prefs: []
+  type: TYPE_PRE
+- en: There are three parts of this program I specifically want to highlight. The
+    first is the use of the `previousState` variable to track the state of our button.
+    Rather than use a Boolean value to know if we are in the middle of a debounce
+    period, I only act on the button press when I notice it changing from a `HIGH`
+    state to the `LOW` state. It’s about the same amount of work, but I wanted to
+    show you an alternative.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The other two interesting parts are the functions at the bottom, `retrieveIndex()`
+    and `storeIndex()`. Here you can see the use of the EEPROM functions. Storing
+    the index is straightforward, but I added a safety check when reading the index
+    to make sure that it is a valid value.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Interrupts
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: There is one last bit of cool functionality that can streamline the code you
+    write to handle inputs like our tactile buttons. While not peculiar to Arduino,
+    the use of *interrupts* is not something many desktop or web developers encounter
+    anymore. Interrupts are hardware signals that can trigger software responses.
+    Interrupts can let you know that some network data has arrived, or that a USB
+    device was connected, or maybe a key was pressed. They get their name from the
+    advantageous fact that they “interrupt” the normal flow of your program and transfer
+    control somewhere else.
+  prefs: []
+  type: TYPE_NORMAL
+- en: I say advantageous because interrupts can significantly simplify the process
+    of worrying about asynchronous, unreliable events. Think about typing at your
+    keyboard. One way your operating system could go about “listening” for keys to
+    be pressed is to run a big loop and check every key, one after the other, to see
+    if it had been pressed recently. What a tedious task. Even if we abstract things
+    a little bit so that the operating system can ask if *any* key has been pressed,
+    we would need to ask this question of every input device. Every hard drive, every
+    thumb drive, the mouse, the mic, every USB port, etc., etc. That type of polling
+    just isn’t something we want to worry about. Interrupts take away that worry.
+    When a key is pressed, a signal arrives telling your computer to go check the
+    keyboard. It’s an on-demand system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When such a demand is made, the computer typically goes to a function you have
+    supplied with the express intent of handling the interruption in question. You
+    register a handler and the operating system does the management of stopping anything
+    else that is happening and switching to that handler.
+  prefs: []
+  type: TYPE_NORMAL
+- en: On an Arduino project, you can use interrupts for various input devices like
+    our tactile buttons. Rather than polling the button like we’ve done in some of
+    our previous projects, we can register a function for the button press. We write
+    our loop without any mention of the button. No polling, no debounce flag or timer,
+    nothing. The microcontroller is doing its own internal work to watch each of its
+    pins, and when one of them changes, say the one attached to our button, an interrupt
+    fires and we jump to our registered function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Interrupt Service Routines
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'An interrupt service routine, or ISR, is really just a function. But you do
+    want to obey a few rules and a few guidelines:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: An ISR cannot have any parameters (rule)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: An ISR should not return any values (guideline)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Timing functions like `delay()` and `millis()` themselves use interrupts so
+    you can’t use them inside an ISR (rule)^([8](ch09.xhtml#idm45018716772200))
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Because you are “holding up the line” while inside your ISR, these functions
+    should be designed to run as quickly as possible (guideline)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'To register an ISR in Arduino, you use the `attachInterrupt()` function. That
+    function takes three arguments:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The interrupt to listen for: use the function `digitalPinToInterrupt(pin)`
+    for this argument'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The ISR: just give the name of the function you want to use'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: 'The mode, one of:'
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`LOW`: triggered when the pin is LOW'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`CHANGE`: triggered when there is any change in the pin’s value'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`RISING`: triggered when the pin goes from `LOW` to `HIGH`'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`FALLING`: triggered when the pin goes from `HIGH` to `LOW`'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: '`HIGH`: some—but not all—boards support triggers when a pin is `HIGH`'
+  prefs:
+  - PREF_IND
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: If you no longer want to handle an interrupt, you can use `detachInterrupt()`.
+    That function takes one argument, the same `digitalPinToInterrupt(pin)` as the
+    first argument to `attachInterrupt()`. (This helper function correctly translates
+    your pin number to the necessary interrupt number. It is not recommended to supply
+    the interrupt number directly.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Interrupt-Driven Programming
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Let’s dive into one more project to try harnessing an interrupt. We’ll take
+    our LED ring and light up one LED after the other to make a cycling animation.
+    We’ll use a button to change the speed of that cycle. We certainly could write
+    this type of program without interrupts, but I think you’ll like how much cleaner
+    this project is than our example that polled the button to change the color of
+    the LED ring. We’ll actually use the exact same hardware setup as we did for that
+    project. You can look back at [Figure 9-8](#smallerc-CHP-9-FIG-eeprom-button-wiring)
+    if you need to re-create it.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As always, feel free to grab this sketch ([*ch09/ring_interrupt/ring_interrupt.ino*](https://oreil.ly/iZ5JJ)),
+    or enter it yourself. The only wiring on this project is connecting the power
+    and ground of the NeoPixel ring and the data line to an acceptable pin on your
+    microcontroller. You’ll need to check the documentation for your board to see
+    which pins support interrupts. For our Metro Mini (compatible with the Arduino
+    Uno), we can use either pin 2 or pin 3:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE17]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_smaller_systems_CO3-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Set an initial pause duration of 1 second for our ring animation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_smaller_systems_CO3-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Create a concise function to respond to button presses by cycling through different
+    pause durations.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_smaller_systems_CO3-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Setup our button pin as an `INPUT_PULLUP`, just as we have before.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_smaller_systems_CO3-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Configure `nextPause()` to handle the event of our button being pressed.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_smaller_systems_CO3-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Set up our LED ring, also like we have before.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_smaller_systems_CO3-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our animation loop does not have to include any button-polling logic (hooray!).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hopefully, this feels simpler than our other projects that included buttons.
+    Our `loop()` function is devoted solely to driving the animated pixel around the
+    ring. And although I use the `FALLING` mode to trigger the interrupt, we could
+    have used `RISING` just as easily for this example. Changing that mode is a great
+    tweak to try now if you’re curious about the effect.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Exercises
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Now that we’ve seen several sketches up and running with help from the Arduino
+    environment to make use of some interesting peripherals, here are a few small
+    projects you can try to test your new skills. I’m including the wiring diagrams
+    for my setups, but you are certainly welcome to arrange the components however
+    you like and use whichever pins are appropriate for your microcontroller. The
+    solutions are in the [*ch09/exercises*](https://oreil.ly/ezhYB) folder.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '*Automatic night-light*. With a photoresistor and an LED (see [Figure 9-9](#smallerc-CHP-9-FIG-night-light-wiring)),
+    create a night-light that responds to a decrease in light by increasing the brightness
+    of the LED. Try using the `map()` function to convert the sensor reading value
+    to an appropriate LED value. (You can use a NeoPixel or a regular LED with PWM.)'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![smac 0909](Images/smac_0909.png)'
+  prefs:
+  - PREF_IND
+  type: TYPE_IMG
+- en: Figure 9-9\. Wiring for an automatic night-light
+  prefs:
+  - PREF_IND
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '*Stopwatch*. Use our 4-digit display and one button (see [Figure 9-10](#smallerc-CHP-9-FIG-stopwatch-wiring))
+    to create a stopwatch. When you first press the button, the stopwatch starts and
+    tracks the elapsed time in seconds (up to 99:99 seconds). Pressing the button
+    again will stop the count. Pressing it a third time will reset the stopwatch to
+    0:00.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![smac 0910](Images/smac_0910.png)'
+  prefs:
+  - PREF_IND
+  type: TYPE_IMG
+- en: Figure 9-10\. Wiring for a simple stopwatch
+  prefs:
+  - PREF_IND
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '*Scoreboard*. Use four buttons and a 4-digit display (see [Figure 9-11](#smallerc-CHP-9-FIG-scoreboard-wiring))
+    to run a small scoreboard for two teams. The left two digits of the display will
+    keep the score for team 1, the right two digits for team 2\. Use two buttons for
+    each team: one to increase their score and one to decrease it. Start small and
+    build up. Get one button working. Then get one team working. Finally, get both
+    teams working. You may need to consult the documentation for your segmented display
+    library to make sure you can update the score for one team without clobbering
+    the score for the other team.'
+  prefs:
+  - PREF_OL
+  type: TYPE_NORMAL
+- en: '![smac 0911](Images/smac_0911.png)'
+  prefs:
+  - PREF_IND
+  type: TYPE_IMG
+- en: Figure 9-11\. Wiring for a scoreboard
+  prefs:
+  - PREF_IND
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: My goodness that was a lot of code. But I sincerely hope you enjoyed our tour
+    of the functions and features available for programming in Arduino. We tried out
+    several new peripherals and covered the ways Arduino programmers can work with
+    limited memory. We also introduced the topic of [interrupts](https://oreil.ly/z4YpN).
+    You are wholly encouraged to feel overwhelmed! Hopefully not discouraged, though.
+    If any of the examples remain unclear, let them sit a day or two and come back
+    to try again.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The next chapter won’t be quite so intense. In the discussion on memory, we
+    saw that sometimes you have to be a bit clever when dealing with microcontrollers.
+    We’ll take a look at how you can optimize some patterns common in Arduino programming
+    by concentrating on a single, simple example. The optimizations are certainly
+    valid on desktops, too, they just might not make as much of an impact. But right
+    now, we’re still focusing on Arduino, so read on to see just how much of an impact
+    a few small changes can have!
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch09.xhtml#idm45018719041400-marker)) Generic C calls these named values
+    *symbolic constants*. I’ll use the unqualified “constant” to match the Arduino
+    documentation.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([2](ch09.xhtml#idm45018718922072-marker)) This is true for GCC, but some compilers
+    use wholly separate executables for preprocessing and compiling.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch09.xhtml#idm45018718661080-marker)) The Arduino Language provides some
+    alternate names for these functions with slightly different casing that you might
+    find more readable, like `isDigit()` and `isUpperCase()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([4](ch09.xhtml#idm45018718648824-marker)) On typical pinout diagrams, digital
+    pins that can do PWM often have a ~ prefix or other distinguishing mark.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([5](ch09.xhtml#idm45018718211544-marker)) Other popular driver chips such
+    as the MAX7219 will have similar search results.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([6](ch09.xhtml#idm45018718210600-marker)) If you are using a similar display,
+    it has a nicely documented repo on [GitHub](https://oreil.ly/RVv2F).
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([7](ch09.xhtml#idm45018717257432-marker)) Dynamic random-access memory, or
+    *DRAM*, is the type of memory you buy in “sticks” and physically insert into your
+    aging Windows 7 box so you can eke one more year out of it. The “dynamic” term
+    here indicates this RAM needs to be refreshed periodically by drawing a little
+    power—in contrast to SRAM, which does not. Both types, however, require at least
+    *some* power and are therefore termed *volatile*, as their contents will be reset
+    during a power cycle.
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([8](ch09.xhtml#idm45018716772200-marker)) The `micros()` function will work,
+    but only for a millisecond or two. `delayMicroseconds()` uses a different mechanism
+    to pause, so it actually can be used. But you really don’t want to delay inside
+    an ISR at all if you can help it.
+  prefs: []
+  type: TYPE_NORMAL

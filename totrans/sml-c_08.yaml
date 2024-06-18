@@ -1,0 +1,884 @@
+- en: Chapter 8\. Real-World C With Arduino
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We’ve seen our C skills grow from compiling a short list of simple statements
+    to passing pointers to functions with nested flow of control. But so far we’ve
+    been printing results in our terminal windows. That’s great for proving that our
+    logic works and that our program is doing what we expect, but eventually we’ll
+    want code that runs somewhere other than a terminal in order to take advantage
+    of all the great hardware out there. In the rest of this book, we’re going to
+    write code aimed at microcontrollers. And what better microcontroller to start
+    with than an Arduino.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Arduino family of microcontrollers has been around for over 15 years. Starting
+    with [8-bit Atmel AVR](https://oreil.ly/EH7un) controllers designed specifically
+    to facilitate learning and tinkering, these gadgets have exploded in popularity.
+    These days, you can find a wealth of development boards preloaded with all manner
+    of sensors and connections. WiFi, GPS, Bluetooth, even radio options can be added
+    easily. The ecosystem of inputs, outputs, and containers is truly mind-boggling.
+    For us, that makes this platform a perfect target. You can grab an inexpensive
+    controller and LEDs to start, and expand into robotics or weather stations or
+    radio control or just about any other electronics niche that tickles your fancy.^([1](ch08.xhtml#idm45018720330312))
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[“Getting the Hardware: Adafruit”](app01.xhtml#smallerc-APP-A-SECT-2) includes
+    information on all the microcontrollers and peripherals I’ll be using throughout
+    the rest of the book. But any Arduino-compatible microcontroller will work with
+    the majority of our examples.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Arduino IDE (Win, Mac, Linux)
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Way back in [“Compiling Your Code”](ch01.xhtml#smallerc-CHP-1-SECT-2.3), we
+    learned how to compile C source code into an executable for our operating system
+    on our machine. And while it might be possible to run a C compiler on an Arduino
+    controller, we can use the notion of a *cross-compiler* to let our fancy laptops
+    and desktops do the hard work of compiling, yet still produce a binary built for
+    Arduino.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can find tools like `gcc-avr` to run from the command line as we did with
+    `gcc`, but fortunately there is a nifty IDE that does what it says on the label.
+    The Arduino IDE is an integrated development environment where you can edit your
+    source code, compile it, load to a microcontroller, and watch a serial console
+    for help debugging. See an error in that console? Fix the source, recompile, and
+    reload. And it runs on all three major platforms.
+  prefs: []
+  type: TYPE_NORMAL
+- en: No matter your platform, head to the [Arduino Software](https://oreil.ly/jMXH0)
+    page (see [Figure 8-1](#smallerc-CHP-8-FIG-arduino-download)) and download the
+    appropriate version. If you want background on the features of the IDE, you can
+    look over the [IDE Environment Guide](https://oreil.ly/FKreY) online.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0801](Images/smac_0801.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-1\. The Arduino IDE download site
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Let’s take a look at the installation details for Windows, macOS, and Linux.
+    Mostly the Arudino IDE is a mature tool with a typical installer, but there are
+    a few platform-specific steps and gotchas I want to point out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Installing on Windows
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: From the download page, be sure to grab one of the downloads that come direct
+    from arduino.cc, either the ZIP file or the Windows 7 and up installer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Warning
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If you use the Microsoft Store for apps, you may have noticed the Arduino IDE
+    there as well. Regrettably, there are many reports of difficulties using this
+    version of the IDE. It is older, and the store listing does not seem to be well
+    maintained. We recommend avoiding this version, even though a link to the store
+    is available on the downloads page.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The [online guide](https://oreil.ly/Fa8kZ) has detailed instructions for installing
+    the Arduino IDE through the *.exe* file you downloaded. It’s a fairly standard
+    Windows installer; our only suggestion is to install all of the components available
+    when prompted. (If you don’t want shortcuts on your desktop or in your start menu,
+    you can certainly uncheck those.) You may also be prompted to install some ports
+    and drivers, which we recommend using as well. If all goes well, you can launch
+    the IDE and see an empty document, as shown in [Figure 8-2](#smallerc-CHP-8-FIG-win10-ide-launch).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0802](Images/smac_0802.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-2\. The Arduino IDE running on Windows 10
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Once your IDE is running, go ahead and try the first project in [“Your First
+    Arduino Project”](#smallerc-CHP-8-SECT-2).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Installing on macOS
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: The macOS version of Arduino IDE is delivered as a simple *.zip* file. Many
+    browsers will automatically unzip the download, but you can always double-click
+    the file yourself to unzip. The only thing in the *.zip* file is the macOS application.
+    Go ahead and drag the application to your *Applications* folder. (This may require
+    you to enter your administrative password.) That’s it! If it worked, you should
+    see the standard startup in [Figure 8-3](#smallerc-CHP-8-FIG-mac-ide-launch).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0803](Images/smac_0803.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-3\. The Arduino IDE running on macOS
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Once your IDE is running, go ahead and try the first project in [“Your First
+    Arduino Project”](#smallerc-CHP-8-SECT-2).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Installing on Linux
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'For Linux, you also receive the application as a simple archive, *.tar.xz*
+    in this case. Most distributions have an archive manager app that will happily
+    unpack your download with a double-click. If you don’t have such an accommodating
+    app already, you can try your version of `tar` as it can automatically decompress
+    most types of archives:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: (Of course your filename may be different depending on your platform and the
+    currently released version of the app itself.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Place the unpacked folder (named *arduino-1.8.13*, again, depending on the version
+    you downloaded) wherever you want to keep the application. That might be in a
+    shared location or just in your own user directory somewhere. Once you have it
+    in your preferred spot, change into that *arduino-1.8.13* folder and run **`./install.sh`**.
+    That script will do its best to add shortcuts to your start menu and desktop.
+    Go ahead and start the app to make sure the installation worked. You should end
+    up with something like [Figure 8-4](#smallerc-CHP-8-FIG-linux-ide-launch), similar
+    to that for the other operating systems.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0804](Images/smac_0804.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-4\. The Arduino IDE running on Linux (with Gnome)
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Hooray! Let’s get that first program running on our microcontroller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Your First Arduino Project
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Of course, with microcontrollers like Arduino, the IDE is only half of the equation.
+    You need an actual Arduino controller! Or at least one of its many siblings. You
+    can get these boards from a wide variety of sellers and manufacturers. I’ll toss
+    out an unpaid plug for [Adafruit](https://adafruit.com) as they have a fantastic
+    array of both boards and peripherals—plus everything else that goes into building
+    actual electronics projects. Their Trinkets and Feathers and ultra dimunitive
+    QT Py pack some great features in some small packages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Selecting Your Board
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Whatever microcontroller you choose, you’ll need to specify that choice in
+    the Arduino IDE. Under the Tools menu, look for the Board: item. Then comes a
+    long, long list of supported boards ready for you to use, as shown in [Figure 8-5](#smallerc-CHP-8-FIG-ide-boards).
+    You can see that I have the “Adafruit ESP32 Feather” board selected. That’s just
+    the most recent project I was tackling—an ESP32 WiFi-enabled LED project. It really
+    is amazing what fits on a microcontroller these days! If you don’t see a matching
+    board in this list, go back to the top for the “Boards Manager…” option. That
+    option opens a dialog where you can browse for other supported boards.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0805](Images/smac_0805.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-5\. Supported development boards
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: For most of the examples in this book, I’ll be using a [Metro Mini from Adafruit](https://oreil.ly/6oe6O),
+    as shown in [Figure 8-6](#smallerc-CHP-8-FIG-metro-mini). It has a 16MHz ATmega328P
+    with 2K of RAM and 32K of flash. With lots of I/O pins, we’ll be free to tackle
+    a good range of interesting projects getting input from sensors and switches while
+    providing output through LEDs, LCDs, and servos.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0806](Images/smac_0806.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-6\. The Metro Mini microcontroller from Adafruit
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The Metro Mini is pin-compatible with the Arduino UNO, so let’s select that
+    as our board option. [Figure 8-7](#smallerc-CHP-8-FIG-select-uno) shows the Boards
+    list again with our UNO selected. A *pin*, by the way, is what you call the things
+    that stick out of the microcontroller and fit into your breadboard (engineer-speak
+    for the nifty, perforated base that simplifies connecting components). Even when
+    you connect your Arduino using something else like alligator clips or just soldering
+    a wire directly, “pin” is still the term for a named or numbered connection to
+    the microcontroller. A “pin-out diagram” is a sort of cheat sheet for matching
+    up those names and numbers to actual connecting points on the device.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0807](Images/smac_0807.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-7\. Selecting the UNO board
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Chances are pretty high that you’ll have a different microcontroller. There
+    are so many wonderful options out there for makers and anyone else tinkering with
+    electronics. Hopefully, you see your board in the list and can simply select it
+    like we did with the UNO. Sadly, we can’t cover every option or even predict the
+    most popular ones. The [Arduino Help Center](https://oreil.ly/bgyMM) has some
+    great documentation and FAQs. Their community is top-notch as well.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hello, LED!
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: In Arduinoland, making an LED blink is the electronics equivalent of our “Hello,
+    World” program from [“Creating a C ‘Hello, World’”](ch01.xhtml#smallerc-CHP-1-SECT-2.2).
+    We’ll do our best to lay out any circuitry and connections we build, but you’ll
+    have to adjust as needed for your own controller and components.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Many development boards include an LED with an appropriate resistor right on
+    the board itself. We’ll start by blinking the LED on our Metro Mini to make sure
+    our C code can be uploaded and then run on our microcontroller. Back in the Arduino
+    IDE, select the File → New option. You should now have a new *sketch* tab. “Sketch”
+    is the term for the compiled bundle meant for executing on a microcontroller.
+    (More on sketches in [“C++ Objects and Variables”](#smallerc-CHP-8-SECT-4.1).)
+    You’ll see two empty functions, `setup()` and `loop()`. These two functions serve
+    as the microcontroller version of the `main()` function from our desktop C programs.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `setup()` function is the entry point for our code and is run once, typically
+    when power is first supplied to the board or after the user presses a reset button
+    (if such a button is part of the board). Here we set up any global information
+    we need or run any initializations that are required of our hardware such as resetting
+    a servo position or specifying how we plan to use the I/O pins.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `loop()` function then takes over to repeat your program indefinitely. Microcontrollers
+    are typically used to do one task (or perhaps a modest few) over and over as long
+    as they have power. They can continuously read a sensor. They can drive an LED
+    animation. They can read a sensor and use that value to alter an LED animation.
+    They can nudge a clock hand forward. But they all repeat some flow or other until
+    you cut the power, so `loop()` is an aptly named function.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'While there is a lot more going on behind the scenes, it’s reasonable to imagine
+    the standard `main()` function for Arduino projects defined like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note that our `while` loop “condition” is just the value 1\. Recall that “not
+    zero” is considered to be true in these Boolean contexts. So this `while` loop
+    runs forever. Just what we need for Arduino.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For our blinking hello program, we’ll use `setup()` to tell our board we want
+    to use the built-in LED for output (meaning we’ll “write” on and off values to
+    the pin associated with the LED). Then we’ll use `loop()` to do that writing along
+    with some small delays to make the blinking readily visible to humans. Here’s
+    our first iteration using constants described in the [Arduino docs](https://oreil.ly/Qt6DM):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'The all-caps names like `LED_BUILTIN` and `HIGH` were defined in headers that
+    are included automatically by the Arduino IDE. They are technically preprocessor
+    macros, and we’ll look at those in more detail in [“Preprocessor Directives”](ch11.xhtml#smallerc-CHP-11-SECT-1.1).
+    They are quite handy and very easy to use in your own code: `#define PIN 5` defines
+    the word `PIN` to be the value 5\. It’s a lot like a variable or a constant. The
+    difference is that the preprocessor will go through your code before the compiler
+    (hence the “pre-” prefix) and replace every spot it finds `PIN` with the literal
+    number `5`. A typical variable or constant would reserve a slot in memory and
+    could be initialized at runtime, perhaps after you have gathered some necessary
+    information from the user.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Go ahead and type this simple program in. You can also open the [*ch08/blink1/blink1.ino*](https://oreil.ly/p6eGd)
+    project directly in the IDE.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Before trying it on your board, you can use the IDE’s Verify button (shown in
+    [Figure 8-8](#smallerc-CHP-8-FIG-verify-message)) to make sure the code compiles.
+    Verifying your code also checks to make sure your finished program will fit on
+    the controller you selected. If you have used too many variables or simply have
+    too much logic, you’ll see warnings and errors in the bottom status area. Try
+    leaving off a semicolon on some statement like we did in [“Statements in C”](ch02.xhtml#smallerc-CHP-2-SECT-1).
+    Click Verify again and you can see the type of message you might encounter as
+    you write your own code going forward.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0808](Images/smac_0808.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-8\. Verifying your sketch before uploading
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: After verifying your code is OK, you can ship it over to your microcontroller
+    using the Upload shortcut button next to Verify or select the appropriate item
+    from the Sketch menu. Uploading will compile the code (even if you have recently
+    verified it) and then write it to your board. The Arduino IDE works great with
+    the Metro Mini on this step—it’s all delightfully automatic. Some development
+    boards need to be manually configured for upload. Again, the [Arduino Help Center](https://oreil.ly/csLX6)
+    is your friend here.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once the upload completes, you should see your LED start blinking at half-second
+    intervals. While less impressive on the printed page, [Figure 8-9](#smallerc-CHP-8-FIG-internal-on-off)
+    shows the on/off states of our nifty LED.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0809](Images/smac_0809.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-9\. Our “Hello, World” LED blinking
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: An External LED Upgrade
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: We are focusing on the software side of Arduino projects, but it is impossible
+    to work with an Arduino and not use *some* external components. Let’s upgrade
+    our simple blinker to use an external LED.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[Figure 8-10](#smallerc-CHP-8-FIG-external-led) shows the simple circuit we’re
+    using. We have our controller, one LED, and a resistor. For this setup, we can
+    rely on the power being supplied over USB.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0810](Images/smac_0810.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-10\. Simple circuit for an external LED
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: We can pick a pin to use and learn more about the voltage supplied over the
+    pins by reading the specs for our microcontroller. In the case of our Metro Mini,
+    we looked at the [Pinouts page](https://oreil.ly/H2wNN) on the Adafruit site.
+    The details tell us which pins on our board map to the UNO’s pins. Along the “top”
+    of our board (the tiny print on the chip is right side up) are several digital
+    I/O pins, and in particular, pins 2 through 12 are exactly what we need. We’ll
+    start with 2, since it’s such a nice number. Different boards will likely have
+    different configurations, but for ours, pins 0 through 13 map directly to digital
+    pins 0 through 13\. So we can either use our own `#define` and attach a nice name
+    (yay!) or just use the value `2` in our `pinMode()` and `digitalWrite()` calls.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The Metro Mini provides 5V on its digital pins. Using the specs provided by
+    the LED manufacturer, we know our blue LED has a forward voltage drop of 2.5V.
+    If we want to supply 30mA of current for a bright light, [Ohm’s law](https://oreil.ly/6ihdc)
+    tells us a 100Ω resistor will work fine. With everything wired up, we can make
+    a new sketch (or just tweak the first one). Here’s [*ch08/blink2/blink2.ino*](https://oreil.ly/xpo2a)
+    as it stands:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: Notice I went with the preprocessor `#define` feature to designate which digital
+    pin we are using with our LED (`D2`). You can see this simple configuration up
+    and running in [Figure 8-11](#smallerc-CHP-8-FIG-external-on-off). Hooray!
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0811](Images/smac_0811.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-11\. Our external LED blinking
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: There is something extra satisfying in these small, physical projects. The “Hello,
+    World” programs are all designed to prove your development environment works and
+    that you can produce some output. That’s all we’ve done here, but gosh it’s fun
+    seeing the LED light turn on. Every time I throw the switch on a new project,
+    it feels a bit like Dr. Frankenstein screaming, “It’s alive!” in his lab. :-)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Arduino Libraries
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We’re not done making blinking lights just yet. While you can do an amazing
+    amount of work with these microcontrollers right out of the box, quite often you’ll
+    be building projects with some interesting accessories like multicolor LEDs, LCD
+    screens, e-ink, sensors, servos, keypads, or even game controllers. Many of those
+    components have handy chunks of code already written for them. These chunks are
+    collected into a library that you can add to the Arduino IDE. Some of the libraries
+    are “official” and come from the component maker; others are produced by fellow
+    hobbyists. Whatever the provenance, libraries can speed up devlopment on your
+    projects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Let’s take a look at finding and managing libraraies through the IDE. Doing
+    so properly will help ensure your sketch does not contain any unused libraries.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Managing Libraries
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'The Tools menu of the Arduino IDE has an entry to “Manage Libraries…” that
+    pulls up a dialog for searching and installing libraries. We’re going to add an
+    Adafruit library and try lighting up one of their fantastic NeoPixels—individually
+    addressable, three-color LEDs that come in a wide variety of form factors for
+    just about any possible use. They can even be chained together to build fancier
+    rigs. For this example, though, we’ll be sticking with one of the simplest form
+    factors: the [Flora](https://oreil.ly/JEuFF).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the Library Manager dialog, enter the term “neopixel” in the search box at
+    the top. You should get several results; we want the simple “Adafruit NeoPixel”
+    entry. Click the Install button (or Update if you happen to have an older version
+    of this library already installed as we do in [Figure 8-12](#smallerc-CHP-8-FIG-neopixel-library)),
+    and that’s it! The IDE downloads the library and does the appropriate work to
+    make it available behind the scenes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0812](Images/smac_0812.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-12\. Finding a NeoPixel library
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: The physical circuit for using NeoPixels is similar to what we use for simple
+    LEDs, but they have three wires rather than two. You have standard `V`+ and `Ground`
+    connectors for the basic power needs, and the third wire provides the “data” to
+    the pixel or strip. The data does flow in a particular direction, so if you decide
+    to try this circuit, pay attention to where you connect the data input. Like our
+    simple LED, we also want a small resistor (470Ω in our case) before the data signal
+    gets to the NeoPixel. You can see the full setup in [Figure 8-13](#smallerc-CHP-8-FIG-flora-circuit).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0813](Images/smac_0813.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-13\. A simple NeoPixel setup
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: You can follow along with this project without NeoPixels, by the way. You can
+    use any other addressable LEDs. If you have some of your own WS281x or APA102
+    or other lights, they’ll likely work with the excellent [FastLED](http://fastled.io)
+    library. You’ll have to do a little more independent reading, but all of the concepts
+    are the same. FastLED has nice documentation on GitHub. For example, the work
+    we’ll do in the next section with NeoPixels is covered in FastLED’s [Basic Usage](https://oreil.ly/eupDp)
+    page.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Using Arduino Libraries
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'So how do we pull an Arduino library into our sketch? We use the familiar `#include`
+    preprocessor command just like we did with the various header files from the C
+    standard library in previous chapters. For the NeoPixels, our include looks like
+    this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: The IDE even helps confirm you have the library installed by bolding and coloring
+    the name of the header file. Take a look at the comparison in [Figure 8-14](#smallerc-CHP-8-FIG-library-good-bad)
+    where we used a lower-case “p” when spelling NeoPixel. The nice, bold color disappears.
+    So if your library is correctly installed and the name stands out in your include
+    line, you are ready to go!
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0814](Images/smac_0814.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-14\. Noticing library name mistakes
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: You can use multiple libraries within any given sketch. It’s entirely reasonable
+    to have a library for things like your LEDs as well as one for servos or for an
+    LCD screen. The only real limitation is memory—a ubiquitous concern when working
+    with microcontrollers.
+  prefs: []
+  type: TYPE_NORMAL
+- en: When you verify a sketch, check the messages in the lower section of the IDE.
+    You’ll get a report on the memory used as well as how much remains (assuming you
+    have the correct board selected.) Happily, most folks and companies writing libraries
+    for Arduino are very aware of how limited memory is. For example, adding this
+    NeoPixel library took our blinking sketch from a little under 1K (964 bytes) to
+    about 2.5K (2636 bytes). While you could say it tripled the amount of flash required
+    to store, getting all of the niceties of the library for less than 2K seems a
+    fair trade-off!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Arduino Sketches and C++
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: To put this NeoPixel library to use, we need to take a tiny detour into C++,
+    a successor to C with an object orientation (compared to C’s procedural orientation).
+    Sketches are actually C++ projects. Happily, since C++ grew out of C, C code is
+    legal C++ code as well. As programmers, we don’t have to learn much C++ if we
+    don’t want to.
+  prefs: []
+  type: TYPE_NORMAL
+- en: But notice that “much” qualifier in that last sentence. Many libraries—including
+    our NeoPixel library—are written as C++ classes (a *class* is the organizing unit
+    of object-oriented languages.) These libraries often take advantage of some nifty
+    features of C++. In particular, you’ll find *constructors* and *methods* used
+    all over the place. Constructors are functions that initialize an *object*. An
+    object, in turn, is an encapsulation of both data and functions meant to access
+    and manipulate that data. Those functions defined for an object are referred to
+    as the object’s methods.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To see where constructors and methods show up in an Arduino library, let’s
+    go ahead and finish our next iteration of the blinking light. Recall the setup
+    shown in [Figure 8-13](#smallerc-CHP-8-FIG-flora-circuit). We can write a new
+    sketch, *blink3*, that cycles the NeoPixel through its primary colors: red, green,
+    and blue. Here’s the full code, including (no pun intended!) the appropriate `#include`
+    line, [*ch08/blink3/blink3.ino*](https://oreil.ly/Ughez):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_real_world_c_with_arduino_CO1-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Our constructed variable, `strip`. Its class (roughly analagous to its type)
+    is `Adafruit_NeoPixel`. The name “strip” here is common, but a little wrong for
+    our single Flora. But technically we are allocating a strip that is simply one
+    pixel long.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_real_world_c_with_arduino_CO1-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'An example of a method: `begin()` is a function that applies to `strip`. The
+    `begin()` method gets our strip of lights ready by filling in default values and
+    performing other miscellaneous startup tasks.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_real_world_c_with_arduino_CO1-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `setBrightness()` method controls a premultiplied max brightness on `strip`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_real_world_c_with_arduino_CO1-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Another example of a method. `show()` causes the current colors in memory to
+    be displayed on the actual LEDs of `strip`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_real_world_c_with_arduino_CO1-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'The `setPixelColor()` method takes four arguments: which pixel on `strip` to
+    set (starting at 0), and the red, green, and blue values to apply. Color values
+    range from 0 (off) to 255 (full brightness, though the final value is adjusted
+    by that `setBrightness()` call we made in `setup()`).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_real_world_c_with_arduino_CO1-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: To see our new pixel color on `strip`, we repeat our call to `show()`.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Try uploading this with your NeoPixel connected. Hopefully, you’ll see it run
+    through red, green, and blue colors, as shown in [Figure 8-15](#smallerc-CHP-8-FIG-flora-rgb).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0815](Images/smac_0815.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-15\. Our blinking NeoPixel
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Neat! Feel free to play around with the color or blink patterns. It can be surprisingly
+    fun getting just the right hue. It really is magic. And now, you too know the
+    right incantations!
+  prefs: []
+  type: TYPE_NORMAL
+- en: C++ Objects and Variables
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'When you create an object variable, the declaration and initialization look
+    a little funny. In C, we can create a variable and give it some starting value
+    like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'If we had a C++ class named `Integer`, trying the same type of setup might
+    look like this:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: The parentheses give you a clue that a function is being called. That’s the
+    constructor. If you decide to go on and study C++ down the road, you’ll learn
+    all the clever things that can be done in constructors. For now, though, we just
+    want you to be aware of the syntax so that you’re comfortable creating variables
+    that refer to objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The `strip.begin()` and `strip.setPixelColor()` lines that we called out are
+    examples of calling an object’s functions (again, object-oriented languages use
+    the term “methods”). The idea is the `strip` is what we want to work on, and `begin()`
+    or `setPixelColor()` represents the work to be done.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'One way to think about this syntax is that it is a sort of transformation.
+    In pure C, we could imagine writing normal functions for `begin()` and `setPixelColor()`.
+    But we’d have to tell those functions which strip of NeoPixels we want to set
+    up or change. So we would need an extra argument to pass a reference to the correct
+    strip like so:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: But again, for our work in this book, you mostly just need to get comfortable
+    with statements that create a new object from a library, and then remember that
+    using the methods of objects follows the `object.method()` pattern.
+  prefs: []
+  type: TYPE_NORMAL
+- en: More Practice with Objects
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Before we move on to other aspects of coding for microcontrollers, let’s make
+    one more blinking application with an eye toward reinforcing the object syntax.
+    We’ll try using some actual strips of LEDs with more than one LED. In particular,
+    we’ll be using a small [stick](https://oreil.ly/yeieS) of 8 NeoPixels and a [ring](https://oreil.ly/1CTcw)
+    of 24 NeoPixels. To make things even more fun, we’ll be using them at the same
+    time!
+  prefs: []
+  type: TYPE_NORMAL
+- en: To keep the code simple, we’ll make a blink program that shows one pixel at
+    a time on each strip. This will also keep the power requirement down so that we
+    can continue to use what we get from our USB connection. (If you are familiar
+    with larger LED setups and already know how to add external power, feel free to
+    create your own arrangement.) [Figure 8-16](#smallerc-CHP-8-FIG-ring-stick) shows
+    our new setup. We removed the blue LED and the previous “strip” of the lonely
+    NeoPixel Flora.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0816](Images/smac_0816.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 8-16\. A more interesting NeoPixel setup
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: We are reusing the same output pins for the data line, though. In this arrangement,
+    the stick is using pin 2 and the ring is using pin 4.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Without further ado, here is the code for our two-strip blink extravaganza,
+    *blink4*. We’ll dive into the callouts after the snippet to make sure the steps
+    we take here make sense. Before reading those callouts, though, try going through
+    [*ch08/blink4/blink4.ino*](https://oreil.ly/19dUL) and see if you can guess how
+    the objects work.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: '[![1](Images/1.png)](#co_real_world_c_with_arduino_CO2-1)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Here we create an Adafruit_NeoPixel object named `stick` similar to how we created
+    `strip` in [“Arduino Sketches and C++”](#smallerc-CHP-8-SECT-4).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![2](Images/2.png)](#co_real_world_c_with_arduino_CO2-2)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: And now we create a second, distinct object named `ring`. (The ring uses a fancier
+    LED configuration with a white component so we add a third argument to the constructor.
+    You can find this value in the NeoPixel documentation.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![3](Images/3.png)](#co_real_world_c_with_arduino_CO2-3)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We initialize our stick just as we did before with the strip.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![4](Images/4.png)](#co_real_world_c_with_arduino_CO2-4)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We also initialize our ring; notice we use the `begin()` method on both objects.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![5](Images/5.png)](#co_real_world_c_with_arduino_CO2-5)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Now we set the color of one of the pixels on our stick.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![6](Images/6.png)](#co_real_world_c_with_arduino_CO2-6)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: We use a similar method with a fifth argument to set the color on our ring.
+    (The arguments here are which pixel, red, green, blue, and white. The ring will
+    blink green.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[![7](Images/7.png)](#co_real_world_c_with_arduino_CO2-7)'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Last but not least, show both changes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Hopefully, seeing two objects in use side by side helps illustrate how the object-oriented
+    syntax works. Again, our `for` loop is pure C. We dip into the C++ syntax on an
+    as-needed basis.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C++ Considerations
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: There is definitely more to the role of object-oriented programming in Arduino
+    development. OO programming is a fairly natural fit for an environment where so
+    many of things we get to work with are physical objects. C++ also offers several
+    features that are well suited to bundling up code to share with others. If you
+    interact with your microcontrollers primarily through the Arduino IDE, it’s worth
+    spending some time investigating C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Diving into C++ will teach you about classes and members and methods. You’ll
+    create constructors and destructors. As your understanding of objects improves,
+    you’ll likely start breaking down your projects along object lines rather than
+    along functional ones. You will certainly find things you like about C++ and probably
+    a few that you don’t. Some libraries will be easier to use if you understand C++,
+    but none of them will be out of your reach even if you never crack an official
+    C++ book.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The C language on its own remains a powerful core in Arduino programming, and
+    I’ll keep the focus of the remaining chapters on using functions and other basic
+    C features to code up our projects. Where we use any third-party libraries for
+    specific peripherals, I’ll try to use the minimum of object notation. I’ll also
+    try to highlight any spots where C++ syntax stands out.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'To reiterate the most common object-oriented patterns you’ll see in the remaining
+    chapters, here is a recap from our NeoPixel example in [“Arduino Sketches and
+    C++”](#smallerc-CHP-8-SECT-4):'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: Hopefully, you’ll grow more comfortable with these small dips into C++. I also
+    hope that comfort grows into curiosity about what more you can do with C++! But
+    don’t worry if you never really get curious or even comfortable. One of the things
+    I most enjoy about coding for microcontrollers is that a little code goes a long
+    way. You can still get a lot of satisfaction out of your programming efforts without
+    mastering C++. A brief scan of my own projects shows that I stuck with C more
+    than 90% of the time, even though every one of those projects also uses a library
+    written in C++.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Object Homework
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'If you’d like a little more practice with the object notation we’ve already
+    seen and will bump into occasionally in the coming chapters, try creating some
+    of these ideas:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Blink every other pixel on the stick so that the even pixels turn on, then the
+    odd pixels, back and forth.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Blink each pixel on the ring once for every pixel on the stick, like a counter.
+    (I.e., keep one pixel showing on the stick as you march around the ring. Then
+    move to the next pixel on the stick, and march around the ring again. Repeat!)
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Working with just the stick, try “filling” it from left to right. Then clear
+    all the pixels and let it fill again.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Take a look at the documentation for [NeoPixels](https://oreil.ly/GxxxI) (or
+    [FastLED](https://oreil.ly/9Ln6A), or whatever library you are using) and see
+    if there are any methods to turn the entire strip one color with a single call.
+    Use that method to turn the entire stick red, then green, then blue, similar to
+    our *blink3* program that used the single Flora.
+  prefs:
+  - PREF_UL
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: We now have the basics of an Arduino project up and running. We’ve worked with
+    the Arduino IDE and we’ve seen where C++ might crop up in our code. Putting it
+    all together, we turned on an LED! While that is exciting, there is a lot more
+    fun to be had.
+  prefs: []
+  type: TYPE_NORMAL
+- en: In the next chapter, we’ll explore some of the many inputs and outputs available
+    for use with a microcontroller. We certainly can’t cover every sensor or button
+    or speaker or display, but we can (and will!) look at several good examples of
+    these peripherals. We’ll concentrate on getting these disparate gadgets to work
+    together so you have a solid foundation to rely on as you tackle your own projects
+    down the road.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([1](ch08.xhtml#idm45018720330312-marker)) For more (much more!) information
+    on the details of Arduino, check out [*Arduino: A Technical Reference*](https://learning.oreilly.com/library/view/arduino-a-technical/9781491934319/)
+    by J. M. Hughes (O’Reilly).'
+  prefs: []
+  type: TYPE_NORMAL

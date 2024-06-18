@@ -1,0 +1,700 @@
+- en: Chapter 1\. The ABCs of C
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: C is a powerful language. It is procedural (meaning you do a lot of your coding
+    work with procedures) and compiled (meaning the code you write must be translated
+    for use by a computer using a compiler). You can write your procedures anywhere
+    you can edit a text file, and you can compile those procedures to run on anything
+    from supercomputers to the tiniest of embedded controllers. It’s a fantastic,
+    mature language—I’m glad you’re here learning about it!
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'C has been around for quite some time: it was developed in the early 1970s
+    by Dennis Ritchie at Bell Labs. You might have heard of him as one of the authors
+    of the canonical C programming book, *The C Programming Language* with Brian Kernighan
+    (Pearson). (If you see or hear or read about the phrase “K&R” in the programming
+    world, that’s a reference to the book.) As a general purpose, procedural language
+    built with an eye toward keeping programmers connected to the hardware their programs
+    would run on, C caught on with both academic and industrial institutions outside
+    Bell Labs to run a growing array of computers and remains a viable systems programming
+    language.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Like all languages, C is not static. And with nearly 50 years under its belt,
+    C has undergone many changes and spawned a great number of other languages. You
+    can see its influence in the syntax of languages as disparate as Java and Perl.
+    Indeed, some of C’s elements are so universal that you see it show up in pseudocode
+    examples meant to represent “any” language.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As C grew in popularity, it became necessary to organize and standardize its
+    syntax and features. The first part of this book will focus on [Standard C](https://oreil.ly/9MDKn)
+    as defined by the International Organization for Standardization (ISO) and the
+    code we write will be portable to any C compiler on any platform. The latter part
+    of this book will focus on using C with specific hardware such as the Arduino
+    microcontroller.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Strengths and Weaknesses
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: When you think about solving actual problems with a computer these days, using
+    a high-level language is a must. C provides a great balance between code you can
+    think about and code that performs well when compiled for actual hardware. C has
+    straightforward code structures and a wealth of useful operators. (These are the
+    features that have spread into so many subsequent languages and makes it such
+    a good option for lean code on microcontrollers.) C also gives you room to break
+    problems up into smaller subproblems. You can reason about the code (and its inevitable
+    bugs) as a human—quite a handy thing.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C does have its downsides, though. C does not have some of the fancier features
+    available today in other languages such as Java’s automatic memory garbage collection.
+    Many modern languages hide most of those details from the programmer at the expense
+    of a little performance. C requires you to be more deliberate in how you allocate
+    and manage resources like memory. Sometimes that requirement can feel tedious.
+  prefs: []
+  type: TYPE_NORMAL
+- en: C also lets you write some pretty impressive bugs. It has no type safety or
+    really any safety checks at all. Again, as a programmer, this hands-off approach
+    means you can write clever, efficient code that really hums on the hardware. It
+    also means that if you get something wrong, it’s up to you to find and fix the
+    problem. (Tools like linters and debuggers help; we’ll definitely be looking at
+    those along the way.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Getting Started
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: So how do we get started? As with any compiled language, we’ll first need a
+    file containing some valid C instructions. We’ll then need a compiler that can
+    translate those instructions. With the right contents in the file and a compiler
+    for your own computer’s hardware, you can have a C program running in just a few
+    minutes.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'If you have spent any time learning any computer language at all, you’re likely
+    familiar with the idea of a “Hello, World” program. It’s an admirably simple idea:
+    create a tiny program that proves several things in one go. It proves you can
+    write valid code in the language. It proves your compiler or interpreter works.
+    It also proves you can produce visible output, which comes in very handy for humans,
+    as it turns out. Let’s get started!'
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tools Required
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: Folks use computers today for a vast array of tasks. Entertainment such as games
+    and streaming video takes up as many (if not more) CPU cycles as business productivity
+    work or even application development. And because computers are used as much for
+    consuming as they are for producing, very few systems come with the tools required
+    to do stuff like application development. Happily, those tools are freely available,
+    but you do have to go get them yourself and then set them up to work on your system.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'As I’ve noted before, this book focuses on writing clean, efficient C code.
+    I take care in our examples to avoid overly clever patterns. I also work hard
+    to ensure the examples do not rely on a particular compiler or a particular development
+    platform. To that end, I’ll be working with the minimum setup required for any
+    software development: a good editor and a good compiler.^([1](ch01.xhtml#idm45018747426616))'
+  prefs: []
+  type: TYPE_NORMAL
+- en: If you’re comfortable hunting down software online and want to dive right in,
+    we’ll be installing [Visual Studio Code](https://oreil.ly/kXf3h) (often just “VS
+    Code”) from Microsoft as our editor and the [GNU developer tools](https://oreil.ly/xclHh)
+    from the GNU Foundation to handle compiling. More links and details follow, but
+    feel free to jump to [“Creating a C ‘Hello, World’”](#smallerc-CHP-1-SECT-2.2)
+    after installing these tools on your own or if you already have an editor and
+    a compiler you’re comfortable using.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Windows
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Microsoft Windows owns the lion’s share of the desktop market. If you only write
+    programs for one system, Windows gets you the most bang for your buck. But that
+    means that you’ll find a lot more competition in the software that helps you write
+    those programs. There are more commerical developer applications for Windows than
+    any other platform. Fortunately, many of those applications have a free or “community”
+    version that will suffice for our purposes. (When we get to the Arduino focus
+    in the second part of this book, we’ll be looking at some Arduino-specific tools
+    that include compilers.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: You can’t talk about Windows and software development without mentioning the
+    Visual Studio IDE (Integrated Development Environment) from Microsoft. If you
+    want to build applications for Windows itself, it’s hard to beat Visual Studio.
+    They even offer a community edition for students and individual developers. While
+    I won’t be discussing either edition for the examples in this book, Visual Studio
+    is a great IDE for Windows users and will easily handle our code. (I will, however,
+    be using a close cousin called Visual Studio Code as our editor on all three of
+    the major platforms.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Another popular commerical IDE is [CLion](https://oreil.ly/E1Oxh) from Jetbrains.
+    CLion is also cross-platform so you can easily move between different operating
+    systems and still feel productive. If you have experience with any of the other
+    quality applications from Jetbrains, CLion can be a familiar way to get started
+    writing and debugging C code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: There are myriad other text editors, each with some pros and cons. You can even
+    use tools like the built-in Notepad application, although programming-specific
+    editors will have some handy features that can make reading and debugging your
+    code easier.
+  prefs: []
+  type: TYPE_NORMAL
+- en: GNU tools on Windows
+  prefs:
+  - PREF_H4
+  type: TYPE_NORMAL
+- en: On Windows, installing the GCC tool from GNU can be a bit tedious. There’s no
+    quick, friendly installer.^([2](ch01.xhtml#idm45018747677048)) You can find a
+    variety of [binary packages](https://oreil.ly/atDoI) that provide most of what
+    we need, but you still have to take care to download the GNU compiler subpackages
+    and then configure your Windows environment.
+  prefs: []
+  type: TYPE_NORMAL
+- en: We will install the Cygwin environment to get our Windows version of GCC. Cygwin
+    is a much larger collection of tools and utilities that provides Windows users
+    with a nice Unix shell environment. But “nice” is pretty subjective, and if you
+    don’t know Unix or its derivatives such as Linux or modern macOS, you probably
+    won’t use much else of the collection.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Grab the [Cygwin setup](https://oreil.ly/Loj7l) executable. Once it’s done downloading,
+    go ahead and launch it. You may need to “allow this app from an unknown publisher
+    to make changes to your device.” You can try the “Install from Internet” option,
+    but if you have any trouble, go back and use the “Download Without Installing”
+    option. You’ll still want to follow the package selection step, but after the
+    download completes, you can run this installer program a second time and choose
+    the “Install from Local Directory” option and use the folder where you downloaded
+    all of the packages.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Go ahead and accept the defaults for any questions the installer asks. When
+    you get to the mirror selection page, use one physically close to you if you can
+    identify a university or business you know. Otherwise, any mirror should do—but
+    it’s OK to come back and pick a different one if you have any troubles with the
+    download.
+  prefs: []
+  type: TYPE_NORMAL
+- en: On the “Select Package” screen, you do need to make an extra selection as `gcc`
+    is not included by default. Switch the View dropdown to “Full” and then enter
+    “gcc” as a search term. You want the “gcc-core” package as highlighted in [Figure 1-1](#smallerc-CHP-1-FIG-cygwin-pkg-select).
+    Any of the versions available are sufficient for our needs. At the time of this
+    writing, we selected the most recent gcc-core version, which was 10.2.0-1.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0101](Images/smac_0101.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-1\. Selecting the Cygwin GCC package
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Confirm your selections on the Review page and start the download! It may take
+    a little time to download and install everything, but you should eventually hit
+    the Finish screen. You can add the desktop icon if you want to play around with
+    a Unix-like command prompt, but it is not required for the work we’ll be doing.
+    What is required, though, is an extra step to add the Cygwin tools to Microsoft’s
+    command prompt.
+  prefs: []
+  type: TYPE_NORMAL
+- en: You may wish to search online for a guided tour of creating and editing Windows
+    environment variables, but here are the basics. (If you’ve done this type of thing
+    before, feel free to skip to the Cygwin folder selection and just put that in
+    your path.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: From the Start menu, search for “env” and you should quickly see an option to
+    edit the system environment variables at the top, as shown in [Figure 1-2](#smallerc-CHP-1-FIG-win-search-env).
+  prefs: []
+  type: TYPE_NORMAL
+- en: The System Properties dialog should open, and you want to click the “Environment
+    Variables…” button near the bottom right corner, as shown in [Figure 1-3](#smallerc-CHP-1-FIG-win-props-env).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0102](Images/smac_0102.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-2\. Finding the environment variable editor in Windows
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '![smac 0103](Images/smac_0103.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-3\. The System Properties dialog in Windows
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: You can set just your path or set it system wide. Highlight the PATH entry you
+    want to update and then click Edit. Next, click the New button on the “Edit environment
+    variables” dialog and then click the Browse button to navigate to the Cygwin *bin*
+    folder, as shown in [Figure 1-4](#smallerc-CHP-1-FIG-win-cygwin-path). (If you
+    recall the root folder you chose for the Cygwin installer to put everything in,
+    you can also just type that in, of course.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0104](Images/smac_0104.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-4\. Adding the Cygwin *bin* folder to the Path environment variable
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Select the OK button to close each of the dialogs and you should be set!
+  prefs: []
+  type: TYPE_NORMAL
+- en: For the editor, you can find [VS Code](https://oreil.ly/27eCl) at the Visual
+    Studio site. Depending on your system, you will most likely want either the 64-bit
+    or 32-bit user installer version.^([3](ch01.xhtml#idm45018747396056))
+  prefs: []
+  type: TYPE_NORMAL
+- en: Use the Extensions view shown in [Figure 1-5](#smallerc-CHP-1-FIG-vs-c-ext-win)
+    to grab the C/C++ extension. You can search for the simple letter “c,” but you
+    might also see the extension right away on the “Popular” list. Go ahead and click
+    the small green Install button for the extension.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0105](Images/smac_0105.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-5\. The C extension in VS Code
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Let’s test the GCC tool from those Cygwin utilities. (You may need to restart
+    Visual Studio Code for it to recognize your Cygwin tools.) From the View menu,
+    select the Terminal option. The Terminal tab should open at the bottom. You may
+    need to hit the Enter key to get a prompt. Run **`gcc --version`** at the prompt.
+    Hopefully, you’ll see output similar to that in [Figure 1-6](#smallerc-CHP-1-FIG-vs-gcc-win).
+  prefs: []
+  type: TYPE_NORMAL
+- en: You should see the version number matching the package you selected as you were
+    installing Cygwin. If you do, hooray! Jump down to [“Creating a C ‘Hello, World’”](#smallerc-CHP-1-SECT-2.2)
+    and get started with your first C program. If you don’t see any output or get
+    a “not recognized” error, review the steps to set up Windows environment variables.
+    And as always, searching online for particular errors you see can help you solve
+    most installation and setup issues.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0106](Images/smac_0106.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-6\. Testing GCC in the Terminal tab
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: macOS
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: If you live mostly with graphical applications and tools, you might not be aware
+    of the Unix underpinnings of macOS. While you can mostly remain blissfully ignorant
+    of those underpinnings, it is useful to know a bit about navigating the world
+    from a command prompt. We’ll be using the `Terminal` app to download and install
+    GCC, but as with Windows, it is worth noting that Apple’s official developer tool,
+    Xcode, can be used to write and compile C code. Fortunately we don’t need all
+    of Xcode to get going with C, so we’ll stick to the minimum.
+  prefs: []
+  type: TYPE_NORMAL
+- en: The Terminal app is in the Application → Utilities folder. Go ahead and start
+    it. You should see something like [Figure 1-7](#smallerc-CHP-1-FIG-mac-terminal).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0107](Images/smac_0107.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-7\. A basic macOS Terminal window
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: 'If you already have the main Apple programming application, Xcode, you can
+    quickly check to see if GCC is also available. Try running **`gcc -v`**:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE0]'
+  prefs: []
+  type: TYPE_PRE
+- en: The exact versions aren’t that important; we just want to make sure GCC is in
+    fact available. If not, you’ll need to install the `xcode-select` command-line
+    tool, which will bring GCC along for the ride. Type in **`xcode-select --install`**
+    and follow the prompts. A dialog will ask if you want to install the command-line
+    tools; say yes and you’re on your way.
+  prefs: []
+  type: TYPE_NORMAL
+- en: After the installation completes, go ahead and run that **`gcc -v`** command
+    to make sure you have the compiler. If you don’t get a good response, you may
+    need to visit [Apple’s Developer Support site](https://oreil.ly/JyXV8) and search
+    on “command-line tools.”
+  prefs: []
+  type: TYPE_NORMAL
+- en: Installing VS Code on macOS is much simpler. Visit the same [VS Code downloads](https://oreil.ly/kUgwI)
+    page at the Visual Studio site. Select the macOS download. You should receive
+    a ZIP file in your standard download folder. Double-click that file to unzip it,
+    and then drag the resulting *Visual Studio Code.app* file to your *Applications*
+    folder. If you are prompted for your password to move the app to *Applications*,
+    go ahead and provide it now.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Once relocated, go ahead and open VS Code. We want to add the C/C++ extension
+    and then check that we can access GCC from the Terminal tab.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pull up the Extensions panel in VS Code by clicking the “boxes” icon shown in
+    [Figure 1-8](#smallerc-CHP-1-FIG-vs-c-ext-mac). You can search for the simple
+    letter “C” and likely find the correct extension at the top of the results.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0108](Images/smac_0108.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-8\. VS Code extensions
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: To try out the Terminal tab, open it from the View → Terminal menu item. You
+    should see a new section at the bottom of your editor space. Go ahead and try
+    running our GCC check command (**`gcc -v`**) in that new area. You should see
+    results similar to [Figure 1-9](#smallerc-CHP-1-FIG-vs-gcc-mac).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0109](Images/smac_0109.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-9\. Trying GCC in VS Code on macOS
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Again, if you don’t get the expected results from running the `gcc` command,
+    check Apple’s developer site. You can also find several video tutorials online
+    that may help you with your particular setup.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Linux
+  prefs:
+  - PREF_H3
+  type: TYPE_NORMAL
+- en: Many Linux systems are geared toward folks who tinker. You might already have
+    GCC available. You can check quickly by starting the `Terminal` app and running
+    the same check used on other operating systems. If **`gcc -v`** returns an answer—other
+    than “Command not found,” of course—then you are good to go and can download VS
+    Code. If you need to install GCC, you can use the package manager on your platform.
+    You might have a nifty graphical application for such things; look for “developer
+    tools” or “software development” and then read the description to see if GCC or
+    GNU utilities are included.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'For Debian/Ubuntu systems, you can grab the `build-essential` metapackage that
+    will include GCC along with lots of other useful (or required) libraries and tools:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE1]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'For Redhat/Fedora/CentOS systems, the Dandified Yum (`dnf`) tool can be used.
+    We only need GCC for our work in this book:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE2]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Although if you’re curious about software development in general, you might
+    want to grab the “Development Tools” group package, which includes GCC along with
+    lots of other nifty things:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE3]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'Manjaro is another popular Linux distribution based on Arch Linux. You can
+    use the `pacman` tool here:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE4]'
+  prefs: []
+  type: TYPE_PRE
+- en: If you have some other flavor of Linux that doesn’t use `apt`, `dnf`, or `pacman`,
+    you can easily search for “install gcc **my-linux**” or use the search option
+    with your system’s package manager to look for “gcc” or “gnu.”
+  prefs: []
+  type: TYPE_NORMAL
+- en: As a Linux user, you may already have some experience with text editors for
+    writing shell scripts or other languages. If you’re already comfortable with your
+    editor and the terminal, you can skip forward. But if you are new to coding or
+    don’t have a favorite editor, go ahead and install VS Code. Visit the same [VS
+    Code downloads](https://oreil.ly/ptJFA) page at the Visual Studio site as mentioned
+    for the other operating systems. Get the appropriate bundle for your system. (If
+    your flavor of Linux doesn’t use *.deb* or *.rpm* files, you can get the *.tar.gz*
+    version.)
+  prefs: []
+  type: TYPE_NORMAL
+- en: Double-click the downloaded file and you should be prompted to go through a
+    standard installation. You may be asked for an administrative password if you
+    are installing VS Code for all users. Different distributions will put VS Code
+    in different spots, and different desktops have different app launchers. You can
+    also launch VS Code from the command line using the `code` command.
+  prefs: []
+  type: TYPE_NORMAL
+- en: As with the other operating systems, we want to add the C/C++ extension and
+    then check that we can access GCC from the Terminal tab.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Pull up the Extensions panel in VS Code by clicking the “boxes” icon shown in
+    [Figure 1-10](#smallerc-CHP-1-FIG-vs-c-ext-linux). You can search for the simple
+    letter “C” and likely find the correct extension at the top of the results.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0110](Images/smac_0110.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-10\. VS Code extensions on Linux
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: To try out the Terminal tab, open it from the View → Terminal menu item. You
+    should see a new section at the bottom of your editor space. Go ahead and try
+    running our GCC check command (**`gcc -v`**) in that new area. You should see
+    (verbose and slightly messy) results similar to [Figure 1-11](#smallerc-CHP-1-FIG-vs-gcc-linux).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0111](Images/smac_0111.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-11\. Trying GCC in VS Code on Linux
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Hooray, hooray. Hopefully, you have a simple C development environment up and
+    running. Let’s go write some code!
+  prefs: []
+  type: TYPE_NORMAL
+- en: Creating a C “Hello, World”
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'With your editor and compiler in place, we can try out the acclaimed first
+    program many developers write in any new language: the “Hello, World” program.
+    It is meant to show you can write valid code in the new language and that you
+    can output information.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: C, as a language, can be terse. We’ll be getting into all the nitty-gritty of
+    semicolons, curly braces, backslashes, and other strange symbols in this first
+    program, but for now, copy this small bit of code verbatim. You can create a new
+    file in VS Code using a right-click in the Explorer on the left, or using the
+    File → New File menu item, or by pressing Ctrl+N.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE5]'
+  prefs: []
+  type: TYPE_PRE
+- en: Go ahead and save the file and name it *hello.c*. We’ll also go ahead and open
+    the Terminal in VS Code (View → Terminal menu item or Ctrl+`). You should see
+    something similar to [Figure 1-12](#smallerc-CHP-1-FIG-vs-hw-1).
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0112](Images/smac_0112.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-12\. “Hello, World” and our Terminal tab
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If you know other languages already then you can probably guess what’s happening.
+    Either way, let’s take a quick moment to review each line. But don’t worry if
+    some of these explanations feel opaque. Learning to program requires a lot of
+    practice and a lot of patience. Later chapters will help you reinforce both skills.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE6]'
+  prefs: []
+  type: TYPE_PRE
+- en: This line loads the *header file* for the “standard input/output” *library*.
+    Libraries (roughly speaking) are external pieces of code that can be attached
+    to your own code when you run `gcc`. Header files are succinct descriptions of
+    these external entities. It’s a very common line for a very popular part of a
+    very common library. Among other things, this header includes the definition of
+    the `printf()` function we use to get our actual output. Almost every C program
+    you write will use it. This line is always at the top of the file, although as
+    we’ll see in [Chapter 6](ch06.xhtml#smallerc-CHP-6) you will often use several
+    libraries, each with their own header file `#include` line.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE7]'
+  prefs: []
+  type: TYPE_PRE
+- en: Complex programs can have dozens (even hundreds or thousands) of separate C
+    files. Separating big problems into tinier parts is a fundamental part of being
+    a good programmer. These smaller “bites” are easier to debug and maintain. They
+    also tend to help you find moments of repeated tasks where you can reuse code
+    you have already written. But whether you have a big, complex program, or a tiny,
+    simple one, you need some place to start. This line is that starting place. The
+    `main()` function is always required, though it occasionally looks a little different.
+    We’ll tackle *types* like the `int` you see at the beginning of the line in [Chapter 2](ch02.xhtml#smallerc-CHP-2)
+    and look more closely at functions in [Chapter 5](ch05.xhtml#smallerc-CHP-5).
+    But pay attention to that `{` at the end of the line. That character opens a *block*
+    of code.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE8]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'This statement is the heart of our program. Less romantically speaking, it
+    represents the *body* of our `main()` function block. Blocks contain one or more
+    lines of code bounded (in C) by curly braces, and we often refer to the content
+    of any block as its body. This particular body does one thing: it uses the `printf()`
+    function (again, defined in *stdio.h*) to produce a friendly, global greeting.
+    We’ll be going through `printf()` and things like the `"Hello, world\n"` snippet
+    in much more detail in [“printf() and scanf()”](ch02.xhtml#smallerc-CHP-2-SECT-3).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: I also want to quickly highlight the semicolon at the end of the line. That
+    bit of punctuation tells the C compiler when you have finished a statement. That
+    marker doesn’t mean much here with only one statement in our block, but it will
+    help down the road when we have more statements and statements that are messy
+    enough to span several lines.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'And last but certainly not least, here is the “closing” curly brace to match
+    up with the “opening” curly brace two lines up:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE9]'
+  prefs: []
+  type: TYPE_PRE
+- en: Every block will have these open/close braces. One of the most common mistakes
+    in programming is having one too many open or close braces. Happily, most modern
+    editors have fancy syntax highlighting that can help you match up any pair of
+    braces (and thus identify any braces that don’t have a partner as well).
+  prefs: []
+  type: TYPE_NORMAL
+- en: Compiling Your Code
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: 'Now we finally get to put all that software installation headache to use! In
+    the Terminal tab, run the following command:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE10]'
+  prefs: []
+  type: TYPE_PRE
+- en: If all goes well, you won’t see any output, just a new command prompt. If something
+    *did* go wrong, you’ll get an error message (or many messages) that hopefully
+    point you to what needs fixing. We’ll see debugging tricks as we encounter more
+    examples, but for now, look back at your code and the example above to see if
+    you can spot any differences.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Tip
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: If you are still having trouble with this first file, don’t give up! Check out
+    [Appendix A](app01.xhtml#smallerc-APP-A) on downloading the sample code for this
+    book from GitHub. You can compile and run the code as is, or use our examples
+    as a starting point for your own tweaks and modifications.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Running Your Code
+  prefs:
+  - PREF_H2
+  type: TYPE_NORMAL
+- en: After successfully compiling our first C program, how do we test it? If you
+    list the files in your directory, you’ll notice a new file named *a.out* on Linux
+    and macOS systems, and *a.exe* on Windows systems. To run it, just type its name.
+    On many Linux and macOS systems, your executable path may not include your working
+    directory. In that case, use the local path prefix “./”. (The period means the
+    current directory; the slash is just the standard path separator character.) [Figure 1-13](#smallerc-CHP-1-FIG-hello-mac-linux)
+    shows the output.
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0113](Images/smac_0113.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-13\. Saying hello on macOS and Linux
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: '[Figure 1-14](#smallerc-CHP-1-FIG-hello-windows) shows the output on Windows.'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '![smac 0114](Images/smac_0114.png)'
+  prefs: []
+  type: TYPE_IMG
+- en: Figure 1-14\. Saying hello on Windows
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: Note
+  prefs:
+  - PREF_H6
+  type: TYPE_NORMAL
+- en: On Windows, the *.exe* suffix marks a file as executable. However, you do not
+    need to include the suffix when you run the program. You can just type **`a`**.
+    Depending on the command prompt application used (`cmd` or `PowerShell`, for example),
+    you may also need to use the local directory prefix similar to macOS or Linux
+    (`.\`).
+  prefs: []
+  type: TYPE_NORMAL
+- en: As a name, though, “a” is pretty boring and definitely doesn’t tell us what
+    the program does. You can use the `-o` (output) option to the `gcc` command to
+    specify a better name for your program if you like.
+  prefs: []
+  type: TYPE_NORMAL
+- en: 'On Linux and macOS:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE11]'
+  prefs: []
+  type: TYPE_PRE
+- en: 'On Windows:'
+  prefs: []
+  type: TYPE_NORMAL
+- en: '[PRE12]'
+  prefs: []
+  type: TYPE_PRE
+- en: Try that command and then look at the files in your folder. You should have
+    a newly minted *hello* (or *hello.exe*) file that you can run. Much nicer.
+  prefs: []
+  type: TYPE_NORMAL
+- en: Next Steps
+  prefs:
+  - PREF_H1
+  type: TYPE_NORMAL
+- en: Whew…that’s a lot of effort to get your computer to say hi! If it helps, it
+    took humanity eons to get the first computer to do what you just did. :) But now
+    that we have a working development environment, the next chapters will explore
+    the details of the C language and show you how to write, debug, and maintain much
+    more interesting programs. And with our microcontrollers, the popular term for
+    smaller computers typically used for dedicated tasks like reporting the current
+    temperature or counting the number of boxes waiting on a conveyor belt, we’ll
+    turn those interesting programs into interesting, physical creations!
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([1](ch01.xhtml#idm45018747426616-marker)) Well, “any” is awfully expansive;
+    if your language is an interpreted language, then of course you would need a good
+    interpreter rather than a good compiler!
+  prefs: []
+  type: TYPE_NORMAL
+- en: '^([2](ch01.xhtml#idm45018747677048-marker)) J. M. Eubank, however, has done
+    the legwork on a single-file installer that you might want to check out if the
+    general steps for a more complete setup look overwhelming: [tdm-gcc](https://oreil.ly/RWJcB).'
+  prefs: []
+  type: TYPE_NORMAL
+- en: ^([3](ch01.xhtml#idm45018747396056-marker)) If you’re unsure whether you have
+    a 64-bit or 32-bit version of Windows, check out the [Microsoft FAQ](https://oreil.ly/kyR5d).
+  prefs: []
+  type: TYPE_NORMAL
