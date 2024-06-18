@@ -1,7 +1,9 @@
 - en: Chapter 9\. The Decorator Design Pattern
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第 9 章 装饰器设计模式
 - en: 'This chapter is dedicated to another classic design pattern: the Decorator
     design pattern. Over the years, Decorator has proven to be one of the most useful
     design patterns when it comes to combining and reusing different implementations.
@@ -10,15 +12,20 @@
     in this chapter will be to give you a very good idea why, and when, Decorator
     is a great choice for designing software. Additionally, I will show you the modern,
     more value-based forms of Decorator.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章专注于另一个经典设计模式：装饰器设计模式。多年来，装饰器已被证明是在组合和重用不同实现时最有用的设计模式之一。因此，它被广泛使用，甚至用于 C++
+    标准库功能的最令人印象深刻的重塑之一也不足为奇。本章的主要目标是让你对为什么以及何时装饰器是设计软件的明智选择有一个很好的理解。此外，我还将向你展示现代化、更基于价值的装饰器形式。
 - en: 'In [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically),
     we will dive into the design aspects of the Decorator design pattern. You will
     see when it is the right design choice and which benefits you’re gaining by using
     it. Additionally, you will learn about differences compared to other design patterns
     and its potential shortcomings.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 35：使用装饰器以分层方式添加定制化”](#use_decorators_to_add_customization_hierarchically)中，我们将深入探讨装饰器设计模式的设计方面。你将看到它何时是正确的设计选择，以及通过使用它可以获得哪些好处。此外，你还将了解与其他设计模式的区别以及它的潜在缺点。
 - en: 'In [“Guideline 36: Understand the Trade-off Between Runtime and Compile Time
     Abstraction”](#understand_the_tradeoff_between_runtime_and_compile_time_abstraction),
     we will take a look at two more implementations of the Decorator design pattern.
@@ -27,12 +34,16 @@
     be based on dynamic polymorphism. Even though both have the same intent and thus
     implement Decorator, the contrast between these two will give you an impression
     of the vastness of the design space for design patterns.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 36：理解运行时和编译时抽象之间的权衡”](#understand_the_tradeoff_between_runtime_and_compile_time_abstraction)中，我们将查看装饰器设计模式的另外两个实现。虽然这两个实现都牢固地根植于值语义的领域，但第一个基于静态多态性，而第二个基于动态多态性。尽管它们都有相同的意图并因此实现了装饰器，但这两者的对比将让你感受到设计模式空间的广阔。
 - en: 'Guideline 35: Use Decorators to Add Customization Hierarchically'
+  id: totrans-4
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 35：使用装饰器以分层方式添加定制化
 - en: 'Ever since you solved the design problem of your team’s 2D graphics tool by
     proposing a solution based on the Strategy design pattern (remember [“Guideline
     19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)),
@@ -40,44 +51,63 @@
     it does not come as a surprise that other teams are seeking you out for guidance.
     One day, two developers of your companies merchandise management system come to
     your office and ask for your help.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 自从你通过基于策略设计模式的解决方案解决了团队 2D 图形工具的设计问题（记得[“指南 19：使用策略来隔离事务处理的方式”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)），你作为设计模式专家的声誉已经传遍了公司。因此，其他团队寻求你的指导并不令人意外。一天，公司商品管理系统的两位开发者来到你的办公室寻求帮助。
 - en: Your Coworkers’ Design Issue
+  id: totrans-6
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 你的同事们的设计问题
 - en: 'The team of the two developers is dealing with a lot of different `Item`s (see
     [Figure 9-1](#fig_decorator_item_hierarchy_1)). All of these items have one thing
     in common: they have a `price()` tag. The two developers try to explain their
     problem by means of two items taken from the C++ merchandise shop: a class representing
     a C++ book (the `CppBook` class) and a C++ conference ticket (the `ConferenceTicket`
     class).'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 两位开发者团队正处理许多不同的`Item`（参见[Figure 9-1](#fig_decorator_item_hierarchy_1)）。所有这些项目都有一个共同点：它们都有一个`price()`标签。两位开发者试图通过
+    C++ 商品商店中的两个项目来解释他们的问题：代表 C++ 书籍的类（`CppBook` 类）和代表 C++ 会议票的类（`ConferenceTicket`
+    类）。
 - en: '![The initial +Item+ inheritance hierarchy.](assets/cpsd_0901.png)'
+  id: totrans-8
   prefs: []
   type: TYPE_IMG
+  zh: '![初始的 +Item+ 继承层次结构。](assets/cpsd_0901.png)'
 - en: Figure 9-1\. The initial `Item` inheritance hierarchy
+  id: totrans-9
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-1\. 初始`Item`继承层次结构
 - en: 'As the developers sketch their problem, you start to understand that their
     problem appears to be the many different ways to modify a price. Initially, they
     tell you, they only had to take taxes into account. For that reason, the `Item`
     base class was equipped with a `protected` data member to represent the tax rate:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 当开发者们勾勒出他们的问题时，你开始理解到，他们的问题似乎是修改价格的多种不同方式。最初，他们告诉你，他们只需考虑税费。因此，`Item`基类配备了一个`protected`数据成员来表示税率：
 - en: '[PRE0]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: This apparently worked well for some time, until one day, when they were asked
     to also take different rates of discount into account. This apparently required
     a lot of effort to refactor the large amount of the existing classes for their
     numerous different items. You can easily imagine that this was necessary because
     all derived classes were accessing the `protected` data members. “Yes, you should
     always design for change…” you think to yourself.^([1](ch09.xhtml#idm45043077162960))
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 这似乎在一段时间内运行良好，直到有一天，他们被要求同时考虑不同的折扣率。显然，为了重构现有大量的类和它们的多种不同项目，这需要很多努力。你很容易想象到，这是必要的，因为所有的派生类都在访问`protected`数据成员。“是的，你应该总是为变化而设计……”
+    你心里想着。^([1](ch09.xhtml#idm45043077162960))
 - en: They continue by admitting to their unfortunate misdesign. Of course they should
     have done a better job of encapsulating the tax rates in the `Item` base class.
     However, along with this realization came the understanding that when representing
@@ -88,15 +118,22 @@
     “That’s the way to go!” you think to yourself. Unfortunately, the first approach
     that came to their mind was to factor out the different kinds of price modifiers
     by means of an inheritance hierarchy (see [Figure 9-2](#fig_decorator_item_hierarchy_2)).
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 他们继续承认他们不幸的错误设计。当然，他们本应更好地封装`Item`基类中的税率。然而，随着这一认识的到来，他们理解到通过在基类中使用数据成员来表示价格修饰符时，任何新的价格修饰符总是会是一种侵入性操作，并且总是会直接影响`Item`类。因此，他们开始思考如何避免未来的重构，并如何实现轻松添加新修饰符。“这才是正确的方式！”
+    你暗自想着。不幸的是，他们首先想到的方法是通过继承层次结构来分离不同类型的价格修饰符（见[图9-2](#fig_decorator_item_hierarchy_2)）。
 - en: '![The extended +Item+ inheritance hierarchy.](assets/cpsd_0902.png)'
+  id: totrans-14
   prefs: []
   type: TYPE_IMG
+  zh: '![扩展的 +Item+ 继承层次结构。](assets/cpsd_0902.png)'
 - en: Figure 9-2\. The extended `Item` inheritance hierarchy
+  id: totrans-15
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-2\. 扩展的`Item`继承层次结构
 - en: 'Instead of encapsulating the tax and discount values inside the base class,
     these modifiers are factored out into derived classes, which perform the required
     price adaptation. “Uh-oh…” you start to think. Apparently your look already gives
@@ -109,22 +146,30 @@
     would be the handling of `Item`s that are affected both by tax and some sort of
     discount: they neither liked the approach to provide classes to handle both, nor
     did they want to introduce another layer in the inheritance hierarchy (see [Figure 9-3](#fig_decorator_item_hierarchy_3)).'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 而不是封装税费和折扣值在基类内部，这些修饰符被分解到派生类中，执行所需的价格调整。“哦哦……” 你开始思考。显然，你的表情已经透露出你对这个想法并不特别喜欢，所以他们很快告诉你，他们已经放弃了这个想法。显然，他们已经意识到这会导致更多问题：这种解决方案将快速导致类型的爆炸，并且功能的复用性很差。不幸的是，大量代码会重复，因为对于每个具体的`Item`，税费和折扣的代码都必须重复。然而，最麻烦的是处理既受税费影响又受某种折扣影响的`Item`：他们既不喜欢提供处理两者的类的方法，也不想在继承层次中引入另一层（见[图9-3](#fig_decorator_item_hierarchy_3)）。
 - en: '![The problematic +Item+ inheritance hierarchy.](assets/cpsd_0903.png)'
+  id: totrans-17
   prefs: []
   type: TYPE_IMG
+  zh: '![问题的 +Item+ 继承层次结构。](assets/cpsd_0903.png)'
 - en: Figure 9-3\. The problematic `Item` inheritance hierarchy
+  id: totrans-18
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-3\. 问题的`Item`继承层次结构
 - en: Apparently, and surprising for them, they couldn’t deal with the price modifiers
     in the base class or in the derived classes by means of direct inheritance. However,
     before you have the opportunity to make any comments about separating concerns,
     they explain that they have recently heard about your Strategy solution. This
     finally gave them an idea how to properly refactor the problem (see [Figure 9-4](#fig_decorator_item_hierarchy_4)).
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，令他们惊讶的是，他们无法通过直接继承的方式在基类或派生类中处理价格调整器。然而，在你有机会评论关注分离之前，他们解释说他们最近听说了你的策略解决方案。最终给了他们一个正确重构问题的想法（见[图 9-4](#fig_decorator_item_hierarchy_4)）。
 - en: By extracting the price modifiers into a separate hierarchy, and by configuring
     `Items` upon construction by means of a `PriceStrategy`, they had finally found
     a working solution to nonintrusively add new price modifiers, which will save
@@ -132,15 +177,22 @@
     and favoring composition over inheritance,” you think to yourself.^([2](ch09.xhtml#idm45043077012624))
     And aloud you ask, “This is great, I’m really happy for you. Everything seems
     to work now, you’ve figured it out on your own! Why exactly are you here?”
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过将价格调整器提取到一个单独的层次结构中，并通过构造时配置`Items`来使用`PriceStrategy`，他们最终找到了一个有效的解决方案，可以非侵入性地添加新的价格调整器，这将节省大量的重构工作。“好吧，这就是关注分离和优先组合而不是继承的好处”，你心里想着。^([2](ch09.xhtml#idm45043077012624))
+    然后你问道：“这太棒了，我真的为你感到高兴。一切似乎都运行正常，你自己找到了解决方案！你到底为什么在这里？”
 - en: '![The Strategy-based +Item+ inheritance hierarchy.](assets/cpsd_0904.png)'
+  id: totrans-21
   prefs: []
   type: TYPE_IMG
+  zh: '![基于策略的+Item+继承层次结构。](assets/cpsd_0904.png)'
 - en: Figure 9-4\. The Strategy-based `Item` inheritance hierarchy
+  id: totrans-22
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-4\. 基于策略的`Item`继承层次结构
 - en: They tell you that your Strategy solution is by far the best approach they have
     (thankful looks included). However, they admit that they are not entirely happy
     with the approach. From their point of view, two problems remain and, of course,
@@ -148,11 +200,16 @@
     is that every `Item` instance needs a Strategy class, even if no price modifier
     applies. While they agree that this can be solved by some kind of [*null object*](https://oreil.ly/9RX5N),
     they feel that there should be a simpler solution:^([3](ch09.xhtml#idm45043077006880))
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 他们告诉你，你的策略解决方案迄今为止是他们所知道的最佳方法（包括感激的表情）。然而，他们承认他们对这种方法并不完全满意。从他们的角度来看，仍然存在两个问题，当然，他们希望你有办法解决。他们看到的第一个问题是，即使没有价格调整器，每个`Item`实例仍然需要一个策略类。虽然他们同意这可以通过某种形式的[*null
+    object*](https://oreil.ly/9RX5N)来解决，但他们觉得应该有一个更简单的解决方案:^([3](ch09.xhtml#idm45043077006880))
 - en: '[PRE1]'
+  id: totrans-24
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: The second problem they have appears to be a little more difficult to solve.
     Obviously they are interested in combining different kinds of modifiers (e.g.,
     `Discount` and `Tax` into `DiscountAndTax`). Unfortunately, they experience some
@@ -162,8 +219,10 @@
     with the duplication, they are anticipating problems when adding more modifiers
     and arbitrary combinations of these. Therefore they are wondering if there is
     another, better solution for dealing with different kinds of price modifiers.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 他们面临的第二个问题似乎更难解决一些。显然，他们有兴趣将不同类型的调整器（例如，`Discount`和`Tax`）组合到`DiscountAndTax`中。不幸的是，他们在当前实现中存在一些代码重复。例如，`Tax`和`DiscountAndTax`类都包含与税收相关的计算。目前，只有两种调整器，可以采用合理的解决方案来处理重复，但他们预计在添加更多调整器和任意组合时会遇到问题。因此，他们想知道是否有另一种更好的解决方案来处理不同类型的价格调整器。
 - en: 'This is indeed an intriguing problem, and you are happy to have taken the time
     to help them. They are absolutely correct: the Strategy design pattern is not
     the right solution for this problem. While Strategy is a great solution to remove
@@ -171,8 +230,10 @@
     different implementations gracefully, it does not enable the easy combination
     and reuse of different implementations. Attempting to do this would quickly result
     in an undesirably complex Strategy inheritance hierarchy.'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 这确实是一个有趣的问题，你很高兴抽出时间帮助他们。他们绝对是正确的：策略设计模式并不适合这个问题。虽然策略是一个很好的解决方案，可以消除对函数完整实现细节的依赖，并优雅地处理不同的实现，但它并不容易组合和重用不同的实现。试图这样做很快会导致一个不可取的复杂策略继承层次结构。
 - en: 'What they need for their problem appears to be more like a hierarchical form
     of Strategy, a form that decouples the different price modifiers but also allows
     for a very flexible combination of them. Hence, one key to success is a consequent
@@ -185,25 +246,36 @@
     implement a price modifier in the form of a wrapper. With this realization, you
     start to smile. Yes, there is just the right design pattern for this purpose:
     what your two guests need is an implementation of the Decorator design pattern.'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 他们对于他们的问题所需的东西看起来更像是一种层次形式的策略，这种形式解耦了不同的价格修饰符，同时也允许非常灵活的组合。因此，成功的关键之一是一致地应用关注点分离原则：在像
+    `DiscountAndTax` 类这样的刚性手工编码组合将是禁止的。然而，解决方案还应该是非侵入性的，以使他们能够随时实施新的想法，而无需修改现有的代码。最后，也不应该通过某种人为的*空对象*来处理默认情况。相反，更合理的方法是坚持采用组合而非继承，并通过包装器的形式实现价格修饰符。有了这个认识，你开始微笑。是的，正是为这个目的设计的合适设计模式：你的两位客人所需的是装饰者设计模式的实现。
 - en: The Decorator Design Pattern Explained
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 装饰者设计模式解析
 - en: 'The Decorator design pattern also originates from the GoF book. Its primary
     focus is the flexible combination of different pieces of functionality through
     composition:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 装饰者设计模式也源自 GoF 的书籍。其主要关注点是通过组合灵活地组合不同功能的能力：
 - en: The Decorator Design Pattern
+  id: totrans-30
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 装饰者设计模式
 - en: 'Intent: “Attach additional responsibilities to an object dynamically. Decorators
     provide a flexible alternative to subclassing for extending functionality.”^([4](ch09.xhtml#idm45043076871952))'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“动态地为对象附加额外的责任。装饰者提供了一种灵活的替代方案，用于通过组合扩展功能，而不是通过子类化。”^([4](ch09.xhtml#idm45043076871952))
 - en: '[Figure 9-5](#fig_decorator_item) shows the UML diagram for the given `Item`
     problem. As before, the `Item` base class represents the abstraction from all
     possible items. The deriving `CppBook` class, on the other hand, acts as a representative
@@ -221,15 +293,26 @@
     foundation for a hierarchical application of modifiers. Two possible modifiers
     are represented by the `Discounted` class, which represents a discount for a specific
     item, and the `Taxed` class, which represents some kind of tax.^([5](ch09.xhtml#idm45043076856336))'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 9-5](#fig_decorator_item) 显示了给定 `Item` 问题的 UML 图。与以往一样，`Item` 基类代表了所有可能的物品的抽象。另一方面，派生的
+    `CppBook` 类则充当了 `Item` 不同实现的代表。在这个层次结构中，存在的问题是难以为现有的 `price()` 函数添加新的修饰符。在装饰者设计模式中，将这种添加新“责任”的行为识别为*变化点*，并以
+    `DecoratedItem` 类的形式提取出来。这个类是 `Item` 基类的一个单独特殊实现，表示对任何给定物品的增加责任。一方面，`DecoratedItem`
+    派生自 `Item`，因此必须遵循 `Item` 抽象的所有期望行为（参见[“指导方针 6：遵循抽象的预期行为”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）。另一方面，它也包含一个
+    `Item`（通过组合或聚合方式）。由于这个原因，`DecoratedItem` 充当了每个物品的包装器，可能是自身扩展功能的包装器。因此，它为修饰符的分层应用提供了基础。`Discounted`
+    类和 `Taxed` 类代表了两种可能的修饰符，分别表示特定物品的折扣和某种税收。^([5](ch09.xhtml#idm45043076856336))'
 - en: '![The UML representation of the _Decorator_ design pattern.](assets/cpsd_0905.png)'
+  id: totrans-33
   prefs: []
   type: TYPE_IMG
+  zh: '![装饰者设计模式的 UML 表示。](assets/cpsd_0905.png)'
 - en: Figure 9-5\. The UML representation of the Decorator design pattern
+  id: totrans-34
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-5\. 装饰者设计模式的UML表示
 - en: By introducing the `DecoratedItem` class and separating the aspect that’s required
     to change, you adhere to the SRP. By separating this concern and therefore allowing
     the easy addition of new price modifiers, you also adhere to the *Open-Closed
@@ -239,8 +322,10 @@
     Last but not least, because of the wrapper approach of Decorator, there’s no need
     to define any default behavior in the form of a *null object*. Any `Item` that
     does not require a modifier can be used as is.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过引入`DecoratedItem`类并分离需要更改的方面，您遵循SRP原则。通过分离这个关注点，从而允许轻松添加新的价格修改器，您也遵循*开闭原则（OCP）*。由于`DecoratedItem`类的层次递归性质以及轻松重用和组合不同修改器的能力，您还遵循*不要重复自己（DRY）*原则的建议。最后但同样重要的是，由于装饰者的包装方法，无需以*空对象*的形式定义任何默认行为。任何不需要修改器的`Item`都可以直接使用。
 - en: '[Figure 9-6](#fig_decorator_dependency_graph) illustrates the dependency graph
     of the Decorator design pattern. In this figure, the `Item` class resides on the
     highest level of the architecture. All other classes depend on it, including the
@@ -253,35 +338,51 @@
     these items: all items, including modifiers like `Discounted`, can be introduced
     independently by anyone at any time and, due to the structure of Decorator, be
     flexibly and arbitrarily combined.'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 9-6](#fig_decorator_dependency_graph)展示了装饰者设计模式的依赖图。在此图中，`Item`类位于架构的最高层。所有其他类都依赖于它，包括位于下一级的`DecoratedItem`类。当然，这不是必须的：如果`Item`和`DecoratedItem`都在同一架构级别引入，那也是完全可以接受的。然而，这个示例表明，随时随地都可以引入新的装饰者，而无需修改现有代码。`Item`的具体类型实现在架构的最低级别。请注意，这些项之间没有依赖关系：包括`Discounted`在内的所有项可以独立地随时引入，并且由于装饰者的结构，可以灵活和任意地组合。'
 - en: '![The dependency graph for the _Decorator_ design pattern.](assets/cpsd_0906.png)'
+  id: totrans-37
   prefs: []
   type: TYPE_IMG
+  zh: '![装饰者设计模式的依赖图。](assets/cpsd_0906.png)'
 - en: Figure 9-6\. Dependency graph for the Decorator design pattern
+  id: totrans-38
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-6\. 装饰者设计模式的依赖图
 - en: A Classic Implementation of the Decorator Design Pattern
+  id: totrans-39
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 经典的装饰者设计模式实现
 - en: 'Let’s take a look at a complete, GoF-style implementation of the Decorator
     design pattern by means of the given `Item` example:'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们通过给定的`Item`示例来看一下完整的GoF风格装饰者设计模式的实现：
 - en: '[PRE2]'
+  id: totrans-41
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'The `Item` base class represents the abstraction for all possible items. The
     only requirement is defined by the pure virtual `price()` function, which can
     be used to query for the price of the given item. The `DecoratedItem` class represents
     one possible implementation of the `Item` class ([![1](assets/1.png)](#code_g35_1)):'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Item`基类代表所有可能的物品的抽象。唯一的要求由纯虚拟`price()`函数定义，可用于查询给定物品的价格。`DecoratedItem`类代表`Item`类的一种可能的实现（[![1](assets/1.png)](#code_g35_1)）：'
 - en: '[PRE3]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: A `DecoratedItem` derives from the `Item` class but also contains an `item_`
     ([![2](assets/2.png)](#code_g35_2)). This `item_` is specified via the constructor,
     which accepts any non-null `std::unique_ptr` to another `Item` ([![3](assets/3.png)](#code_g35_3)).
@@ -289,29 +390,44 @@
     `price()` function is not yet defined. `DecoratedItem` provides only the necessary
     functionality to store an `Item` and to access the `Item` via `protected` member
     functions ([![4](assets/4.png)](#code_g35_4)).
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: '`DecoratedItem`从`Item`类派生，但也包含一个`item_`（[![2](assets/2.png)](#code_g35_2)）。这个`item_`是通过构造函数指定的，该构造函数接受任何非空的`std::unique_ptr`指向另一个`Item`（[![3](assets/3.png)](#code_g35_3)）。请注意，这个`DecoratedItem`类仍然是抽象的，因为纯虚拟`price()`函数尚未定义。`DecoratedItem`仅提供必要的功能来存储一个`Item`并通过`protected`成员函数访问该`Item`（[![4](assets/4.png)](#code_g35_4)）。'
 - en: 'Equipped with these two classes, it’s possible to implement concrete `Item`s:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用这两个类，可以实现具体的`Item`：
 - en: '[PRE4]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The `CppBook` and `ConferenceTicket` classes represent possible specific `Item`
     implementations ([![5](assets/5.png)](#code_g35_5) and [![6](assets/6.png)](#code_g35_6)).
     While a C++ book is represented by means of the title of the book, a C++ conference
     is represented by means of the name of the conference. Most importantly, both
     classes override the `price()` function by returning the specified `price_`.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '`CppBook` 和 `ConferenceTicket` 类表示可能的具体 `Item` 实现 ([![5](assets/5.png)](#code_g35_5)
+    和 [![6](assets/6.png)](#code_g35_6))。C++ 书籍由书籍标题表示，而 C++ 大会则由会议名称表示。最重要的是，这两个类都重写了
+    `price()` 函数，返回指定的 `price_`。'
 - en: 'Both `CppBook` and `ConferenceTicket` are oblivious to any kind of tax or discount.
     But obviously, both kinds of `Item` are potentially subject to both. These price
     modifiers are implemented by means of the `Discounted` and `Taxed` classes:'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '`CppBook` 和 `ConferenceTicket` 都不考虑任何形式的税收或折扣。但显然，这两种 `Item` 都可能受到这两者的影响。这些价格修饰器通过
+    `Discounted` 和 `Taxed` 类来实现：'
 - en: '[PRE5]'
+  id: totrans-49
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The `Discounted` class ([![7](assets/7.png)](#code_g35_7)) is initialized by
     passing a `std::unique_ptr` to an `Item` and a discount value, represented by
     a double value in the range of 0.0 to 1.0\. While the given `Item` is immediately
@@ -322,23 +438,38 @@
     Decorator like `Discounted`, which in turn modifies the price of another `Item`.
     Thus, the `price()` function is the point where the hierarchical structure of
     Decorator is fully exploited.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Discounted` 类 ([![7](assets/7.png)](#code_g35_7)) 通过向 `Item` 的 `std::unique_ptr`
+    和折扣值传递初始化。该折扣值由范围为 0.0 到 1.0 的双精度值表示。虽然给定的 `Item` 立即传递给 `DecoratedItem` 基类，但给定的折扣值用于计算折扣
+    `factor_`。此因素用于在 `price()` 函数的实现中修改给定项目的价格 ([![8](assets/8.png)](#code_g35_8))。这可以是像
+    `CppBook` 或 `ConferenceTicket` 这样的特定项，也可以是任何像 `Discounted` 这样的装饰器，其再次修改另一个 `Item`
+    的价格。因此，`price()` 函数是完全利用装饰器的层次结构的关键点。'
 - en: '[PRE6]'
+  id: totrans-51
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: The `Taxed` class is very similar to the `Discounted` class. The major difference
     is the evaluation of a tax-related factor in the constructor ([![9](assets/9.png)](#code_g35_9)).
     Again, this factor is used in the `price()` function to modify the price of the
     wrapped `Item`.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Taxed` 类与 `Discounted` 类非常相似。主要区别在于构造函数中对与税相关的因素的评估 ([![9](assets/9.png)](#code_g35_9))。同样，这个因素在
+    `price()` 函数中用于修改包装的 `Item` 的价格。'
 - en: 'All of this functionality is put together in the `main()` function:'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些功能都集成在 `main()` 函数中：
 - en: '[PRE7]'
+  id: totrans-54
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: As a first `Item`, we create a `CppBook`. Let’s assume that this book is subject
     to a 7% tax, which is applied by means of wrapping a `Taxed` decorator around
     the item. The resulting `item1` therefore represents a taxed C++ book ([![10](assets/10.png)](#code_g35_10)).
@@ -349,23 +480,36 @@
     is also subject to 19% tax, which, as before, is applied via the `Taxed` decorator.
     Hence, the resulting `item2` represents a discounted and taxed C++ conference
     ticket ([![11](assets/11.png)](#code_g35_11)).
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为第一个 `Item`，我们创建了一个 `CppBook`。假设这本书需要缴纳 7% 的税款，这是通过在该项目周围包装一个 `Taxed` 装饰器来应用的。因此，结果的
+    `item1` 表示一个征税的 C++ 书籍 ([![10](assets/10.png)](#code_g35_10))。作为第二个 `Item`，我们创建了一个
+    `ConferenceTicket` 实例，代表 [CppCon](https://cppcon.org)。我们很幸运地获得了早鸟票，这意味着我们享有 20%
+    的折扣。这个折扣通过 `Discounted` 类包装在 `ConferenceTicket` 实例周围。门票也需缴纳 19% 的税款，这与之前一样，通过
+    `Taxed` 装饰器应用。因此，结果的 `item2` 表示一个打折和征税的 C++ 大会门票 ([![11](assets/11.png)](#code_g35_11))。
 - en: A Second Decorator Example
+  id: totrans-56
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 第二个装饰器示例
 - en: 'Another, impressive example that shows the benefits of the Decorator design
     pattern can be found in the C++17 rework of the STL allocators. Since the allocators’
     implementation is based on Decorator, it’s possible to create arbitrarily complex
     hierarchies of allocators, which fulfill even the most special of memory requirements.
     Consider, for instance, the following example using a [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/UPPxK)
     ([![12](assets/12.png)](#code_g35_12)):'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个展示装饰器设计模式优势的令人印象深刻的例子可以在 STL 分配器的 C++17 重制版中找到。由于分配器的实现基于装饰器，可以创建任意复杂的分配器层次结构，以满足甚至最特殊的内存需求。例如，考虑以下使用
+    [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/UPPxK) 的例子（[![12](assets/12.png)](#code_g35_12)）。
 - en: '[PRE8]'
+  id: totrans-58
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'The `std::pmr::monotonic_buffer_resource` is one of several available allocators
     in the `std::pmr` namespace. In this example, it’s configured such that whenever
     the `strings` vector asks for memory, it will dispense only chunks of the given
@@ -376,36 +520,58 @@
     though. For instance, it would also be possible to build on dynamic memory and
     to let it reallocate additional chunks of memory via `new` and `delete` by means
     of [`std::pmr::new_delete_resource()`](https://oreil.ly/0oSzS) ([![13](assets/13.png)](#code_g35_13)):'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::pmr::monotonic_buffer_resource` 是 `std::pmr` 命名空间中几种可用分配器之一。在本例中，它配置为当
+    `strings` 向量请求内存时，仅分发给定字节数组 `raw` 的块。无法处理的内存请求（例如 `buffer` 内存不足）将通过抛出 `std::bad_alloc`
+    异常来处理。这种行为是在构造过程中通过传递 [`std::pmr::null_memory_resource`](https://oreil.ly/E1t7V)
+    指定的。然而，`std::pmr::monotonic_buffer_resource` 还有许多其他可能的应用场景。例如，还可以基于动态内存构建，并通过
+    [`std::pmr::new_delete_resource()`](https://oreil.ly/0oSzS) 使用 `new` 和 `delete`
+    重新分配额外的内存块（[![13](assets/13.png)](#code_g35_13)）。'
 - en: '[PRE9]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: This flexibility and hierarchical configuration of allocators is made possible
     by means of the Decorator design pattern. The `std::pmr::​monotonic_buffer_resource`
     is derived from the [`std::pmr::memory_resource`](https://oreil.ly/8A1sk) base
     class but, at the same time, also acts as a wrapper around another allocator derived
     from `std::pmr::memory_resource`. The upstream allocator, which is used whenever
     the `buffer` goes out of memory, is specified on construction of a `std::pmr::monotonic_buffer_resource`.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种分配器的灵活性和分层配置是通过装饰器设计模式实现的。`std::pmr::monotonic_buffer_resource` 派生自 [`std::pmr::memory_resource`](https://oreil.ly/8A1sk)
+    基类，同时还充当另一个派生自 `std::pmr::memory_resource` 的分配器的包装器。在 `std::pmr::monotonic_buffer_resource`
+    的构造过程中指定了用于在 `buffer` 内存不足时使用的上游分配器。
 - en: 'Most impressive, however, is that you can easily and nonintrusively customize
     the allocation strategy. That might, for instance, be interesting to enable you
     to deal with requests for large chunks of memory differently than requests for
     small chunks. All you have to do is to provide your own, custom allocator. Consider
     the following sketch of a `CustomAllocator`:'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，最令人印象深刻的是，你可以轻松而非侵入式地定制分配策略。例如，这可能会让你能够以不同于对小块内存请求的方式处理大块内存的请求。你所需做的就是提供你自己的定制分配器。考虑以下
+    `CustomAllocator` 的草图：
 - en: '[PRE10]'
+  id: totrans-63
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: To be recognized as a C++17 allocator, the `CustomAllocator` class derives from
     the `std::pmr::memory_resource` class, which represents the set of requirements
     for all C++17 allocators ([![14](assets/14.png)](#code_g35_14)). Coincidentally,
     the `CustomAllocator` also owns a pointer to a `std::pmr::memory_resource` ([![15](assets/15.png)](#code_g35_15)),
     which is initialized via its constructor ([![16](assets/16.png)](#code_g35_16)).
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 要被认定为 C++17 分配器，`CustomAllocator` 类需要继承自 `std::pmr::memory_resource` 类，该类代表了所有
+    C++17 分配器的要求（[![14](assets/14.png)](#code_g35_14)）。巧合的是，`CustomAllocator` 还拥有一个指向
+    `std::pmr::memory_resource` 的指针（[![15](assets/15.png)](#code_g35_15)），这个指针是通过其构造函数初始化的（[![16](assets/16.png)](#code_g35_16)）。
 - en: The set of requirements for C++17 allocators consists of the virtual functions
     `do_allocate()`, `do_deallocate()`, and `do_is_equal()`. The `do_allocate()` function
     is responsible for acquiring memory, potentially via its upstream allocator ([![17](assets/17.png)](#code_g35_17)),
@@ -413,22 +579,33 @@
     back ([![18](assets/18.png)](#code_g35_18)). Last but not least, the `do_is_equal()`
     function is called whenever the equality of two allocators needs to be checked
     ([![19](assets/19.png)](#code_g35_19)).^([6](ch09.xhtml#idm45043074899200))
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: C++17 分配器的要求集包括虚拟函数 `do_allocate()`、`do_deallocate()` 和 `do_is_equal()`。`do_allocate()`
+    函数负责获取内存，可能通过其上游分配器（[![17](assets/17.png)](#code_g35_17)）实现，而 `do_deallocate()`
+    函数在需要归还内存时调用（[![18](assets/18.png)](#code_g35_18)）。最后，`do_is_equal()` 函数在需要检查两个分配器是否相等时调用（[![19](assets/19.png)](#code_g35_19)）。^([6](ch09.xhtml#idm45043074899200))
 - en: 'By just introducing the `CustomAllocator` and without the need to change any
     other code, in particular in the Standard Library, the new kind of allocator can
     be easily plugged in between the `std::pmr::monotonic_buffer_resource` and the
     `std::pmr::new_delete_resource()` ([![20](assets/20.png)](#code_g35_20)), thus
     allowing you to nonintrusively extend the allocation behavior:'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 只需引入 `CustomAllocator` 而无需更改任何其他代码，特别是标准库中的代码，新的分配器类型就可以轻松地插入到 `std::pmr::monotonic_buffer_resource`
+    和 `std::pmr::new_delete_resource()` 之间（[![20](assets/20.png)](#code_g35_20)），从而允许您非侵入性地扩展分配行为。
 - en: '[PRE11]'
+  id: totrans-67
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: Comparison Between Decorator, Adapter, and Strategy
+  id: totrans-68
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 装饰者、适配器和策略之间的比较
 - en: 'With the names *Decorator* and *Adapter*, these two design patterns sound like
     they have a similar purpose. On closer examination, however, these two patterns
     are very different and hardly related at all. The intent of the Adapter design
@@ -439,8 +616,11 @@
     design pattern, on the other hand, preserves a given interface and isn’t at all
     concerned about changing it. Instead, it provides the ability to add responsibilities
     and to extend and customize an existing set of functions.'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 在名称为 *Decorator* 和 *Adapter* 的两种设计模式中，它们听起来似乎有相似的目的。然而，仔细检查后，这两种模式非常不同，几乎没有任何关联。适配器设计模式的意图是将给定接口适应并转换为预期接口。它不关心添加任何功能，而只关心将一组函数映射到另一组函数（另见
+    [“指南 24：使用适配器来标准化接口”](ch06.xhtml#use_adapters_to_standardize_interfaces)）。另一方面，装饰者设计模式保留了给定接口，并且根本不关心改变它。相反，它提供了添加职责、扩展和定制现有函数集的能力。
 - en: 'The Strategy design pattern is much more like Decorator. Both patterns provide
     the ability to customize functionality. However, both patterns are intended for
     different applications and therefore provide different benefits. The Strategy
@@ -455,30 +635,42 @@
     of a functionality.^([7](ch09.xhtml#idm45043074841888)) In this form, it is particularly
     well suited to combine different implementations, which enables you to augment
     and extend functionality, rather than replacing it or switching between implementations.'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 策略设计模式更类似于装饰者模式。这两种模式都提供了定制功能的能力。然而，它们各自适用于不同的应用场景，因此提供了不同的优势。策略设计模式专注于消除对特定功能实现细节的依赖，并使您能够从外部定义这些细节。因此，从这个角度来看，它代表了这个功能的核心——“内核”。这种形式使其特别适合表示不同的实现并在它们之间切换（参见
+    [“指南 19：使用策略来隔离做事的方式”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)）。相比之下，装饰者设计模式专注于消除可附加实现之间的依赖关系。由于其包装形式，装饰者表示功能的“皮肤”。^([7](ch09.xhtml#idm45043074841888))
+    在这种形式下，它特别适合组合不同的实现，从而增强和扩展功能，而不是替换或在实现之间切换。
 - en: 'Obviously, both Strategy and Decorator have their individual strengths and
     should be selected accordingly. However, it’s also possible to combine these two
     design patterns to gain the best of both worlds. For instance, it would be possible
     to implement `Item`s in terms of the Strategy design patterns but allow for a
     more fine-grained configuration of Strategy by means of Decorator:'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，策略模式和装饰器模式各有其独特的优势，应根据具体情况选择。然而，也可以结合这两种设计模式，以获得双赢。例如，可以实现`Item`，使用策略设计模式，并通过装饰器提供更精细化的策略配置：
 - en: '[PRE12]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'This combination of design patterns is particularly interesting if you already
     have a Strategy implementation in place: while Strategy is intrusive and requires
     the modification of a class, it’s always possible to nonintrusively add a Decorator
     such as the `DecoratedPriceStrategy` class. But of course it depends: whether
     or not this is the right solution is something you’ll have to decide on a case-by-case
     basis.'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果已经有了策略的实现，这种设计模式的组合尤其有趣：虽然策略是侵入性的，并且需要修改类，但非侵入性地添加类似`DecoratedPriceStrategy`的装饰器是完全可能的。当然，是否选择这种解决方案取决于具体情况。
 - en: Analyzing the Shortcomings of the Decorator Design Pattern
+  id: totrans-74
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析装饰器设计模式的不足之处
 - en: 'With its ability to hierarchically extend and customize behavior, the Decorator
     design pattern is clearly one of the most valuable and flexible patterns in the
     catalogue of design patterns. However, despite its benefits, it also comes with
@@ -491,31 +683,42 @@
     on the context. You’ll have to decide from case to case using benchmarks to determine
     whether the flexibility and the structural aspects of Decorator outweigh the performance
     problem.'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 装饰器设计模式以其能够层次化地扩展和定制行为的能力，显然是设计模式目录中最有价值和灵活的模式之一。然而，尽管它有利之处，但也存在一些缺点。首先且最重要的是，装饰器的灵活性是有代价的：在给定层次结构中的每一级都会增加一级间接性。作为具体例子，在`Item`层次结构的面向对象实现中，这种间接性以每个装饰器的虚函数调用形式呈现。因此，广泛使用装饰器可能会带来潜在的显著性能开销。是否这种潜在的性能损失构成问题，取决于具体情况。您将需要使用基准测试来决定，装饰器的灵活性和结构方面的优势是否超过了性能问题。
 - en: Another shortcoming is the potential danger of combining Decorators in a nonsensical
     way. For instance, it’s easily possible to wrap a `Taxed` Decorator around another
     `Taxed` Decorator or to apply a `Discounted` on an already-taxed `Item`. Both
     scenarios would make your government happy but still should never happen and therefore
     should be avoided by design. This rational is nicely expressed by Scott Meyers’s
     universal design principle:^([8](ch09.xhtml#idm45043074664624))
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个缺点是可能以荒谬的方式组合装饰器的潜在危险。例如，很容易在一个`Taxed`装饰器外围再包裹一个`Taxed`装饰器，或者在已经被税的`Item`上应用`Discounted`。这两种情况都会让政府开心，但实际上不应该发生，因此应该通过设计避免。Scott
+    Meyers 的通用设计原则很好地表达了这一理念：^([8](ch09.xhtml#idm45043074664624))
 - en: Make interfaces easy to use correctly and hard to use incorrectly.
+  id: totrans-77
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 使接口易于正确使用，难以错误使用。
 - en: 'Thus the enormous flexibility of Decorators is extraordinary, but can also
     be dangerous (depending on the scenario, of course). Since in this scenario taxes
     appear to play a special role, it seems to be very reasonable not to deal with
     them as Decorator, but differently. Since in reality taxes turn out to be a rather
     complex topic, it appears to be reasonable to separate this concern via the Strategy
     design pattern:'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，装饰器的巨大灵活性非凡，但也可能具有危险性（当然取决于具体场景）。由于在这种场景中，税收似乎扮演了一个特殊角色，因此不将其视为装饰器处理，而是通过策略设计模式进行分离显得非常合理：
 - en: '[PRE13]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'The `TaxStrategy` class represents the many different ways to apply taxes to
     an `Item` ([![21](assets/21.png)](#code_g35_21)). Such a `TaxStrategy` is combined
     with an `Item` in the `TaxedItem` class ([![22](assets/22.png)](#code_g35_22)).
@@ -526,27 +729,40 @@
     and `grossPrice()` ([![24](assets/24.png)](#code_g35_24)) functions to enable
     queries for both the price including taxes and the original price of the wrapped
     `Item`.^([9](ch09.xhtml#idm45043074358192))'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: '`TaxStrategy` 类表示将税收应用于 `Item` 的多种不同方式（[![21](assets/21.png)](#code_g35_21)）。这样的
+    `TaxStrategy` 与 `TaxedItem` 类中的 `Item` 结合在一起（[![22](assets/22.png)](#code_g35_22)）。请注意，`TaxedItem`
+    本身并不是 `Item`，因此不能通过另一个 `Item` 进行装饰。因此，它充当一种终止装饰器，只能作为最后一个装饰器应用。它也不提供 `price()`
+    函数，而是提供 `netPrice()`（[![23](assets/23.png)](#code_g35_23)）和 `grossPrice()`（[![24](assets/24.png)](#code_g35_24)）函数，以便查询包括税费在内的价格和包装
+    `Item` 的原始价格。^([9](ch09.xhtml#idm45043074358192))'
 - en: 'The only other problem that you might see is the reference semantics–based
     implementation of the Decorator design pattern: lots of pointers, including `nullptr`
     checks and the danger of dangling pointers, explicit lifetime management by means
     of `std::unique_ptr` and `std::make_unique()`, and the many small, manual memory
     allocations. However, luckily you still have an ace up your sleeve and can show
     them how to implement Decorators based on value semantics (see the following guideline).'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个可能出现的问题是基于引用语义的装饰器设计模式实现：包括大量指针，包括 `nullptr` 检查和悬空指针的危险，通过 `std::unique_ptr`
+    和 `std::make_unique()` 进行显式生命周期管理，以及许多小的手动内存分配。然而，幸运的是，你还有一招在手，可以展示如何基于值语义实现装饰器（请参阅下面的指南）。
 - en: To summarize, the Decorator design pattern is one of the essential design patterns
     and despite some drawbacks will prove to be a very valuable addition to your toolbox.
     Just make sure you’re not too excited about Decorator and start to use it for
     everything. After all, for every pattern there is a thin line between good use
     and overuse.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，装饰器设计模式是基本设计模式之一，尽管存在一些缺点，但将证明是你工具箱中非常有价值的补充。只需确保你不要对装饰器过于激动并开始将其用于一切。毕竟，对于每种模式，合理使用和过度使用之间有一条细微的界限。
 - en: 'Guideline 36: Understand the Trade-off Between Runtime and Compile Time Abstraction'
+  id: totrans-83
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 36：理解运行时和编译时抽象之间的权衡
 - en: 'In [“Guideline 35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically),
     I introduced you to the Decorator design pattern and hopefully gave you a strong
     incentive to add this design pattern to your toolbox. However, so far I have illustrated
@@ -563,12 +779,19 @@
     of dynamic polymorphism. Both approaches have their merits but, of course, also
     their characteristic demerits. Therefore, these examples will nicely demonstrate
     the broadness of design choices available to you.'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 [“指导原则 35：使用装饰器分层添加定制”](#use_decorators_to_add_customization_hierarchically)
+    中，我向您介绍了装饰器设计模式，并希望您能够将此设计模式添加到您的工具箱中。然而，到目前为止，我仅通过经典的面向对象实现来说明装饰器，并且再次未遵循 [“指导原则
+    22：更喜欢值语义而不是引用语义”](ch05.xhtml#prefer_value_semantics_to_reference_semantics) 的建议。因此，我假设您迫不及待地想要看到如何基于值语义实现装饰器，现在是展示两种可能方法的时候了。是的，*两种*
+    方法：我将通过展示两种非常不同的实现来弥补之前的推迟。两者都坚定地基于值语义，但在比较中，它们几乎处于设计空间的对立面。第一种方法将是基于静态多态性的实现，这使您能够利用您可能拥有的所有编译时信息，而第二种方法则更倾向于利用动态多态性的运行时优势。这两种方法各有其优点，当然也有其特有的缺点。因此，这些示例将很好地展示给您可供选择的设计选择的广泛性。
 - en: A Value-Based Compile Time Decorator
+  id: totrans-85
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 一种基于值的编译时装饰器
 - en: 'Let’s start with the Decorator implementation based on static polymorphism.
     “I assume that this will again be very heavy on templates, right?” you ask. Yes,
     I will use templates as the primary abstraction mechanism, and yes, I will use
@@ -577,30 +800,44 @@
     on the design aspects of the Decorator design pattern and the goal to make it
     easy to add new kinds of Decorators and new kinds of regular items. One such item
     is the `ConferenceTicket` class:'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们从基于静态多态性的装饰器实现开始。"我假设这将再次非常依赖于模板，对吗？" 你问道。是的，我将使用模板作为主要的抽象机制，是的，我将使用 C++20
+    的概念甚至是转发引用。但不，我会尽量避免过度使用模板。相反，主要的焦点仍然在装饰器设计模式的设计方面以及使其易于添加新种类的装饰器和新种类的常规项目。其中一种项目是
+    `ConferenceTicket` 类：
 - en: '[PRE14]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'The `ConferenceTicket` perfectly fulfills the expectations of a value type:
     there is no base class involved and there are no virtual functions. This indicates
     that items are no longer decorated via pointer-to-base, but instead by means of
     composition, or alternatively, by means of direct non-`public` inheritance. Two
     examples for this are the following implementations of the `Discounted` and `Taxed`
     classes:'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ConferenceTicket` 完美地实现了值类型的期望：没有涉及基类，也没有虚函数。这表明项目不再通过指向基类的指针进行装饰，而是通过组合或者直接的非`public`继承。两个示例是`Discounted`和`Taxed`类的以下实现：'
 - en: '[PRE15]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: 'Both `Discounted` ([![1](assets/1.png)](#code_g36_1)) and `Taxed` ([![2](assets/2.png)](#code_g36_2))
     serve as Decorators for other kinds of `Item`s: the `Discounted` class represents
     a certain discount on a given item, and the `Taxed` class represents some kind
     of tax. This time, however, both are implemented in the form of class templates.
     The first template argument specifies the discount and the tax rate, respectively,
     and the second template argument specifies the type of the decorated `Item`.^([10](ch09.xhtml#idm45043074027232))'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Discounted` ([![1](assets/1.png)](#code_g36_1)) 和 `Taxed` ([![2](assets/2.png)](#code_g36_2))
+    都是其他类型的`Item`的装饰器：`Discounted` 类代表给定物品的某种折扣，而 `Taxed` 类代表某种类型的税。然而，这次它们都以类模板的形式实现。第一个模板参数分别指定折扣和税率，第二个模板参数指定被装饰的
+    `Item` 的类型。^([10](ch09.xhtml#idm45043074027232))'
 - en: 'Most noteworthy, however, is the `PricedItem` constraint on the second template
     argument ([![3](assets/3.png)](#code_g36_3)). This constraint represents the set
     of semantic requirements, i.e. the expected behavior. Due to this constraint,
@@ -615,15 +852,24 @@
     This feature perfectly fulfills the *Open-Closed Principle (OCP)*, and due to
     the proper ownership of the abstraction, also the *Dependency Inversion Principle
     (DIP)* (see [Figure 9-7](#fig_decorator_static)).^([11](ch09.xhtml#idm45043073889344))'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '尤为重要的是，第二个模板参数的`PricedItem`约束（[![3](assets/3.png)](#code_g36_3)）。该约束表示语义要求集，即期望的行为。由于此约束，您只能提供具有`price()`成员函数的类型。使用任何其他类型将立即导致编译错误。因此，`PricedItem`在经典Decorator实现中与`Item`基类的作用相同，如[“Guideline
+    35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically)所示。出于同样的原因，它还代表基于*单一职责原则
+    (SRP)* 的关注点分离。此外，如果此约束由架构中的某个高级别拥有，则您以及其他任何人都能在任何较低级别上添加新类型的项目*和*新类型的Decorators。此功能完美地满足*开闭原则
+    (OCP)*，并且由于抽象的适当拥有，还满足*依赖反转原则 (DIP)*（参见[图 9-7](#fig_decorator_static)）。^([11](ch09.xhtml#idm45043073889344))'
 - en: '![The dependency graph for the compile time _Decorator_.](assets/cpsd_0907.png)'
+  id: totrans-92
   prefs: []
   type: TYPE_IMG
+  zh: '![编译时_Decorator_的依赖图](assets/cpsd_0907.png)'
 - en: Figure 9-7\. Dependency graph for the compile time Decorator
+  id: totrans-93
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-7\. 编译时Decorator的依赖图
 - en: 'Both the `Discounted` and `Taxed` class templates are very similar, except
     for the way they handle the decorated `Item`: while the `Discounted` class template
     stores the `Item` in the form of a data member and therefore follows [“Guideline
@@ -635,48 +881,70 @@
     Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces), there are only
     five reasons to prefer non-`public` inheritance to composition (some of them are
     *very* rare):'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Discounted`和`Taxed`类模板非常相似，除了它们处理装饰的`Item`的方式不同：`Discounted`类模板将`Item`存储为数据成员，因此遵循[“Guideline
+    20: Favor Composition over Inheritance”](ch05.xhtml#favor_composition_over_inheritance)，而`Taxed`类模板私有继承给定的`Item`类。这两种方法都是可行的，并且各有其优势，但应考虑采用`Discounted`类模板的组合方式，因为这是更常见的方式。如[“Guideline
+    24: Use Adapters to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces)所述，只有五个理由支持非`public`继承而不是组合（其中一些非常罕见）：'
 - en: If you have to override a virtual function
+  id: totrans-95
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果您必须重写虚函数
 - en: If you need access to a `protected` member function
+  id: totrans-96
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果您需要访问`protected`成员函数
 - en: If you need the adapted type to be constructed *before* another base class
+  id: totrans-97
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果你需要调整类型以在另一个基类*之前*构建
 - en: If you need to share a common virtual base class or override the construction
     of a virtual base class
+  id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果你需要共享一个通用的虚基类或重写虚基类的构造函数
 - en: If you can draw *significant* advantage from the [*Empty Base Optimization (EBO)*](https://oreil.ly/nvqMn)
+  id: totrans-99
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 如果你能从[*空基类优化 (EBO)*](https://oreil.ly/nvqMn)中获得*显著*优势
 - en: Arguably, for a large number of adapters, *EBO* may be a reason to favor inheritance,
     but you should make sure that your choice is backed up by numbers (for instance,
     by means of representative benchmarks).
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 可能是，对于大量适配器，*EBO*可能是倾向于继承的一个理由，但您应确保您的选择有数值支持（例如通过代表性基准）。
 - en: 'With these three classes in place, you’re able to specify a `ConferenceTicket`
     with a discount of 20% and a tax of 15%:'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这三个类，您就能够指定一个打八折的`ConferenceTicket`，并且税率为15%：
 - en: '[PRE16]'
+  id: totrans-102
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: 'The biggest advantage of this compile-time approach is the significant performance
     improvement: since there are no pointer indirections, and due to the possibility
     of inlining, the compiler is able to go all out on optimizing the resulting code.
     Also, the resulting code is arguably much shorter and not bloated with any boilerplate
     code, and therefore easier to read.'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种编译时方法的最大优势在于显著的性能提升：由于没有指针间接性，并且由于内联的可能性，编译器能够全力优化生成的代码。此外，生成的代码可能要短得多，没有任何样板代码臃肿，因此更易读。
 - en: '“Could you be a little more specific about the performance results? In C++,
     developers are bickering about a 1% performance difference and call it *significant*.
     So seriously: how much faster is the compile-time approach?” I see, you seem familiar
@@ -689,39 +957,57 @@
     with the described compile-time version. Of course, there is an arbitrary number
     of decorator combinations, but I am restricting myself to the following four item
     types:^([12](ch09.xhtml#idm45043073557088))'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: “你能具体一点描述性能结果吗？在C++中，开发者们常常争论1%的性能差异并称其为*显著*。所以严肃地说：编译时方法到底快了多少？” 我明白了，你似乎很了解C++社区对性能的热情。好吧，只要你再次保证不认为我的结果是最终答案，而只是一个例子，我们也不将此比较演变成一项性能研究，我可以给你展示一些数字。但在我这样做之前，请让我简要概述一下我将使用的基准测试：我将经典面向对象实现与[“指导方针35：使用装饰器进行分层自定义”](#use_decorators_to_add_customization_hierarchically)中描述的编译时版本进行比较。当然，有任意数量的装饰器组合，但我将限制在以下四种物品类型：^([12](ch09.xhtml#idm45043073557088))
 - en: '[PRE17]'
+  id: totrans-105
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: Since in the compile time solution these four types do not have a common base
     class, I am filling four specific `std::vector`s with these. In comparison, for
     the classic runtime solution, I use a single `std::vector` of `std::unique_ptr<Item>`s.
     In total, I am creating 10,000 items with random prices for both solutions and
     calling `std::accumulate()` 5,000 times to compute the total price of all items.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于在编译时解决方案中，这四种类型没有一个共同的基类，我用具体的`std::vector`填充这四种类型。相比之下，在经典运行时解决方案中，我使用一个包含`std::unique_ptr<Item>`的单个`std::vector`。总体上，我为这两种解决方案分别创建了10,000个具有随机价格的物品，并调用`std::accumulate()`函数5,000次来计算所有物品的总价格。
 - en: With this background information, let’s take a look at the performance results
     ([Table 9-1](#table_decorator_benchmark_results_1)). Again, I am normalizing the
     results, this time to the performance of the runtime implementation.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 在了解了这些背景信息后，让我们来看看性能结果（[表 9-1](#table_decorator_benchmark_results_1)）。同样地，我将结果归一化到运行时实现的性能。
 - en: Table 9-1\. Performance results for the compile-time Decorator implementation
     (normalized performance)
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 表9-1\. 编译时装饰器实现的性能结果（归一化性能）
 - en: '|  | GCC 11.1 | Clang 11.1 |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '|  | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-110
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Classic Decorator | 1.0 | 1.0 |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| 经典装饰器 | 1.0 | 1.0 |'
 - en: '| Compile-time Decorator | 0.078067 | 0.080313 |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| 编译时装饰器 | 0.078067 | 0.080313 |'
 - en: 'As stated before, the performance of the compile-time solution is significantly
     faster than the runtime solution: for both GCC and Clang, it only takes approximately
     8% of the time of the runtime solution, and is therefore faster by more than one
@@ -738,18 +1024,24 @@
     be that the solution can only be used in this form if all information is available
     at compile time. Thus, you may be able to get to this performance level for only
     a few special cases.'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 如前所述，编译时解决方案的性能显著快于运行时解决方案：对于 GCC 和 Clang，仅需大约运行解决方案的 8% 的时间，因此比运行解决方案快一个数量级。我知道，这听起来很惊人。然而，虽然编译时解决方案的性能非凡，但它带来了几个潜在的严重限制：由于完全依赖于模板，没有剩余的运行时灵活性。由于即使折扣和税率也是通过模板参数实现的，因此每个不同的税率都需要创建一个新类型。这可能导致较长的编译时间和生成的代码（即更大的可执行文件）。此外，所有类模板很可能驻留在头文件中，这再次增加了编译时间，并可能透露出更多的实现细节。更重要的是，实现细节的更改是广泛可见的，可能导致大规模的重新编译。然而，最具限制性的因素似乎是，只有在所有信息在编译时都是可用的情况下，才能以这种形式使用解决方案。因此，您可能只能为少数特殊情况达到这种性能水平。
 - en: A Value-Based Runtime Decorator
+  id: totrans-114
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 基于值的运行时装饰器
 - en: Since the compile time Decorator may be fast but very inflexible at runtime,
     let’s turn our attention to the second value-based Decorator implementation. With
     this implementation, we will return to the realm of dynamic polymorphism, with
     all of its runtime flexibility.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于编译时装饰器可能快但在运行时非常不灵活，让我们将注意力转向第二个基于值的装饰器实现。通过这种实现，我们将回到动态多态的领域，以其所有的运行时灵活性。
 - en: 'As you now know the Decorator design pattern, you realize that we need to be
     able to easily add new types: new kinds of `Item`, as well as new price modifiers.
     Therefore *the* design pattern of choice to turn the Decorator implementation
@@ -757,11 +1049,17 @@
     into a value semantics–based implementation is Type Erasure.^([13](ch09.xhtml#idm45043073438048))
     The following `Item` class implements an owning Type Erasure wrapper for our priced
     item example:'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '现在你已经了解了装饰者设计模式，你意识到我们需要能够轻松添加新的类型：新的 `Item` 种类以及新的价格修改器。因此，选择将装饰器实现从[“Guideline
+    35: Use Decorators to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically)转换为基于值语义的实现的设计模式是类型擦除。^([13](ch09.xhtml#idm45043073438048))
+    下面的 `Item` 类实现了一个拥有类型擦除包装器的价格项目示例：'
 - en: '[PRE18]'
+  id: totrans-117
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: In this implementation, the `Item` class defines a nested `Concept` base class
     in its `private` section ([![4](assets/4.png)](#code_g36_4)). As usual, the `Concept`
     base class represents the set of requirements (i.e. the expected behavior) for
@@ -770,21 +1068,32 @@
     `Model` implements the `price()` function by forwarding the call to the `price()`
     member function of the stored `item_` data member, and the `clone()` function
     by creating a copy of the stored item.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个实现中，`Item` 类在其 `private` 部分定义了一个嵌套的 `Concept` 基类（[![4](assets/4.png)](#code_g36_4)）。如往常一样，`Concept`
+    基类代表了被包装类型的要求集合（即期望的行为），这些要求由 `price()` 和 `clone()` 成员函数来表达。这些要求由嵌套的 `Model` 类模板来实现（[![5](assets/5.png)](#code_g36_5)）。`Model`
+    通过将调用转发到存储的 `item_` 数据成员的 `price()` 成员函数来实现 `price()` 函数，并通过创建存储项目的副本来实现 `clone()`
+    函数。
 - en: 'The `public` section of the `Item` class should look familiar:'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Item` 类的 `public` 部分应该看起来很熟悉：'
 - en: '[PRE19]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: Next to the usual implementation of the [Rule of 5](https://oreil.ly/fzS3f),
     the class is again equipped with a templated constructor that accepts all kinds
     of items ([![6](assets/6.png)](#code_g36_6)). Last but not least, the class provides
     a `price()` member function, which mimics the expected interface of all items
     ([![7](assets/7.png)](#code_g36_7)).
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了常规的[5法则](https://oreil.ly/fzS3f)实现外，该类再次配备了一个模板构造函数，接受各种项（[![6](assets/6.png)](#code_g36_6)）。最后但同样重要的是，该类提供了一个`price()`成员函数，模仿了所有项的预期接口（[![7](assets/7.png)](#code_g36_7)）。
 - en: 'With this wrapper class in place, you are able to add new items easily: neither
     any intrusive modification of existing code nor any use of a base class is required.
     Any class that provides a `price()` member function and is copyable will work.
@@ -793,11 +1102,15 @@
     semantics. Unfortunately, this is not true for the `Discounted` and `Taxed` classes,
     since they expect decorated items in the form of a template argument. Therefore,
     we re-implement `Discounted` and `Taxed` for use in the Type Erasure context:'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个包装器类，您可以轻松地添加新的项：不需要对现有代码进行任何侵入性修改，也不需要使用基类。任何提供`price()`成员函数且可复制的类都可以工作。幸运的是，这包括我们编译时装饰器实现中的`ConferenceTicket`类，它提供了我们需要的一切，并且坚定地基于值语义。不幸的是，对于`Discounted`和`Taxed`类来说并非如此，因为它们期望装饰的项以模板参数的形式提供。因此，我们为类型擦除上下文重新实现了`Discounted`和`Taxed`：
 - en: '[PRE20]'
+  id: totrans-123
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: 'It’s particularly interesting to note that neither of these two classes are
     derived from any base class, yet both perfectly implement the Decorator design
     pattern. On the one hand, they implement the operations required by the `Item`
@@ -805,11 +1118,15 @@
     the copy constructor), but on the other hand, they own an `Item`. Therefore, both
     enable you to combine Decorators arbitrarily, as demonstrated in the following
     `main()` function:'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 特别有趣的是，这两个类都没有从任何基类派生，但却完美实现了装饰器设计模式。一方面，它们实现了`Item`包装器所需的操作，以使其计算为一个项（特别是`price()`成员函数和复制构造函数），但另一方面，它们拥有一个`Item`。因此，它们都能让您任意组合装饰器，正如下面的`main()`函数所示：
 - en: '[PRE21]'
+  id: totrans-125
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '“Wow, this is beautiful: there are no pointers, no manual allocations, and
     it feels very natural and intuitive. But at the same time, it’s extremely flexible.
     This is too good to be true—there must be a catch. What about the performance?”
@@ -817,35 +1134,51 @@
     benchmark this solution. Of course, I’m using the same benchmark as for the compile-time
     version of Decorator and just adding the third solution based on Type Erasure.
     The performance numbers are shown in [Table 9-2](#table_decorator_benchmark_results_2).'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这太美妙了：没有指针，没有手动分配，感觉非常自然和直观。但与此同时，它又极其灵活。这也太美好了吧，一定有问题。性能如何？”你说。好吧，你听起来像是期待性能彻底崩溃。那么让我们对这个解决方案进行基准测试。当然，我使用的是与装饰器编译时版本相同的基准测试，只是增加了基于类型擦除的第三种解决方案。性能数字显示在[表9-2](#table_decorator_benchmark_results_2)中。
 - en: Table 9-2\. Performance results for the Type Erasure Decorator implementation
     (normalized performance)
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 表9-2\. 类型擦除装饰器实现的性能结果（性能标准化）
 - en: '|  | GCC 11.1 | Clang 11.1 |'
+  id: totrans-128
   prefs: []
   type: TYPE_TB
+  zh: '|  | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-129
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Classic Decorator | 1.0 | 1.0 |'
+  id: totrans-130
   prefs: []
   type: TYPE_TB
+  zh: '| 经典装饰器 | 1.0 | 1.0 |'
 - en: '| Compile-time Decorator | 0.078067 | 0.080313 |'
+  id: totrans-131
   prefs: []
   type: TYPE_TB
+  zh: '| 编译时装饰器 | 0.078067 | 0.080313 |'
 - en: '| Type Erasure Decorator | 0.997510 | 0.971875 |'
+  id: totrans-132
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除装饰器 | 0.997510 | 0.971875 |'
 - en: 'As you can see, the performance is not worse than the performance of the other,
     classic runtime solution. In fact, the performance even appears to be a tiny bit
     better, but although this is an average of many runs, I wouldn’t put too much
     emphasis on that. However, remember that there are multiple options to improve
     the performance of the Type Erasure solution, as demonstrated in [“Guideline 33:
     Be Aware of the Optimization Potential of Type Erasure”](ch08.xhtml#know_about_the_optimization_potential_of_type_erasure).'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 如您所见，性能不比经典运行时解决方案差。实际上，性能甚至似乎略好一些，尽管这是多次运行的平均值，但不要过分强调这一点。然而，请记住，有多种选项可以改进类型擦除解决方案的性能，正如在[“指南33：注意类型擦除的优化潜力”](ch08.xhtml#know_about_the_optimization_potential_of_type_erasure)中展示的那样。
 - en: While performance may not be the primary strength of the runtime solution(s)
     (at least in comparison to a compile-time solution), it definitely shines when
     it comes to runtime flexibility. For instance, it is possible to decide at runtime
@@ -853,15 +1186,19 @@
     of a computation, …). This, of course, will again yield an `Item`, which, together
     with many other `Item`s, can be stored in a single container. It indeed gives
     you an enormous runtime flexibility.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然性能可能不是运行时解决方案的主要优势（至少与编译时解决方案相比），但在运行时灵活性方面确实表现出色。例如，可以在运行时决定将任何`Item`用另一个装饰器包装起来（基于用户输入，基于计算结果等）。当然，这将再次产生一个`Item`，它与许多其他`Item`一起可以存储在单个容器中。这确实给你带来了巨大的运行时灵活性。
 - en: 'Another strength is the ability to hide implementation details in source files
     more easily. While this may result in a loss of runtime performance, it will likely
     result in better compile times. Most importantly: any modification to the hidden
     code will not affect any other code and thus save you a lot of recompilations,
     because the implementation details are more strongly encapsulated.'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个优势是更容易在源文件中隐藏实现细节。虽然这可能导致运行时性能损失，但可能会带来更好的编译时间。最重要的是：对隐藏代码的任何修改不会影响任何其他代码，因此可以节省大量重新编译的时间，因为实现细节更加封装。
 - en: 'In summary, both the compile-time and runtime solutions are value based and
     lead to simpler, more comprehensible user code. However, they also come with individual
     strengths and weaknesses: while the runtime approach offers more flexibility,
@@ -870,66 +1207,93 @@
     very often find yourself somewhere between these two extremes. Make sure you know
     your options: weigh them against each other and find a compromise that perfectly
     combines the best of both worlds and fits your particular situation.'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，编译时和运行时解决方案都是基于价值的，并导致更简单、更可理解的用户代码。然而，它们也各有优缺点：运行时方法提供了更多的灵活性，而编译时方法在性能方面占据主导地位。实际情况中，你很少会使用纯编译时或运行时方法，但你经常会发现自己处于这两个极端之间。确保了解你的选择：权衡它们并找到一个完美结合两者优势的折中方案，以及符合你特定情况的解决方案。
 - en: '^([1](ch09.xhtml#idm45043077162960-marker)) Remember [“Guideline 2: Design
     for Change”](ch01.xhtml#design_for_change) and [Core Guideline C.133](https://oreil.ly/SrAkz):
     “Avoid `protected` data.”'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch09.xhtml#idm45043077162960-marker)) 请记住[“指南 2：为变更而设计”](ch01.xhtml#design_for_change)和[核心指南
+    C.133](https://oreil.ly/SrAkz)：“避免使用`protected`数据。”
 - en: '^([2](ch09.xhtml#idm45043077012624-marker)) See [“Guideline 20: Favor Composition
     over Inheritance”](ch05.xhtml#favor_composition_over_inheritance) for a discussion
     on why so many design patterns draw their power from composition rather than inheritance.'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch09.xhtml#idm45043077012624-marker)) 参见[“指南 20：优先选择组合而非继承”](ch05.xhtml#favor_composition_over_inheritance)，讨论为什么许多设计模式更倾向于组合而不是继承。
 - en: ^([3](ch09.xhtml#idm45043077006880-marker)) A *null object* represents an object
     with neutral (null) behavior. As such, it can be seen as a default for a Strategy
     implementation.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch09.xhtml#idm45043077006880-marker)) *空对象*代表一个具有中性（空）行为的对象。因此，它可以被视为策略实现的默认对象。
 - en: '^([4](ch09.xhtml#idm45043076871952-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch09.xhtml#idm45043076871952-marker)) Erich Gamma等人，《设计模式：可复用面向对象软件的元素》。
 - en: ^([5](ch09.xhtml#idm45043076856336-marker)) You may be wondering if this is
     the most reasonable approach for dealing with taxes. No, unfortunately it’s not.
     That’s because first, as usual, reality is so much more complex than this simple,
     educational example, and second, because in this form it’s easy to apply taxes
     incorrectly. While I can’t help with the first point (I’m just a mere mortal),
     I will go into detail about the second point at the end of this guideline.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch09.xhtml#idm45043076856336-marker)) 你可能会想知道这是否是处理税务问题的最合理方法。不，不幸的是，这不是。首先，像往常一样，现实比这个简单的教育示例复杂得多，其次，因为这种形式很容易错误地应用税收。关于第一点我无能为力（我只是一个普通人），但我将在本指南末尾详细讨论第二点。
 - en: '^([6](ch09.xhtml#idm45043074899200-marker)) If you’re wondering about the incomplete
     implementation: the focus here is entirely on how to *design* allocators, not
     on how to *implement* an allocator. For a thorough introduction on how to implement
     a C++17 allocator, see Nicolai Josuttis’s *C++17 - The Complete Guide*.'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch09.xhtml#idm45043074899200-marker)) 如果你对不完整的实现感到困惑：这里的重点完全在于如何*设计*分配器，而不是如何*实现*分配器。想要深入了解如何实现一个
+    C++17 分配器，请参阅尼古拉·约苏提斯的《C++17 - 完全指南》。
 - en: ^([7](ch09.xhtml#idm45043074841888-marker)) The metaphor of Strategy being the
     guts of an object and Decorator being the skin originates from the GoF book.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch09.xhtml#idm45043074841888-marker)) 策略作为对象的核心，装饰器作为皮肤的隐喻源自《设计模式》一书。
 - en: ^([8](ch09.xhtml#idm45043074664624-marker)) Scott Meyers, *Effective C++*, 3rd
     ed. (Addison-Wesley, 2005).
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch09.xhtml#idm45043074664624-marker)) 斯科特·迈尔斯，《Effective C++》，第三版（Addison-Wesley，2005年）。
 - en: ^([9](ch09.xhtml#idm45043074358192-marker)) If you’re thinking that the original
     `price()` function should be renamed `netPrice()` to reflect its true purpose,
     then I agree.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch09.xhtml#idm45043074358192-marker)) 如果你认为原始的`price()`函数应该重命名为`netPrice()`以反映其真实目的，那么我同意。
 - en: ^([10](ch09.xhtml#idm45043074027232-marker)) Note that it is only possible to
     use floating-point values as [non-type template parameters (NTTPs)](https://oreil.ly/peHM2)
     since C++20. Alternatively, you could store the discount and tax rates in the
     form of data members.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch09.xhtml#idm45043074027232-marker)) 请注意，自 C++20 起，只能使用浮点值作为[非类型模板参数（NTTPs）](https://oreil.ly/peHM2)。或者，您可以将折扣和税率存储为数据成员的形式。
 - en: '^([11](ch09.xhtml#idm45043073889344-marker)) Alternatively, in particular if
     you cannot use C++20 concepts yet, this is an opportunity to use the *Curiously
     Recurring Template Pattern (CRTP)*; see [“Guideline 26: Use CRTP to Introduce
     Static Type Categories”](ch06.xhtml#use_crtp_to_introduce_static_type_categories).'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch09.xhtml#idm45043073889344-marker)) 或者，特别是如果你还不能使用 C++20 概念，这是使用*奇异递归模板模式（CRTP）*的一个机会；参见[“指南
+    26：使用 CRTP 引入静态类型类别”](ch06.xhtml#use_crtp_to_introduce_static_type_categories)。
 - en: '^([12](ch09.xhtml#idm45043073557088-marker)) To avoid a visit from the tax
     collection office, I should explicitly state that I’m aware of the questionable
     nature of the `Discounted<0.2,Taxed<0.19,ConferenceTicket>>` class (see also the
@@ -937,10 +1301,16 @@
     to Add Customization Hierarchically”](#use_decorators_to_add_customization_hierarchically)).
     In my defense: it’s an obvious permutation of decorators, which is well suited
     for this benchmark.'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch09.xhtml#idm45043073557088-marker)) 为了避免税务局的拜访，我应明确声明，我意识到`Discounted<0.2,Taxed<0.19,ConferenceTicket>>`类的可疑性质（另请参阅[“指南
+    35：使用装饰器以分层方式添加定制”](#use_decorators_to_add_customization_hierarchically)末尾的潜在问题列表）。为自己辩护：这是装饰器的一个明显排列组合，非常适合这个基准测试。
 - en: '^([13](ch09.xhtml#idm45043073438048-marker)) For a thorough overview of Type
     Erasure, see [Chapter 8](ch08.xhtml#type_erasure) and in particular [“Guideline
     32: Consider Replacing Inheritance Hierarchies with Type Erasure”](ch08.xhtml#consider_replacing_inheritance_hierarchies_with_type_erasure).'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch09.xhtml#idm45043073438048-marker)) 想要全面了解类型擦除，请参阅[第 8 章](ch08.xhtml#type_erasure)，特别是[“指南
+    32：考虑用类型擦除替换继承层次结构”](ch08.xhtml#consider_replacing_inheritance_hierarchies_with_type_erasure)。

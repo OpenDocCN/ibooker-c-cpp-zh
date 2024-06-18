@@ -1,28 +1,40 @@
 - en: Appendix A. Hardware and Software
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 附录 A. 硬件和软件
 - en: I try to point out any specific hardware parts or software packages where I
     first use them, but I also want to give you a quick list of the various components
     for easy reference. I wasn’t paid for mentioning any products nor do the various
     owners and manufacturers endorse my book. The glowing opinions I express here
     are entirely my own. :)
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我尝试指出我首次使用任何特定的硬件部件或软件包，但我也想给你一个快速的各种组件列表，以便参考。我没有因提到任何产品而得到报酬，各个所有者和制造商也不认可我的书。这里我表达的赞赏意见完全是我自己的。
+    :)
 - en: Getting the Code
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 获取代码
 - en: The C examples and Arduino Sketches are all available online at [*https://github.com/l0y/smallerc*](https://github.com/l0y/smallerc).
     Most examples have links to their particular files, but you can also download
     the archive using the drop-down shown in [Figure A-1](#smallerc-APP-A-FIG-github-archive-dropdown).
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: C示例和Arduino示例都可以在[*https://github.com/l0y/smallerc*](https://github.com/l0y/smallerc)上找到。
+    大多数示例都有链接到其特定文件，但您也可以使用[Figure A-1](#smallerc-APP-A-FIG-github-archive-dropdown)中显示的下拉菜单下载存档。
 - en: For the C examples, there’s not really anything else to do. You can open any
     of the examples in your editor of choice. You can make and save your changes,
     then compile the examples right there in the same folder.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于C示例，实际上没有其他事情要做。 您可以在所选编辑器中打开任何示例。 您可以进行更改并保存更改，然后在同一文件夹中立即编译示例。
 - en: For the various sketches, you may want to drag each sketch folder over to your
     Arduino Sketchbook location as you work on it. (This location is set in the Arduino
     IDE preferences, as shown in [Figure 11-9](ch11.xhtml#smallerc-CHP-11-FIG-ide-sketch-location)
@@ -30,19 +42,29 @@
     make sure you have access to any libraries you may have installed. It also means
     you can look in the “usual spot” for these projects after you’re done with the
     book.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于各种示意图，您可能希望在工作时将每个示意图文件夹拖到Arduino Sketchbook位置。 （此位置设置在Arduino IDE首选项中，如来自[“The
+    libraries folder”](ch11.xhtml#smallerc-CHP-11-SECT-3.4.1)的[Figure 11-9](ch11.xhtml#smallerc-CHP-11-FIG-ide-sketch-location)所示。）这将确保您可以访问安装的任何库。
+    这也意味着您完成书后可以在“通常的位置”查看这些项目。
 - en: '![smac aa01](Images/smac_aa01.png)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![smac aa01](Images/smac_aa01.png)'
 - en: Figure A-1\. Downloading the examples archive from GitHub
+  id: totrans-7
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 A-1\. 从GitHub下载示例存档
 - en: 'Getting the Hardware: Adafruit'
+  id: totrans-8
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 获取硬件：Adafruit
 - en: A lot of the physical gear I use throughout the examples in this book comes
     from Adafruit. They have an amazing selection of controllers and components, along
     with some of the most fun, complete, nerdy tutorials you can find on the web.
@@ -52,143 +74,229 @@
     lists the microcontrollers I used in the many Arduino projects. [Table A-2](#smallerc-APP-B-TAB-peripherals)
     lists the peripherals and components I used by chapter. Where I used a component
     in multiple projects, I went ahead and listed it in every chapter it appeared.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 我在本书中的许多示例中使用的大部分实体设备来自Adafruit。 他们拥有令人惊叹的控制器和组件选择，以及一些在网上可以找到的最有趣、最全面和最“书呆子”的教程。
+    我大部分时间都在[他们的网站](https://adafruit.com)直接购物，但您也可以通过[Amazon](https://oreil.ly/CyB1X)和[Digi-Key](https://digikey.com)找到他们的许多零件。
+    [Table A-1](#smallerc-APP-B-TAB-microcontrollers)列出了我在许多Arduino项目中使用的微控制器。 [Table A-2](#smallerc-APP-B-TAB-peripherals)列出了按章节使用的外围设备和组件。
+    如果我在多个项目中使用一个组件，我会在每个出现的章节中列出它。
 - en: Table A-1\. Microcontrollers and prototyping
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 A-1\. 微控制器和原型
 - en: '| Microcontroller | Specs |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| 微控制器 | 规格 |'
 - en: '| --- | --- |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| [Metro Mini](https://oreil.ly/KxFf0) (2x) | ATmega328, 32KB flash, 2KB SRAM
     |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '| [Metro Mini](https://oreil.ly/KxFf0) (2x) | ATmega328，32KB闪存，2KB SRAM |'
 - en: '| [Trinket M0](https://oreil.ly/R2fui) | 32-bit ATSAMD21E18, 256KB flash, 32KB
     SRAM |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| [Trinket M0](https://oreil.ly/R2fui) | 32位ATSAMD21E18，256KB闪存，32KB SRAM |'
 - en: '| [HUZZAH32 Feather](https://oreil.ly/p5Ldy) | Tensilica LX6, WROOM32, HT40
     WiFi, 4MB flash, 520KB SRAM, Bluetooth |'
+  id: totrans-15
   prefs: []
   type: TYPE_TB
+  zh: '| [HUZZAH32 Feather](https://oreil.ly/p5Ldy) | Tensilica LX6，WROOM32，HT40 WiFi，4MB闪存，520KB
+    SRAM，蓝牙 |'
 - en: '| Prototyping Gear |'
+  id: totrans-16
   prefs: []
   type: TYPE_TB
+  zh: '| 原型设备 |'
 - en: '| [Full-size Breadboard](https://oreil.ly/sZo2h) | Standard breadboard with
     power rails |'
+  id: totrans-17
   prefs: []
   type: TYPE_TB
+  zh: '| [全尺寸面包板](https://oreil.ly/sZo2h) | 带电源轨的标准面包板 |'
 - en: '| [Half-size Breadboard](https://oreil.ly/bfpYJ) | Compact breadboard with
     power rails |'
+  id: totrans-18
   prefs: []
   type: TYPE_TB
+  zh: '| [半尺寸面包板](https://oreil.ly/bfpYJ) | 带电源轨的紧凑面包板 |'
 - en: '| [Connector Wires](https://oreil.ly/RoHW1) | Bundle with various lengths and
     molex tips |'
+  id: totrans-19
   prefs: []
   type: TYPE_TB
+  zh: '| [连接线](https://oreil.ly/RoHW1) | 包含各种长度和Molex插头的捆绑线 |'
 - en: Table A-2\. Peripherals and components
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 A-2\. 外围设备和组件
 - en: '| Component | Specs |'
+  id: totrans-21
   prefs: []
   type: TYPE_TB
+  zh: '| 组件 | 规格 |'
 - en: '| --- | --- |'
+  id: totrans-22
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| [Chapter 8](ch08.xhtml#smallerc-CHP-8) |'
+  id: totrans-23
   prefs: []
   type: TYPE_TB
+  zh: '| [第8章](ch08.xhtml#smallerc-CHP-8) |'
 - en: '| [100Ω Resistor](https://oreil.ly/YOgc7) | Carbon fiber through-hole |'
+  id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| [100Ω电阻](https://oreil.ly/YOgc7) | 碳纤维穿孔 |'
 - en: '| [470Ω Resistor](https://oreil.ly/wwVrn) | Carbon fiber through-hole |'
+  id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '| [470Ω电阻](https://oreil.ly/wwVrn) | 碳纤维穿孔 |'
 - en: '| [Blue LEDs](https://oreil.ly/xJqOL) | 3mm diameter, ~3.0V Forward Voltage
     |'
+  id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '| [蓝色LED](https://oreil.ly/xJqOL) | 直径3mm，前向电压约3.0V |'
 - en: '| [NeoPixel Flora](https://oreil.ly/dyCpE) | Individual RGB NeoPixel LED |'
+  id: totrans-27
   prefs: []
   type: TYPE_TB
+  zh: '| [NeoPixel Flora](https://oreil.ly/dyCpE) | 单个RGB NeoPixel LED |'
 - en: '| [NeoPixel Stick](https://oreil.ly/8zpaZ) | 8 RGB NeoPixel LEDs, stick mounted
     |'
+  id: totrans-28
   prefs: []
   type: TYPE_TB
+  zh: '| [NeoPixel棒](https://oreil.ly/8zpaZ) | 8 RGB NeoPixel LEDs，棒状安装 |'
 - en: '| [NeoPixel Ring](https://oreil.ly/Mwoph) | 24 RGB NeoPixel LEDs, ring mounted
     |'
+  id: totrans-29
   prefs: []
   type: TYPE_TB
+  zh: '| [NeoPixel环](https://oreil.ly/Mwoph) | 24 RGB NeoPixel LEDs，环形安装 |'
 - en: '| [Chapter 9](ch09.xhtml#smallerc-CHP-9) |'
+  id: totrans-30
   prefs: []
   type: TYPE_TB
+  zh: '| [第9章](ch09.xhtml#smallerc-CHP-9) |'
 - en: '| [RGB LED](https://oreil.ly/e0TBv) | 5mm, common cathode |'
+  id: totrans-31
   prefs: []
   type: TYPE_TB
+  zh: '| [RGB LED](https://oreil.ly/e0TBv) | 5mm，公共阴极 |'
 - en: '| [470Ω Resistor](https://oreil.ly/8jyjo) | Carbon fiber through-hole |'
+  id: totrans-32
   prefs: []
   type: TYPE_TB
+  zh: '| [470Ω电阻](https://oreil.ly/8jyjo) | 碳纤维穿孔 |'
 - en: '| [TMP36 Temperature Sensor](https://oreil.ly/JQFud) | Analog, range -50 to
     125 C |'
+  id: totrans-33
   prefs: []
   type: TYPE_TB
+  zh: '| [TMP36温度传感器](https://oreil.ly/JQFud) | 模拟，范围-50到125摄氏度 |'
 - en: '| [Four-Digit Display](https://oreil.ly/RO5P5) | Red, MAX7219 driver (alternative
     to VMA425) |'
+  id: totrans-34
   prefs: []
   type: TYPE_TB
+  zh: '| [四位数码显示器](https://oreil.ly/RO5P5) | 红色，MAX7219驱动器（VMA425的替代品） |'
 - en: '| [Tactile Button](http://adafru.it/367) | Simple push-button |'
+  id: totrans-35
   prefs: []
   type: TYPE_TB
+  zh: '| [触摸按钮](http://adafru.it/367) | 简单按键 |'
 - en: '| [NeoPixel Ring](https://oreil.ly/8GOWh) | 24 RGB NeoPixel LEDs, ring mounted
     |'
+  id: totrans-36
   prefs: []
   type: TYPE_TB
+  zh: '| [NeoPixel环](https://oreil.ly/8GOWh) | 24 RGB NeoPixel LEDs，环形安装 |'
 - en: '| [Chapter 10](ch10.xhtml#smallerc-CHP-10) |'
+  id: totrans-37
   prefs: []
   type: TYPE_TB
+  zh: '| [第10章](ch10.xhtml#smallerc-CHP-10) |'
 - en: '| [NeoPixel Stick](https://oreil.ly/mPpVW) | 8 RGB NeoPixel LEDs, stick mounted
     |'
+  id: totrans-38
   prefs: []
   type: TYPE_TB
+  zh: '| [NeoPixel棒](https://oreil.ly/mPpVW) | 8 RGB NeoPixel LEDs，棒状安装 |'
 - en: '| [Chapter 11](ch11.xhtml#smallerc-CHP-11) |'
+  id: totrans-39
   prefs: []
   type: TYPE_TB
+  zh: '| [第11章](ch11.xhtml#smallerc-CHP-11) |'
 - en: '| [RFM69HCW Transceiver](https://adafru.it/3070) (2x) | 900MHz (Americas) |'
+  id: totrans-40
   prefs: []
   type: TYPE_TB
+  zh: '| [RFM69HCW收发器](https://adafru.it/3070) (2x) | 900MHz（美洲地区） |'
 - en: '| [Navigation Switch](https://adafru.it/504) | Through-hole, 5-way |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '| [导航开关](https://adafru.it/504) | 穿孔式，5向 |'
 - en: '| [Rubber Nubbin Cap](https://adafru.it/4697) | Fits navigation joystick |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '| [橡胶小钮帽](https://adafru.it/4697) | 适合导航摇杆 |'
 - en: '| [TT Motor Wheel](https://adafru.it/3766) (2x) | Orange spokes, clear tire
     |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '| [TT电机轮](https://adafru.it/3766) (2x) | 橙色辐条，透明轮胎 |'
 - en: '| [TT Motor Gearbox](https://adafru.it/3777) (2x) | 200 RPM, 3 - 6VDC |'
+  id: totrans-44
   prefs: []
   type: TYPE_TB
+  zh: '| [TT电机齿轮箱](https://adafru.it/3777) (2x) | 200 RPM，3 - 6VDC |'
 - en: '| [Motor Driver Breakout](https://adafru.it/3297) | DRV8833 chip |'
+  id: totrans-45
   prefs: []
   type: TYPE_TB
+  zh: '| [电机驱动板](https://adafru.it/3297) | DRV8833芯片 |'
 - en: '| [Chassis for TT Motors](https://adafru.it/3796) | Aluminum, purple |'
+  id: totrans-46
   prefs: []
   type: TYPE_TB
+  zh: '| [TT电机底盘](https://adafru.it/3796) | 铝制，紫色 |'
 - en: '| [Chapter 12](ch12.xhtml#smallerc-CHP-12) |'
+  id: totrans-47
   prefs: []
   type: TYPE_TB
+  zh: '| [第12章](ch12.xhtml#smallerc-CHP-12) |'
 - en: '| [OLED Display](https://adafru.it/4440) | 0.91”, 128x32 pixel, I2C |'
+  id: totrans-48
   prefs: []
   type: TYPE_TB
+  zh: '| [OLED显示器](https://adafru.it/4440) | 0.91英寸，128x32像素，I2C |'
 - en: '| [TMP36 Temperature Sensor](https://adafru.it/165) | Analog, range -50 to
     125 C |'
+  id: totrans-49
   prefs: []
   type: TYPE_TB
+  zh: '| [TMP36温度传感器](https://adafru.it/165) | 模拟，范围-50到125摄氏度 |'
 - en: 'In general, I tried to stick with breadboard projects that are easy to set
     up and alter. If you build something stable and want to reflect that stability
     by getting off the breadboard, I highly recommend the [Adafruit Guide to Excellent
@@ -199,55 +307,81 @@
     more expensive, so won’t be for everyone, but if you can afford it, irons like
     the [Hakko FX-888D](https://https://adafru.it/1204) elevate the tedium of soldering
     header pins to a meditative art.'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 总的来说，我尽量坚持使用容易设置和修改的面包板项目。如果你建造了稳定的东西，并想通过摆脱面包板来体现这种稳定性，我强烈推荐[Adafruit卓越焊接指南](https://oreil.ly/vytmN)。他们提供了一些关于硬件和技术的极好建议，专业的业余爱好者用来创建更加持久的项目。我会在他们出色指南中增加一点强调：在焊接铁章节中，“最佳铁”确实是最好的。它们确实更昂贵，所以不适合每个人，但如果你能负担得起，像[Hakko
+    FX-888D](https://adafru.it/1204)这样的铁将焊接引脱颖而出，使之成为一种冥想艺术。
 - en: VS Code
+  id: totrans-51
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: VS Code
 - en: I do my non-Arduino coding with [Visual Studio Code](https://oreil.ly/C6v3D)
     from Microsoft. And while it is written by Microsoft, VS Code also works on Linux
     and macOS. It’s highly configurable and has a vibrant extension ecosystem for
     just about every possible programming language and web development framework.
     The “C/C++” extension is great for working with C, if nothing else.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 我的非 Arduino 编码是使用来自 Microsoft 的 [Visual Studio Code](https://oreil.ly/C6v3D)
+    进行的。虽然它由 Microsoft 编写，但 VS Code 也适用于 Linux 和 macOS。它高度可配置，并且有一个充满活力的扩展生态系统，几乎覆盖了所有可能的编程语言和
+    Web 开发框架。如果什么都不是的话，“C/C++”扩展非常适合处理 C 语言。
 - en: Arduino IDE
+  id: totrans-53
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Arduino IDE
 - en: Throughout this book, I relied on the [Arduino IDE](https://oreil.ly/7vXun)
     for compiling and uploading the microcontroller projects. The Arduino IDE is cross-platform
     and has excellent support for a wide range of microcontrollers from many different
     vendors.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 在整本书中，我依赖 [Arduino IDE](https://oreil.ly/7vXun) 来编译和上传微控制器项目。Arduino IDE 跨平台，并且对来自许多不同供应商的广泛微控制器有出色的支持。
 - en: The Arduino site also has a useful [Language Reference](https://oreil.ly/VH8RZ)
     and several [tutorials](https://oreil.ly/OWYJy) covering everything from simple
     “getting started” topics to more advanced hacking techniques for really diving
     into the Arduino platform.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: Arduino 网站还有一个有用的 [Language Reference](https://oreil.ly/VH8RZ) 和几个 [tutorials](https://oreil.ly/OWYJy)，涵盖从简单的“入门”主题到更高级的深入研究
+    Arduino 平台的技术。
 - en: Note
+  id: totrans-56
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: 'I should point out that for folks who really enjoy the VS Code environment,
     there is growing enthusiasm for [PlatformIO](https://platformio.org). Per their
     About page: “PlatformIO is a cross-platform, cross-architecture, multiple framework,
     professional tool for embedded systems engineers and for software developers who
     write applications for embedded products.”'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于真正喜欢 VS Code 环境的人来说，需要指出，对于 [PlatformIO](https://platformio.org) 的热情正在增长。根据他们的关于页面：“PlatformIO
+    是一款跨平台、跨架构、支持多框架的专业工具，面向嵌入式系统工程师和为嵌入式产品编写应用程序的软件开发者。”
 - en: It has a standalone option, but it also has a mature VS Code extension. You
     can find out more details on their [VS Code Integration](https://oreil.ly/3ZH3G)
     page.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 它有独立选项，但也有成熟的 VS Code 扩展。你可以在他们的 [VS Code Integration](https://oreil.ly/3ZH3G)
+    页面找到更多详细信息。
 - en: Fritzing
+  id: totrans-59
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Fritzing
 - en: You may have noticed the cute circuitry-as-font word “fritzing” in our wiring
     diagrams. If you build any projects that you decide to share with others, you
     can create these types of diagrams yourself. The good folks at [Fritzing](https://fritzing.org)
@@ -258,31 +392,44 @@
     as [OmniGraffle](https://oreil.ly/zODll) or [Inkscape](https://inkscape.org).
     They do request a (very!) modest fee, and I find it worth every penny if you can
     afford it.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能已经注意到我们的布线图中用可爱的电路图案来代替字体的“fritzing”这个词。如果你建立了任何项目并决定与他人分享，你可以自己创建这些类型的图表。
+    [Fritzing](https://fritzing.org) 的好人们创建了我使用的软件。这款设计应用程序跨平台，并且许多第三方为控制器和组件库创建了非常可观的视觉贡献。特别是如果你有使用其他设计和布局工具（如
+    [OmniGraffle](https://oreil.ly/zODll) 或 [Inkscape](https://inkscape.org)）的经验，它也非常直观。他们要求（非常！）适度的费用，如果你有能力支付，我觉得非常值得。
 - en: You can find a wealth of fritzing-friendly components online as well. Their
     forum contains some great, high-quality contributions such as the 4-digit, 7-segment
     display used in [Figure 9-5](ch09.xhtml#smallerc-CHP-9-FIG-tmp36-led-wiring),
     contributed by Desnot4000. You can also import SVG files to create custom components
     if needed.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 你也可以在线找到丰富的与 Fritzing 兼容的组件。他们的论坛包含了一些出色的高质量贡献，例如由Desnot4000贡献的用于 [Figure 9-5](ch09.xhtml#smallerc-CHP-9-FIG-tmp36-led-wiring)
+    的4位数7段显示器。如果需要，你还可以导入 SVG 文件创建自定义组件。
 - en: If you really get going with your own electronics projects, Fritzing’s software
     can also be used to produce custom circuit boards. Your hobby has never looked
     so professional! Dedicated to making hardware open and accessible to more and
     more folks, I could not be more impressed with this group and their wider user
     community.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你真的开始进行自己的电子项目，Fritzing 的软件也可以用来制作定制电路板。你的业余爱好从未显得如此专业！致力于使硬件开放和更多人可访问，我对这个团队及其更广泛的用户社区印象深刻。
 - en: GNU Compiler Collection
+  id: totrans-63
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: GNU 编译器集合
 - en: Last but most definitely not least, I used the GNU C compiler (as does the Arduino
     IDE) from the impossibly useful [GNU Compiler Collection](https://gcc.gnu.org).
     As you probably noticed in [“Tools Required”](ch01.xhtml#smallerc-CHP-1-SECT-2.1),
     it can take a little effort to get these tools installed on some platforms, but
     the breadth and quality of these compilers is unparalleled. Combined with their
     open source ethos, it really is hard to beat GNU software anywhere it’s available.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后但绝对不是最不重要的，我使用了来自极为实用的[GNU编译器套件](https://gcc.gnu.org)，即GNU C编译器（Arduino IDE也使用它）。正如你可能在[“所需工具”](ch01.xhtml#smallerc-CHP-1-SECT-2.1)中注意到的那样，在某些平台上安装这些工具可能需要一些努力，但是这些编译器的广度和质量是无与伦比的。再加上它们的开源精神，GNU软件确实难以在任何可用的地方被超越。

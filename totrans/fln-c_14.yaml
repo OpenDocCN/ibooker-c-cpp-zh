@@ -1,11 +1,15 @@
 - en: Chapter 12\. Conclusion
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第12章 结论
 - en: What You’ve Learned
+  id: totrans-1
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 你学到了什么
 - en: After reading this book, you are now familiar with several advanced C programming
     concepts. When looking at larger code examples, you now know why the code looks
     the way it does. You now know the reasoning behind the design decisions made in
@@ -14,78 +18,110 @@
     and why there is a `DRIVER_HANDLE` that holds state information. The patterns
     from [Part I](part01.xhtml#part_1) guided the decisions made in this example and
     many others discussed throughout the book.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 阅读本书后，你现在熟悉了几个高级C编程概念。当查看更大的代码示例时，你现在知道为什么代码看起来是这个样子的。你现在了解了在那些代码中做出的设计决策的理由。例如，在本书的[前言](preface01.xhtml#preface_id)中呈现的以太网驱动程序示例代码中，你现在理解为什么有一个显式的`driverCreate`方法以及为什么有一个`DRIVER_HANDLE`来保存状态信息。第一部分的模式指导了在这个示例及本书讨论的许多其他示例中做出的决策。
 - en: The pattern stories from [Part II](part02.xhtml#part_2) showed you the benefits
     of applying the patterns from this book and how to grow code bit by bit through
     the application of patterns. When facing your next C programming problem, review
     the problem sections of the patterns and see whether one of them matches your
     problem. In that case, you are very lucky because then you can benefit from the
     guidance provided by the patterns.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二部分中的模式故事展示了应用本书中的模式的好处以及如何通过逐步应用模式来逐步增强代码。当面对下一个C编程问题时，查阅模式的问题部分，看看是否有一个匹配你的问题。如果是这样，你非常幸运，因为那么你可以从模式提供的指导中受益。
 - en: Further Reading
+  id: totrans-4
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 进一步阅读
 - en: 'This book helps C programming novices to become advanced C programmers. Here
     are some other books that particularly helped me improve my C programming skills:'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 这本书帮助C编程新手成为高级C程序员。以下是一些特别帮助我提高C编程技能的其他书籍：
 - en: '*Clean Code: A Handbook of Agile Software Craftsmanship* by Robert C. Martin
     (Prentice Hall, 2008) discusses the basic principles of how to implement high-quality
     code that lasts over time. It is a good read for any programmer and covers topics
     like testing, documentation, code style, and others.'
+  id: totrans-6
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*Clean Code: A Handbook of Agile Software Craftsmanship* by Robert C. Martin
+    (Prentice Hall, 2008) 讨论了实现持久高质量代码的基本原则。对于任何程序员来说，它都是一本必读之作，涵盖了测试、文档、代码风格等主题。'
 - en: '*Test-Driven Development for Embedded C* by James W. Grenning (Pragmatic Bookshelf,
     2011) uses a running example to explain how to implement unit-tests with C in
     the context of hardware-near programs.'
+  id: totrans-7
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*Test-Driven Development for Embedded C* by James W. Grenning (Pragmatic Bookshelf,
+    2011) 通过一个运行示例解释如何在硬件接近的程序环境中使用C实现单元测试。'
 - en: '*Expert C Programming* by Peter van der Linden (Prentice Hall, 1994) is an
     early book on advanced C programming guidance. It describes how the C syntax works
     in detail and how to avoid common pitfalls. It also discusses concepts like C
     memory management and tells you how the linker works.'
+  id: totrans-8
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*Expert C Programming* by Peter van der Linden (Prentice Hall, 1994) 是一本早期的关于高级C编程指导的书籍。它详细描述了C语法的工作原理以及如何避免常见陷阱。它还讨论了诸如C内存管理的概念，并告诉你链接器的工作原理。'
 - en: Closely related to my book is the book *Patterns in C* by Adam Tornhill (Leanpub,
     2014). It also presents patterns and focuses on how to implement the Gang of Four
     design patterns with C.
+  id: totrans-9
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 与我的书密切相关的是 *Patterns in C* by Adam Tornhill (Leanpub, 2014)。它也展示了模式，并专注于如何在C中实现四人帮设计模式。
 - en: Closing Remarks
+  id: totrans-10
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 结语
 - en: 'Compared to a C programmer fresh out of their studies, you now have advanced
     knowledge on which techniques to use to compose larger-scale and industrial-strength
     C code. You can now:'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 与刚从学校毕业的C程序员相比，你现在具备了高级的知识，知道如何编写更大规模和工业级别的C代码。现在你可以：
 - en: perform error handling, even though you don’t have a mechanism like exceptions
+  id: totrans-12
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 执行错误处理，即使你没有像异常这样的机制
 - en: manage your memory, even though you don’t have a garbage collector and you don’t
     have destructors to clean up the memory
+  id: totrans-13
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 管理你的内存，即使你没有垃圾回收器和析构函数来清理内存
 - en: implement flexible interfaces, even though you don’t have native abstraction
     mechanisms
+  id: totrans-14
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 实现灵活的接口，即使你没有本地的抽象机制
 - en: structure files and code, even though you don’t have classes or packages
+  id: totrans-15
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 组织文件和代码，即使你没有类或包的机制
 - en: You are now able to work with C, despite it lacking some of the conveniences
     of modern programming languages.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你能够使用C进行工作，尽管它缺少现代编程语言的某些便利性。

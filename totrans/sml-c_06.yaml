@@ -1,7 +1,9 @@
 - en: Chapter 6\. Pointers and References
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第6章. 指针与引用
 - en: Reasonably direct access to memory is one of C’s biggest features for folks
     who work on low-level problems like device drivers or embedded systems. C gives
     you the tools to micromanage your bytes. That can be a real boon when you need
@@ -10,46 +12,65 @@
     to have the option. This chapter covers the basics of finding out where things
     are located in memory (their *address*) as well as storing and using those locations
     with *pointers*, variables that store the address of other variables.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 对内存的合理直接访问是C语言的一个最大特点，适合那些处理低级问题如设备驱动或嵌入式系统的开发者。C语言为你提供了微管理字节的工具。当你需要关注每一位可用内存时，这可以是一个真正的好处，但当你需要关注你使用的每一位内存时，也可能是一个真正的麻烦。然而，当你需要这种控制时，拥有这样的选项是很棒的。本章将涵盖如何找出事物在内存中的位置（它们的*地址*），以及如何使用和存储这些位置的*指针*，即存储其他变量地址的变量。
 - en: Addresses in C
+  id: totrans-2
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: C语言中的地址
 - en: 'We’ve touched on the notion of pointers when we discussed using `scanf()` to
     read in base types like integers and floats versus reading in a string as a character
     array. You may recall for numbers, I mentioned the required `&` prefix. That prefix
     can be thought of as an “address of” the operator or function. It returns a numeric
     value that tells you where the variable following the `&` is located in memory.
     We can actually print that location out. Take a look at [*ch06/address.c*](https://oreil.ly/z9TrR):'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们讨论使用`scanf()`读取基本类型如整数和浮点数与读取字符串作为字符数组时，我们已经涉及了指针的概念。你可能还记得对于数字，我提到了所需的`&`前缀。这个前缀可以被认为是一个“地址”的运算符或函数。它返回一个数字值，告诉你`&`后面的变量在内存中的位置。我们实际上可以打印出那个位置。看看
+    [*ch06/address.c*](https://oreil.ly/z9TrR)：
 - en: '[PRE0]'
+  id: totrans-4
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'In this simple program, we create two variables and initialize them. We use
     a few `printf()` statements to show both their values and their locations in memory.
     If we compile and run this example, here’s what we’ll see:'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个简单的程序中，我们创建了两个变量并对它们进行初始化。我们使用了一些`printf()`语句来显示它们的值和在内存中的位置。如果我们编译并运行这个例子，以下是我们将看到的内容：
 - en: '[PRE1]'
+  id: totrans-6
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Note
+  id: totrans-7
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: I should say here is *roughly* what we’ll see; your setup will likely differ
     from mine, so the addresses likely won’t match exactly. Indeed, simply running
     this program successively will almost certainly result in different addresses
     as well. Where a program is loaded into memory depends on myriad factors. If any
     of those factors are different, the addresses will probably be different as well.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 我在这里要说的是*大致*的内容；你的设置可能会与你的不同，因此地址可能不会完全匹配。实际上，仅仅连续运行这个程序几乎肯定会得到不同的地址。程序加载到内存中的位置取决于无数因素。如果这些因素不同，地址很可能也会不同。
 - en: In all of the examples that follow, it is more useful to pay attention to which
     addresses are close to which other addresses. The exact values are not important.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 在接   在接下来的所有例子中，关注哪些地址与其他地址接近会更加有用。具体的数值并不重要。
 - en: Getting the value stored in `answer` or `pi` is straightforward and something
     we’ve been doing since [Chapter 2](ch02.xhtml#smallerc-CHP-2). But playing with
     the address of a variable is new. We even needed a new `printf()` format specifier,
@@ -61,43 +82,61 @@
     example, tutorials online will say things like “when you pass a reference to this
     function….” They mean you are passing the address of some variable to the function
     rather than the value of the variable.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 获取存储在`answer`或`pi`中的值是很直接的，这也是我们从[第 2 章](ch02.xhtml#smallerc-CHP-2)开始一直在做的事情。但操作变量的地址是新的。我们甚至需要一个新的`printf()`格式说明符，`%p`，来打印它们！该格式说明符的助记符是“pointer”，这与“address”紧密相关。通常，*指针*指的是存储地址的变量，尽管你会看到人们谈论特定的值作为指针。你也会遇到术语*引用*，它与指针同义，但在谈论函数参数时更常用。例如，网上的教程会说诸如“当你传递一个引用给这个函数……。”他们的意思是你将变量的地址传递给函数，而不是变量的值。
 - en: But back to our example. Those printed pointer values sure look like big numbers!
     This won’t always be the case, but on systems with gigabytes or even terabytes
     of RAM that use logical addresses to help separate and manage multiple programs,
     it’s not uncommon. What do those values represent? They are the slots within our
     process’s memory where our variables’ values are kept. [Figure 6-1](#smallerc-CHP-6-FIG-address-example)
     illustrates the basic setup in memory of our simple example.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是回到我们的例子。那些打印出来的指针值看起来确实像是很大的数！这种情况并不总是出现，但是在使用逻辑地址来帮助分离和管理多个程序的拥有几十亿甚至几万亿字节RAM的系统上，这并不罕见。这些值代表什么？它们是我们进程内存中变量值的存放位置。[图 6-1](#smallerc-CHP-6-FIG-address-example)展示了我们简单示例中内存的基本设置。
 - en: Even without figuring out the exact decimal value of the addresses, you can
     see they are close together. In fact, the address for `pi` is four bytes bigger
     than the address for `answer`. An `int` on my machine is four bytes, so hopefully
     you can see the connection. A `double` is eight bytes on my system. If we added
     a third variable to our example, can you guess what address it would have?
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使不计算地址的确切十进制值，你也可以看到它们很接近。事实上，`pi`的地址比`answer`的地址大四个字节。在我的机器上，一个`int`是四个字节，所以希望你能看到这种联系。在我的系统上，`double`占据八个字节。如果我们向我们的示例中添加第三个变量，你能猜到它的地址吗？
 - en: '![smac 0601](Images/smac_0601.png)'
+  id: totrans-13
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0601](Images/smac_0601.png)'
 - en: Figure 6-1\. Variable values and addresses
+  id: totrans-14
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图6-1\. 变量值和地址
 - en: 'Let’s go ahead and try it together. The program [*ch06/address2.c*](https://oreil.ly/6gdjU)
     adds another `int` variable and then prints its value and address:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们一起尝试一下。程序[*ch06/address2.c*](https://oreil.ly/6gdjU)添加了另一个`int`变量，然后打印其值和地址：
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'And here’s the output of our three-variable version:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是我们三变量版本的输出：
 - en: '[PRE3]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Hmm, actually the variables are not stored in the order we declared them. How
     strange! If you look closely, you can see that `answer` is still stored first
     (address 0x…498), followed by `extra` four bytes later (0x…49c), followed by `pi`
@@ -106,12 +145,16 @@
     code. So even though the order is a little surprising, we can still see that the
     variables all stack on top of each other with exactly as much space as their type
     dictates.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: Hmm，实际上，变量并不按照我们声明的顺序存储。多么奇怪！仔细观察，你会发现`answer`仍然被首先存储（地址0x…498），然后是`extra`四个字节之后（0x…49c），再之后是`pi`又四个字节（0x…4a0）。编译器通常会以一种它认为高效的方式排列事物——而这种高效的顺序并不总是与我们的源代码一致。所以，尽管顺序有些令人意外，我们仍然可以看到变量都按照它们的类型规定的空间堆叠在一起。
 - en: The NULL Value and Pointer Errors
+  id: totrans-20
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: NULL值和指针错误
 - en: 'The *stdio.h* header includes a handy value, `NULL`, that we can use whenever
     we need to talk about an “empty” or uninitialized pointer. You can assign `NULL`
     to a pointer variable or use it in a comparison to see if a particular pointer
@@ -119,52 +162,77 @@
     you declare them, `NULL` is the value to use with pointers. For example, we could
     declare two variables, one `double` and one pointer to a `double`. We’ll initialize
     them with “nothing,” but then fill them in later:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: '*stdio.h*头文件包含一个方便的值，`NULL`，每当我们需要谈论“空”或未初始化的指针时，我们可以使用它。你可以将`NULL`赋给一个指针变量或在比较中使用它，以查看特定指针是否有效。如果你喜欢在声明变量时始终赋予一个初始值，`NULL`就是与指针一起使用的值。例如，我们可以声明两个变量，一个是`double`，另一个是指向`double`的指针。我们将它们初始化为“无”，然后稍后再填充它们：'
 - en: '[PRE4]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'You should check for `NULL` pointers anytime you can’t trust where a pointer
     came from. Inside a function where a pointer was passed to you, for example:'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 任何时候不能确定指针的来源时，都应检查`NULL`指针。例如，在传递给你的函数内部：
 - en: '[PRE5]'
+  id: totrans-24
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'Not the easiest way to calculate the area of a circle, of course, but the `if`
     statement at the beginning is a common pattern. It’s a simple guarantee that you
     have something to work with. If you forget to check your pointer and try dereferencing
     it anyway, your program will (usually) halt, and you’ll probably see an error
     like this:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，这并不是计算圆形面积的最简单方法，但是开始的`if`语句是一个常见的模式。这是一个简单的保证，确保你有东西可以处理。如果你忘记检查你的指针并尝试解引用它，你的程序通常会停止，并且你可能会看到这样的错误：
 - en: '[PRE6]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Even if you can’t do anything about the empty pointer, if you check before using
     it, you can give the user a nicer error message and avoid crashing.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使你无法处理空指针，如果在使用之前检查它，你可以给用户一个更友好的错误消息并避免崩溃。
 - en: Arrays
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 数组
 - en: 'What about arrays and strings? Will those go on the stack just like simpler
     types? Will they have addresses in the same general part of memory? Let’s create
     a couple array variables and see where they land and how much space they take
     up. [*ch06/address3.c*](https://oreil.ly/UA5ZK) has our arrays. I’ve added a size
     printout so that we can easily verify how much space is allocated:'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 数组和字符串又是怎么样的呢？它们会像简单类型一样放在栈上吗？它们在内存的同一一般部分会有地址吗？让我们创建一些数组变量，看看它们会落在哪里，占用多少空间。[*ch06/address3.c*](https://oreil.ly/UA5ZK)
+    就有我们的数组。我添加了一个大小的打印输出，这样我们可以轻松验证分配了多少空间：
 - en: '[PRE7]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'And here is our output:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是我们的输出：
 - en: '[PRE8]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'The compiler rearranged our variables again, but we can see that the `page_counts`
     array is 20 bytes (5 x 4 bytes per `int`) and that `title` gets an address 32
     bytes after `page_counts`. (You can ignore the common parts of the address and
@@ -173,12 +241,17 @@
     it. Happily, we (as programmers or as users) do not have to worry about that overhead.
     And as programmers we can see the compiler definitely sets aside enough room for
     the array itself.'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 编译器再次重新排列了我们的变量，但我们可以看到`page_counts`数组占用了20字节（每个`int` 5 x 4 字节），而`title`在`page_counts`之后32字节的位置。（你可以忽略地址的共同部分并做一些简单的数学运算：0xc0
+    – 0xa0 == 0x20 == 32。）那多出来的12字节是什么？这是数组的一些开销，编译器已经为它留出了空间。令人高兴的是，我们（作为程序员或用户）不必担心这种额外开销。作为程序员，我们可以看到编译器确实为数组本身预留了足够的空间。
 - en: Local Variables and the Stack
+  id: totrans-34
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 局部变量和栈
 - en: So where exactly is that “room” being set aside? In the largest terms, the room
     is allocated from our computer’s memory, its RAM. In the case of variables defined
     in a function (and remember from [“The main() Function”](ch05.xhtml#smallerc-CHP-5-SECT-7)
@@ -186,36 +259,53 @@
     term for the spot in memory where all local variables are created and kept as
     you make various function calls. Organizing and maintaining these memory allocations
     is one of the primary jobs of your operating system.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么这个“空间”到底是在哪里设置的呢？在最广义的术语中，这个空间是从计算机的内存（RAM）中分配的。对于在函数中定义的变量（还记得从[“主函数（main()）”](ch05.xhtml#smallerc-CHP-5-SECT-7)中了解到`main()`是一个函数），这些空间是在*栈*上分配的。这是内存中的一个术语，用于创建和保存所有局部变量，当您进行各种函数调用时。组织和维护这些内存分配是操作系统的主要工作之一。
 - en: Consider this next small program, [*ch06/do_stuff.c*](https://oreil.ly/C5xCP).
     We have the `main()` function as usual, and another function, `do_stuff()`, that,
     well, does stuff. Not fancy stuff, but it still creates and prints the details
     of an `int` variable. Even boring functions use the stack and help illustrate
     how function calls fit together in memory!
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑下一个小程序，[*ch06/do_stuff.c*](https://oreil.ly/C5xCP)。我们有通常的`main()`函数，还有另一个函数`do_stuff()`，它做一些事情。不是花哨的事情，但它仍然创建并打印了一个`int`变量的详细信息。即使是无聊的函数也会使用栈，并帮助说明函数调用在内存中如何组合在一起！
 - en: '[PRE9]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'And here’s the output:'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是输出：
 - en: '[PRE10]'
+  id: totrans-39
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: You can see the addresses of `count` in `main()` and `local` in `do_stuff()`
     are near each other. They are both on the stack. [Figure 6-2](#smallerc-CHP-6-FIG-stack-variables)
     shows the stack with a little more context.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以看到`main()`中`count`的地址和`do_stuff()`中`local`的地址是相邻的。它们都在栈上。[图 6-2](#smallerc-CHP-6-FIG-stack-variables)
+    显示了栈及其一些更多的上下文。
 - en: '![smac 0602](Images/smac_0602.png)'
+  id: totrans-41
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0602](Images/smac_0602.png)'
 - en: Figure 6-2\. Local variables on the stack
+  id: totrans-42
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 6-2\. 栈上的局部变量
 - en: 'This is where the name “stack” comes from: the function calls stack up. If
     `do_stuff()` were to call some other function, that function’s variables would
     pile on top of `local`. And when any function completes, its variables are popped
@@ -223,69 +313,100 @@
     provide a proper base case for a recursive function like those in [“Recursive
     Functions”](ch05.xhtml#smallerc-CHP-5-SECT-5.1), for example, this runaway stack
     allocation is what eventually causes your program to crash.'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 这就是“栈”这个名字的来源：函数调用会堆叠起来。如果`do_stuff()`调用了其他函数，那么该函数的变量会叠加在`local`之上。当任何函数完成时，其变量将从栈上弹出。这种堆叠可以进行很长时间，但不是永远。如果你没有为递归函数提供适当的基本情况，比如在[“递归函数”](ch05.xhtml#smallerc-CHP-5-SECT-5.1)中所述的那些情况下，这种失控的栈分配最终会导致程序崩溃。
 - en: You might have caught that the addresses in [Figure 6-2](#smallerc-CHP-6-FIG-stack-variables)
     are actually decreasing. The start of the stack can either be at the beginning
     of the memory allocated to our program and addresses will count up, or at the
     end of the allotted space and addresses will count down. Which version you see
     depends on the architecture and operating system. The idea of the stack and its
     growth, though, remains the same.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可能注意到[图 6-2](#smallerc-CHP-6-FIG-stack-variables)中的地址实际上是递减的。栈的开始可以是程序分配的内存的开始，地址将递增，或者是分配空间的结尾，地址将递减。您所看到的版本取决于体系结构和操作系统。但栈及其增长的概念保持不变。
 - en: 'The stack also houses any parameters that get passed to a function as well
     as any loop or other variables that get declared later in the function. Consider
     this snippet:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 栈还存储传递给函数的任何参数，以及稍后在函数中声明的任何循环或其他变量。考虑以下片段：
 - en: '[PRE11]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'In this snippet, the stack will include space for the following elements:'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这段代码中，栈将包括以下元素的空间：
 - en: the `float` return value from `average()` itself
+  id: totrans-48
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`average()` 函数本身的 `float` 返回值'
 - en: the `float` parameter `a`
+  id: totrans-49
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`float` 类型的参数 `a`'
 - en: the `float` parameter `b`
+  id: totrans-50
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`float` 类型的参数 `b`'
 - en: the `float` local variable `sum`
+  id: totrans-51
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`float` 类型的局部变量 `sum`'
 - en: the `int` variable `i` for the loop (only if `sum < 0`)
+  id: totrans-52
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 用于循环的 `int` 变量 `i`（仅在 `sum < 0` 时）
 - en: The stack is pretty versatile! Pretty much anything having to do with a particular
     function will get its memory from the stack.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 栈非常灵活！几乎与特定函数有关的任何事情都会从栈中获取其内存。
 - en: Global Variables and the Heap
+  id: totrans-54
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 全局变量和堆
 - en: But what about global variables that are not connected to any particular function?
     They get allocated in a separate part of memory called the *heap*. If “heap” sounds
     a little messy, it is. Any bit of memory your program needs that isn’t part of
     the stack will be in the heap. [Figure 6-3](#smallerc-CHP-6-FIG-stack-and-heap)
     illustrates how to think about the stack and the heap.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么不与任何特定函数相关联的全局变量如何处理？它们会分配在称为*堆*的内存的单独部分。如果“堆”听起来有点混乱，那是因为确实如此。您的程序需要的任何内存片段，如果不是栈的一部分，就会在堆中。[图
+    6-3](#smallerc-CHP-6-FIG-stack-and-heap)说明了如何思考栈和堆。
 - en: '![smac 0603](Images/smac_0603.png)'
+  id: totrans-56
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0603](Images/smac_0603.png)'
 - en: Figure 6-3\. Stack versus heap memory
+  id: totrans-57
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 6-3\. 栈与堆内存
 - en: The stack and the heap share one logical lump of memory given to your program
     when you run it. As you make function calls, the stack will grow (down from the
     “top” in this case). As functions complete their call, the stack shrinks. Global
@@ -294,8 +415,10 @@
     in this chapter looks at how you can manually use memory in this space.) You can
     free up some parts of the heap to make it shrink, but global variables remain
     as long as your program is executing.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 栈和堆共享一个逻辑上分配给您的程序的内存块。随着函数调用的增多，栈会增长（从“顶部”向下）。当函数完成调用时，栈会收缩。全局变量使堆增长（从“底部”向上）。大型数组或其他结构也可能在堆中分配。本章中的[“使用数组管理内存”](#smallerc-CHP-6-SECT-4)将介绍如何在这个空间中手动使用内存。您可以释放堆中的部分空间以使其收缩，但全局变量在程序执行期间保持不变。
 - en: We’ll look in more detail at how these two parts of memory interact in [“Stacks
     and heaps”](ch09.xhtml#smallerc-CHP-9-SECT-3.2.1). As both the stack and the heap
     grow, the free space in the middle gets smaller and smaller. If they meet, you’re
@@ -303,78 +426,115 @@
     more functions. If you call a function anyway, you will likely crash your program.
     Similarly, if there is no space left for the heap to grow, but you try to request
     some space, the computer has no choice but to halt your program.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将更详细地研究这两种内存如何交互在[“栈与堆”](ch09.xhtml#smallerc-CHP-9-SECT-3.2.1)。随着栈和堆的增长，中间的空闲空间变得越来越小。如果它们相遇，那就麻烦了。如果栈不能再增长，您将无法调用更多函数。如果您尝试调用函数，可能会导致程序崩溃。同样，如果堆没有剩余空间可供增长，但您尝试请求空间，计算机将不得不终止您的程序。
 - en: Managing to stay out of this trouble is your job as the programmer. C won’t
     stop you from making a mistake, but in turn, it gives you room to be quite clever
     when circumstances dictate. [Chapter 10](ch10.xhtml#smallerc-CHP-10) looks at
     several of those circumstances on microcontrollers and discusses some tricks for
     navigating them.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为程序员，避免这些麻烦是你的工作。C 语言不会阻止你犯错，但反过来，它给了你在特定情况下非常聪明的发挥空间。[第 10 章](ch10.xhtml#smallerc-CHP-10)
+    将探讨微控制器上的几种情况，并讨论一些应对方法。
 - en: Pointer Arithmetic
+  id: totrans-61
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指针算术
 - en: Regardless of where your variables store their contents, C allows you to work
     directly with the addresses in a powerful (and potentially dangerous) way. We
     aren’t limited to printing out the address of a variable for simple inspection.
     We can store it in another variable. And we can use that other variable to get
     to the same bit of data and manipulate it.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论变量存储其内容的位置如何，C语言允许您以一种强大（但潜在危险的）方式直接处理地址。我们不仅限于简单检查变量的地址。我们可以将其存储在另一个变量中。然后，我们可以使用该其他变量来访问相同的数据位并对其进行操作。
 - en: 'Take a look at [*ch06/pointer.c*](https://oreil.ly/ONjNE) to see an example
     of using a variable that points to another variable. I’ve called out a few key
     concepts in working with pointers:'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 查看[*ch06/pointer.c*](https://oreil.ly/ONjNE)示例，了解使用指向另一个变量的变量的示例。我在处理指针时指出了一些关键概念：
 - en: '[PRE12]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '[![1](Images/1.png)](#co_pointers_and_references_CO1-1)'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_pointers_and_references_CO1-1)'
 - en: We start with a normal set of variables and perform a simple calculation.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们从一组普通变量开始执行简单的计算。
 - en: '[![2](Images/2.png)](#co_pointers_and_references_CO1-2)'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_pointers_and_references_CO1-2)'
 - en: Next, we create new variables with corresponding pointer types. E.g., we create
     `total_ptr` of type `double *` as a pointer to our `total` variable of type `double`.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们创建了具有相应指针类型的新变量。例如，我们创建了`total_ptr`，类型为`double *`，作为指向类型为`double`的`total`变量的指针。
 - en: '[![3](Images/3.png)](#co_pointers_and_references_CO1-3)'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_pointers_and_references_CO1-3)'
 - en: You can dereference pointers to use or alter the things they point to.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以取消引用指针以使用或更改它们指向的内容。
 - en: '[![4](Images/4.png)](#co_pointers_and_references_CO1-4)'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_pointers_and_references_CO1-4)'
 - en: Lastly, we prove that the original, non-pointer variables were in fact changed
     by the work we did with their pointer counterparts.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后，我们证明了通过我们对其指针对应物进行的工作而实际更改了原始的非指针变量。
 - en: 'Here’s the output:'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是输出：
 - en: '[PRE13]'
+  id: totrans-74
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: That output isn’t very exciting, but again, it proves we were able to edit the
     value of variables like `count` via the `count_ptr` pointer. Manipulating data
     through pointers is pretty advanced stuff. Don’t worry if this topic still feels
     a little overwhelming. Keep trying the examples and you’ll get more comfortable
     with the syntax, which in turn will help you think about using pointers with your
     own future projects.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个输出并不是很令人兴奋，但再次证明我们能够通过`count_ptr`指针编辑像`count`这样的变量的值。通过指针操作数据是相当高级的事情。如果这个话题让你感到有些不知所措，请不要担心。继续尝试示例，您将更加熟悉语法，这反过来将帮助您考虑如何在您自己的未来项目中使用指针。
 - en: Array Pointers
+  id: totrans-76
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 数组指针
 - en: We have actually worked with a pointer already, although it was very cleverly
     disguised as an array. Recall our expanded use of the `scanf()` function in [“scanf()
     and Parsing Inputs”](ch02.xhtml#smallerc-CHP-2-SECT-3.3). When we wanted to scan
@@ -382,105 +542,158 @@
     strings did not require that syntax—we simply gave the name of the array. That
     is because arrays in C are already pointers, just pointers with an expected structure
     to make reading and writing array elements easy.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，我们已经使用过指针，尽管它被巧妙地伪装成数组。回想一下我们在[“scanf() and Parsing Inputs”](ch02.xhtml#smallerc-CHP-2-SECT-3.3)中对`scanf()`函数的扩展使用。当我们想要扫描一个数字时，我们必须在数字变量的名称前使用`&`。但扫描字符串不需要那种语法——我们只需给出数组的名称。这是因为在C语言中，数组已经是指针，只是具有期望的结构，以便更容易读取和写入数组元素。
 - en: 'It turns out that you can work with the contents of an array *without* the
     convenience of the square brackets. You can use exactly the same dereferencing
     we just saw in the previous example. With dereferencing, you can add and subtract
     simple integers to the array variable to get at individual elements in that array.
     But this type of thing is best discussed over code. Check out [*ch06/direct_edit.c*](https://oreil.ly/GPhxA):'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 原来，您可以在*不*使用方括号的情况下处理数组的内容。您可以使用我们刚才在上一个示例中看到的完全相同的取消引用。通过取消引用，您可以添加和减去简单的整数来访问该数组变量中的单个元素。但最好在代码中详细讨论这类事情。请查看[*ch06/direct_edit.c*](https://oreil.ly/GPhxA)：
 - en: '[PRE14]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[![1](Images/1.png)](#co_pointers_and_references_CO2-1)'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_pointers_and_references_CO2-1)'
 - en: We declare and initialize our string (`char` array) as usual.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们像往常一样声明和初始化我们的字符串（`char`数组）。
 - en: '[![2](Images/2.png)](#co_pointers_and_references_CO2-2)'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_pointers_and_references_CO2-2)'
 - en: We can dereference the array variable to read or alter the first character.
     This is equivalent to `name[0] = *A*`.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以取消引用数组变量以读取或更改第一个字符。这相当于`name[0] = *A*`。
 - en: '[![3](Images/3.png)](#co_pointers_and_references_CO2-3)'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_pointers_and_references_CO2-3)'
 - en: We can also dereference an expression involving our array variable. We can add
     or subtract `int` values, which translates to moving forward or backward in the
     array by one element. In our code, this line is equivalent to `name[2] = *C*`.
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还可以解引用涉及我们的数组变量的表达式。我们可以添加或减去 `int` 值，这相当于在数组中向前或向后移动一个元素。在我们的代码中，这行代码等同于
+    `name[2] = *C*`。
 - en: '[![4](Images/4.png)](#co_pointers_and_references_CO2-4)'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_pointers_and_references_CO2-4)'
 - en: And you can see the array variable itself is “unharmed,” although we did successfully
     edit the string.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 而且您可以看到数组变量本身是“未受影响”的，尽管我们成功地编辑了字符串。
 - en: 'Go ahead and compile and run the program. Here’s the output:'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 继续编译和运行程序。这是输出：
 - en: '[PRE15]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: This type of math and dereferencing works on arrays of other types, as well.
     You might see pointer arithmetic in loops that process arrays, for example, where
     incrementing the array pointer amounts to moving to the next element in the array.
     This use of pointers can be remarkably efficient. But while the simple manipulations
     in *direct_edit.c* might have been faster historically, modern C compilers are
     very (very!) good at optimizing your code.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种数学和解引用方法也适用于其他类型的数组。例如，在处理数组的循环中可能会看到指针算术，其中增加数组指针相当于移动到数组中的下一个元素。这种指针的使用可以非常高效。但是虽然在
+    *direct_edit.c* 中的简单操作在历史上可能更快，现代的 C 编译器非常（非常！）擅长优化您的代码。
 - en: Tip
+  id: totrans-91
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: I recommend concentrating on getting the answer you want before worrying about
     performance. [Chapter 10](ch10.xhtml#smallerc-CHP-10) looks at memory and other
     resources on the Arduino platform where such worrying is a bit more justified.
     Even there, optimizing won’t be your first concern.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 我建议在担心性能之前，集中精力获得您想要的答案。[第 10 章](ch10.xhtml#smallerc-CHP-10) 探讨了在 Arduino 平台上内存和其他资源的情况，这种担忧更加合理。即使在那里，优化也不是您的首要关注点。
 - en: Functions and Pointers
+  id: totrans-93
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 函数和指针
 - en: 'Where pointers really start to make a difference in your day-to-day life as
     a programmer is when you attach them to the parameters or return values of functions.
     This feature allows you to create a piece of shareable memory without making it
     global. Consider the following functions from [*ch06/increment.c*](https://oreil.ly/JJLV4):'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 当您将指针附加到函数的参数或返回值时，指针真正开始在程序员日常生活中产生差异。这个特性允许您创建一个可共享的内存块而不使其成为全局的。考虑以下来自 [*ch06/increment.c*](https://oreil.ly/JJLV4)
+    的函数：
 - en: '[PRE16]'
+  id: totrans-95
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: The first function, `increment_me()`, should feel familiar. We have passed values
     to functions before. Inside `increment_me()`, we can add `amount` to `me` and
     get the correct answer. However, we did pass only the *value* of `count` from
     our `main()` method. That should mean that the original `count` variable will
     remain untouched.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一个函数 `increment_me()` 应该感觉很熟悉。我们之前已经将值传递给函数。在 `increment_me()` 内部，我们可以将 `amount`
+    添加到 `me` 上并得到正确的答案。然而，我们确实只从 `main()` 方法传递了 `count` 的 *值*。这意味着原始的 `count` 变量将保持不变。
 - en: 'But `increment_me_too()` uses a pointer. Instead of a simple value, we can
     now pass a *reference* to `count`. In this approach, we should find that `count`
     has been updated once we return to `main()`. Let’s test that expectation. Here’s
     a minimal `main()` method that tries both functions:'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 但 `increment_me_too()` 使用了一个指针。现在我们可以传递给 `count` 的是一个 *引用* 而不是简单的值。采用这种方法，我们应该发现一旦返回到
+    `main()`，`count` 已经被更新了。让我们测试一下这个期望。这是一个尝试两个函数的简单的 `main()` 方法：
 - en: '[PRE17]'
+  id: totrans-98
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: 'And here’s what we get for output:'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是我们得到的输出：
 - en: '[PRE18]'
+  id: totrans-100
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: Excellent. We got exactly the behavior we wanted. The `increment_me()` function
     does not affect the value of `count` passed in from `main()`, but `increment_me_too()`
     does affect it. You will often see the terms “pass by value” and “pass by reference”
@@ -488,17 +701,24 @@
     that in the case of `increment_me_too()`, we have one reference parameter and
     one value parameter. There is no restriction on mixing the types. As the programmer,
     you just have to make sure you use your function correctly.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 很好。我们得到了我们想要的行为。`increment_me()` 函数不会影响从 `main()` 传入的 `count` 的值，但 `increment_me_too()`
+    会影响它。您经常会看到术语“传值”和“传引用”，用来区分函数处理传递给它的参数的方式。请注意，在 `increment_me_too()` 的情况下，我们有一个引用参数和一个值参数。混合类型没有限制。作为程序员，您只需确保正确使用您的函数。
 - en: Functions can also return a pointer to something they have created in the heap.
     This is a popular trick in external libraries, as we’ll see in Chapters [9](ch09.xhtml#smallerc-CHP-9)
     and [11](ch11.xhtml#smallerc-CHP-11).
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数也可以返回它们在堆中创建的东西的指针。这是外部库中常见的技巧，我们将在第[9](ch09.xhtml#smallerc-CHP-9)和第[11](ch11.xhtml#smallerc-CHP-11)章中看到。
 - en: Managing Memory with Arrays
+  id: totrans-103
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用数组管理内存
 - en: If you know ahead of time you want a large chunk of memory, say, to store image
     or audio data, you can allocate your own arrays (and structures; see [“Defining
     Structures”](#smallerc-CHP-6-SECT-5.1)). The result of the allocation is a pointer
@@ -508,31 +728,43 @@
     working with content from unknown sources. If sufficient memory is not available,
     you can provide a polite error message and ask the user to try again rather than
     simply crashing without an explanation.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您事先知道需要大块内存，比如用于存储图像或音频数据，可以分配自己的数组（和结构体；参见[“定义结构体”](#smallerc-CHP-6-SECT-5.1)）。分配的结果是一个指针，您可以将其传递给可能需要处理您数据的任何函数。这样做不会复制任何存储空间，而且您可以在必须使用它之前检查确保获得了所需的所有内存。当处理来自未知来源的内容时，这是一个明显的优势。如果没有足够的内存可用，可以提供一个礼貌的错误消息，并要求用户再试一次，而不是不加说明地崩溃。
 - en: Allocating with malloc()
+  id: totrans-105
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 使用malloc()分配内存
 - en: 'While we’ll typically reserve heap work for larger arrays, you can allocate
     anything you want there. To do so, you use the `malloc()` function and provide
     it a quantity in bytes that you need. The `malloc()` function is defined in another
     header, `stdlib.h`, so we have to include that header, similar to how we include
     `stdio.h`. We’ll see more of the functions that `stdlib.h` provides in [“stdio.h”](ch07.xhtml#smallerc-CHP-7-SECT-1.1),
     but for now, just add this line at the top, below our usual `include`:'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然我们通常将堆工作保留给较大的数组，但您可以在那里分配任何您想要的内容。为此，您可以使用`malloc()`函数，并提供所需的字节数量。`malloc()`函数在另一个头文件`stdlib.h`中定义，因此我们必须包含该头文件，类似于我们包含`stdio.h`的方式。我们将在[“stdio.h”](ch07.xhtml#smallerc-CHP-7-SECT-1.1)中看到`stdlib.h`提供的更多函数，但目前，只需在顶部添加以下行，就在我们通常的`include`下面：
 - en: '[PRE19]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'With this header included, we can create a simple program that illustrates
     the memory allocation of global and local variables as well as our own, custom
     bit of memory in the heap. Take a look at [*ch06/memory.c*](https://oreil.ly/zAK5y):'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 包含了这个头文件后，我们可以创建一个简单的程序，演示全局变量和局部变量的内存分配，以及我们自己在堆中的自定义内存。请看[*ch06/memory.c*](https://oreil.ly/zAK5y)：
 - en: '[PRE20]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: The global declarations of `result_code` and `result_msg` as well as the local
     variables `temp` and `success` should be familiar. But look at how we declared
     `buffer`. You can see the use of `malloc()` in a real program. We asked for 20
@@ -540,31 +772,43 @@
     it is usually safer (indeed, often necessary) to use `sizeof`, as shown in this
     example. Different systems will have different rules regarding type sizes and
     memory allocation, and `sizeof` provides an easy guard against unwitting mistakes.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 全局声明的`result_code`和`result_msg`以及局部变量`temp`和`success`应该是熟悉的。但请看我们如何声明`buffer`。您可以看到`malloc()`在一个真实程序中的使用。我们请求了20个字符的空间。如果您愿意，可以指定一个简单的字节数，但通常更安全（确实经常需要）使用`sizeof`，就像这个例子中显示的那样。不同的系统将有不同的类型大小和内存分配规则，`sizeof`提供了对无意中的错误的简单防范。
 - en: 'Let’s take a look at the addresses of our variables in the output:'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们来看一下输出中变量的地址：
 - en: '[PRE21]'
+  id: totrans-112
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: Again, don’t worry about the exact value of those addresses. What we’re looking
     for here is their general location. Hopefully, you can see that the global variables
     and the `buffer` pointer we created in the heap manually with `malloc()` are all
     in roughly the same spot. Likewise, the two variables local to `main()` are similarly
     grouped, but in a separate spot.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，不用担心这些地址的确切值。我们在这里寻找的是它们的大致位置。希望您能看到全局变量和我们使用`malloc()`手动在堆中创建的`buffer`指针大致处于相同的位置。同样，`main()`中的两个局部变量也类似地分组在一个单独的位置。
 - en: So `malloc()` makes room for your data in the heap. We’ll make use of this allocated
     space in [“Pointers to Structures”](#smallerc-CHP-6-SECT-5.3), but we need to
     look at a closely related function, `free()`, first. When you allocate memory
     using `malloc()`, you are responsible for returning that space when you are done.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，`malloc()`在堆中为你的数据提供了空间。我们将在[“指向结构体的指针”](#smallerc-CHP-6-SECT-5.3)中利用这个分配的空间，但首先我们需要看看一个密切相关的函数`free()`。当你使用`malloc()`分配内存时，你有责任在完成后返回该空间。
 - en: Deallocating with free()
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 使用`free()`进行释放
 - en: 'As you might recall in the discussion of [Figure 6-3](#smallerc-CHP-6-FIG-stack-and-heap),
     if you use up too much of the stack or the heap—or enough of both—you will run
     out of memory and your program will crash. One of the benefits of working with
@@ -574,29 +818,39 @@
     languages work to relieve the programmer of that burden, as it is all too easy
     to forget to clean up after yourself. Perhaps you have even heard of the quasi-official
     term for this issue: a memory leak.'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如你在[图 6-3](#smallerc-CHP-6-FIG-stack-and-heap)的讨论中可能记得的那样，如果堆栈或堆使用过多——或者两者都使用了足够多——你将会耗尽内存并导致程序崩溃。使用堆的好处之一是你可以控制何时以及如何从堆中分配和返回内存。当然，正如我刚才提到的，这个好处的另一面是你必须记得自己做“归还”部分。许多较新的语言试图减轻程序员的这一负担，因为很容易忘记在自己完成后清理。也许你甚至听说过这个问题的准官方术语：内存泄漏。
 - en: 'To return memory and avoid such leaks in C, you use the `free()` function (also
     from *stdlib.h*). It’s pretty straightforward to use—you just pass the pointer
     returned from your corresponding `malloc()` call. So to free up `buffer` when
     you’re done using it, for example:'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了在C语言中返回内存并避免这种泄漏，你可以使用`free()`函数（也来自*stdlib.h*）。使用起来非常简单——你只需传递从相应的`malloc()`调用返回的指针。例如，当你完成使用`buffer`后释放它：
 - en: '[PRE22]'
+  id: totrans-118
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: Easy! But again, it’s remembering to use `free()` that is the difficulty. That
     might not seem like such a problem, but it gets increasingly tricky when you start
     using functions to create and remove bits of data. How many times did you call
     the create functions? Did you call a reciprocal remove function for each one?
     What if you try to remove something that was never allocated? All of these questions
     make keeping track of your memory usage as troublesome as it is vital.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 简单！但是，要记得使用`free()`才是难点。这可能看起来并不是什么大问题，但是当你开始使用函数来创建和删除数据片段时，情况就会变得越来越复杂。你调用创建函数的次数有多少次？每次都调用了对应的删除函数吗？如果尝试删除从未分配的内容会怎样？所有这些问题使得追踪内存使用既困难又重要。
 - en: C Structures
+  id: totrans-120
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: C语言的结构体
 - en: As you tackle more interesting problems, your data storage needs will get more
     complex. If you are working with LCD displays, for example, you will work with
     pixels that need a color and a location. That location itself will be made up
@@ -606,35 +860,50 @@
     avenues for bugs—like adding a color but forgetting one of the coordinates. Fortunately,
     C includes the `struct` facility to create better containers for your new data
     needs.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着你解决更加有趣的问题，你的数据存储需求将变得更加复杂。例如，如果你正在处理LCD显示器，你将会处理需要颜色和位置的像素。这个位置本身将由*x*和*y*坐标组成。虽然你可以创建三个单独的数组（一个用于所有颜色，一个用于所有*x*坐标，最后一个用于所有*y*坐标），但这样的集合会很难传递给和从函数中传递，并且容易引入多种错误——比如添加了颜色却忘记了其中一个坐标。幸运的是，C语言包含了`struct`机制来为你的新数据需求创建更好的容器。
 - en: 'To quote K&R: “A *structure* is a collection of one or more variables, possibly
     of different types, grouped together under a single name for convenient handling.”^([1](ch06.xhtml#idm45018723261080))
     They go on to note that other languages support this idea as a *record*. Searching
     online today you would also encounter the term *composite type*. Whatever you
     call it, this variable grouping feature is very powerful. Let’s see how it works.'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 引用K&R的话说：“*结构体*是一个或多个可能是不同类型的变量的集合，它们被组合在一起，以便于方便处理。”^([1](ch06.xhtml#idm45018723261080))
+    他们继续指出，其他语言支持这个想法作为*记录*。今天在网上搜索你也会遇到术语*复合类型*。不管你如何称呼它，这种变量组合特性非常强大。让我们看看它是如何工作的。
 - en: Defining Structures
+  id: totrans-123
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 定义结构体
 - en: 'To create your own structures, you use the `struct` keyword and name followed
     by your list of variables inside curly braces. Then you can access those variables
     by name much like you access the elements of an array by index. Here’s a quick
     example we could use with a program for bank accounts:'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 要创建自己的结构，你使用 `struct` 关键字和名称，后面跟着大括号内部的变量列表。然后，你可以像访问数组的元素一样通过名称访问这些变量。下面是一个我们可以在银行账户程序中使用的快速示例：
 - en: '[PRE23]'
+  id: totrans-125
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'We now have a new “type” we can use with our variables. Instead of `int` or
     `char[]`, we have `struct transaction`:'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们有了一个新的“类型”，我们可以在变量中使用它。不再使用 `int` 或 `char[]`，我们有了 `struct transaction`：
 - en: '[PRE24]'
+  id: totrans-127
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: The `count` and `message` declarations should look familiar. The next line declares
     two more variables, `bill` and `deposit`, who share the new `struct transaction`
     type. You can use this new type anywhere you have been using native types like
@@ -642,27 +911,38 @@
     structures to functions or return them from functions. Working with structures
     and functions tends to rely more on pointers, but we’ll look at those details
     in [“Functions and Structures”](#smallerc-CHP-6-SECT-5.4).
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '`count` 和 `message` 的声明应该很熟悉。接下来的一行声明了另外两个变量 `bill` 和 `deposit`，它们共享新的 `struct
+    transaction` 类型。你可以在任何使用 `int` 等原生类型的地方使用这种新类型。你可以创建局部或全局变量使用 `struct` 类型。你可以将结构体传递给函数或从函数返回。在处理结构和函数时更倾向于使用指针，但我们将在[“函数和结构”](#smallerc-CHP-6-SECT-5.4)中详细讨论这些细节。'
 - en: Your structure definitions can be quite complex. There is no real restriction
     on how many variables they can contain. A structure can even contain nested `struct`
     definitions! You don’t want to go overboard, of course, but you do have freedom
     to create just about any kind of record you can imagine.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的结构定义可以非常复杂。它们可以包含多少个变量几乎没有真正的限制。一个结构体甚至可以包含嵌套的 `struct` 定义！当然，你不想过度使用，但你确实可以自由地创建几乎任何类型的记录。
 - en: Assigning and Accessing Structure Members
+  id: totrans-130
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分配和访问结构成员
 - en: 'Once your structure type is defined, you can declare and initialize variables
     of that type using syntax similar to how we handle arrays. For example, if you
     know a structure’s values ahead of time, you can use curly braces to initialize
     your variable:'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦定义了你的结构类型，你就可以使用类似处理数组的语法声明和初始化该类型的变量。例如，如果你提前知道结构的值，你可以使用花括号初始化你的变量：
 - en: '[PRE25]'
+  id: totrans-132
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: 'The order of the values inside the braces needs to match the order of the variables
     you listed in the `struct` definition. But you can also create a structure variable
     and fill it in after the fact. To indicate which field you want to assign, you
@@ -670,73 +950,107 @@
     in our current example), a period, and then the member of the structure you are
     interested in, like `day` or `amount`. With this approach, you can make assignments
     in any order you like:'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 大括号内的值的顺序需要与你在 `struct` 定义中列出的变量顺序相匹配。但是你也可以创建一个结构变量，并在事后填充它。要指示你要分配的字段，你使用“点”运算符。你给出结构变量的名称（在我们当前的例子中是
+    `bill` 或 `deposit`），一个句点，然后你感兴趣的结构成员，比如 `day` 或 `amount`。使用这种方法，你可以按任何顺序进行分配：
 - en: '[PRE26]'
+  id: totrans-134
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: 'Regardless of how you filled the structure, you use the same dot notation to
     access a structure’s contents anytime you need them. For example, to print any
     details from a transaction, we specify the transaction variable (`bill` or `deposit`
     in our case), the dot, and the field we want, like this:'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论如何填充结构，你都可以使用相同的点表示法随时访问结构的内容。例如，要打印交易的任何细节，我们指定交易变量（在我们的例子中是 `bill` 或 `deposit`），点号，以及我们想要的字段，就像这样：
 - en: '[PRE27]'
+  id: totrans-136
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: 'We can print these inner elements to the screen. We can assign new values to
     them. We can use them in calculations. You can do everything with the pieces inside
     your structure that you do with other variables. The point of the structure is
     simply to make it easier to keep related pieces of data together. But these structures
     also keep data *distinct*. Consider assigning the `amount` variable in both our
     `bill` and our `deposit`:'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以将这些内部元素打印到屏幕上。我们可以为它们分配新值。我们可以在计算中使用它们。你可以用结构中的内部元素做任何其他变量可以做的事情。结构的目的只是为了更轻松地将相关数据片段放在一起。但是这些结构也保持数据*独立*。考虑在我们的`bill`和`deposit`中分配`amount`变量：
 - en: '[PRE28]'
+  id: totrans-138
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: 'There is never any confusion over which `amount` you mean, even though we used
     the `amount` name in both assignments. If we add some tax to our `bill` after
     it was set up, for example, that will not affect how much money we include in
     our `deposit`:'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这两个赋值中我们使用了 `amount` 这个名字，但是我们从来不会混淆你指的是哪个 `amount`。例如，如果我们在设定了我们的 `bill` 后给它加一些税，那并不会影响我们在
+    `deposit` 中包含的金额：
 - en: '[PRE29]'
+  id: totrans-140
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: Hopefully, that separation makes sense. With structures, you can talk about
     bills and deposits as entities in their own right, while understanding that the
     details of any individual bill or deposit remain unique to that transaction.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 希望这种分离有意义。使用结构体，您可以将账单和存款作为独立的实体来讨论，同时理解任何单个账单或存款的详细信息仍然是独特的。
 - en: Pointers to Structures
+  id: totrans-142
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结构体指针
 - en: If you build a good composite type that encapsulates just the right data, you
     will likely start using these types in more and more places. You can use them
     for global and local variables or as parameter types or even function return types.
     In the wild, however, you will more often see programmers working with pointers
     to structures rather than structures themselves.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您构建了一个良好的组合类型，它封装了恰到好处的数据，您很可能会开始在越来越多的地方使用这些类型。您可以将它们用作全局和局部变量，或作为参数类型甚至函数返回类型。然而，在实际应用中，您更常见的是程序员使用结构体指针而不是结构体本身。
 - en: 'To create (or destroy) pointers to structures, you can use exactly the same
     operators and functions that are available for simple types. If you already have
     a `struct` variable, for example, you can get its address with the `&` operator.
     If you created an instance of your structure with `malloc()`, you use `free()`
     to return that memory to the heap. Here are a few examples of using these features
     and functions with our `struct transaction` type:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 要创建（或销毁）结构体指针，您可以使用与简单类型相同的操作符和函数。例如，如果您已经有一个 `struct` 变量，您可以使用 `&` 操作符获取它的地址。如果您使用
+    `malloc()` 创建了结构体的实例，您可以使用 `free()` 将该内存返回到堆中。以下是几个使用这些特性和函数的示例，我们的类型是 `struct
+    transaction`：
 - en: '[PRE30]'
+  id: totrans-145
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: Here, `tmp` is a normal `struct transaction` variable and we initialize it using
     curly braces. Both `payment` and `withdrawal` are declared as pointers. We can
     assign the address of a `struct transaction` variable like we do with `payment`,
     or we can allocate memory on the heap (to fill in later) like we do with `withdrawal`.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，`tmp` 是一个普通的 `struct transaction` 变量，我们使用花括号初始化它。`payment` 和 `withdrawal`
+    都声明为指针。我们可以像对待 `payment` 那样，将一个 `struct transaction` 变量的地址赋给它，或者像对待 `withdrawal`
+    那样，在堆上分配内存（以便稍后填写）。
 - en: 'When we go to fill in `withdrawal`, however, we have to remember that we have
     a pointer, so `withdrawal` requires dereferencing before we can apply the dot.
     Not only that, the dot operator has a higher order of precedence than the dereference
@@ -745,143 +1059,203 @@
     the members of a `struct` pointer. The “arrow” operator, `->`, allows us to use
     a `struct` pointer without dereferencing it. You place the arrow between the structure
     variable’s name and the name of the intended member just like with the dot operator:'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，当我们填写 `withdrawal` 时，我们必须记住我们有一个指针，因此在应用点之前我们需要解引用 `withdrawal`。不仅如此，点操作符的优先级比解引用操作符高，因此您必须使用括号正确应用操作符。这可能有点繁琐，因此我们经常使用一种替代符号来访问结构体指针的成员。箭头操作符
+    `->` 允许我们在不解引用的情况下使用结构体指针。您将箭头放置在结构体变量名称和预期成员名称之间，就像使用点操作符一样：
 - en: '[PRE31]'
+  id: totrans-148
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: This difference can be a little frustrating, but eventually you’ll get used
     to it. Pointers to structures provide an efficient means of sharing relevant information
     between different parts of your program. Their biggest advantage is that pointers
     do not have the overhead of moving or copying all of the internal pieces of their
     structures. This advantage becomes apparent when you start using structures with
     functions.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种差异可能有点令人沮丧，但最终您会习惯的。结构体指针提供了一种有效的方式，在程序的不同部分之间共享相关信息。它们最大的优势是指针没有移动或复制其结构体内部所有部分的开销。当您开始将结构体与函数一起使用时，这种优势就会显现出来。
 - en: Functions and Structures
+  id: totrans-150
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 函数和结构体
 - en: 'Consider writing a function to print out the contents of a transaction in a
     nice format. We could pass the structure as is to a function. We just use the
     `struct transaction` type in our parameter list and then pass a normal variable
     when we call it:'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑编写一个函数，以漂亮的格式打印交易内容。我们可以将结构体作为参数传递给函数。我们在参数列表中使用`struct transaction`类型，然后在调用时传递一个普通变量：
 - en: '[PRE32]'
+  id: totrans-152
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: 'Pretty simple, but recall our discussion of how function calls work with the
     stack. In this example, all of the fields of `bill` or `deposit` will have to
     be put on the stack when we call `printTransaction1()`. That takes extra time
     and space. Indeed, in the very earliest versions of C, this wasn’t even allowed!
     That’s obviously not true any longer, but passing pointers to and from functions
     is still faster. Here’s a pointer version of our `printTransaction1()` function:'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 非常简单，但请回顾我们关于函数调用与堆栈的讨论。在这个例子中，当我们调用`printTransaction1()`时，`bill`或`deposit`的所有字段都必须放在堆栈上。这会消耗额外的时间和空间。事实上，在
+    C 的最早版本中，这甚至是不允许的！现在显然不再如此，但是通过指针传递和从函数返回指针仍然更快。以下是我们`printTransaction1()`函数的指针版本：
 - en: '[PRE33]'
+  id: totrans-154
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE33]'
 - en: The only thing required to go on the stack was the address of one `struct transaction`
     object. Much cleaner.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 唯一需要放在堆栈上的是一个`struct transaction`对象的地址。更加清晰。
 - en: 'Passing pointers this way has an interesting, intended feature: we can change
     the contents of a structure in the function. Recall from [“Passing Simple Types”](ch05.xhtml#smallerc-CHP-5-SECT-3.1)
     that without pointers, we end up passing values via the stack that initialize
     the parameters of the function. Nothing we do to those parameters while inside
     the function affects the original arguments from wherever the function was called.'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过这种方式传递指针具有一个有趣且预期的特性：我们可以在函数中更改结构体的内容。回忆一下 [“传递简单类型”](ch05.xhtml#smallerc-CHP-5-SECT-3.1)，没有指针时，我们通过堆栈传递初始化函数参数的值。我们在函数内对这些参数所做的任何操作都不会影响从函数被调用的地方传递的原始参数。
 - en: 'If we pass a pointer, however, we can use that pointer to change the insides
     of the structure. And those changes persist because we are working on the actual
     structure, not a copy of its values. For example, we could create a function to
     add tax to any transaction:'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，如果我们传递一个指针，我们可以使用该指针来更改结构体的内部。这些更改是持久的，因为我们正在处理实际的结构体，而不是其值的副本。例如，我们可以创建一个函数来给任何交易添加税：
 - en: '[PRE34]'
+  id: totrans-158
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE34]'
 - en: 'Notice that we do not change `bill.amount` in the `main()` function. We simply
     pass its address to `addTax()` along with a tax rate. Here’s the output of those
     `printf()` statements:'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，在`main()`函数中我们没有改变`bill.amount`。我们只是将其地址与税率一起传递给`addTax()`函数。以下是那些`printf()`语句的输出：
 - en: '[PRE35]'
+  id: totrans-160
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE35]'
 - en: Exactly what we were hoping for. Because it proves so powerful, passing structures
     by reference is very common. Not everything needs to be in a structure, and not
     every structure has to be passed by reference, but in large programs, the organization
     and efficiency you get are definitely appealing.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 正是我们所期望的。由于其功能强大，通过引用传递结构体在大型程序中非常常见。并非所有内容都需要放在结构体中，也不是每个结构体都必须通过引用传递，但是组织和效率确实非常吸引人。
 - en: Warning
+  id: totrans-162
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 警告
 - en: This ability to alter the contents of a structure using a pointer is usually
     desirable. But if for some reason you *don’t* want to change a member while you’re
     using a pointer to its structure, be sure not to assign anything to that member.
     You can, of course, always put a copy of that member’s value into a temporary
     variable first, and then work with the temporary variable.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用指针改变结构体内容的能力通常是可取的。但如果出于某些原因，你*不想*在使用指针时改变某个成员，确保不对该成员赋值。当然，你可以先将该成员的值复制到一个临时变量中，然后再处理该临时变量。
 - en: Pointer Syntax Recap
+  id: totrans-164
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指针语法回顾
 - en: 'I introduced enough new and somewhat esoteric bits of C’s syntax in this chapter
     that I wanted to recap things here for quick reference:'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我介绍了足够多新奇且有些难懂的 C 语法，因此我想在这里做个简要回顾：
 - en: We defined new data types with the `struct` keyword.
+  id: totrans-166
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们使用`struct`关键字定义新的数据类型。
 - en: We used the “dot” operator (`.`) for accessing the contents of a structure.
+  id: totrans-167
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们使用“点”操作符（`.`）来访问结构体的内容。
 - en: We used the “arrow” operator (`->`) for accessing the contents of a structure
     though a pointer.
+  id: totrans-168
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们使用“箭头”操作符（`->`）来通过指针访问结构体的内容。
 - en: We allocated our own space for data using `malloc()`.
+  id: totrans-169
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们使用`malloc()`为数据分配了自己的空间。
 - en: We worked with that space using the `&` (“address of”) and `*` (“dereference”)
     operators.
+  id: totrans-170
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 我们使用`&`（“取地址”）和`*`（“解引用”）操作符处理该空间。
 - en: When we’re done with the data, we can release its space using `free()`.
+  id: totrans-171
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 当我们处理完数据后，可以使用`free()`释放其空间。
 - en: 'Let’s see these new concepts and definitions in context. Consider the following
     program, [*ch06/structure.c*](https://oreil.ly/xeqqL). Rather than use callouts
     in this slightly longer listing, I have added several inline comments to highlight
     key points. That way you can look up these details quickly here in the book, or
     in your code editor if you’re working on one of your own programs:'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们看看这些新概念和定义在实际中的应用。考虑以下程序，[*ch06/structure.c*](https://oreil.ly/xeqqL)。在这个稍长的清单中，我添加了几条内联注释来突出关键点，而不是在这里使用调用注释。这样你可以快速查找书中的细节，或者在你自己的代码编辑器中查找：
 - en: '[PRE36]'
+  id: totrans-173
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE36]'
 - en: As with most new concepts and bits of syntax, you’ll get more comfortable with
     pointers and `malloc()` as you use them more in your own programs. Creating a
     program from scratch that solves a problem you are interested in always helps
     cement your understanding of a new topic. I officially give you permission to
     go play around with pointers!
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像大多数新概念和语法片段一样，你在自己的程序中越多地使用指针和`malloc()`，就会越熟悉它们。从头开始创建一个解决你感兴趣的问题的程序总是有助于巩固你对新主题的理解。我正式允许你去玩弄指针！
 - en: Next Steps
+  id: totrans-175
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 下一步
 - en: We covered some pretty advanced stuff in this chapter. We looked at where data
     is stored in memory as your program is running and the operators (`&`, `*`, `.`,
     and `->`) and functions (`malloc()` and `free()`) that help you work with the
@@ -889,19 +1263,27 @@
     spend multiple chapters on these concepts, so don’t be discouraged if you need
     to read through some of this material a few more times. As always, running the
     code with some of your own modifications is a great way to practice your understanding.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这一章中，我们涵盖了一些相当高级的内容。我们探讨了在程序运行时数据存储在内存中的位置，以及帮助你处理这些数据地址的运算符（`&`、`*`、`.` 和
+    `->`）和函数（`malloc()` 和 `free()`）。许多中级和高级编程书籍会花费多章节来讲解这些概念，所以如果你需要多次阅读这些材料，不要感到泄气。像往常一样，运行代码并进行一些自己的修改是练习理解的好方法。
 - en: We have an impressive array of tools in our C kit now! We can start tackling
     complex problems and have a good shot at solving them. But in many cases, our
     problems are not actually novel. In fact, a lot of problems (or at least a lot
     of the subproblems we find when we break up our real task into manageable pieces)
     have already been encountered and solved by other programmers. The next chapter
     looks at how to take advantage of those external solutions.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们的C工具包中有了许多强大的工具！我们可以开始解决复杂的问题，并且有很大的机会解决它们。但在许多情况下，我们的问题实际上并不是新问题。事实上，许多问题（或者至少我们将真实任务分解为可管理的子任务时遇到的许多子问题）已经被其他程序员遇到并解决了。下一章将探讨如何利用这些外部解决方案。
 - en: ^([1](ch06.xhtml#idm45018723261080-marker)) That convenient handling turns out
     to be very convenient. Kernighan and Ritchie devote an entire chapter of *The
     C Programming Language* to this topic. Obviously they go into more detail than
     I can here, so here’s one more plug for picking up this classic.
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch06.xhtml#idm45018723261080-marker)) 那种方便的处理方式确实非常便利。Kernighan 和 Ritchie
+    在《C程序设计语言》中专门为这个主题撰写了一整章。显然，他们在这里的详细内容比我能提供的要多，所以我再次推荐你阅读这个经典著作。

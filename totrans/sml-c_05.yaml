@@ -1,7 +1,9 @@
 - en: Chapter 5\. Functions
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第5章。函数
 - en: With the various assignment statements and flow of control options we’ve seen
     so far, you are now primed to solve just about any problem meant for computers.
     But solving a problem turns out to be only about half of the, uh, problem. Whether
@@ -12,8 +14,10 @@
     as the initial effort to get the code working. Breaking up a problem to make it
     manageable while you are solving it can have a beneficial effect on the code you
     end up writing—which also has a beneficial effect on its readability and maintainability.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过我们迄今为止看到的各种赋值语句和控制流选项，您现在已经准备好解决几乎任何计算机问题了。但解决问题只是问题的一半。无论您是为工作还是为娱乐编码，您都不可避免地需要回到您已经编写的代码。您可能正在修复一个小错误或添加一个缺失的功能。您可能正在使用以前的项目作为新项目的起点。在所有这些时刻，代码的可维护性几乎与最初努力使代码工作一样重要。在解决问题时将问题分解以使其易于管理可能对您最终编写的代码产生有益影响——这也对其可读性和可维护性产生有益影响。
 - en: Core to this idea of tackling smaller problems on the way to tackling the whole
     one is the use of *functions* or *procedures*. Functions help you encapsulate
     logic—the statements and control structures you are learning to code. In C, you
@@ -24,36 +28,51 @@
     I’ll mostly use the term *function*, but if you see discussions of a procedure
     (or *routine*, same idea) here or in any of your other reading, it still refers
     to a block of code you can call from some other block of code.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个想法的核心是在解决整个问题的过程中解决较小的问题，这就是使用*函数*或*过程*。函数帮助您封装逻辑——您正在学习编码的语句和控制结构。在C中，您可以编写和调用您需要的任意多个函数。^([1](ch05.xhtml#idm45018727721800))
+    C实际上并不区分“函数”和“过程”这两个词，尽管有些语言区分。在这些语言中，区别通常在于一段代码是否返回一个值或仅执行一组语句。我将主要使用术语*函数*，但如果您在这里或在任何其他阅读中看到有关过程（或*例程*，同样的概念）的讨论，它仍然指的是一块代码，您可以从其他代码块中调用。
 - en: Familiar Functions
+  id: totrans-3
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 熟悉的函数
 - en: We’ve actually been using functions all along. The `main()` block of code is
     a function. In our very first “Hello, World” program, we used the `printf()` function
     to produce some output. We use the `scanf()` function to get input from the user.
     Both of those functions come from the `stdio.h` library we include in our programs.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，我们一直在使用函数。`main()`代码块就是一个函数。在我们的第一个“Hello, World”程序中，我们使用`printf()`函数生成一些输出。我们使用`scanf()`函数从用户那里获取输入。这两个函数都来自我们在程序中包含的`stdio.h`库。
 - en: Function Flow
+  id: totrans-5
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 函数流程
 - en: What is going on inside these functions? What does it mean to “call” them? Functions
     and procedures are another form of flow control. They allow you to jump between
     chunks of code in an orderly way—and return to where you came from when you’re
     done. [Figure 5-1](#smallerc-CHP-5-FIG-function-basics) illustrates this flow
     a little more formally.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些函数内部发生了什么？“调用”它们意味着什么？函数和过程是另一种流程控制形式。它们允许您以有序的方式在代码块之间跳转，并在完成后返回到您来自的位置。[图5-1](#smallerc-CHP-5-FIG-function-basics)更正式地说明了这种流程。
 - en: '![smac 0501](Images/smac_0501.png)'
+  id: totrans-7
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0501](Images/smac_0501.png)'
 - en: Figure 5-1\. Following the flow of control through a function
+  id: totrans-8
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图5-1。跟随函数的控制流
 - en: This flow is what I mean by *calling* a function. You go from your current statement
     to the first statement of the function. You work your way through the function
     (which, by the way, can contain calls to other functions) and then come back.
@@ -62,29 +81,41 @@
     is one, but we can safely ignore it.) We do, however, rely on the return value
     from many functions to know things like whether two strings match, or if a character
     is a numeric digit, or what the square root of some number is.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种流程就是我所说的*调用*函数。您从当前语句到函数的第一条语句。您按照函数的方式工作（顺便说一句，函数可以包含对其他函数的调用），然后返回。在返回的过程中，您可以带上一个结果，但这是可选的。例如，我们不使用`printf()`和`scanf()`调用的任何返回值（虽然有一个，但我们可以安全地忽略它）。但是，我们确实依赖许多函数的返回值，例如判断两个字符串是否匹配，或者字符是否为数字，或者某个数字的平方根是多少。
 - en: We’ll look at many of the functions that make up the “standard library” of C
     in [Chapter 7](ch07.xhtml#smallerc-CHP-7). But we don’t have to rely solely on
     the standard functions, either. C allows us to create our own functions. [Figure 5-2](#smallerc-CHP-5-FIG-function-layout)
     shows the basic structure of a function.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将研究构成C“标准库”的许多函数，在[第7章](ch07.xhtml#smallerc-CHP-7)中。但我们也不必仅依赖于标准函数。C允许我们创建自己的函数。[图 5-2](#smallerc-CHP-5-FIG-function-layout)显示了函数的基本结构。
 - en: '![smac 0502](Images/smac_0502.png)'
+  id: totrans-11
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0502](Images/smac_0502.png)'
 - en: Figure 5-2\. The basic parts of a C function
+  id: totrans-12
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 5-2\. C函数的基本部分
 - en: We’ll work through all the variations on these key parts of a function in this
     chapter.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们将详细讨论函数这些关键部分的各种变化。
 - en: Simple Functions
+  id: totrans-14
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 简单函数
 - en: 'The simplest form of a C function is one where we only jump to the function,
     execute its statements, and jump back. We don’t pass any information in and we
     don’t expect any information back. This might sound a little boring or even wasteful,
@@ -93,58 +124,80 @@
     your program might come with some helpful instructions. Anywhere the user gets
     stuck, you print those to the screen to help get them unstuck. You can put those
     instructions in a function:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: C函数的最简单形式是我们只跳转到函数，执行其语句，然后跳回。我们不传递任何信息，也不期望任何信息返回。这听起来可能有点无聊甚至浪费，但它可以非常有用，用于将大型程序分解为可管理的部分。它还可以使得重复使用常见代码块成为可能。例如，您的程序可能带有一些有用的说明。无论用户遇到问题时，您都可以将这些打印到屏幕上以帮助他们解决问题。您可以将这些说明放入一个函数中：
 - en: '[PRE0]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: Note the type of our function; it’s a new one. This *void* type tells the compiler
     this function does not have a return value. C’s default is to return an `int`
     like our `main()` function, but functions can return any type of value that C
     supports—including no value at all, like we do here.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意我们函数的类型；它是一个新类型。这种*void*类型告诉编译器此函数没有返回值。C的默认行为是返回一个像我们的`main()`函数一样的`int`，但函数可以返回C支持的任何类型的值，包括我们在这里做的无值返回。
 - en: Function names in C follow the same rules as variable names. You have to start
     with a letter or the underscore, and then you can have any number of following
     letters, numbers, or underscores. Also, like variables, you cannot use any of
     the reserved words from [Table 2-4](ch02.xhtml#smallerc-CHP-2-TAB-c-keywords).
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: C中的函数名遵循与变量名相同的规则。必须以字母或下划线开头，然后可以有任意数量的字母、数字或下划线。与变量一样，也不能使用来自[表 2-4](ch02.xhtml#smallerc-CHP-2-TAB-c-keywords)的任何保留字。
 - en: We can then call this function anytime we need to nudge the user or if they
     ask for help. Here’s the rest of the program, [*ch05/help_demo.c*](https://oreil.ly/LilAh).
     We’ll print the help information when the program starts, and if the user simply
     hits the Return key when prompted for a name, we’ll print it again.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后，我们可以在需要时调用此函数，来提醒用户或在他们请求帮助时。以下是程序的其余部分，[*ch05/help_demo.c*](https://oreil.ly/LilAh)。当程序启动时，我们将打印帮助信息，如果用户仅按下Return键时要求输入名称，我们将再次打印帮助信息。
 - en: '[PRE1]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'And here’s the output:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是输出：
 - en: '[PRE2]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Notice that in reusing our simple `print_help()` function, we did not save much
     by way of lines of code. Sometimes, using a function is more about consistency
     than reducing space or complexity. If we end up changing how our program works,
     say, asking the user for their name and address, for example, we can update just
     this one function and everywhere it gets used will automatically benefit from
     the new content.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，在重用我们的简单`print_help()`函数时，我们在代码行数方面并没有节省太多。有时，使用函数更多是为了保持一致性，而不是减少空间或复杂性。如果我们最终改变了程序的工作方式，比如说，询问用户他们的姓名和地址，我们只需更新这一个函数，所有使用它的地方将自动受益于新内容。
 - en: Sending Information to Functions
+  id: totrans-24
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 向函数发送信息
 - en: While there are a surprising number of times where simple functions such as
     our `print_help()` come in handy, more often you’ll need to pass some information
     that the function can use to do its work. Think back to our second iteration of
     saying hello to the user. We prompted them to enter their name and then printed
     a personalized greeting. We can create a function that has that same tailoring
     capacity. To do that, we’ll specify a function *parameter*.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管我们的`print_help()`之类的简单函数有意外地多次变得有用，但更常见的情况是，您需要传递一些信息给函数，以便它完成其工作。回顾一下我们对用户说hello的第二次迭代。我们提示他们输入他们的名字，然后打印个性化的问候语。我们可以创建一个具有相同定制能力的函数。为此，我们将指定一个函数*参数*。
 - en: 'Parameters go inside the pair of parentheses and look a lot like variable declarations.
     In a very real sense, they are variable declarations. But there are a few key
     differences between parameters and variables. First, you must supply a type for
@@ -152,11 +205,15 @@
     the second type is the same. Secondly, you cannot initialize a parameter. Parameters
     get their initial value from the *arguments* you supply when you call the function.
     Here are a few valid and invalid examples:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 参数放在括号内，看起来很像变量声明。从实质上讲，它们确实是变量声明。但参数和变量之间有一些关键的区别。首先，你必须为每个参数提供一个类型。即使第二个类型相同，也不能“依赖”另一个参数的类型。其次，你不能初始化参数。参数的初始值来自于你调用函数时提供的*参数*。以下是一些有效和无效的例子：
 - en: '[PRE3]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: The names “parameter” and “argument” are just programmer-speak for variables
     and values. But it’s useful to have distinct names when talking about the structure
     of your program with other developers. When you say “parameter,” other programmers
@@ -164,27 +221,39 @@
     you talk about arguments, it is clear you mean the values passed to an already
     defined function that you are calling. Knowing this terminology can also help
     you ask better questions when you search online for help.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 名称“参数”和“参数”只是程序员的术语，用来表示变量和值。但在与其他开发人员讨论程序结构时，具有明确的名称是有用的。当你说“参数”时，其他程序员知道你在讨论定义函数及其输入。相比之下，当你谈论参数时，清楚地表明你指的是传递给已定义函数的值。了解这个术语也可以帮助你在搜索在线帮助时提出更好的问题。
 - en: Passing Simple Types
+  id: totrans-29
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 传递简单类型
 - en: 'Let’s try passing some things to a function and using them. A canonical function
     with parameters is one that calculates a numeric average. We can define a function
     that accepts two floating point numbers and prints out the average like this:'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们尝试向函数传递一些东西并使用它们。带有参数的经典函数是计算数字平均值的函数。我们可以定义一个接受两个浮点数并打印平均值的函数，就像这样：
 - en: '[PRE4]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'We can now call `print_average()` from some other part of our program like
     this:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们可以从程序的其他部分像这样调用`print_average()`：
 - en: '[PRE5]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'Notice that our parameters, `a` and `b`, do not share a name with the variables
     we use as arguments, `num1` and `num2`. It is not the names of things that tie
     arguments to parameters, it is their position. The first argument, whether it
@@ -192,247 +261,359 @@
     the first parameter and will be used to give that first parameter its starting
     value. The second argument goes with the second parameter, and so on. All of the
     following calls to `print_average()` are valid:'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，我们的参数`a`和`b`与我们用作参数的变量`num1`和`num2`的名称不同。将参数与参数绑定的不是它们的名称，而是它们的位置。第一个参数，无论是文字值、变量，甚至是表达式，必须与第一个参数的类型相匹配，并用于给该第一个参数提供其起始值。第二个参数与第二个参数配对，依此类推。所有以下对`print_average()`的调用都是有效的：
 - en: '[PRE6]'
+  id: totrans-35
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: Passing arguments to functions is fundamental to C programming. We won’t go
     through the output here, but take a look at [*ch05/averages.c*](https://oreil.ly/v9VLq).
     Run it and see if you get the output you expect. Try adding some of your own variables
     or use `scanf()` to get more input, and then print some more averages. This is
     definitely a case where practice will pay off!
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 将参数传递给函数是C编程的基础。我们不会在这里详细讨论输出结果，但可以查看[*ch05/averages.c*](https://oreil.ly/v9VLq)。运行它，看看是否得到预期的输出。尝试添加一些自己的变量或使用`scanf()`来获取更多输入，然后再打印一些平均值。这确实是一个练习会带来回报的案例！
 - en: Passing Strings to Functions
+  id: totrans-37
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 将字符串传递给函数
 - en: 'But what about our personalized greeting function? We can pass strings (again,
     really just an array of `char`) more or less like we pass other types. As with
     other parameters, we do not give array parameters an initial value, so the square
     brackets are always empty:'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是我们的个性化问候函数呢？我们可以像传递其他类型一样传递字符串（实际上只是`char`数组）。与其他参数一样，我们不给数组参数一个初始值，所以方括号总是空的：
 - en: '[PRE7]'
+  id: totrans-39
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: When we go to call `greet()`, we’ll use the whole array as the argument, similar
     to how we pass string variables to the `scanf()` function. We reused the variable
     `name` because it makes sense for our program and our `greet()` function. It is
     not required that arguments and parameters match like this. In fact, such alignment
     is rare. We’ll look at this distinction between the parameters in a function and
     the arguments passed to it in [“Variable Scope”](#smallerc-CHP-5-SECT-6).
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们调用`greet()`时，我们将整个数组作为参数，类似于将字符串变量传递给`scanf()`函数的方式。我们重新使用变量`name`是因为它对我们的程序和我们的`greet()`函数有意义。参数和参数匹配并非必须如此。事实上，这样的对齐是罕见的。我们将在[“变量作用域”](#smallerc-CHP-5-SECT-6)中查看函数参数与传递给它的参数之间的区别。
 - en: Note
+  id: totrans-41
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: You will often see array parameters declared with a “*” prefix rather than the
     “[]” bracket suffix (e.g., `void greet(char *name)`). This is valid notation centering
     on the use of pointers. We’ll tackle pointers in [Chapter 6](ch06.xhtml#smallerc-CHP-6)
     where I’ll cover how array variables work in more detail, both in terms of their
     memory allocation and using them with functions.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 您经常会看到使用“*”前缀而不是“[]”后缀来声明数组参数（例如`void greet(char *name)`）。这是关于指针使用的有效表示法。我们将在[第6章](ch06.xhtml#smallerc-CHP-6)中处理指针，讨论数组变量的工作原理更详细，包括它们的内存分配以及在函数中的使用方式。
 - en: 'Here’s a complete program, [*ch05/greeting.c*](https://oreil.ly/FTudJ) that
     defines and uses `greet()`:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有一个完整的程序，[*ch05/greeting.c*](https://oreil.ly/FTudJ)，定义并使用了`greet()`：
 - en: '[PRE8]'
+  id: totrans-44
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'And here is the output of a few runs:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里是几次运行的输出结果：
 - en: '[PRE9]'
+  id: totrans-46
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Hopefully, nothing too surprising there. As noted above, we’ll revisit passing
     arrays as arguments in [Chapter 6](ch06.xhtml#smallerc-CHP-6). There’s nothing
     wrong with how we specify our `char[]` parameter in this example, but it isn’t
     the only way to do it.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 希望这里没有什么令人惊讶的地方。如上所述，我们将在[第6章](ch06.xhtml#smallerc-CHP-6)重新讨论将数组作为参数传递的问题。在这个例子中，我们指定`char[]`参数的方式并没有问题，但并非唯一的方法。
 - en: Multiple Types
+  id: totrans-48
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 多种类型
 - en: 'It might be obvious, but I want to point out that the parameter list in a function
     definition can mix and match types. You are not restricted to one type. For example,
     we can write a `repeat()` function that takes a string to print and a `count`
     to tell us how many times to print the string:'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 这可能很明显，但我想指出函数定义中的参数列表可以混合不同类型。您不限于一种类型。例如，我们可以编写一个`repeat()`函数，该函数接受要打印的字符串和要打印该字符串的次数`count`：
 - en: '[PRE10]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'Neat! If we call `repeat()` with the word “Dennis” and the number 5, we will
     get the following output:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 很棒！如果我们用单词“Dennis”和数字5调用`repeat()`，我们将得到以下输出：
 - en: '[PRE11]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: Tip
+  id: totrans-53
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: Well, the answer to this little quiz is a tip, at least. :) Can you think of
     a way to print the index numbers in the output above so that they start at 1 and
     go to 5 instead of the less human-friendly 0 to 4 that we have now?
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 嗯，这个小测验的答案是一个提示，至少是这样。 :) 您能想到一种方法，使上述输出中的索引号从1开始，而不是当前不太友好的从0到4吗？
 - en: Exiting a Function
+  id: totrans-55
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 退出函数
 - en: 'A common problem every programmer faces is making sure that the inputs to functions
     are appropriate. In the case of our nifty `repeat()` function, for example, we
     want a `count` that is a positive number so that we actually get some output.
     What do we do if we get a bad number and don’t want to finish the rest of the
     function? Fortunately, C provides a way to exit a function at any time: the `return`
     statement.'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个程序员都面临的一个常见问题是确保函数的输入合适。例如，对于我们精妙的`repeat()`函数，我们希望`count`是一个正数，这样我们才能得到一些输出。如果我们得到一个不良数字，而且不想完成函数的其余部分，我们该怎么办呢？幸运的是，C提供了一个在任何时候退出函数的方法：`return`语句。
 - en: 'We can upgrade `repeat()` to check for a good `count` before trying to run
     the printing loop:'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以升级`repeat()`来在尝试运行打印循环之前检查一个良好的`count`：
 - en: '[PRE12]'
+  id: totrans-58
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Much better. The first version of `repeat()` wouldn’t crash or anything if a
     negative count was supplied, but the user would not see any output and would not
     know why. Testing for legal or expected values is usually a good idea—especially
     if you are writing code that other people might also end up using.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 更好了。第一个版本的`repeat()`如果提供了负数计数，不会崩溃或者发生任何问题，但是用户将看不到任何输出，也不知道原因。测试合法或者预期值通常是个好主意——尤其是当你写的代码可能被其他人使用时。
 - en: Returning Information
+  id: totrans-60
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 返回信息
 - en: Functions can also return information. You specify one of the data types, such
     as `int` or `float`, in the definition, and then use the `return` statement to
     send back an actual value. When you call such a function, you can store that returned
     value in a variable or use it anywhere a value or an expression is allowed.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数也可以返回信息。你在定义时指定一个数据类型，比如`int`或者`float`，然后使用`return`语句发送一个实际的值回去。当你调用这样的函数时，你可以把返回的值存储在一个变量中，或者在任何允许值或表达式的地方使用它。
 - en: For example, we could take `print_average()` and turn it into a function that
     calculates the average and simply returns it, rather than printing anything out.
     That way you are free to print the average yourself with a custom message. Or
     you can use the average in some other calculation.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，我们可以把`print_average()`改成一个计算平均值并简单返回它的函数，而不是打印任何内容。这样你可以自由地用自定义消息打印平均值。或者你可以在某些其他计算中使用这个平均值。
 - en: 'Here’s a simple version of such a function:'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是这样一个函数的简单版本：
 - en: '[PRE13]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: Instead of `void` for a type, we now have `float`. So our `return` statement
     should include a float value, variable, or expression. In this example, we calculate
     the average and store it in a temporary variable called `average`. We then use
     that variable with the `return`. It’s important to note that what gets returned
     is a *value*. The `average` variable disappears when we’re done with the function,
     but its final value is sent back.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在不是用`void`而是用了`float`作为类型。因此我们的`return`语句应该包含一个float值、变量或者表达式。在这个例子中，我们计算平均值并将其存储在一个名为`average`的临时变量中，然后使用`return`返回它。重要的是要注意返回的是一个*值*。`average`变量在函数结束时消失，但它的最终值被发送了回去。
 - en: 'Since we do return a value, it is common for functions like `calc_average()`
     to skip the temporary variables. You can perform this simple calculation right
     with the `return` like so:'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于我们返回一个值，像`calc_average()`这样的函数通常会跳过临时变量。你可以像这样直接使用`return`进行简单的计算：
 - en: '[PRE14]'
+  id: totrans-67
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: You don’t lose any readability here, but that is probably because this is such
     a straightforward calculation. For larger or more complex functions, feel free
     to use whichever approach is more comfortable or seems more maintainable.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里你不会失去任何可读性，但这可能是因为这是一个如此直接的计算。对于更大或更复杂的函数，随意使用更舒适或者看起来更易维护的方法。
 - en: Using Returned Values
+  id: totrans-69
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 使用返回的值
 - en: To capture that average, we put the call to the `calc_average()` function somewhere
     we would normally see a literal or expression. We can assign it to a variable.
     We could use it in a `printf()` statement. We could include it inside a larger
     calculation. Its type is `float`, so anywhere you could use a floating point value
     or variable, you can call `calc_average()`.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 要捕获那个平均值，我们把对`calc_average()`函数的调用放在我们通常会看到文字或表达式的地方。我们可以把它赋给一个变量。我们可以在`printf()`语句中使用它。我们可以把它包含在一个更大的计算中。它的类型是`float`，所以任何地方你能用浮点值或变量，你都可以调用`calc_average()`。
 - en: 'Here are a few examples from [*ch05/averages2.c*](https://oreil.ly/ALwA3):'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有几个来自[*ch05/averages2.c*](https://oreil.ly/ALwA3)的例子：
 - en: '[PRE15]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: In each of these statements, you can see how `calc_average()` gets used in place
     of a `float` value. [Figure 5-3](#smallerc-CHP-5-FIG-function-flow) illustrates
     the flow of that first assignment statement.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这些语句中的每一个中，您可以看到`calc_average()`如何在`float`值的位置使用。[第 5-3 图](#smallerc-CHP-5-FIG-function-flow)说明了第一次赋值语句的流程。
 - en: '![smac 0503](Images/smac_0503.png)'
+  id: totrans-74
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0503](Images/smac_0503.png)'
 - en: Figure 5-3\. Flow of a call to `calc_average()`
+  id: totrans-75
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 第 5-3 图。调用`calc_average()`的流程
 - en: '![1](Images/1.png)'
+  id: totrans-76
   prefs: []
   type: TYPE_IMG
+  zh: '![1](Images/1.png)'
 - en: Call to `calc_average()` transfers control to the function; its parameters are
     initialized from the arguments.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用`calc_average()`将控制权转移到函数；其参数从参数中初始化。
 - en: '![2](Images/2.png)'
+  id: totrans-78
   prefs: []
   type: TYPE_IMG
+  zh: '![2](Images/2.png)'
 - en: Once the function completes its work, return control to the main function along
     with the result to be stored in `avg`.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数完成其工作后，返回`avg`中存储的结果，并将控制权返回到主函数。
 - en: '![3](Images/3.png)'
+  id: totrans-80
   prefs: []
   type: TYPE_IMG
+  zh: '![3](Images/3.png)'
 - en: Resume processing statements in the original function.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 恢复处理原始函数中的语句。
 - en: 'If you build your own program with the `calc_average()` function and the previous
     snippet, you should see something like this output:'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您使用`calc_average()`函数和上述片段构建自己的程序，您应该看到如下输出：
 - en: '[PRE16]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: You can create your own file, or compile and run *averages2.c* if you would
     like to try these examples. As an exercise, how could you expand the `calc_average()`
     function to produce the average of three inputs?
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您想尝试这些示例，可以创建自己的文件，或者编译和运行*averages2.c*。作为练习，您如何扩展`calc_average()`函数以产生三个输入的平均值？
 - en: Ignoring Returned Values
+  id: totrans-85
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 忽略返回值
 - en: 'You are not required to make use of a return value in C if it isn’t useful.
     I didn’t mention this when introducing the `printf()` function, but it actually
     returns an `int`: the count of how many bytes were written out. Don’t believe
     it? Try it! I dropped this snippet in [*ch05/printf_bytes.c*](https://oreil.ly/rDKBc)
     if you don’t want to write it up yourself:'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果在C中返回值没有用处，您无需使用。我在介绍`printf()`函数时没有提到这一点，但它实际上返回一个`int`：写出的字节数计数。不相信？试试看！如果您不想自己编写，我将此片段放在[*ch05/printf_bytes.c*](https://oreil.ly/rDKBc)中：
 - en: '[PRE17]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: 'This snippet would produce the following output:'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个片段会产生以下输出：
 - en: '[PRE18]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: C is happy with all three of those calls to `printf()`. The first and the third
     call also return a count, but we ignore it (with no ill effect). We grab the count
     from the second call just to show that `printf()` does in fact return a value.
@@ -443,12 +624,16 @@
     (a microcontroller that reports sensor readings to a cloud service, for example,
     might have a daily or monthly limit it cannot surpass), but you probably used
     `printf()` because you wanted some text to show up on the screen.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这三次对`printf()`的调用C都很高兴。第一次和第三次调用也返回一个计数，但我们忽略了它（没有不良影响）。我们从第二次调用中获取计数，只是为了表明`printf()`确实返回一个值。通常，您调用返回值的函数是因为您想要那个返回的值。然而，一些函数的副作用才是真正的目标，而不是返回的值。`printf()`就是这样一个函数。偶尔跟踪程序写了多少字节可能是有用的（例如，将传感器读数报告给云服务的微控制器可能有每日或每月的限制，不能超过）。但您可能使用`printf()`只是因为您想在屏幕上显示一些文本。
 - en: Nested Calls and Recursion
+  id: totrans-91
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 嵌套调用和递归
 - en: 'If you look at any of the complete program files for this chapter like [*ch05/greeting.c*](https://oreil.ly/fBCrG)
     or [*ch05/averages2.c*](https://oreil.ly/BPwIl), you will likely notice that we
     follow a simple pattern: define a function, define the `main()` function, and
@@ -456,34 +641,49 @@
     As I’ll show you in [Chapter 11](ch11.xhtml#smallerc-CHP-11), with just a little
     extra code, you could swap the position of `main()` and `calc_average()`, for
     example.'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您查看本章的任何完整程序文件，如[*ch05/greeting.c*](https://oreil.ly/fBCrG)或[*ch05/averages2.c*](https://oreil.ly/BPwIl)，您可能会注意到我们遵循了一个简单的模式：定义一个函数，定义`main()`函数，并从`main()`内部调用我们的第一个函数。但这并不是唯一有效的安排方式。正如我将在[第
+    11 章](ch11.xhtml#smallerc-CHP-11)中向您展示的那样，只需稍作调整，您就可以交换`main()`和`calc_average()`的位置。
 - en: We also have the freedom to call our functions from inside yet other functions.
     We could create a new program that reproduces the same exact output as the original
     `print_average()` function from *averages.c*, but do it using the `calc_average()`
     function from *averages2.c* to get the actual average value.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也有自由从其他函数内部调用我们的函数。我们可以创建一个新程序，用`averages2.c`中的`calc_average()`函数来获取实际的平均值，以复制与*averages.c*中原始`print_average()`函数完全相同的输出。
 - en: 'Here’s the complete [*ch05/averages3.c*](https://oreil.ly/c3Ssi) so you can
     see where we place the different functions and where those functions are called:'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是完整的[*ch05/averages3.c*](https://oreil.ly/c3Ssi)，这样你就可以看到我们放置不同函数的位置以及这些函数的调用：
 - en: '[PRE19]'
+  id: totrans-95
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'If you run it, the output will be similar to the first example back in [“Passing
     Simple Types”](#smallerc-CHP-5-SECT-3.1):'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你运行它，输出将类似于[“传递简单类型”](#smallerc-CHP-5-SECT-3.1)中的第一个示例：
 - en: '[PRE20]'
+  id: totrans-97
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: Clever. We’ve actually been relying on this feature all along. In our very first
     “Hello, World” program, we call the `printf()` function—which is indeed a real
     function, just one defined by the built-in standard I/O library—from within our
     `main()` function.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 聪明。实际上，我们一直依赖这个功能。在我们的第一个“Hello, World”程序中，我们调用`printf()`函数——这确实是一个真正的函数，只是由内置的标准I/O库定义——在我们的`main()`函数内部。
 - en: All C programs out there solving real-world problems will use this basic pattern.
     Functions are written to tackle some small portion of a bigger problem. Other
     functions call those functions to assemble the small answers into a bigger whole.
@@ -492,36 +692,48 @@
     keep practicing with simpler functions. As you get comfortable defining and calling
     them, you’ll naturally start to build more complex hierarchies as you solve more
     complex problems.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有解决真实世界问题的C程序都将使用这种基本模式。函数被编写来解决更大问题的某一小部分。其他函数调用这些函数将小答案组装成一个更大的整体。有些问题如此复杂，以至于你将有几层函数相互调用。但我们预先了解。我们将继续练习更简单的函数。当你习惯于定义和调用它们时，你自然会在解决更复杂的问题时开始构建更复杂的层次结构。
 - en: Recursive Functions
+  id: totrans-100
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 递归函数
 - en: 'It may not be obvious unless you have worked with other languages, but a C
     function is allowed to call itself, too. This is called *recursion* and such a
     self-calling function is known as a *recursive* function. If you’ve spent any
     time around programmers, perhaps you have heard the surprisingly accurate joke
     about the definition of recursion: “I looked up recursion in the dictionary. It
     said: ‘See recursion.’” Who says nerds don’t have a sense of humor? ;-)'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 除非你已经使用过其他语言，否则可能不明显，但C函数也允许调用自身。这称为*递归*，这样一个自我调用的函数称为*递归*函数。如果你在程序员周围花费了一些时间，也许你已经听过关于递归定义的惊人准确的笑话：“我在字典中查找递归。它说：‘参见递归。’”谁说书呆子没有幽默感？
+    ;-)
 - en: 'But the joke definition does hint at exactly how you write a recursive function
     in C. There is just one big caveat: you need to have a way to stop the recursion.
     If the subject in the joke were a computer, it would be in an endless cycle of
     looking up the word only to be told to look up the word only to be told to look
     up the word, etc., etc., ad infinitum. If you write such a function in C, eventually
     the program will consume all the memory in your computer and crash.'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是笑话的定义确实暗示了如何在C语言中编写递归函数。只有一个重要的警告：你需要有一种方法来停止递归。如果笑话中的主题是计算机，它将处于一个无限循环的状态，不断查找这个词只是被告知再次查找这个词，依此类推，无穷无尽。如果你在C中编写这样的函数，最终程序将消耗掉计算机中的所有内存并崩溃。
 - en: To avoid that crash, recursive functions have at least two branches. One branch,
     a *base case*, terminates. It produces a concrete value and completes. The other
     branch does some sort of calculation and recurses. That “some sort of calculation”
     must eventually lead to the base case. If that sounds a little confusing, don’t
     panic!^([2](ch05.xhtml#idm45018726259176)) We can better illustrate this process
     with actual code.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了避免这种崩溃，递归函数至少有两个分支。其中一个分支是*基本情况*，终止。它产生一个具体的值并完成。另一个分支进行某种计算并递归。这种“某种计算”最终必须导致基本情况。如果这听起来有点混乱，不要惊慌！^([2](ch05.xhtml#idm45018726259176))
+    我们可以通过实际代码更好地说明这个过程。
 - en: 'Perhaps one of the most famous recursive algorithms is one that calculates
     the Fibonacci numbers. You may recall these from high school math. Named for a
     13th century Italian mathematician, they are part of a sequence that builds up
@@ -530,66 +742,97 @@
     to produce the fourth, and so on. So the nth Fibonacci number is the sum of the
     previous number, and the previous previous number. A more formal way to say that
     goes like this:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 或许最著名的递归算法之一是计算斐波那契数的算法。你可能还记得这些来自高中数学。以一位13世纪的意大利数学家命名，它们是从一个简单的起点两个数字构建起来的序列的一部分，要么是零和一个，要么是两个一。你将这两个数字相加以产生第三个数字。你将第二个和第三个相加以产生第四个数字，依此类推。因此第n个斐波那契数是前一个数和前前一个数的和。更正式地说，可以这样说：
 - en: '[PRE21]'
+  id: totrans-105
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: Here, the function *F()* is defined in terms of the function *F()*. Aha! Recursion!
     So what does this look like in C? Let’s take a look.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，函数*F()*是以函数*F()*的形式定义的。啊哈！递归！那么在C语言中是什么样子呢？让我们来看看。
 - en: 'We’ll start by defining a function that takes one `int` as a parameter and
     returns an `int`. If the value passed to us is a zero or a one, we return a zero
     or a one, respectively, as part of the definition of the sequence. (So `F(0) ==
     0` and `F(1) == 1`, more formally.) That sounds pretty easy:'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将从定义一个以一个`int`为参数并返回一个`int`的函数开始。如果传递给我们的值是零或一个，我们将分别作为序列的一部分返回零或一个。这听起来相当简单：
 - en: '[PRE22]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: 'We have the critical part: the base case (or cases, like our 0 and 1) that
     has a definite answer. If we get some integer greater than one, we will fall to
     the recursive call. What does that look like? Just like any other function call.
     What makes it special is that we call the function we are in the middle of defining,
     `fibonacci()` in our case. The “some sort of calculation” we mentioned when introducing
     recursion is the `n - 1` and `n - 2` elements from our formal definition:'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们有关键部分：基本情况（或像我们的0和1这样的情况）有一个明确的答案。如果我们得到大于1的整数，我们将陷入递归调用中。那看起来是什么样子呢？就像任何其他函数调用一样。使它特别的是我们调用正在定义中的函数，即我们的情况下的`fibonacci()`。我们在介绍递归时提到的“某种计算”是来自我们正式定义中的`n
+    - 1`和`n - 2`元素：
 - en: '[PRE23]'
+  id: totrans-110
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'Let’s put that all together in a complete program ([*ch05/fib.c*](https://oreil.ly/8xBXV))
     that prints a few sample Fibonacci numbers:'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们把所有这些放在一个完整的程序中（[*ch05/fib.c*](https://oreil.ly/8xBXV)），该程序打印出几个示例斐波那契数：
 - en: '[PRE24]'
+  id: totrans-112
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: 'If we run it, we’ll get the following output:'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们运行它，我们将得到以下输出：
 - en: '[PRE25]'
+  id: totrans-114
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: Very cool. But how does it work? It would seem impossible to assign a value
     coming from a function that needs that very same function to calculate the value!
     [Figure 5-4](#smallerc-CHP-5-FIG-recursive-calls) shows what’s happening inside
     `fibonacci()` using the tiny value of 4.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 非常酷。但它是如何工作的呢？看起来好像不可能将来自需要同一个函数来计算值的函数的值分配过去！[图 5-4](https://oreil.ly/8xBXV)展示了在`fibonacci()`中使用4的小值时发生的情况。
 - en: '![smac 0504](Images/smac_0504.png)'
+  id: totrans-116
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0504](Images/smac_0504.png)'
 - en: Figure 5-4\. A recursive call stack
+  id: totrans-117
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图5-4。递归调用栈
 - en: If this process still seems a little convoluted, give it time. The more you
     work with functions in general, the easier it will become to read (and create!)
     more interesting functions like our recursive Fibonacci example.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果这个过程看起来还有些复杂，给它一些时间。随着你更多地使用函数，一般来说，阅读（和创建！）像我们的递归斐波那契例子那样更有趣的函数将变得更容易。
 - en: But it *is* convoluted for the computer. Recursion can go too deep and cause
     the computer to run out of memory. Even if your recursive code doesn’t go that
     deep, it can still take quite a while to process. Try changing the program to
@@ -597,12 +840,16 @@
     If not, congrats on your powerful system! Try bumping it up to 60 or 70. You will
     eventually go high enough that the sheer number of function calls will clog your
     CPU. Just remember that recursion is best in moderation.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是对计算机来说*确实*有些复杂。递归可能会太深，导致计算机内存耗尽。即使你的递归代码没有那么深，处理起来仍可能需要相当长的时间。试着修改程序，让它显示第50个斐波那契数而不是第42个。注意到它在那一步暂停了吗？如果没有，恭喜你拥有强大的系统！试着提高到60或70。你最终会调得足够高，以至于大量的函数调用将使你的CPU负载。只要记住递归适度使用。
 - en: Note
+  id: totrans-120
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: It is also worth pointing out that most recursive algorithms have counterparts
     that use more mundane tricks like loops. But sometimes using loops turns out to
     be much more complex than the recursive option. In the right circumstances, recursion
@@ -610,82 +857,116 @@
     The Fast Fourier Transform (FFT), so common in processing audio and video streams,
     for example, is a fairly complex algorithm that has a recursive solution that
     is easier to understand and implement.
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 还值得指出的是，大多数递归算法都有使用更普通的技巧如循环的对应算法。但有时使用循环比递归选项更复杂。在适当的情况下，递归通过将问题分解成较小的问题，使得解决某些问题更简单。例如，广泛用于处理音频和视频流的快速傅立叶变换（FFT）是一个相当复杂的算法，它有一个递归解法更易于理解和实现。
 - en: Variable Scope
+  id: totrans-122
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 变量作用域
 - en: 'I didn’t highlight this detail explicitly in our average-calculating functions,
     but you can declare any variables of any type you need inside a function. These
     are often referred to as *local* variables because they are located inside a function
     and are removed when the function finishes. Let’s revisit that first `print_average()`
     function we wrote in [“Passing Simple Types”](#smallerc-CHP-5-SECT-3.1):'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 我没有明确强调我们计算平均值的函数中的这个细节，但你可以在函数内部声明任何类型的变量。这些通常被称为*局部*变量，因为它们位于函数内部，在函数结束时被移除。让我们重新访问我们在[“传递简单类型”](#smallerc-CHP-5-SECT-3.1)中编写的那个`print_average()`函数：
 - en: '[PRE26]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: 'Here, the variables `a` and `b` are the function’s parameters, and `average`
     is a local variable. There’s nothing terribly special about local variables, but
     because they are kept inside the function where they are defined, you can reuse
     names between different functions. Consider two functions that calculate the average
     for two and three parameters:'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，变量`a`和`b`是函数的参数，`average`是一个局部变量。局部变量并没有什么特别之处，但由于它们被保留在定义它们的函数内部，你可以在不同的函数之间重复使用名称。考虑两个函数，分别计算两个和三个参数的平均值：
 - en: '[PRE27]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: 'Both functions declare a local variable named `average`, but they are two wholly
     separate variables. Even though they share a name, the compiler never confuses
     them. Indeed, even if the calling function also has an `average` variable, they
     won’t be confused. Each local variable is contained entirely within its function:'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个函数都声明了一个名为`average`的局部变量，但它们是两个完全独立的变量。即使它们共享一个名称，编译器也不会混淆它们。事实上，即使调用函数也有一个`average`变量，它们也不会混淆。每个局部变量完全包含在其函数内部：
 - en: '[PRE28]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: Wonderful. That means we can concentrate on using names appropriate to whatever
     work we’re doing in a given function. We don’t have to keep track of what variables
     were used in other functions or even in `main()`. That makes our job as programmers
     much easier.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 很好。这意味着我们可以专注于在给定函数中使用适当的名称来进行工作。我们不必记住其他函数或者甚至`main()`中使用过的变量。这让我们作为程序员的工作变得更加容易。
 - en: Global Variables
+  id: totrans-130
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 全局变量
 - en: As a programmer, though, you will undoubtedly encounter *global* variables as
     well as local ones. A global variable is sort of the opposite of a local variable.
     Where local variables are contained inside a function or a loop block, global
     variables are visible everywhere. Where local variables disappear when the loop
     or function is done, global variables persist.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为一个程序员，你肯定会遇到*全局*变量以及局部变量。全局变量有点像局部变量的反面。局部变量被包含在函数或循环块内部，全局变量则在任何地方可见。局部变量在循环或函数结束时消失，而全局变量则会持久存在。
 - en: 'This visibility and persistence can make global variables very attractive for
     any value that is shared or reused in several functions. But it is frustratingly
     easy to corrupt a global variable precisely because any function can see it—and
     modify it. Here’s an example ([*ch05/globals.c*](https://oreil.ly/5tgaO)) with
     a global variable that we use inside a function and inside `main()`:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种可见性和持久性使得全局变量对于在多个函数中共享或重复使用的任何值非常有吸引力。但正因为任何函数都可以看到全局变量并对其进行修改，这很容易导致全局变量的破坏。这里有一个示例（[*ch05/globals.c*](https://oreil.ly/5tgaO)），其中使用了一个全局变量，我们在一个函数内部和`main()`内部使用它：
 - en: '[PRE29]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: 'And here’s the output from running the program:'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面是运行程序的输出：
 - en: '[PRE30]'
+  id: totrans-135
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: Notice that we never alter the value of the variable in `main()`, but we see
     (and can print) the changes that were made inside the `all_caps()` function.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，我们从未改变`main()`中变量的值，但我们看到（并可以打印）在`all_caps()`函数内部进行的更改。
 - en: Tip
+  id: totrans-137
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: The format string I use in *globals.c* probably looks strange. On its own, `scanf("%s",
     buffer)` would stop scanning for a string at the first bit of white space. In
     the sample output, that would mean only the word “This” would be captured into
@@ -693,47 +974,65 @@
     expressions](https://oreil.ly/3A61l) and means “any character except a newline.”
     This allows us to type in a phrase with spaces and capture every word up to the
     newline as a single string.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 我在*globals.c*中使用的格式化字符串可能看起来有些奇怪。单独使用`scanf("%s", buffer)`会在第一个空格处停止扫描字符串。在样本输出中，这意味着只有单词“This”会被捕获到`buffer`中。`[^\n]`限定符借用了一些来自[正则表达式](https://oreil.ly/3A61l)世界的语法，表示“除了换行符之外的任何字符”。这使我们可以输入带有空格的短语，并捕获直到换行符的每个单词作为单个字符串。
 - en: Sometimes working with a global variable is legitimately useful. Especially
     on smaller systems like the Arduino, this arrangement can occasionally save you
     a few bytes. But you really do have to be careful. If too many functions use and
     alter a global variable, debugging what is happening when things go wrong gets
     really messy. If you don’t have a compelling reason to use a global variable,
     I recommend passing shared values as parameters to any function that needs them.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时候，使用全局变量确实是有用的。特别是在像Arduino这样的小系统上，这种安排偶尔可以节省一些字节。但你真的必须小心。如果太多函数使用和改变一个全局变量，当出现问题时调试变得非常混乱。如果没有强烈的理由使用全局变量，我建议将共享值作为参数传递给任何需要它们的函数。
 - en: Masking global variables
+  id: totrans-140
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 遮蔽全局变量
 - en: 'One other important gotcha with respect to global variables is that you can
     still declare a local variable inside a function with the same name as the global
     variable. Such a local variable is said to *mask* the global variable. Any printing
     or calculating or manipulating you do inside the function only affects the *local*
     variable. And if you also need to access the global one, you are out of luck.
     Look at [*ch05/globals2.c*](https://oreil.ly/KO8Fe):'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于全局变量的另一个重要注意事项是，你仍然可以在函数内部声明与全局变量同名的局部变量。这样的局部变量被称为*遮蔽*全局变量。在函数内部进行的任何打印、计算或操作只会影响*局部*变量。如果你还需要访问全局变量，那就没戏了。看看[*ch05/globals2.c*](https://oreil.ly/KO8Fe)：
 - en: '[PRE31]'
+  id: totrans-142
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: 'And compare the output from the previous *globals.c* to this output:'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 并比较前一个*globals.c*的输出与此输出：
 - en: '[PRE32]'
+  id: totrans-144
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: You can see here that back in the `main()` method, the global `buffer` variable
     was not updated, even though that may have been what we wanted. Again, I don’t
     recommend using global variables unless it is necessary. Sometimes their convenience
     will win you over, and that’s fine. Just be vigilant and deliberate.
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以在这里看到，在`main()`方法中，全局变量`buffer`没有被更新，尽管这可能是我们想要的。再次强调，除非必要，否则我不建议使用全局变量。有时它们的方便性可能会让你心动，这没问题。只是要保持警惕和深思熟虑。
 - en: The main() Function
+  id: totrans-146
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: main()函数
 - en: We’ve mentioned the `main()` function a number of times in this chapter as we
     expand our knowledge of C functions. `main()` is indeed a real, regular C function
     with the main (ha!) distinction of being the function where an executable C program
@@ -742,18 +1041,24 @@
     come from? You can indeed return values and declare parameters. This last section
     covers `main()` in more detail if you’re interested. Luckily, the simple `main()`
     we’ve been using so far will continue to suffice for our lean examples.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们在本章中多次提到了`main()`函数，随着我们对C函数的知识的扩展，我们已经了解到`main()`确实是一个真正的、常规的C函数，它有一个主要（哈！）区别，即它是一个执行C程序的函数。因为它只是一个函数，我们能从它返回一个值吗？我们能传递参数给它吗？如果可以，那么用来填充这些参数的参数从哪里来？你确实可以返回值并声明参数。如果你感兴足，最后一节将更详细地介绍`main()`。幸运的是，我们迄今为止使用的简单`main()`将继续适用于我们的精简示例。
 - en: Return values and main()
+  id: totrans-148
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 返回值和main()
 - en: But we haven’t really dug into the details of our `main()` declarations. You
     may have already been wondering about the fact that we give a type (`int`) to
     the `main()` function although we have never written a `return` statement in that
     function. But it turns out we could!
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 但我们还没有真正深入到我们的`main()`声明的细节中来。你可能已经想知道为什么我们给`main()`函数一个类型（`int`），尽管我们从未在该函数中写过`return`语句。但事实证明我们是可以的！
 - en: Most operating systems use some mechanism for determining whether a program
     you run has completed successfully or failed for some reason. Unix and its derivatives,
     as well as MS DOS, use numeric values for this purpose. A return value of zero
@@ -761,66 +1066,99 @@
     a pretty wide range of failure options, which some programs do use. If you write
     shell scripts or DOS batch files, you may have used these return values to suss
     out exactly why a particular command failed, and mitigate the problem if possible.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数操作系统都使用某种机制来确定您运行的程序是否成功完成或因某些原因失败。Unix 及其衍生版本以及 MS DOS 使用数值来完成此目的。返回值为零通常被认为是成功的，而其他任何值则表示失败。“其他任何值”范围广泛，某些程序确实使用它们。如果您编写
+    shell 脚本或 DOS 批处理文件，您可能已经使用这些返回值来确定特定命令失败的确切原因，并尽可能解决问题。
 - en: I have not included a `return` in the `main()` function in any of our examples
     so far. So what has been going on? The compiler has simply built a program that
     implicitly provides `0` as the `int` return value. Let’s take a look by checking
     the exit status of our very first program, *hello.c*.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，在我们的所有示例中，我都没有在 `main()` 函数中包含 `return`。所以到底发生了什么？编译器简单地构建了一个程序，隐式地提供
+    `0` 作为 `int` 返回值。让我们通过检查我们的第一个程序 *hello.c* 的退出状态来看一下。
 - en: 'First, let’s compile and run the program. Now we can follow up and ask the
     operating system about that return value. On Unix/Linux and macOS systems, you
     check the `$?` special variable:'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们编译并运行程序。现在，我们可以跟进并询问操作系统关于返回值的情况。在 Unix/Linux 和 macOS 系统上，您可以检查`$?`特殊变量：
 - en: '[PRE33]'
+  id: totrans-153
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE33]'
 - en: 'On Windows systems, you can check the `%ERRORLEVEL%` variable:'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 Windows 系统上，您可以检查 `%ERRORLEVEL%` 变量：
 - en: '[PRE34]'
+  id: totrans-155
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE34]'
 - en: But that “0” might feel a little unconvincing since that is a common value for
     undefined or uninitialized variables. Let’s write a new program, [*ch05/exitcode.c*](https://oreil.ly/vHOfd),
     that returns an explicit, non-zero value to prove something is being returned.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是“0”可能感觉有点令人不信服，因为这是未定义或未初始化变量的常见值。让我们编写一个新程序，[*ch05/exitcode.c*](https://oreil.ly/vHOfd)，返回一个明确的非零值以证明正在返回某些内容。
 - en: 'We’ll prompt the user to see if they want to succeed or fail. It’s a silly
     prompt, but it allows you to try the two options without recompiling:'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将提示用户，看看他们是否希望成功或失败。这是一个愚蠢的提示，但它允许您尝试两个选项而无需重新编译：
 - en: '[PRE35]'
+  id: totrans-158
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE35]'
 - en: Let’s compile and run this one with a few different answers to see what we get
     when checking the exit code via the operating system. (For brevity, I’ll just
     show the Linux output, but both macOS and Windows would be similar.)
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们编译并运行此程序，并尝试几个不同的答案，以查看在通过操作系统检查退出代码时会得到什么结果。（出于简洁起见，我只展示 Linux 输出，但 macOS
+    和 Windows 类似。）
 - en: '[PRE36]'
+  id: totrans-160
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE36]'
 - en: This simple program hints at how more complex programs might use these exit
     codes to provide more details on what happened. Notice, though, that in the end
     the program still exited. These values are optional but can be useful if you plan
     to write utilities that will end up in scripts.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个简单的程序暗示了更复杂的程序可能如何使用这些退出代码来提供关于发生了什么的更多细节。请注意，尽管最终程序退出了，但这些值是可选的，但如果您计划编写最终会出现在脚本中的实用程序，则可能会很有用。
 - en: Command-Line Arguments and main()
+  id: totrans-162
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 命令行参数和 `main()` 函数
 - en: 'What about passing arguments to `main()`? Happily, you can use the command
     line and a second option for defining main that helps with that exact task. This
     alternate version looks like this:'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么如何将参数传递给 `main()`？幸运的是，您可以使用命令行以及一个定义 `main` 的第二个选项来帮助完成这个任务。这个备选版本看起来像这样：
 - en: '[PRE37]'
+  id: totrans-164
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE37]'
 - en: The `argc` parameter is the “argument count,” and the `argv` string array is
     the list of “argument values.” The asterisk in the type of `argv` might be a little
     surprising. The `argv` variable is indeed an array of character arrays, similar
@@ -828,48 +1166,72 @@
     but this is a more flexible version. It is an array of `char` *pointers* (denoted
     by that askterisk). We’ll cover pointers next in [Chapter 6](ch06.xhtml#smallerc-CHP-6),
     where we can dive into details. For now, think of `argv` as an array of strings.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '`argc` 参数是“参数计数”，`argv` 字符串数组是“参数值”列表。`argv` 类型中的星号可能有点令人惊讶。`argv` 变量确实是字符数组的数组，类似于[“多维数组”](ch04.xhtml#smallerc-CHP-4-SECT-2)中的二维
+    `char` 数组，但这是一个更灵活的版本。它是字符串的数组。（由那个星号表示的）我们将在[第六章](ch06.xhtml#smallerc-CHP-6)中详细讨论指针。现在，将
+    `argv` 视为字符串数组。'
 - en: 'You stock the `argv` array from the command line when you start your program.
     Everything comes in as a string, but you can convert them to other things (well,
     numbers or characters) if that’s what you need. Here’s a short program, [*ch05/argv.c*](https://oreil.ly/1SiYk),
     to illustrate accessing the arguments with a common check for a “help flag.” If
     the first command-line argument is `-h`, we’ll print a help message and ignore
     the rest of the arguments. Otherwise we’ll list them all out, one per line:'
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你启动程序时，从命令行中将`argv`数组进行填充。所有内容都作为字符串输入，但如果你需要的话，可以将它们转换成其他类型（如数字或字符）。这里有一个简短的程序，[*ch05/argv.c*](https://oreil.ly/1SiYk)，用来演示如何访问参数，并常见地检查“帮助标志”。如果第一个命令行参数是`-h`，我们将打印一个帮助消息并忽略其余的参数。否则，我们将逐行列出所有参数：
 - en: '[PRE38]'
+  id: totrans-167
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE38]'
 - en: 'When you run *argv.c* with a few random words, you should see them listed out:'
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你用几个随机词运行*argv.c*时，你应该能看到它们逐行列出：
 - en: '[PRE39]'
+  id: totrans-169
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE39]'
 - en: 'But if you use just the special `-h` argument, you should get our help message:'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 但如果你只使用特殊的`-h`参数，你应该会得到我们的帮助信息：
 - en: '[PRE40]'
+  id: totrans-171
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE40]'
 - en: 'Try running it a few times yourself. If you want to try a fairly advanced exercise,
     create a function that converts a string of digits to an integer. Then use that
     function to add up all of the numbers you pass on the command line. Here’s an
     example of the expected output:'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 尝试多次运行它。如果你想尝试一个相当高级的练习，可以创建一个函数，将一个数字字符串转换为整数。然后使用该函数来将传递给命令行的所有数字相加。这里是预期输出的示例：
 - en: '[PRE41]'
+  id: totrans-173
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE41]'
 - en: You can check my solution in the *sum.c* file if you want to see how I tackled
     it.
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你想查看我是如何处理的，可以在*sum.c*文件中检查我的解决方案。
 - en: Note
+  id: totrans-175
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: You might suppose converting strings to numbers is a common task and that C
     would already have a function for it, and you’d mostly be right. There is a function
     called `atoi()` (ascii to integer) that is part of the standard library, *stdlib.h*.
@@ -877,32 +1239,44 @@
     small addition saves a lot of manual labor. If you are up for another quick exercise,
     try including the `stdlib.h` header and use the `atoi()` function to complete
     an alternate variation. Or feel free to just peek at my solution in *sum2.c*.
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能会认为将字符串转换为数字是一个常见的任务，而C语言应该已经有了相应的函数，这种想法大部分是正确的。标准库中有一个叫做`atoi()`（ascii到整数）的函数，它已经包含在*stdlib.h*中。我们将在[第7章](ch07.xhtml#smallerc-CHP-7)中讨论库，但这个小小的补充可以节省大量的手动工作。如果你还想尝试一个快速的练习，可以尝试包含`stdlib.h`头文件，并使用`atoi()`函数来完成一个替代版本。或者，随意查看我在*sum2.c*中的解决方案。
 - en: Next Steps
+  id: totrans-177
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 下一步
 - en: We’ve got all of the biggest building blocks out of the way now. You can start
     building some really interesting programs to solve real-world problems with the
     various control structures from previous chapters and the functions we covered
     here. But C can do more, and as we start to look forward to working on microcontrollers,
     some of that “more” will be critical.
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们已经搞定了所有的基本构建块。你可以开始使用前几章节中介绍的各种控制结构和我们在这里讲解的函数来构建一些真正有趣的程序，以解决现实世界中的问题。但是C语言可以做得更多，当我们开始准备在微控制器上工作时，“更多”的一些内容将变得至关重要。
 - en: In the next two chapters, we’ll tackle pointers and using libraries to round
     out our C skills. Then we can dive into the world of Arduino and have a world
     of fun!
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 在接下来的两章中，我们将学习指针和使用库来完善我们的C语言技能。然后我们可以深入Arduino的世界，玩得开心！
 - en: ^([1](ch05.xhtml#idm45018727721800-marker)) Within reason, of course. Or rather,
     within your computer’s resource limits. Desktop systems have so much memory these
     days, it would be difficult to write too many functions. On our microcontrollers,
     though, we do have to be more careful.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch05.xhtml#idm45018727721800-marker)) 当然，也要在合理范围内考虑。或者说，要在计算机资源限制内进行。现在的桌面系统有很多内存，写太多函数确实有些困难。但是在我们的微控制器上，我们必须更加小心。
 - en: ^([2](ch05.xhtml#idm45018726259176-marker)) If you want to experience the pinnacle
     of nerdy humor, check out *The Hitchhiker’s Guide to the Galaxy* by Douglas Adams.
     The words “Don’t Panic” feature prominently in large, friendly letters.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch05.xhtml#idm45018726259176-marker)) 如果你想体验一下极客幽默的巅峰，不妨看看Douglas Adams的*银河系漫游指南*。里面大大的友好字体写着“别慌”。

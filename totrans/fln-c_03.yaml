@@ -1,17 +1,23 @@
 - en: Chapter 2\. Returning Error Information
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第2章 返回错误信息
 - en: The previous chapter focused on error handling. This chapter continues this
     discussion, but focuses on how to inform users of your code about the errors detected.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 前一章重点讨论了错误处理。本章继续讨论这个问题，但侧重于如何通知代码用户检测到的错误。
 - en: For every larger program, programmers have to decide how to react to errors
     arising in their own code, how to react to errors arising in third-party code,
     how to pass this error information along in the code, and how to present this
     error information to the user.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于每个较大的程序，程序员必须决定如何处理自己代码中出现的错误，如何处理第三方代码中出现的错误，如何在代码中传递这些错误信息，以及如何向用户呈现这些错误信息。
 - en: Most object-oriented programming languages come with the handy mechanism of
     exceptions to provide the programmer with an additional channel for returning
     error information, but C does not natively provide such a mechanism. There are
@@ -22,30 +28,45 @@
     introducing such exception mechanisms is not the way to go. Instead, such C programmers
     need guidance on how to use the mechanisms for error handling already natively
     present in C.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数面向对象的编程语言都提供了异常的便捷机制，为程序员提供了额外的返回错误信息通道，但C语言并不本地提供这样的机制。有办法在C语言中模拟异常处理，甚至在异常之间实现继承，例如在Axel-Tobias
+    Schreiner（2011）的书籍[*Object-Oriented Programming with ANSI-C*](https://oreil.ly/YK7x1)中所描述的方式。但对于在传统C代码上工作的C程序员或者想要坚持他们习惯的本地C风格的C程序员来说，引入这样的异常机制并不是正确的方法。相反，这些C程序员需要指导如何使用C语言本地已经存在的错误处理机制。
 - en: This chapter provides such guidance on how error information can be transported
     between functions and across interfaces. [Figure 2-1](#fig_returning_errors) shows
     an overview of the patterns covered in this chapter and their relationships, and
     [Table 2-1](#tab_returning_errors) provides a summary of the patterns.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章提供了关于如何在函数之间和跨接口传输错误信息的指导。[图2-1](#fig_returning_errors)显示了本章涵盖的模式概述及其关系，[表2-1](#tab_returning_errors)提供了模式摘要。
 - en: '![Overview of patterns on returning error information](assets/fluc_0201.png)'
+  id: totrans-5
   prefs: []
   type: TYPE_IMG
+  zh: '![返回错误信息模式概览](assets/fluc_0201.png)'
 - en: Figure 2-1\. Overview of patterns for returning error information
+  id: totrans-6
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图2-1\. 返回错误信息模式概览
 - en: Table 2-1\. Patterns for returning error information
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 表2-1\. 返回错误信息的模式
 - en: '|  | Pattern name | Summary |'
+  id: totrans-8
   prefs: []
   type: TYPE_TB
+  zh: '|  | 模式名称 | 摘要 |'
 - en: '| --- | --- | --- |'
+  id: totrans-9
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '|  | Return Status Codes | You want to have a mechanism to return status information
     to the caller, so that the caller can react to it. You want the mechanism to be
     simple to use, and the caller should be able to clearly distinguish between different
@@ -53,8 +74,11 @@
     to return status information. Return a value that represents a specific status.
     Both of you as the callee and the caller must have a mutual understanding of what
     the value means. |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '|  | 返回状态码 | 您希望有一种机制将状态信息返回给调用者，以便调用者可以对其做出反应。您希望该机制易于使用，并且调用者应能够清楚地区分可能发生的不同错误情况。因此，使用函数的返回值来返回状态信息。返回代表特定状态的值。作为调用方和被调用方，您都必须对该值的含义有共同的理解。
+    |'
 - en: '|  | Return Relevant Errors | On the one hand, the caller should be able to
     react to errors; on the other hand, the more error information you return, the
     more your code and the code of your caller have to deal with error handling, which
@@ -62,16 +86,21 @@
     the risk of additional bugs. Therefore, only return error information to the caller
     if that information is relevant to the caller. Error information is only relevant
     to the caller if the caller can react to that information. |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '|  | 返回相关错误 | 一方面，调用者应能够对错误做出反应；另一方面，您返回的错误信息越多，您和调用者的代码就必须处理错误处理，这使得代码变得更长。更长的代码更难阅读和维护，并带来额外错误的风险。因此，只有当信息对调用者有关联时，才将错误信息返回给调用者。只有当调用者能够对信息做出反应时，错误信息才与调用者相关。
+    |'
 - en: '|  | Special Return Values | You want to return error information, but don’t
     want to explicitly Return Status Codes, because that makes it difficult for your
     function to return other data. You could add Out-Parameters to your function,
     but it would make calling the function more difficult. Therefore, use the Return
     Value of your function to return the data computed by the function. Reserve one
     or more special values to be returned if an error occurs. |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '|  | 特殊返回值 | 你想要返回错误信息，但又不想显式返回状态码，因为这会使得函数难以返回其他数据。你可以向函数添加输出参数，但这会使调用函数更加困难。因此，使用函数的返回值来返回函数计算的数据。为错误发生时保留一个或多个特殊值来返回。'
 - en: '|  | Log Errors | You want to make sure that in case of an error you can easily
     find out its cause. However, you don’t want your error-handling code to become
     complicated because of this. Therefore, use different channels to return error
@@ -79,181 +108,258 @@
     relevant for the developer. For example, write debug error information into a
     log file and don’t return the detailed debug error information to the caller.
     |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '|  | 记录错误 | 你希望确保在出现错误时能够轻松找出其原因。但是，你不希望因此使你的错误处理代码变得复杂。因此，使用不同的渠道返回对调用代码重要的错误信息和对开发人员重要的错误信息。例如，将调试错误信息写入日志文件，并且不将详细的调试错误信息返回给调用者。'
 - en: Running Example
+  id: totrans-14
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 运行示例
 - en: 'You want to implement a software-module that provides functionality to store
     string-values for keys identified via strings. In other words, you want to implement
     a functionality similar to the Windows registry. To keep things simple, the following
     code will not contain hierarchical relationships between the keys, and only functions
     to create registry elements will be discussed:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 你希望实现一个软件模块，该模块提供存储由字符串标识的键对应的字符串值的功能。换句话说，你想要实现类似于Windows注册表的功能。为了保持简单，以下代码不包含键之间的层次关系，并且只讨论创建注册表元素的功能：
 - en: '*Registry API*'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '*注册表 API*'
 - en: '[PRE0]'
+  id: totrans-17
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '*Registry implementation*'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: '*注册表实现*'
 - en: '[PRE1]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'With the preceding code, you are not sure how you should provide your caller
     with error information in case of internal errors or, for example, in case of
     invalid function input parameter values. Your caller does not really know whether
     the calls succeeded or whether something failed and ends up with the following
     code:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 针对上述代码，你不确定在内部错误或例如无效的函数输入参数值的情况下应该如何向调用者提供错误信息。你的调用者不确定调用是否成功或是否失败，最终使用以下代码：
 - en: '[PRE2]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The caller’s code is very short and easy to read, but the caller does not know
     whether any error occurred and is not able to react to errors. To give the caller
     that possibilitym you want to introduce error handling in your code and provide
     your caller with error information. The first idea that comes to your mind is
     to let the caller know about any errors showing up in your software-module. To
     do that, you Return Status Codes.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用者的代码非常简短且易于阅读，但调用者不知道是否发生了任何错误，也无法对错误做出反应。为了给调用者这种可能性，你希望在你的代码中引入错误处理，并为调用者提供错误信息。你首先想到的一个想法是让调用者了解软件模块中出现的任何错误。为此，你使用返回状态码。
 - en: Return Status Codes
+  id: totrans-23
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 返回状态码
 - en: Context
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You implement a software-module that performs some error handling, and you want
     to return error and other status information to your caller.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 你正在实现一个进行一些错误处理的软件模块，并且希望向调用者返回错误和其他状态信息。
 - en: Problem
+  id: totrans-26
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to have a mechanism to return status information to the caller,
     so that the caller can react to it. You want the mechanism to be simple to use,
     and the caller should be able to clearly distinguish between different error situations
     that could occur.**'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '**你希望有一种机制来向调用者返回状态信息，以便调用者可以对其做出反应。你希望这种机制使用简单，并且调用者能够清楚地区分可能发生的不同错误情况。**'
 - en: In the old days of C, error information was transported by an error code with
     the global `errno` variable. The global `errno` variable had to be reset by the
     caller, then a function had to be called, and the function indicated errors by
     setting the global `errno` variable, which the caller had to check after the function
     call.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 在早期的 C 语言中，错误信息通过全局变量 `errno` 的错误码传递。调用者必须重置全局变量 `errno`，然后调用函数，并且函数通过设置全局变量
+    `errno` 来指示错误，调用者在函数调用后必须检查此变量。
 - en: However, compared to using `errno`, you want a way to return status information
     that makes it easier for the caller to check for errors. The caller should see
     from the function signature how the status information will be returned and which
     kind of status information to expect.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，与使用 `errno` 相比，你需要一种返回状态信息的方法，使调用者更容易检查错误。调用者应从函数签名中看到将返回的状态信息以及期望的状态信息类型。
 - en: Also, the mechanism to return status information should be safe to use in a
     multi-threaded environment, and only the called function should have the ability
     to influence the returned status information. In other words, it should be possible
     to use the mechanism and still have a reentrant function.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，返回状态信息的机制应该在多线程环境中安全使用，只有被调用的函数应该有能力影响返回的状态信息。换句话说，应该可以使用该机制并仍然具有可重入函数。
 - en: Solution
+  id: totrans-31
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Use the Return Value of a function to return status information. Return a
     value that represents a specific status. Both of you as the callee and the caller
     must have a mutual understanding of what the value means.**'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用函数的返回值来返回状态信息。返回一个代表特定状态的值。作为调用者和被调用者，必须互相理解该值的含义。**'
 - en: Usually, the returned value is a numeric identifier. The caller can check the
     function Return Value against that identifier and react accordingly. If the function
     has to return other function results, provide them to the caller in the form of
     Out-Parameters.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，返回的值是一个数字标识符。调用者可以根据该标识符检查函数返回值，并据此做出反应。如果函数必须返回其他函数结果，则以输出参数的形式提供给调用者。
 - en: Define the numeric status identifiers in your API as an `enum` or by using `#define`.
     If there are many status codes or if your software-module consists of more than
     one header file, you could have a separate header file that just contains the
     status codes and is included by your other header files.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 在你的 API 中定义数字状态标识符，可以使用 `enum` 或者使用 `#define`。如果有许多状态码或者你的软件模块包含多个头文件，则可以有一个单独的头文件，仅包含状态码，并由其他头文件包含。
 - en: Give the status identifiers a meaningful name and document their meaning with
     comments. Make sure to name your status codes in a consistent way across your
     APIs.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 将状态标识符命名为有意义的名称，并使用注释说明其含义。确保在整个 API 中一致地命名你的状态码。
 - en: 'The following code shows an example of using status codes:'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码展示了使用状态码的示例：
 - en: '*Caller’s code using status codes*'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者使用状态码的代码*'
 - en: '[PRE3]'
+  id: totrans-38
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '*Callee API providing status codes*'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者 API 提供状态码*'
 - en: '[PRE4]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '*Callee implementation providing status codes*'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者实现提供状态码*'
 - en: '[PRE5]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Consequences
+  id: totrans-43
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: You now have a way to return status information that makes it very easy for
     the caller to check for occurring errors. Compared to `errno`, the caller does
     not have to set and check the error information in steps in addition to the function
     call. Instead, the caller can check the information directly against the return
     value of the function call.
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你有了一种返回状态信息的方法，使调用者非常容易检查发生的错误。与 `errno` 相比，调用者不必在函数调用的步骤中设置和检查错误信息。相反，调用者可以直接根据函数调用的返回值检查信息。
 - en: Returning status codes can safely be used in multithreaded environments. Callers
     can be sure that only the called function, and no other side-channels, influences
     the returned status.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 返回状态码可以安全地在多线程环境中使用。调用者可以确保只有被调用的函数会影响返回的状态，而没有其他侧信道。
 - en: The function signature makes it very clear how the status information is returned.
     This is made clear for the caller and also clear for the compiler or static code
     analysis tools, which can check if the caller checked the function return value
     and against all statuses that could occur.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数签名非常清楚地说明了如何返回状态信息。这对调用者、编译器或静态代码分析工具都很清楚，它们可以检查调用者是否检查了函数返回值及其可能发生的所有状态。
 - en: As the function now provides different results in different error situations,
     these results have to be tested. Compared to a function without any error handling,
     more extensive testing has to be done. Also, the caller is burdened with having
     to check these error situations, which might blow up the size of the caller’s
     code.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于函数现在在不同的错误情况下提供不同的结果，这些结果必须进行测试。与没有任何错误处理的函数相比，必须进行更广泛的测试。此外，调用者需要负担检查这些错误情况的责任，这可能会增加调用者代码的大小。
 - en: Any C function can return only one object of the type specified in the function
     signature, and the function now returns the status code. Thus, you have to use
     more complicated techniques for returning other function results. You could do
     this using Out-Parameters, which have the drawback that an additional parameter
     is required, or you could return an Aggregate Instance that contains the status
     information and other function results.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 任何 C 函数只能返回函数签名中指定类型的一个对象，且该函数现在返回状态码。因此，你必须使用更复杂的技术来返回其他函数结果。你可以使用输出参数来做到这一点，但这种方法的缺点是需要额外的参数，或者你可以返回包含状态信息和其他函数结果的聚合实例。
 - en: Known Uses
+  id: totrans-49
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知的使用情况
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了该模式的应用：
 - en: Microsoft uses `HRESULT` to return status information. An `HRESULT` is a unique
     status code. Making the status code unique has the advantage that the status information
     can be transported across many functions while still making it possible to find
@@ -262,146 +368,206 @@
     allowed to use which status numbers. Another specialty of `HRESULT` is that it
     encodes specific information, such as the severity of an error, into the status
     code by using some bits dedicated to returning this information.
+  id: totrans-51
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Microsoft 使用 `HRESULT` 返回状态信息。`HRESULT` 是一个唯一的状态码。使状态码唯一的优势是可以在许多函数间传递状态信息，同时仍然可以找出该状态的来源。但使状态码唯一需要额外的努力来分配状态号并跟踪允许谁使用哪些状态号。`HRESULT`
+    的另一个特殊之处在于，它通过使用一些专用于返回此信息的位来编码特定信息，如错误的严重性。
 - en: The code of the Apache Portable Runtime defines the type `apr_status_t` to return
     error information. Any function that returns error information in this way returns
     `APR_SUCCESS` on success or any other value to indicate errors. Other values are
     uniquely defined error codes specified via `#define` statements.
+  id: totrans-52
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Apache 可移植运行时代码定义了类型 `apr_status_t` 以返回错误信息。以此方式返回错误信息的任何函数在成功时返回 `APR_SUCCESS`，或通过
+    `#define` 语句指定的唯一定义的错误代码返回其他值。
 - en: The OpenSSL code defines status codes in several header files (*dsaerr.h*, *kdferr.h*,
     …). As an example, the status codes `KDF_R_MISSING_PARAMETER` or `KDF_R_MISSING_SALT`
     inform the caller in detail about missing or wrong input parameters. The status
     codes in each of the files are defined only for a specific set of functions that
     belong to that file, and the status code values are not unique across the whole
     OpenSSL code.
+  id: totrans-53
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL 代码在多个头文件（*dsaerr.h*、*kdferr.h*，……）中定义了状态码。例如，状态码 `KDF_R_MISSING_PARAMETER`
+    或 `KDF_R_MISSING_SALT` 详细通知调用者有关缺少或错误输入参数的情况。每个文件中的状态码仅为属于该文件的特定一组函数定义，并且状态码值在整个
+    OpenSSL 代码中不是唯一的。
 - en: The pattern Error Code is described in the Portland Pattern Repository. It describes
     the idea of returning error information by explicitly using the function’s return
     value.
+  id: totrans-54
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 错误代码模式在 Portland 模式库中有描述。它描述了通过显式使用函数的返回值返回错误信息的想法。
 - en: Applied to Running Example
+  id: totrans-55
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now you provide your caller with information in case of errors in your code.
     In the following code you check for things that could go wrong and provide that
     information to the caller:'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，在你的代码中提供错误信息给调用者。在下面的代码中，你检查可能出错的情况并将该信息提供给调用者：
 - en: '*Registry API*'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Registry API*'
 - en: '[PRE6]'
+  id: totrans-58
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '*Registry implementation*'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Registry implementation*'
 - en: '[PRE7]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'Now the caller can react to the provided error information and can, for example,
     provide the user of the application with detailed information about what went
     wrong:'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在调用者可以对提供的错误信息做出反应，例如，可以向应用程序的用户提供有关出错原因的详细信息：
 - en: '*Caller’s code*'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Caller’s code*'
 - en: '[PRE8]'
+  id: totrans-63
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: The caller can now react to errors, but the code for the registry software-module
     as well as the code for the caller have more than doubled in size. The caller
     code could be cleaned up a little by having a separate function for mapping the
     error code to error texts, but the majority of that code would still cope with
     error handling.
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在调用者可以对错误做出反应，但是注册表软件模块的代码以及调用者的代码大小都增加了一倍多。通过为错误代码映射到错误文本的功能提供单独的函数，可以稍微简化调用者代码，但大部分代码仍需处理错误处理。
 - en: You can see that error handling did not come for free. A lot of effort was put
     into implementing error handling. This can also be seen in the registry API. The
     comments for the functions became a lot longer because they have to describe which
     error situations can occur. The caller also has to put a lot of effort into thinking
     about what to do if a specific error occurs.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以看出，错误处理并非没有代价。在实现错误处理时投入了大量的工作。这也可以从注册表 API 中看出来。函数的注释变得更长，因为它们必须描述可能发生的错误情况。调用者还必须花费大量精力考虑如果出现特定错误应该怎么办。
 - en: When providing such detailed error information to the caller, you burden the
     caller with reacting to these errors and thinking about which errors are relevant
     to handle and which are irrelevant. Thus, special care has to be taken to on the
     one hand, provide the caller with the necessary error information, but on the
     other hand, not to flood the caller with unnecessary information.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 当向调用者提供如此详细的错误信息时，你会使调用者负担得要对这些错误做出反应，并考虑哪些错误是需要处理的，哪些是无关紧要的。因此，必须特别小心，一方面提供调用者必要的错误信息，另一方面不要向调用者提供过多不必要的信息。
 - en: Next, you want to make these considerations in your code, and you only want
     to provide error information that is actually useful to the caller. Thus, you
     only Return Relevant Errors.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，在你的代码中，你希望考虑这些因素，并且只提供对调用者实际有用的错误信息。因此，你只返回相关的错误。
 - en: Return Relevant Errors
+  id: totrans-68
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 返回相关的错误
 - en: Context
+  id: totrans-69
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 背景
 - en: You implement a software-module that performs some error handling, and you want
     to return error information to your caller.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 你正在实现一个软件模块来执行一些错误处理，并且你希望向调用者返回错误信息。
 - en: Problem
+  id: totrans-71
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**On the one hand, the caller should be able to react to errors; on the other
     hand, the more error information you return, the more your code and the code of
     your caller have to deal with error handling, which makes the code longer. Longer
     code is harder to read and maintain and brings in the risk of additional bugs.**'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '**一方面，调用者应能够对错误做出反应；另一方面，返回的错误信息越多，你和你的调用者的代码就越多地涉及错误处理，这会使代码变得更长。代码越长，阅读和维护起来就越困难，并且会带来额外的错误风险。**'
 - en: In order to return error information to your caller, detecting the error and
     returning the information are not your only tasks. You also have to document in
     your API which errors are returned. If you don’t do that, then your caller will
     not know which errors to expect and handle. Documenting error behavior is work
     that has to be done. The more types of errors there are, the more documentation
     work has to be done.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了向调用者返回错误信息，检测错误并返回信息并不是你的唯一任务。你还必须在 API 文档中记录返回的错误。如果不这样做，调用者将不知道可以期望和处理哪些错误。文档化错误行为是必须要做的工作。错误类型越多，需要做的文档工作就越多。
 - en: Returning very detailed, implementation-specific error information and adding
     additional error information later on in your code if the implementation changes
     implies that with such an implementation change, you have to semantically change
     your interface that documents the returned error information. Such changes might
     not be desirable for your existing callers because they would have to adapt their
     code to react to the newly introduced error information.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果实现发生变化，向调用者提供非常详细的、与实现相关的错误信息，并在你的代码中稍后添加额外的错误信息，这意味着随着实现变化，你必须语义上改变文档化的接口，以记录返回的错误信息。对于现有的调用者来说，这样的变化可能是不可取的，因为他们将不得不调整其代码以对新引入的错误信息做出反应。
 - en: Providing detailed error information is also not always a good thing for the
     caller either. Each error information returned to the caller means additional
     work for the caller. The caller has to decide if the error information is relevant
     and how to handle it.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 为调用者提供详细的错误信息也并非总是件好事。每返回一个错误信息都意味着调用者要做额外的工作。调用者必须决定错误信息是否相关，以及如何处理它。
 - en: Solution
+  id: totrans-76
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Only return error information to the caller if that information is relevant
     to the caller. Error information is only relevant to the caller if the caller
     can react to that information.**'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '**只有当错误信息对调用者有意义时，才将其返回给调用者。如果调用者可以对该信息做出反应，那么错误信息才对调用者有意义。**'
 - en: If the caller cannot react to the error information, then it would be unnecessary
     to provide the caller the opportunity (or the burden) to do so.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果调用者无法对错误信息做出反应，那么为其提供这种机会（或负担）就是不必要的。
 - en: There are several ways to return only relevant error information. One extreme
     way is to simply not return any error information at all. For example, when you
     have a function `cleanupMemory (void* handle)` that cleans up memory, there is
@@ -410,57 +576,83 @@
     is in most cases not a solution). Thus the function simply does not return any
     error information. To make sure that errors within the function do not go unnoticed,
     aborting the program in case of error (Samurai Principle) might even be an option.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 有几种方法可以只返回相关的错误信息。一种极端的方式是根本不返回任何错误信息。例如，当你有一个函数`cleanupMemory (void* handle)`来清理内存时，如果清理成功，则无需返回信息，因为调用者无法在代码中对这样的清理错误做出反应（大多数情况下重新调用清理函数并不是解决方案）。因此，该函数根本不返回任何错误信息。为了确保函数内部的错误不会被忽视，甚至可以在错误发生时中止程序（侍者原则）。
 - en: Or imagine the only reason why you return the error to the caller is so the
     caller can then log this error. In that case, do not return the error to the caller,
     but instead simply Log Errors yourself in order to make life easier for the caller.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 或者想象一下，你将错误返回给调用者的唯一原因是让调用者能够记录此错误。在这种情况下，不要将错误返回给调用者，而是自己简单地记录错误，以便为调用者简化生活。
 - en: 'If you already Return Status Codes, then only the error information that is
     relevant to the caller should be returned. Other errors that occur can be summarized
     as one internal error code. Also, detailed error codes from the functions you
     call need not necessarily all be returned by your function. They can be summarized
     as one internal error code as shown in the following code:'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果已经返回状态码，则应仅返回对调用者有关的错误信息。调用的函数中产生的其他错误可以总结为一个内部错误代码。此外，无需必须将调用的函数的详细错误代码全部返回。它们可以总结为一个内部错误代码，如下面的代码所示：
 - en: '*Caller’s code*'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE9]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '*API*'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API*'
 - en: '[PRE10]'
+  id: totrans-85
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '*Implementation*'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实施*'
 - en: '[PRE11]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[![1](assets/1.png)](#co_returning_error_information_CO1-1)'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_returning_error_information_CO1-1)'
 - en: You return the same error information if `internalError1Occurs` or `internal​Er⁠ror2Occurs`
     because it is irrelevant to the caller which of the two implementation-specific
     errors occurs. The caller would react to both errors in the same way (in the preceding
     example, the reaction is to abort the program).
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果`internalError1Occurs`或`internal​Er⁠ror2Occurs`，你返回相同的错误信息，因为对于调用者来说，发生哪种实现特定的错误是无关紧要的。调用者将以相同的方式对两种错误做出反应（在前面的例子中，反应是中止程序）。
 - en: If more detailed error information is needed for debugging purposes, you could
     Log Errors. If you realize that there are not many error situations after returning
     only relevant errors, then instead of error codes, it might be a better solution
     to simply have Special Return Values to return the error information.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果需要更详细的错误信息以进行调试，可以记录错误。如果意识到只返回相关错误后，错误情况并不多，那么与其使用错误代码，不如使用特殊的返回值来返回错误信息可能是一个更好的解决方案。
 - en: Consequences
+  id: totrans-91
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: Not returning detailed information about which kind of internal errors occurred
     is a relief for the caller. The caller is not burdened with thinking about how
     to handle all possible internal errors that occur, and it is more likely that
@@ -468,38 +660,50 @@
     errors are relevant for the caller. Also, testers can be happy, because now that
     fewer error information is returned by the functions, fewer error situations have
     to be tested.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 不返回有关内部错误种类的详细信息对于调用者来说是一种解脱。调用者不必费心考虑如何处理所有可能发生的内部错误，因此更有可能对返回的所有错误做出反应。此外，测试人员也会感到高兴，因为现在函数返回的错误信息更少，需要测试的错误情况也更少。
 - en: If the caller uses very strict compilers or static code analysis tools that
     verify whether the caller checks for all possible return values, the caller does
     not have to explicitly handle irrelevant errors (for example, a switch statement
     with many fallthroughs and one central error-handling code for all internal errors).
     Instead, the caller only handles one internal error code, or if you abort the
     program on error, the caller does not have to handle any errors.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果调用者使用非常严格的编译器或静态代码分析工具来验证调用者是否检查了所有可能的返回值，调用者就不需要显式处理无关的错误（例如，一个带有许多贯穿情况和一个中心错误处理代码用于所有内部错误的开关语句）。相反，调用者只处理一个内部错误代码，或者如果在错误发生时中止程序，调用者就不需要处理任何错误。
 - en: Not returning the detailed error information makes it impossible for the caller
     to show this error information to the user or to save this error information for
     the developer for debugging purposes. However, for such debugging purposes, it
     would be better to Log Errors directly in the software-module where they occur
     and not burden the caller with doing that.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 不返回详细的错误信息会使调用者无法将此错误信息显示给用户或保存此错误信息以便开发者进行调试。然而，为了调试目的，最好直接在发生错误的软件模块中记录错误信息，而不是让调用者来处理。
 - en: If you don’t return all information about errors occurring in your function,
     but instead you return only information that you think is relevant to the caller,
     then there is the chance that you get it wrong. You might forget some information
     that is necessary for the caller, and maybe that leads to a change request for
     adding this information. But if you Return Status Codes, additional error codes
     can easily be added without changing the function signature.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果在函数中不返回关于发生的错误的所有信息，而是只返回你认为对调用者相关的信息，那么可能会出现错误。你可能会忘记一些对调用者来说必要的信息，也许这会导致一个更改请求来添加这些信息。但是如果返回状态码，则可以轻松地添加额外的错误代码而无需更改函数签名。
 - en: Known Uses
+  id: totrans-96
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: For security-relevant code it is very common to return only relevant information
     in case of errors. For example, if a function to authenticate a user returns detailed
     information about why authentication is not working because the username or password
@@ -510,53 +714,74 @@
     users in the B&R Automation Runtime operating system has the return type `bool`
     and returns `true` if the authentication worked or `false` if it did not work.
     No detailed information about why the authentication did not work is returned.
+  id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于安全相关的代码，在错误情况下只返回相关信息非常常见。例如，如果一个用于验证用户的函数返回详细信息说明为什么验证不起作用，因为用户名或密码无效，那么调用者可以使用该函数来检查哪些用户名已被使用。为了避免通过这些信息打开侧信道，通常只返回关于验证是否成功的二进制信息。例如，用于在B&R
+    Automation Runtime操作系统中验证用户的函数`rbacAuthenticateUserPassword`返回类型为`bool`，如果验证成功则返回`true`，否则返回`false`。不返回关于为何验证未能成功的详细信息。
 - en: The function `FlushWinFile` of the game NetHack flushes a file to the disk calling
     the Macintosh function `FSWrite`, which does return error codes. However, the
     NetHack wrapper explicitly ignores the error code, and `FlushWinFile` is of return
     type `void` because the code using that function cannot react accordingly if an
     error occurs. Thus, the error information is not passed along.
+  id: totrans-99
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 游戏NetHack的函数`FlushWinFile`将文件刷新到磁盘，并调用Macintosh函数`FSWrite`，该函数会返回错误代码。然而，NetHack的包装器明确忽略了错误代码，而`FlushWinFile`的返回类型是`void`，因为使用该函数的代码无法根据错误情况作出相应反应。因此，错误信息没有传递。
 - en: The OpenSSL function `EVP_CIPHER_do_all` initializes cipher suites with the
     internal function `OPENSSL_init_crypto`, which Returns Status Codes. However,
     this detailed error information is ignored by the `EVP_CIPHER_do_all` function
     because it is of return type `void`. So the strategy of returning detailed error
     information is changed by the wrapping function to only Return Relevant Errors,
     which in this case is no error information at all.
+  id: totrans-100
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL函数`EVP_CIPHER_do_all`使用内部函数`OPENSSL_init_crypto`初始化密码套件，并返回状态码。然而，`EVP_CIPHER_do_all`函数忽略了这些详细的错误信息，因为其返回类型为`void`。因此，通过包装函数将返回详细错误信息的策略更改为仅返回相关错误，这种情况下即为不返回任何错误信息。
 - en: Applied to Running Example
+  id: totrans-101
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'When you only Return Relevant Errors, your registry code looks like the following.
     To keep things simple, only the `createKey` function is shown here:'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你只返回相关的错误信息时，你的注册码看起来像下面这样。为了简化，这里只显示了`createKey`函数：
 - en: '*Implementation of the function* `*createKey*`'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现函数* `*createKey*`'
 - en: '[PRE12]'
+  id: totrans-104
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '[![1](assets/1.png)](#co_returning_error_information_CO2-1)'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_returning_error_information_CO2-1)'
 - en: Instead of returning `INVALID_KEY` or `INVALID_STRING`, you now return `INVALID_PARAMETER`
     for all these error cases.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在不再返回`INVALID_KEY`或`INVALID_STRING`，而是对所有这些错误情况返回`INVALID_PARAMETER`。
 - en: Now the caller cannot handle specific invalid parameters differently, which
     also means the caller does not have to think about how to handle these error situations
     differently. The caller code becomes simpler because now there is one less error
     situation to be handled.
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在调用方无法处理特定的无效参数，这也意味着调用方不必考虑如何单独处理这些错误情况。现在调用方的代码变得更简单，因为现在少了一个需要处理的错误情况。
 - en: That is good, because what would the caller do if the function returns `INVALID_KEY`
     or `INVALID_STRING`? It wouldn’t make any sense for the caller to try calling
     the function again. In both cases the caller could just accept that calling the
@@ -564,116 +789,166 @@
     would be no reason for the caller to react differently to the two errors, you
     have relieved the caller of the burden of thinking about two different error situations.
     Now the caller only has to think about one error situation and then react accordingly.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 这很好，因为如果函数返回`INVALID_KEY`或`INVALID_STRING`，调用方该怎么办呢？对调用方来说，再次调用函数没有任何意义。在这两种情况下，调用方可以接受调用函数未能成功，并向用户报告或中止程序。由于调用方没有理由对这两种错误做出不同的反应，您已经解除了调用方思考两种不同错误情况的负担。现在调用方只需考虑一种错误情况，然后相应地做出反应。
 - en: 'To make things even easier, you next apply the Samurai Principle. Instead of
     returning all of these error codes, you handle some of the errors by aborting
     the program:'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了使事情更加简单，您接下来应用了武士原则。与其返回所有这些错误码，不如通过中止程序处理其中一些错误：
 - en: '*Declaration of the function* `*createKey*`'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: '*函数`createKey`的声明*'
 - en: '[PRE13]'
+  id: totrans-111
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '*Implementation of the function* `*createKey*`'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '*函数`createKey`的实现*'
 - en: '[PRE14]'
+  id: totrans-113
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '[![1](assets/1.png)](#co_returning_error_information_CO3-1)'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_returning_error_information_CO3-1)'
 - en: Instead of returning an `INVALID_PARAMETER` or `STRING_TOO_LONG`, you now abort
     the program if one of the provided parameters is not what you expect it to be.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 而不是返回`INVALID_PARAMETER`或`STRING_TOO_LONG`，如果提供的参数之一不符合您的预期，则现在中止程序。
 - en: Aborting in case of too long strings seems a bit drastic at first. However,
     similar to `NULL` pointers, a too long string is invalid input for your function.
     If your registry does not get its string input from a user via a GUI, but instead
     gets a fixed input from the caller’s code, then for too long strings this code
     only aborts in case of programming errors, which is perfectly fine behavior.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 在字符串过长的情况下中止看起来有些过激。但是，类似于`NULL`指针，对于您的函数来说，过长的字符串是无效的输入。如果您的注册表不是通过GUI从用户那里获取其字符串输入，而是从调用方代码获取固定输入，那么对于过长的字符串，此代码仅在编程错误的情况下中止，这是完全合理的行为。
 - en: 'Next, you realize that the `createKey` function returns only two different
     error codes: `OUT_OF_MEMORY` and `OK`. Your code can be made much more beautiful
     by simply providing this kind of error information with Special Return Values.'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，您意识到`createKey`函数仅返回两种不同的错误码：`OUT_OF_MEMORY`和`OK`。通过简单地提供这种类型的错误信息，您的代码可以变得更加优美。
 - en: Special Return Values
+  id: totrans-118
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 特殊返回值
 - en: Context
+  id: totrans-119
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 背景
 - en: You have a function that computes some result, and you want to provide error
     information to your caller if an error occurs when executing the function. You
     only want to Return Relevant Errors.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 您有一个计算某些结果的函数，如果执行函数时发生错误，您希望向调用方提供错误信息。您只想返回相关的错误。
 - en: Problem
+  id: totrans-121
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to return error information, but don’t want to explicitly Return
     Status Codes because that makes it difficult for your function to return other
     data. You could add Out-Parameters to your function, but this would make calling
     the function more difficult.**'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: '**您想返回错误信息，但又不想显式地返回状态码，因为这会使您的函数难以返回其他数据。您可以向函数添加输出参数，但这会使调用函数变得更加困难。**'
 - en: Returning no error information at all is also not an option for you. You want
     to provide your caller with some error information, and you want your caller to
     be able to react to these errors. There is not a lot of error information that
     you want to provide to your caller. It might be just the binary information about
     whether the function call worked or not. To Return Status Codes for such simple
     information would be overkill.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于您来说，根本不提供任何错误信息也不是一个选项。您希望向调用方提供一些错误信息，并希望调用方能够对这些错误做出反应。您希望向调用方提供的错误信息并不多。它可能只是关于函数调用是否成功的二进制信息。为这样简单的信息返回状态码会显得有些过度。
 - en: You cannot apply the Samurai Principle and abort the program because the errors
     occurring in your function are not severe. Or maybe you want to make it possible
     for the caller to decide how the errors should be handled because the caller can
     handle the errors gracefully.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 你不能应用武士原则并中止程序，因为在你的函数中发生的错误并不严重。或者也许你想让调用者决定如何处理错误，因为调用者可以优雅地处理错误。
 - en: Solution
+  id: totrans-125
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Use the Return Value of your function to return the data computed by the
     function. Reserve one or more special values to be returned if an error occurs.**'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用函数的返回值返回函数计算的数据。保留一个或多个特殊值以便在发生错误时返回。**'
 - en: 'If, for example, your function returns a pointer, then you could use the `NULL`
     pointer as a reserved special value to indicate that some error occurred. The
     `NULL` pointer is by definition an invalid pointer, so you can be sure that this
     special value is not confused with a valid pointer calculated by your function
     as a result. The following code shows how to return error information when using
     pointers:'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，如果你的函数返回一个指针，那么可以使用`NULL`指针作为保留的特殊值来指示发生了某些错误。根据定义，`NULL`指针是一个无效指针，所以你可以确保这个特殊值不会与函数计算出的有效指针混淆。以下代码展示了在使用指针时如何返回错误信息：
 - en: '*Callee implementation*'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '*被调用者的实现*'
 - en: '[PRE15]'
+  id: totrans-129
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '*Caller’s code*'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE16]'
+  id: totrans-131
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: You have to make sure to document in the API which returned special value has
     which meaning. In some cases, a common convention settles which special values
     indicate errors. For example, very often negative integer values are used to indicate
     errors. Still, even in such cases the meaning of the specific return values has
     to be documented.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 你必须确保在 API 中记录返回的特殊值的含义。在某些情况下，常见的约定规定了哪些特殊值表示错误。例如，通常使用负整数值来表示错误。但即使在这种情况下，特定返回值的含义也必须记录。
 - en: You have to make sure that the special value that indicates error information
     is a value that cannot occur in case of no error. For example, if a function returns
     a temperature value in degrees Celsius as an integer value, then it would not
@@ -681,17 +956,23 @@
     an error. Instead, it would be better to use, for example, the value –300 to indicate
     an error, because it is physically impossible that a temperature takes a value
     below –273 degrees Celsius.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 你必须确保指示错误信息的特殊值是在没有错误时不会发生的值。例如，如果一个函数以摄氏度为整数值返回温度值，那么沿用 UNIX 惯例，任何负值表示错误并不是一个好主意。相反，使用例如-300来表示错误会更好，因为温度不可能低于-273摄氏度。
 - en: Consequences
+  id: totrans-134
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: The function can now return error information via the Return Value even though
     the Return Value is used to return the computation result of the function. No
     additional Out-Parameters have to be used just to provide error information.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使返回值用于返回函数的计算结果，函数现在也可以通过返回值返回错误信息。不需要使用额外的输出参数来提供错误信息。
 - en: Sometimes you don’t have many special values to encode error information. For
     example, for pointers there is only the `NULL` pointer to indicate error information.
     That leads to the situation in which it is only possible to indicate to the caller
@@ -700,8 +981,10 @@
     benefit that you are not tempted to return unnecessary error information. In many
     cases, it is sufficient to provide only the information that something went wrong,
     and the caller cannot react to more detailed information anyway.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时候你没有很多特殊值来编码错误信息。例如，对于指针来说，只有`NULL`指针用于指示错误信息。这导致了只能告知调用者一切是否顺利或是否出现问题的情况。这种做法的缺点是你不能返回详细的错误信息。但好处是你不会诱使返回不必要的错误信息。在许多情况下，只提供出现错误的信息是足够的，因为调用者无法对更详细的信息做出反应。
 - en: If, at a later point in time, you realize that you have to provide more detailed
     error information, then perhaps that is not possible anymore because you have
     no more unused special values left. You’d have to change the whole function signature
@@ -710,8 +993,10 @@
     might have to stay compatible for existing callers. If you expect such future
     changes, don’t use Special Return Values, but instead Return Status Codes right
     away.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果在稍后的时间点意识到需要提供更详细的错误信息，则可能不再可能，因为已经没有未使用的特殊值了。您将不得不更改整个函数签名，而不是返回状态码以提供额外的错误信息。更改函数签名可能并非总是一个选择，因为您的API可能必须保持兼容性以供现有调用者使用。如果预期将来会有这样的更改，请不要立即使用特殊返回值，而是立即返回状态码。
 - en: Sometimes programmers assume that it is clear which returned values indicate
     errors. For example, to some programmers it might be clear that a `NULL` pointer
     indicates an error. For some other programmers it might be clear that –1 indicates
@@ -720,15 +1005,21 @@
     just assumptions. In any case it should be well documented in the API which values
     indicate errors, but sometimes programmers forget to do that, wrongly assuming
     that it is absolutely clear.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时程序员假设清楚哪些返回值表示错误。例如，对于一些程序员来说，`NULL`指针表示错误是显而易见的。对于其他程序员来说，−1表示错误是显而易见的。这带来了一个危险的情况，即程序员假设所有人都清楚哪些值表示错误。然而，这些只是假设。在任何情况下，API中应该详细记录哪些值表示错误，但有时程序员会忘记这样做，错误地假设这一点是绝对清楚的。
 - en: Known Uses
+  id: totrans-139
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的示例展示了此模式的应用场景：
 - en: The `getobj` function of the game NetHack returns the pointer to some object
     if no error occurs and returns `NULL` if an error occurs. To indicate the special
     case that there is no object to return, the function returns the pointer to a
@@ -737,88 +1028,122 @@
     the returned pointer is the same as the pointer to the global object and can thus
     distinguish between a pointer to any valid object and a pointer to the `zeroobj`
     that carries some special meaning.
+  id: totrans-141
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: NetHack游戏的`getobj`函数如果没有错误会返回某个对象的指针，如果有错误会返回`NULL`。为了指示没有对象返回的特殊情况，该函数返回指向一个名为`zeroobj`的全局对象的指针，该对象是函数定义返回类型的一个对象，且已知给调用者。调用者可以检查返回的指针是否与指向全局对象`zeroobj`的指针相同，从而区分指向任何有效对象和携带某些特殊含义的`zeroobj`指针。
 - en: The C standard library function `getchar` reads a character from `stdin`. The
     function has return type `int` which allows returning much more information than
     simple characters. If no more characters are available, the function returns `EOF`,
     which is usually defined as −1\. As characters cannot take negative integer representations,
     `EOF` can clearly be distinguished from regular function results and can thus
     be used to indicate the special situation in which no more characters are available.
+  id: totrans-142
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: C标准库函数`getchar`从`stdin`读取一个字符。该函数的返回类型是`int`，允许返回比简单字符更多的信息。如果没有更多字符可用，该函数返回`EOF`，通常定义为−1。由于字符不能接受负整数表示，`EOF`可以清楚地区分于常规函数结果，并因此用于指示无更多字符可用的特殊情况。
 - en: Most UNIX or POSIX function use negative numbers to indicate error information.
     For example, the POSIX function `write` returns the number of written bytes or
     −1 on error.
+  id: totrans-143
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 大多数UNIX或POSIX函数使用负数来指示错误信息。例如，POSIX函数`write`在错误时返回写入的字节数或−1。
 - en: Applied to Running Example
+  id: totrans-144
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'With Special Return Values, your code looks like the following. To keep it
     simple, only the `createKey` function is shown:'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用特殊返回值，你的代码看起来像下面这样。为了简单起见，只显示了`createKey`函数：
 - en: '*Declaration of the function* `*createKey*`'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '*函数的声明* `*createKey*`'
 - en: '[PRE17]'
+  id: totrans-147
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '*Implementation of the function* `*createKey*`'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: '*函数的实现* `*createKey*`'
 - en: '[PRE18]'
+  id: totrans-149
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: The `createKey` function is much simpler now. It does not Return Status Codes
     anymore, but instead it directly returns the handle and no Out-Parameter is needed
     to return this information. The API documentation for the function also becomes
     much simpler because there is no need to describe the additional parameter and
     no need to lengthily describe how the function result will be returned to the
     caller.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，`createKey`函数简单得多了。它不再返回状态码，而是直接返回句柄，不需要输出参数来返回这些信息。函数的API文档也变得简单得多，因为不需要描述额外的参数，也不需要详细描述函数结果将如何返回给调用者。
 - en: Things also are much simpler for your caller. The caller does not have to provide
     a handle as an Out-Parameter anymore, but instead the caller directly retrieves
     this handle via the Return Value, which makes the caller’s code a lot more readable
     and thus easier to maintain.
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于你的调用者而言，情况也简单得多了。调用者不再需要将句柄作为输出参数提供，而是直接通过返回值检索这个句柄，这使得调用者的代码更加可读，从而更易于维护。
 - en: However, now you have the problem that compared to the detailed error information
     that you can provide if you Return Status Codes, the only error information that
     comes out of the function is whether it worked or not. The internal details about
     the error are thrown away, and if you need these details later on, for example,
     as debugging information, there is no way to get it. To address that issue, you
     can Log Errors.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，现在你面临的问题是，与你可以在**返回状态码**时提供的详细错误信息相比，函数输出的唯一错误信息是它是否成功运行。关于错误的内部详细信息被丢弃了，如果以后需要这些详细信息，例如作为调试信息，那么就无法获取。为了解决这个问题，你可以**记录错误**。
 - en: Log Errors
+  id: totrans-153
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: '**记录错误**'
 - en: Context
+  id: totrans-154
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**背景**'
 - en: You have a function in which you handle errors. You want to only Return Relevant
     Errors to your caller for reacting to them in the code, but you want to keep detailed
     error information for later debugging.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有一个处理错误的函数。你只想向你的调用者**返回相关的错误**，以便在代码中对其做出反应，但你希望保留详细的错误信息以供以后调试使用。
 - en: Problem
+  id: totrans-156
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**问题**'
 - en: '**You want to make sure that in case of an error you can easily find out its
     cause. However, you don’t want your error-handling code to become complicated
     because of this.**'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: '**你希望确保在出现错误时能够轻松找出其原因。但是，你不希望由于这个原因使得你的错误处理代码变得复杂。**'
 - en: One way to do this would be to return very detailed error information, such
     as error information indicating programming errors, directly to the caller. To
     do this you can Return Status Codes to the caller, who then displays the detailed
@@ -826,45 +1151,59 @@
     service hotline) to ask what the error code means and how to fix the problem.
     Then you’d have your detailed error information to debug the code, and you could
     figure out what went wrong.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 一种做法是向调用者返回非常详细的错误信息，比如直接向调用者返回表示编程错误的错误信息。为此，你可以向调用者**返回状态码**，然后调用者向用户显示详细的错误代码。用户可能会通过某种服务热线与你联系，询问错误代码的含义以及如何解决问题。然后你会得到详细的错误信息来调试代码，找出问题出在哪里。
 - en: However, such an approach has the major drawback that the caller, who does not
     care at all about that error information, has to provide the error information
     to the user only for the sake of providing this error information to you. The
     user also does not really care about such detailed error information.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这种方法的主要缺点是，那些完全不关心错误信息的调用者，仅为了向你提供这些错误信息而必须向用户提供错误信息。用户也实际上并不关心这样详细的错误信息。
 - en: In addition, Return Status Codes has the drawback that you have to use the Return
     Value of the function to return error information, and you have to use additional
     Out-Parameters to provide the actual function results. In some cases, instead,
     you can provide error information via Special Return Values, but this is not always
     possible. You don’t want to have additional parameters for your function only
     to provide error information because it makes your caller’s code more complicated.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，**返回状态码**的缺点是，你必须使用函数的返回值来返回错误信息，并且必须使用额外的输出参数来提供实际的函数结果。在某些情况下，你可以通过**特殊的返回值**提供错误信息，但这并不总是可行。你不希望为你的函数添加额外的参数，仅仅是为了提供错误信息，因为这会使调用者的代码更加复杂。
 - en: Solution
+  id: totrans-161
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**解决方案**'
 - en: '**Use different channels to provide error information that is relevant for
     the calling code and error information that is relevant for the developer. For
     example, write debug error information into a log file and don’t return the detailed
     debug error information to the caller.**'
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用不同的通道提供与调用代码相关的错误信息和与开发人员相关的错误信息。例如，将调试错误信息写入日志文件，而不将详细的调试错误信息返回给调用者。**'
 - en: If an error occurs, the user of the program has to provide you with the logged
     debug information so that you can easily find out the cause of the error. For
     example, the user has to send you a log file via email.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果发生错误，程序的用户必须提供已记录的调试信息，以便你能轻松找出错误的原因。例如，用户必须通过电子邮件发送给你一个日志文件。
 - en: Alternatively, you could log the error at the interface between you and your
     caller and also Return Relevant Errors to the caller. For example, the caller
     could be informed that some internal error occurred, but the caller does not see
     the details of what kind of error occurred. Thus, the caller could still handle
     the error in the code without requiring knowledge on how to handle very detailed
     errors, and you still wouldn’t be losing valuable debug information.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 或者，你可以在你和调用者之间的接口处记录错误，并且还向调用者返回相关的错误。例如，调用者可以被告知发生了某种内部错误，但是调用者看不到具体发生了什么样的错误。因此，调用者仍然可以在代码中处理错误，而不需要知道如何处理非常详细的错误，而你也不会丢失有价值的调试信息。
 - en: 'To not lose valuable debug information, you should log information about programming
     errors and unexpected errors. For such errors it is valuable to store information
     about their severity and where the error occurred—for example, the source code
@@ -872,20 +1211,28 @@
     macros to get information about the current line number (`__LINE__`), the current
     function (`__func__`), or the current file (`__FILE__`). The following code uses
     the `__func__` macro for logging:'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了不丢失有价值的调试信息，你应该记录有关编程错误和意外错误的信息。对于这些错误，存储其严重性和错误发生位置的信息非常有价值，例如源代码文件名和行号，或者回溯信息。C语言提供了特殊的宏来获取当前行号（`__LINE__`）、当前函数（`__func__`）或当前文件（`__FILE__`）的信息。以下代码使用了`__func__`宏进行日志记录：
 - en: '[PRE19]'
+  id: totrans-166
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'To get more detailed logging, you could even trace your function calls and
     log their return information. That makes it easier to reverse-engineer error situations
     with these logs, but of course that logging also introduces computational overhead.
     For tracing return values of your function calls, you can use the following code:'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了获得更详细的日志记录，甚至可以追踪函数调用并记录它们的返回信息。这样做可以更容易地通过这些日志反向工程化错误情况，但当然，这种日志记录也会引入计算开销。要追踪函数调用的返回值，可以使用以下代码：
 - en: '[PRE20]'
+  id: totrans-168
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: The log information can be stored in files, as indicated in the preceding code.
     You’ll have to take care of special situations like not having enough memory to
     store the file or a crashing program while writing to the file. Handling such
@@ -893,18 +1240,24 @@
     for your logging mechanism because later on you’ll rely on the log files for debugging
     purposes. If the data in these files is not correct, then you might be misled
     when hunting down coding errors.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 日志信息可以存储在文件中，就像前面的代码所示。你必须处理诸如内存不足以存储文件或程序在写入文件时崩溃等特殊情况。处理这些情况并不是一件容易的事情，但对于你的日志记录机制来说，拥有健壮的代码非常重要，因为以后你将依赖日志文件进行调试。如果这些文件中的数据不正确，那么在追踪编码错误时可能会被误导。
 - en: Consequences
+  id: totrans-170
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: You can obtain debug information without requiring your caller to handle or
     transport this information. That makes life for the caller a lot easier, because
     the caller does not have to handle or transport the detailed error information.
     Instead, you provide the detailed error information yourself.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以获取调试信息，而不需要调用者处理或传输这些信息。这样可以大大简化调用者的生活，因为调用者不必处理或传输详细的错误信息。相反，你可以自己提供详细的错误信息。
 - en: In some cases, you might just want to log some error or situation that occurred,
     but that is completely irrelevant to the caller. Thus, you don’t even have to
     return any error information to the caller. For example, if you abort the program
@@ -913,8 +1266,10 @@
     So there are no additional required parameters to your function in order to return
     error information, which makes calling your function a lot easier and helps the
     caller to keep the code clean.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些情况下，你可能只想记录发生的某些错误或情况，但这对调用者完全无关。因此，你甚至不需要将任何错误信息返回给调用者。例如，如果发生错误时中止程序，调用者根本不需要对错误做出反应，而且你仍然可以确保不会丢失宝贵的调试信息，如果你记录错误的话。因此，在返回错误信息时，函数不需要额外的必填参数，这样调用函数会更容易，帮助调用者保持代码的整洁。
 - en: You don’t lose this valuable error information and can still use it for debugging
     purposes to hunt down programming errors. To not lose this debug information,
     you provide it via a different channel, for example, via log files. However, you
@@ -923,110 +1278,154 @@
     bug report mechanism. Still, with both of these approaches you cannot be 100%
     sure that the log information really gets back to you. If the users do not want
     that, they could prevent it.
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 你不会丢失这些宝贵的错误信息，仍然可以用于调试目的来追踪编程错误。为了不丢失这些调试信息，你可以通过不同的渠道提供它，例如通过日志文件。但是，你必须考虑如何获取这些日志文件。你可以要求用户通过电子邮件发送日志文件，或者更高级的方法是实施一些自动错误报告机制。然而，无论采用哪种方法，都不能百分之百确保日志信息真的会传回给你。如果用户不想这样，他们可以阻止它。
 - en: Known Uses
+  id: totrans-174
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的示例展示了此模式的应用：
 - en: The Apache web server code uses the function `ap_log_error` that writes errors
     related to requests or connections to an error log. Such a log entry contains
     information about the filename and line of code where the error occurred as well
     as a custom string provided to the function by the caller. The log information
     is stored in an `error_log` file on the server.
+  id: totrans-176
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Apache Web 服务器代码使用函数`ap_log_error`来写入与请求或连接相关的错误到错误日志中。这样的日志条目包含错误发生的文件名和代码行，以及由调用者提供给函数的自定义字符串。日志信息存储在服务器上的`error_log`文件中。
 - en: The B&R Automation Runtime operating system uses a logging system that allows
     programmers to provide logging information to the user via calling the function
     `eventLogWrite` from anywhere in the code. This makes it possible to provide information
     to the user without having to return this information across the whole calling
     stack up to some central logging component.
+  id: totrans-177
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: B&R Automation Runtime 操作系统使用一个日志系统，允许程序员在代码的任何位置通过调用函数`eventLogWrite`向用户提供日志信息。这样就可以在不需要将此信息返回到整个调用堆栈直到某个中央日志组件的情况下向用户提供信息。
 - en: The pattern Assertion Context from the book *Patterns in C* by Adam Tornhill
     (Leanpub, 2014) suggests aborting the program in case of errors and also logging
     information the about the reason for or the position of the crash by adding a
     string statement inside the `assert` call. If the `assert` fails, then the line
     of code containing the `assert` statement will be printed, which includes the
     added string.
+  id: totrans-178
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 书籍《C 中的模式》（Leanpub，2014）中的断言上下文模式建议在出现错误时中止程序，并通过在`assert`调用中添加字符串语句来记录崩溃原因或位置的信息。如果`assert`失败，则将打印包含`assert`语句的代码行，其中包括添加的字符串。
 - en: Applied to Running Example
+  id: totrans-179
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'After applying the patterns, you’ll get the following final code for your registry
     software-module. This code provides the caller with relevant error information,
     but does not require the caller to handle any internal error situations:'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用模式后，你将获得注册表软件模块的最终代码。这段代码向调用者提供相关的错误信息，但不需要调用者处理任何内部错误情况：
 - en: '*Registry API*'
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: '*注册表 API*'
 - en: '[PRE21]'
+  id: totrans-182
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '*Registry implementation*'
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: '*注册表实现*'
 - en: '[PRE22]'
+  id: totrans-184
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: 'This code is shorter compared to the earlier code in the running example for
     these reasons:'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 与先前示例中的运行代码相比，这段代码更短，原因如下：
 - en: The code does not check for programming errors but aborts the program in case
     of programming errors. Invalid parameters like `NULL` pointers are not gracefully
     handled in the code; instead, the API documents that the handles must not be `NULL`.
+  id: totrans-186
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 代码不再检查编程错误，而是在发生编程错误时中止程序。代码中不再优雅地处理无效参数如`NULL`指针；相反，API文档指出句柄不能为`NULL`。
 - en: The code returns only errors that are relevant for the caller. For example,
     the `createKey` function does not Return Status Codes, but instead simply returns
     a handle and `NULL` in case of error because the caller does not need more detailed
     error information.
+  id: totrans-187
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 代码仅返回对调用者相关的错误。例如，`createKey`函数不返回状态码，而是在错误时简单地返回一个句柄和`NULL`，因为调用者不需要更详细的错误信息。
 - en: 'Although the code is shorter, the API comments grew. The comments now specify
     more clearly how the functions behave in case of errors. Apart from your code,
     the caller’s code also became simpler because now the caller is not burdened with
     many decisions on how to react to different kinds of error information:'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管代码更短，但API注释增加了。现在的注释更清楚地指明了在发生错误时函数的行为。除了您的代码外，调用者的代码也变得更简单，因为现在调用者不必为如何应对不同种类错误信息而做出多种决策：
 - en: '*Caller’s code*'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE23]'
+  id: totrans-190
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'This is shorter compared to the earlier code in the running example because:'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 与运行示例中的早期代码相比，这更短，因为：
 - en: The return value of functions that abort in case of error does not have to be
     checked.
+  id: totrans-192
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在发生错误时中止函数的返回值不需要被检查。
 - en: Functions in which no detailed error information is required directly return
     the requested item. For example, `createKey()` now returns a handle, and the caller
     no longer has to provide an Out-Parameter.
+  id: totrans-193
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 不需要直接返回详细错误信息的函数直接返回请求的项。例如，`createKey()`现在返回一个句柄，调用者不再需要提供输出参数。
 - en: Error codes that indicate a programming error, for example, an invalid provided
     parameter, are not returned anymore and thus do not have to be checked by the
     caller.
+  id: totrans-194
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 表示编程错误的错误代码，例如提供的参数无效，不再返回，因此不必由调用者检查。
 - en: The final code in the running example showed that it is important to think about
     which kinds of errors should be handled in the code and how these errors should
     be handled. Simply returning all kinds of errors and requiring the caller to cope
@@ -1036,12 +1435,16 @@
     point where the error occurs it can be decided to abort the program. Such measures
     make the code simpler and have to be considered when designing the API of a software
     component.
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 最终的运行示例代码显示了重要的是考虑在代码中应该处理哪些类型的错误以及如何处理这些错误。仅仅返回所有类型的错误并要求调用者应对所有这些错误并不总是最佳解决方案。调用者可能对详细的错误信息不感兴趣，或者可能不希望在应用程序中对错误做出反应。也许错误足够严重，以至于在发生错误的地方可以决定中止程序。在设计软件组件的API时必须考虑这些措施，使代码更简单。
 - en: Summary
+  id: totrans-196
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: This chapter showed you how to handle errors across different functions and
     different parts of your software. The pattern Return Status Codes provides the
     caller with numeric codes representing an occurring error. Return Relevant Errors
@@ -1049,47 +1452,65 @@
     errors in the code, and Special Return Value is one way to do that. Log Errors
     provides an additional channel to provide error information that is not intended
     for the caller, but for the user or for debugging purposes.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章展示了如何处理软件中不同函数和不同部分的错误。返回状态码模式为调用者提供了表示发生错误的数值代码。仅返回相关错误仅在调用者能够在代码中对这些错误作出反应时向调用者返回错误信息，并且特殊返回值是实现这一目的的一种方式。记录错误提供了一个额外的通道，用于提供不打算传递给调用者的错误信息，而是用于用户或调试目的。
 - en: These patterns equip you with more tools for tackling error situations and can
     guide your first steps when implementing a larger piece of code.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些模式为您提供了更多处理错误情况的工具，并可以指导您在实现更大代码片段时的初步步骤。
 - en: Further Reading
+  id: totrans-199
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 进一步阅读
 - en: 'If you’re ready for more, here are some resources that can help you further
     your knowledge of returning error information:'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您已准备好获取更多信息，请参阅以下资源，以帮助您进一步了解返回错误信息的知识：
 - en: The master’s thesis *Error Handling in Structured and Object-Oriented Programming
     Languages* by Thomas Aglassinger (University of Oulu, 1999) provides a comprehensive
     overview of error handling in general and describes error handling best practices,
     with code examples for several programming languages including C.
+  id: totrans-201
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 托马斯·阿格拉辛格（芬兰奥卢大学，1999年）的硕士论文*结构化和面向对象编程语言中的错误处理*全面概述了一般的错误处理，并描述了错误处理的最佳实践，其中包括多种编程语言的代码示例。
 - en: The [Portland Pattern Repository](https://oreil.ly/bs9FX) provides many patterns
     and discussions on error-handling as well as other topics. Most of the error handling
     patterns target exception handling, but some C idioms are also presented.
+  id: totrans-202
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[波特兰模式存储库](https://oreil.ly/bs9FX)提供了许多关于错误处理以及其他主题的模式和讨论。大多数错误处理模式都针对异常处理，但也介绍了一些C语言的习惯用法。'
 - en: The articles “Patterns for the Generation, Handling and Management of Errors”
     and “More Patterns for the Generation, Handling and Management of Errors” by [Andy
     Longshaw and Eoin Woods](https://oreil.ly/7Yj8h) present patterns for error logging
     and error handling with a focus on exception-based error handling.
+  id: totrans-203
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 文章“生成、处理和管理错误的模式”和“更多生成、处理和管理错误的模式”由[安迪·朗肖和伊恩·伍兹](https://oreil.ly/7Yj8h)提供，重点介绍了基于异常的错误记录和错误处理的模式。
 - en: Outlook
+  id: totrans-204
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 研究展望
 - en: The next chapter gives guidance on how to cope with dynamic memory. In order
     to return more complex data between your functions and to organize larger data
     and its lifetime throughout your application, you’ll need to deal with dynamic
     memory, and you’ll need advice on how to do that.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来的章节提供了关于如何处理动态内存的指导。为了在函数间返回更复杂的数据并在应用程序中组织更大的数据及其生命周期，您需要处理动态内存，并需要关于如何执行此操作的建议。

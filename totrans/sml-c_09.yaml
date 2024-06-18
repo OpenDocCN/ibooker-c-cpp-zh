@@ -1,30 +1,40 @@
 - en: Chapter 9\. Smaller Systems
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第9章. 较小系统
 - en: Now that we have the Arduino IDE ready to go, we can embark on the physically
     satisfying world of writing C code to control things! LED things. Sensor things.
     Button things. So many things! We’ll also dip our toes into the Internet of Things
     (IoT) in [“IoT and Arduino”](ch12.xhtml#smallerc-CHP-12-SECT-1.1).
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们已经准备好使用 Arduino IDE，我们可以进入写C代码来控制各种设备的令人满足的世界了！LED设备。传感器设备。按钮设备。太多设备了！我们还将涉足物联网（IoT），详见[“物联网和Arduino”](ch12.xhtml#smallerc-CHP-12-SECT-1.1)。
 - en: 'In this chapter, I’ll touch on several Arduino peculiarities (most of them
     helpful, some of them frustrating) while building some small but complete projects
     that you can try yourself. [“Getting the Hardware: Adafruit”](app01.xhtml#smallerc-APP-A-SECT-2)
     contains links for all the various components and microcontrollers I use in case
     you want to replicate any of the projects exactly.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我将讨论几个Arduino的特殊之处（大多数是有帮助的，但有些让人沮丧），并构建一些小而完整的项目，你可以自己尝试。[“获取硬件：Adafruit”](app01.xhtml#smallerc-APP-A-SECT-2)包含了我使用的各种组件和微控制器的链接，以便你精确复制任何项目。
 - en: The Arduino Environment
+  id: totrans-3
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Arduino 环境
 - en: I’m sure you noticed that we did not write “complete” C programs in [Chapter 8](ch08.xhtml#smallerc-CHP-8).
     We had no `main()` function, and for the earlier examples, we didn’t even import
     the usual header files. Yet we clearly had access to new functions and things
     like the `HIGH` and `LOW` values we used to blink our first LED.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 我相信你注意到了，在[第8章](ch08.xhtml#smallerc-CHP-8)中，我们没有编写“完整”的C程序。我们没有`main()`函数，而在早期的示例中，我们甚至没有导入通常的头文件。然而，我们显然可以访问新的函数和像`HIGH`和`LOW`这样的值，用来闪烁我们的第一个LED。
 - en: Where did those extras come from? It can feel at times like the IDE is providing
     a bit of magic. It’s not, of course, but it is doing a lot of work behind the
     scenes in the hopes of making you more productive. I want to point out some of
@@ -33,8 +43,11 @@
     you’ll head to the web to search for examples of new topics as you build more
     of your own projects. Knowing the difference between the language and the tools
     can make those searches more fruitful.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 那些额外的东西是从哪里来的？有时候感觉就像是IDE提供了一些魔法。当然，实际上并非如此，但在幕后它确实做了大量工作，希望能让你更高效。我想指出其中一些隐藏的工作，以便你更好地理解C语言本身与Arduino
+    IDE提供的支持元素之间的区别。随着你构建更多自己的项目，你必然会上网搜索新主题的示例。了解语言和工具之间的区别可以使这些搜索更加富有成效。
 - en: The Arduino IDE quietly includes several headers for you to make up what can
     loosely be called the “Arduino language.” It’s not a distinct language like Python,
     but it certainly feels like something more than just the C-with-headers-and-libraries
@@ -44,313 +57,480 @@
     the complete list online. The [Language Reference](https://oreil.ly/wlwhf) at
     the Arduino site contains a simple index of included features as well as links
     to details and examples.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: Arduino IDE 悄悄地为你包含了几个头文件，这些文件可以说是构成“Arduino语言”的一部分。它并不像 Python 那样是一种独立的语言，但它确实感觉上不仅仅是C语言加上头文件和库文件。Arduino
+    语言更像是一组有用的部件（数值和函数），使得微控制器的编程更加容易。我将向你展示一些最有用的部分，但你可以在网上找到完整的列表。Arduino 网站上的[语言参考](https://oreil.ly/wlwhf)包含了一个简单的索引和详细示例的链接。
 - en: Special Values
+  id: totrans-7
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 特殊数值
 - en: We relied on some of these “language” extensions just to make our first LED
     blink. Let’s revisit that code but with more discussion of the named values (the
     Arduino Language Reference calls these *constants*) that are specific to the Arduino
     environment.^([1](ch09.xhtml#idm45018719041400))
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们依赖了一些这些“语言”扩展，只是为了让我们的第一个LED闪烁。让我们回顾一下那段代码，但更多地讨论命名值（Arduino语言参考称这些为*常量*），这些值是特定于Arduino环境的。^([1](ch09.xhtml#idm45018719041400))
 - en: '[PRE0]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '[![1](Images/1.png)](#co_smaller_systems_CO1-1)'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_smaller_systems_CO1-1)'
 - en: The `LED_BUILTIN` constant represents the number of the pin connected to the
     LED found on most development boards. It won’t always be the same number for every
     controller, but the IDE grabs the correct value based on the board you select.
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: '`LED_BUILTIN` 常量代表连接在大多数开发板上的 LED 的引脚号。对于每个控制器来说，这个数字不一定相同，但 IDE 根据你选择的开发板自动获取正确的值。'
 - en: '[![2](Images/2.png)](#co_smaller_systems_CO1-2)'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_smaller_systems_CO1-2)'
 - en: '`OUTPUT` is the value we use to indicate we will send information to something
     like an LED or a motor. We’ll see analogous `INPUT` and `INPUT_PULLUP` constants
     when we tackle sensors and buttons.'
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: '`OUTPUT`是我们用来指示我们将向诸如LED或电机之类的设备发送信息的值。当我们处理传感器和按钮时，我们将看到类似的`INPUT`和`INPUT_PULLUP`常量。'
 - en: '[![3](Images/3.png)](#co_smaller_systems_CO1-3)'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_smaller_systems_CO1-3)'
 - en: '`HIGH` is a reference to the increased voltage used to “switch on” the device
     attached to the pin. What “on” means depends on said device. It’s pretty self-explanatory
     for an LED. :)'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '`HIGH`是增加电压的参考，用于“打开”连接到引脚的设备。什么是“打开”取决于该设备。对于LED来说，这相当容易理解。:)'
 - en: '[![4](Images/4.png)](#co_smaller_systems_CO1-4)'
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_smaller_systems_CO1-4)'
 - en: And `LOW` is the decreased voltage counterpart to `HIGH`, turning the LED off.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '`LOW`是`HIGH`的降低电压对应物，关闭LED。'
 - en: 'These named values are not variables. They are technically *preprocessor macros*.
     The preprocessor is a step your code goes through before it is compiled.^([2](ch09.xhtml#idm45018718922072))
     You create these entities with the `define` directive. (The prefix might look
     familiar from `#include`, and it should. Both “commands” are handled by the preprocessor.)
     We’ll go into more depth on this directive in [“Preprocessor Directives”](ch11.xhtml#smallerc-CHP-11-SECT-1.1),
     but its syntax is simple:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些命名值不是变量。它们在技术上是*预处理器宏*。预处理器是您的代码在编译之前经历的一步^([2](ch09.xhtml#idm45018718922072))。您可以使用`define`指令创建这些实体。（前缀可能看起来与`#include`相似，并且应该是。这两个“命令”都由预处理器处理。）我们将在[“预处理器指令”](ch11.xhtml#smallerc-CHP-11-SECT-1.1)中更深入地讨论此指令，但其语法很简单：
 - en: '[PRE1]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: The C preprocessor simply catches every instance of the macro’s name in your
     code and replaces that name with the defined value. If we had a new controller
     with fewer pins, for example, we could change our `#define` to, say, `8`. Then
     we wouldn’t have to change any of the other parts of our program where we turn
     the onboard LED on or off.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: C预处理器简单地捕捉您代码中宏名称的每个实例，并用定义的值替换该名称。例如，如果我们有一个新的控制器，它的引脚更少，我们可以将我们的`#define`更改为`8`。然后，我们无需更改任何其他部分的程序，其中我们打开或关闭板载LED。
 - en: And to be clear, `#define` *is* part of C (via the preprocessor). You can use
     it in your own code whether you are writing for a microcontroller or for a desktop.
     It’s the specific constants like `OUTPUT` that are part of the Arduino setup.
     [Table 9-1](#smallerc-CHP-9-TAB-arduino-constants) shows some of the constants
     we’ll be using in our projects.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 并且要明确，`#define` *是* C的一部分（通过预处理器）。无论您是为微控制器还是桌面编写代码，您都可以在自己的代码中使用它。像`OUTPUT`这样的特定常量是Arduino设置的一部分。[表 9-1](#smallerc-CHP-9-TAB-arduino-constants)显示了我们项目中将使用的一些常量。
 - en: Table 9-1\. Useful constants defined for Arduino
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 9-1\. 为Arduino定义的有用常量
 - en: '| Name | Description |'
+  id: totrans-23
   prefs: []
   type: TYPE_TB
+  zh: '| 名称 | 描述 |'
 - en: '| --- | --- |'
+  id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `LED_BUILTIN` | If the selected board has a built-in LED, this represents
     the pin number for that LED |'
+  id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '| `LED_BUILTIN` | 如果选定的板上有内置LED，则表示该LED的引脚号码 |'
 - en: '| `INPUT` | For pins that can perform both input and output, expect input |'
+  id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '| `INPUT` | 用于既可以执行输入又可以执行输出的引脚，预期输入 |'
 - en: '| `INPUT_PULLUP` | Similar to INPUT, but use an internal pull-up resistor to
     report `HIGH` on something like an unpressed push button, and `LOW` while it is
     pressed |'
+  id: totrans-27
   prefs: []
   type: TYPE_TB
+  zh: '| `INPUT_PULLUP` | 与INPUT类似，但使用内部上拉电阻报告`HIGH`，例如未按下的按钮，并且在按下时为`LOW` |'
 - en: '| `OUTPUT` | For pins that can perform both input and output, expect output
     |'
+  id: totrans-28
   prefs: []
   type: TYPE_TB
+  zh: '| `OUTPUT` | 用于既可以执行输入又可以执行输出的引脚，预期输出 |'
 - en: '| `HIGH` | Friendly name for 1, meant for use with digital reading and writing
     |'
+  id: totrans-29
   prefs: []
   type: TYPE_TB
+  zh: '| `HIGH` | 1的友好名称，用于数字读写 |'
 - en: '| `LOW` | Friendly name for 0, meant for use with digital reading and writing
     |'
+  id: totrans-30
   prefs: []
   type: TYPE_TB
+  zh: '| `LOW` | 0的友好名称，用于数字读写 |'
 - en: You can get more details on these constants on the official [Arduino Reference](https://oreil.ly/pS11s)
     page.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以在官方[Arduino参考](https://oreil.ly/pS11s)页面上获取有关这些常量的更多详细信息。
 - en: Special Types
+  id: totrans-32
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 特殊类型
 - en: Beyond those constants, the headers that are loaded for your Arduino sketches
     also include a number of other data types that I want to highlight, as you might
     find them useful. These aren’t really new types and aren’t even restricted to
     use in Arduino, but again, your sketches have access to these and you will likely
     see them used in examples you find online.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了这些常量之外，加载到您的Arduino草图中的标题还包括一些其他数据类型，我想强调一下，因为您可能会发现它们很有用。这些不是真正的新类型，甚至不限于在Arduino中使用，但再次，您的草图可以访问这些类型，并且您可能会在在线示例中看到它们的使用。
 - en: '[Table 9-2](#smallerc-CHP-9-TAB-arduino-typedefs) lists several of these types
     with their sizes and a brief description.'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '[表格 9-2](#smallerc-CHP-9-TAB-arduino-typedefs) 列出了几种类型及其大小和简要描述。'
 - en: Table 9-2\. Useful constants defined for Arduino
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 表格 9-2\. Arduino 中定义的有用常量
 - en: '| Type | Description |'
+  id: totrans-36
   prefs: []
   type: TYPE_TB
+  zh: 类型 | 描述 |
 - en: '| --- | --- |'
+  id: totrans-37
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `bool` | Boolean type; `bool` variables can be assigned either `true` or
     `false` |'
+  id: totrans-38
   prefs: []
   type: TYPE_TB
+  zh: '| `bool` | 布尔类型；`bool` 变量可以赋值为 `true` 或 `false` |'
 - en: '| `byte` | Unsigned 8-bit integer type |'
+  id: totrans-39
   prefs: []
   type: TYPE_TB
+  zh: '| `byte` | 无符号 8 位整数类型 |'
 - en: '| `size_t` | Integer type corresponding to maximum size (in bytes) of an object
     on the selected board. The value you get from `sizeof`, for example, is of type
     `size_t`. |'
+  id: totrans-40
   prefs: []
   type: TYPE_TB
+  zh: '| `size_t` | 对应于所选板上对象的最大大小（以字节为单位）的整数类型。例如，从 `sizeof` 得到的值就是 `size_t` 类型。
+    |'
 - en: '| `String` | An object-oriented way of handling strings (note the capital “S”
     in the type) with several convenience functions available |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '| `String` | 以面向对象的方式处理字符串（注意类型中的大写“S”），提供几个便利函数 |'
 - en: '| `int8_t`, `int16_t`, `int32_t` | Signed integer types with explicit sizes
     (8, 16, and 32 bits, respectively) |'
+  id: totrans-42
   prefs: []
   type: TYPE_TB
+  zh: '| `int8_t`, `int16_t`, `int32_t` | 具有显式大小的有符号整数类型（分别为 8、16 和 32 位） |'
 - en: '| `uint8_t`, `uint16_t`, `uint32_t` | Unsigned integer types with explicit
     sizes (8, 16, and 32 bits, respectively) |'
+  id: totrans-43
   prefs: []
   type: TYPE_TB
+  zh: '| `uint8_t`, `uint16_t`, `uint32_t` | 具有显式大小的无符号整数类型（分别为 8、16 和 32 位） |'
 - en: 'With the exception of `String`, these types are actually *aliases* of other
     types. This is done with C’s `typedef` and is fairly straightforward. For example,
     the `byte` type is an alias for `unsigned char` and can be defined like this:'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了 `String` 外，这些类型实际上都是其他类型的 *别名*。这是通过 C 的 `typedef` 实现的，非常简单。例如，`byte` 类型是
+    `unsigned char` 的别名，可以这样定义：
 - en: '[PRE2]'
+  id: totrans-45
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: We’ll do more work with `typedef` in [“Preprocessor Macros”](ch11.xhtml#smallerc-CHP-11-SECT-1.2),
     but several of the types are pretty handy. I use `byte` in particular in many
     of my own projects as it makes more sense (and takes fewer keystrokes) than `unsigned
     char`, but that’s just a personal preference. Either type defines an 8-bit slot
     capable of storing values from 0–255.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在 [“预处理器宏”](ch11.xhtml#smallerc-CHP-11-SECT-1.2) 中更详细地介绍 `typedef`，但其中几种类型确实非常方便。在我自己的许多项目中，特别是使用
+    `byte` 更合理（并且键入更少）比 `unsigned char`，但这只是个人喜好。这两种类型都定义了一个能够存储从 0 到 255 的 8 位槽。
 - en: “Built-In” Functions
+  id: totrans-47
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: “内建”函数
 - en: The Arduino environment includes several headers that make some popular functions
     available to you. You can make use of the functions shown in [Table 9-3](#smallerc-CHP-9-TAB-built-in-functions)
     without any explicit `#include` in your sketch.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: Arduino 环境包括几个头文件，使一些流行的功能可供使用。您可以在不需要在草稿中显式 `#include` 的情况下使用 [表格 9-3](#smallerc-CHP-9-TAB-built-in-functions)
+    中显示的函数。
 - en: Table 9-3\. Functions available in Arduino
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 表格 9-3\. Arduino 中可用的函数
 - en: '| Function | Description |'
+  id: totrans-50
   prefs: []
   type: TYPE_TB
+  zh: '| 函数 | 描述 |'
 - en: '| --- | --- |'
+  id: totrans-51
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| *Input/Output* |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| *输入/输出* |'
 - en: '| `void pinMode(pin, mode)` | Set the specified pin to input or output mode
     |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| `void pinMode(pin, mode)` | 将指定引脚设置为输入或输出模式 |'
 - en: '| `int digitalRead(pin)` | Return value will be HIGH or LOW |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| `int digitalRead(pin)` | 返回值为 HIGH 或 LOW |'
 - en: '| `void digitalWrite(pin, value)` | Value should be HIGH or LOW |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '| `void digitalWrite(pin, value)` | 值应为 HIGH 或 LOW |'
 - en: '| `int analogRead(pin)` | Returns 0–1023 (some boards offer 0–4095) |'
+  id: totrans-56
   prefs: []
   type: TYPE_TB
+  zh: '| `int analogRead(pin)` | 返回 0–1023（某些板提供 0–4095） |'
 - en: '| `void analogWrite(pin, value)` | Value is 0–255, must use PWM-capable pin
     |'
+  id: totrans-57
   prefs: []
   type: TYPE_TB
+  zh: '| `void analogWrite(pin, value)` | 值为 0–255，必须使用支持 PWM 的引脚 |'
 - en: '| *Time* |'
+  id: totrans-58
   prefs: []
   type: TYPE_TB
+  zh: '| *时间* |'
 - en: '| `void delay(ms)` | Pause execution for specified number of milliseconds |'
+  id: totrans-59
   prefs: []
   type: TYPE_TB
+  zh: '| `void delay(ms)` | 暂停指定毫秒数的执行 |'
 - en: '| `void delayMicroseconds(micros)` | Pause execution for specified number of
     microseconds |'
+  id: totrans-60
   prefs: []
   type: TYPE_TB
+  zh: '| `void delayMicroseconds(micros)` | 暂停指定微秒数的执行 |'
 - en: '| `unsigned long micros()` | Returns number of microseconds since program started
     |'
+  id: totrans-61
   prefs: []
   type: TYPE_TB
+  zh: '| `unsigned long micros()` | 返回程序启动以来的微秒数 |'
 - en: '| `unsigned long millis()` | Returns number of milliseconds since program started
     |'
+  id: totrans-62
   prefs: []
   type: TYPE_TB
+  zh: '| `unsigned long millis()` | 返回程序启动以来的毫秒数 |'
 - en: '| *Math (Unlisted return types depend on the type of the arguments)* |'
+  id: totrans-63
   prefs: []
   type: TYPE_TB
+  zh: '| *数学（未列出的返回类型取决于参数类型）* |'
 - en: '| `abs(x)` | Returns absolute value of x (int or float) |'
+  id: totrans-64
   prefs: []
   type: TYPE_TB
+  zh: '| `abs(x)` | 返回 x 的绝对值（整数或浮点数） |'
 - en: '| `constrain(x, min, max)` | Returns x, but bounded by min and max |'
+  id: totrans-65
   prefs: []
   type: TYPE_TB
+  zh: '| `constrain(x, min, max)` | 返回 x，但限制在 min 和 max 范围内 |'
 - en: '| `map(x, fromLow, fromHigh, toLow, toHigh)` | Returns x converted from “from”
     range to “to” range |'
+  id: totrans-66
   prefs: []
   type: TYPE_TB
+  zh: '| `map(x, fromLow, fromHigh, toLow, toHigh)` | 将 x 从“from”范围转换到“to”范围 |'
 - en: '| `max(x, y)` | Returns the larger of x or y |'
+  id: totrans-67
   prefs: []
   type: TYPE_TB
+  zh: '| `max(x, y)` | 返回 x 和 y 中较大的值 |'
 - en: '| `min(x, y)` | Returns the smaller of x or y |'
+  id: totrans-68
   prefs: []
   type: TYPE_TB
+  zh: '| `min(x, y)` | 返回 x 和 y 中较小的值 |'
 - en: '| `double pow(base, exp)` | Returns base raised to the exp power |'
+  id: totrans-69
   prefs: []
   type: TYPE_TB
+  zh: '| `double pow(base, exp)` | 返回 base 的 exp 次幂 |'
 - en: '| `double sq(x)` | Returns the square of x |'
+  id: totrans-70
   prefs: []
   type: TYPE_TB
+  zh: '| `double sq(x)` | 返回 x 的平方 |'
 - en: '| `double sqrt(x)` | Returns the square root of x |'
+  id: totrans-71
   prefs: []
   type: TYPE_TB
+  zh: '| `double sqrt(x)` | 返回 x 的平方根 |'
 - en: '| `double cos(rad)` | Returns the cosine of the angle given in radians |'
+  id: totrans-72
   prefs: []
   type: TYPE_TB
+  zh: '| `double cos(rad)` | 返回给定弧度的余弦值 |'
 - en: '| `double sin(rad)` | Returns the sine of the angle given in radians |'
+  id: totrans-73
   prefs: []
   type: TYPE_TB
+  zh: '| `double sin(rad)` | 返回给定弧度的正弦值 |'
 - en: '| `double tan(rad)` | Returns the tangent of the angle given in radians |'
+  id: totrans-74
   prefs: []
   type: TYPE_TB
+  zh: '| `double tan(rad)` | 返回给定弧度的正切值 |'
 - en: '| *Random Numbers* |'
+  id: totrans-75
   prefs: []
   type: TYPE_TB
+  zh: '| *随机数* |'
 - en: '| `void randomSeed(seed)` | Initializes the generator; seed is an unsigned
     long |'
+  id: totrans-76
   prefs: []
   type: TYPE_TB
+  zh: '| `void randomSeed(seed)` | 初始化生成器；seed 是一个无符号长整型数 |'
 - en: '| `long random(max)` | Returns a random long between 0 and max - 1 |'
+  id: totrans-77
   prefs: []
   type: TYPE_TB
+  zh: '| `long random(max)` | 返回 0 到 max - 1 之间的随机长整型数 |'
 - en: '| `long random(min, max)` | Returns a random long between min and max - 1 |'
+  id: totrans-78
   prefs: []
   type: TYPE_TB
+  zh: '| `long random(min, max)` | 返回 min 到 max - 1 之间的随机长整型数 |'
 - en: The many character tests from *ctype.h* such as `isdigit()` or `isupper()` are
     also available automatically.^([3](ch09.xhtml#idm45018718661080)) See [Table 7-4](ch07.xhtml#smallerc-CHP-7-TABLE-ctype-lib)
     for the full list.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '*ctype.h* 中的许多字符测试函数，如 `isdigit()` 或 `isupper()`，也可以自动使用。^([3](ch09.xhtml#idm45018718661080))
+    请参阅 [Table 7-4](ch07.xhtml#smallerc-CHP-7-TABLE-ctype-lib) 获取完整列表。'
 - en: Trying Out the Arduino “Stuff”
+  id: totrans-80
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 尝试 Arduino 的 “Stuff”
 - en: Let’s put all of these new ideas into a project and see just how they work (and
     work together). To do this, we’ll create a more interesting LED sketch. We’ll
     make the LED “breathe” using the `analogWrite()` function and a little math.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们把所有这些新想法融入一个项目中，看看它们是如何工作的（以及它们如何一起工作）。为此，我们将创建一个更有趣的 LED 草图。我们将使用 `analogWrite()`
+    函数和一点数学让 LED “呼吸”起来。
 - en: Note
+  id: totrans-82
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: The LED in question is not actually an analog device. It still has just the
     on and off states. But many output devices like LEDs can simulate “degrees” of
     on with a technique known as *Pulse Width Modulation* or PWM. The idea is that
     you can turn the LED on and off rapidly in such a way that it appears dimmer.
     (Or working with something like a motor, it might seem to turn slower.)
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 所讨论的 LED 实际上不是模拟设备。它仍然只有开和关的状态。但许多输出设备如 LED 可以通过一种称为 *脉宽调制*（PWM）的技术来模拟 “亮度”。这个想法是您可以以一种使
+    LED 看起来更暗的方式快速地开关 LED。（或者与像电机这样的设备一起工作，它可能看起来转得更慢。）
 - en: It’s important to note that not all pins on all controllers can do PWM output.
     You need to check the datasheet or pinout diagram for your controller.^([4](ch09.xhtml#idm45018718648824))
     On the Metro Mini I’ve been using in the projects so far, for example, only pins
     3, 5, 6, 9, 10, and 11 support PWM.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 需要注意，并非所有控制器上的所有引脚都支持 PWM 输出。您需要查阅您控制器的数据表或引脚定义图。^([4](ch09.xhtml#idm45018718648824))
+    例如，在我迄今为止使用的 Metro Mini 上，只有引脚 3、5、6、9、10 和 11 支持 PWM 输出。
 - en: 'We’ll use a different RGB LED this time. It has four pins: one ground, and
     one each for the red, green, and blue channels. Each color will need its own connection
     to the controller, so we’ll define some constants for those pins. We’ll also define
@@ -359,64 +539,92 @@
     in this example. Remember that using `analogWrite()` requires paying attention
     to which pins you connect. (I won’t bother with a picture for this project; the
     fun is in running it yourself to see the change in brightness!)'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 这次我们将使用不同的 RGB LED。它有四个引脚：一个地线，分别为红色、绿色和蓝色通道的一个引脚。每种颜色都需要连接到控制器，因此我们将为这些引脚定义一些常量。我们还将为呼吸率和最大弧度数（2
+    * π）定义一些值。[Figure 9-1](#smallerc-CHP-9-FIG-breathing-led-wiring) 显示了我在此示例中使用的接线图。请注意，使用
+    `analogWrite()` 需要注意连接到哪些引脚。（对于这个项目，我不会为其添加图片；快乐的在运行中自行查看亮度变化吧！）
 - en: '![smac 0901](Images/smac_0901.png)'
+  id: totrans-86
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0901](Images/smac_0901.png)'
 - en: Figure 9-1\. Wiring diagram for our breathing LED example
+  id: totrans-87
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: Figure 9-1\. 我们呼吸 LED 示例的接线图
 - en: And now we can get to coding! As always, I encourage you to start a new sketch
     and type this in yourself, but you can also just pop open *breathe.ino* and follow
     along.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们可以开始编码了！像往常一样，我鼓励您开始一个新的草图，并自己输入代码，但您也可以打开 *breathe.ino* 并跟着做。
 - en: For our `setup()`, we’ll get our color pin modes set to `OUTPUT` and pick a
     random color for the LED. We’ll show that color on the LED for a few seconds before
     starting the animation.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于我们的 `setup()`，我们将设置颜色引脚模式为 `OUTPUT`，并为 LED 选择一个随机颜色。在开始动画之前，我们将在 LED 上显示该颜色几秒钟。
 - en: 'Our `loop()` function will drive the animation. We can use the `millis()` function
     to get an ever-increasing number. We’ll use our breathing rate and our max radians
     value to turn those milliseconds into radians. With the radians in hand, we’ll
     use the `sin()` function to get a nice fractional brightness that grows and fades.
     Finally, we’ll apply that brightness to the LED and pause a few milliseconds before
     animating the next step. Here’s the complete listing of [*ch09/breathe/breathe.ino*](https://oreil.ly/FHdP8):'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的`loop()`函数将驱动动画。我们可以使用`millis()`函数获取一个不断增加的数值。我们将使用我们的呼吸速率和最大弧度值将这些毫秒转换为弧度。有了弧度，我们将使用`sin()`函数获得一个漂亮的分数亮度，这种亮度会增加和衰减。最后，我们将这种亮度应用于LED，并在动画下一步之前暂停几毫秒。这是[*ch09/breathe/breathe.ino*](https://oreil.ly/FHdP8)的完整清单：
 - en: '[PRE3]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Note
+  id: totrans-92
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: If you don’t have an RGB LED, don’t worry! You can use a regular LED and just
     write to the one pin of the LED rather than writing to the three separate color
     pins. You won’t need to pick a random value, either; just use 255 (the full brightness).
     Even if you have a multicolor LED, try rewriting the example for a single-color
     LED as an exercise.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您没有RGB LED，不用担心！您可以使用普通的LED，只需写入LED的一个引脚，而不是写入三个单独的颜色引脚。您也不需要选择一个随机值；只需使用255（全亮度）。即使您有多彩LED，也可以尝试将示例改为单色LED作为练习。
 - en: You can see that although we used several functions that are not part of C itself,
     we did not need to manually `#include` anything. That is all down to the magic
     of the Arduino IDE. It really does make development on these tiny boards simpler.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以看到，尽管我们使用了几个不属于C本身的函数，但我们不需要手动`#include`任何东西。这全靠Arduino IDE的魔力。它确实简化了这些小板的开发。
 - en: Microcontroller I/O
+  id: totrans-95
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 微控制器 I/O
 - en: What else can we do with these extras supplied by our IDE? Lots! Let’s try branching
     out from LEDs to try some inputs and some other types of output.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有哪些其他额外功能我们的IDE提供的？很多！让我们从LED扩展到尝试一些输入和其他类型的输出。
 - en: Sensors and Analog Input
+  id: totrans-97
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 传感器和模拟输入
 - en: 'An easy step up from the simple sketches we’ve been building so far is to add
     a sensor. Sensors come in all types: light, sound, temperature, air quality, humidity,
     etc. And they’re usually inexpensive (although fancier ones do come with fancier
@@ -424,15 +632,21 @@
     is only $1.50 over at Adafruit. Let’s drop that sensor into a simple circuit like
     the one shown in [Figure 9-2](#smallerc-CHP-9-FIG-tmp36-wiring) to see how the
     wiring works.'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 从迄今为止构建的简单草图中轻松迈出的一步是添加传感器。传感器有各种类型：光、声音、温度、空气质量、湿度等等。它们通常价格不贵（尽管更复杂的传感器可能带有更昂贵的价格标签）。例如，[TMP36模拟温度传感器](https://oreil.ly/Bczhb)在Adafruit只需$1.50。让我们将该传感器放入一个简单的电路中，就像[图9-2](#smallerc-CHP-9-FIG-tmp36-wiring)中所示的那样，看看接线是如何工作的。
 - en: '![smac 0902](Images/smac_0902.png)'
+  id: totrans-99
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0902](Images/smac_0902.png)'
 - en: Figure 9-2\. Wiring diagram for our temperature example
+  id: totrans-100
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-2\. 我们温度示例的接线图
 - en: Pretty easy! And this is a fairly common arrangement. Sensors need power. They
     can either have a separate pin for power—like our TMP36—or many can draw enough
     current directly from the data pin you connect it to (such as a photoresistor).
@@ -440,27 +654,37 @@
     boards and different sensors support different ranges, but 10-bit (0–1023) ranges
     are common. Exactly what those values mean depends on the sensor, of course. Our
     TMP36 ranges from –50°C (a reading of 0) to 125°C (a reading of 1023).
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 相当简单！这是一个相当常见的配置。传感器需要电源。它们可以有一个单独的电源引脚，例如我们的TMP36，或者许多传感器可以直接从您连接的数据引脚中绘制足够的电流（例如光敏电阻）。我们使用`analogRead()`函数来获取传感器的当前值。不同的开发板和传感器支持不同的范围，但是10位（0-1023）范围是常见的。当然，这些值的确切含义取决于传感器。例如，我们的TMP36范围从-50°C（读数为0）到125°C（读数为1023）。
 - en: The Serial Monitor
+  id: totrans-102
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 串行监视器
 - en: 'While you likely won’t have your Arduino project tethered to your main computer
     for long, while it is connected, we can take advantage of a very handy feature
     of most microcontrollers: the serial port. The Arduino IDE has a Serial Port Monitor
     you can launch, as shown in [Figure 9-3](#smallerc-CHP-9-FIG-serial-monitor-menu).
     During development, this is an excellent tool for debugging and generally peeking
     into how things are going.'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然您可能不会长时间将您的Arduino项目连接到主计算机，但是在连接时，我们可以利用大多数微控制器非常方便的一个特性：串行端口。Arduino IDE有一个可以启动的串行端口监视器，如[图9-3](#smallerc-CHP-9-FIG-serial-monitor-menu)所示。在开发过程中，这是一个非常好的调试工具，通常用来查看事物的运行情况。
 - en: '![smac 0903](Images/smac_0903.png)'
+  id: totrans-104
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0903](Images/smac_0903.png)'
 - en: Figure 9-3\. Accessing the Arduino IDE Serial Monitor
+  id: totrans-105
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-3\. 访问Arduino IDE串行监视器
 - en: The port (selected via the Tools menu, also shown in [Figure 9-3](#smallerc-CHP-9-FIG-serial-monitor-menu))
     and speed settings (selected at the bottom of the monitor window itself) will
     vary depending on several factors, including your OS, other devices you might
@@ -470,23 +694,33 @@
     (the filesystem path to a “device” connection) but a nifty [Trinket M0](https://oreil.ly/eSsOI)
     microcontroller uses port */dev/ttyACM0*. That same Trinket on an old Windows
     system I have still uses a COM port.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 端口（通过工具菜单选择，也显示在[图9-3](#smallerc-CHP-9-FIG-serial-monitor-menu)中）和速度设置（在监视器窗口底部选择）会根据多个因素而变化，包括你的操作系统、其他可能连接的设备以及你使用的具体Arduino板。例如，我的Metro
+    Mini在Linux桌面上以115200波特率（串行通信速率的经典单位；还记得调制解调器吗？）在端口*/dev/ttyUSB0*（“设备”连接的文件系统路径）上进行通信，但一个漂亮的[Trinket
+    M0](https://oreil.ly/eSsOI)微控制器使用端口*/dev/ttyACM0*。同样的Trinket在我有的旧Windows系统上仍然使用COM端口。
 - en: Is It Hot in Here?
+  id: totrans-107
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 这里是不是很热？
 - en: 'Let’s put these two new topics to use in a project. We’ll use the circuit shown
     in [Figure 9-2](#smallerc-CHP-9-FIG-tmp36-wiring). You can start a new sketch
     or open [*ch09/temp_serial/temp_serial.ino*](https://oreil.ly/cal6o) and follow
     along. The code is fairly straightforward. We set up an input pin. Then we read
     from that pin and print the result in the serial monitor in a loop. Let’s see
     the code:'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们把这两个新主题用于一个项目中。我们将使用图9-2中显示的电路。你可以开始一个新的草图或者打开[*ch09/temp_serial/temp_serial.ino*](https://oreil.ly/cal6o)并跟着做。代码相当简单。我们设置一个输入引脚。然后我们在一个循环中读取该引脚的数据并在串行监视器中打印结果。让我们看看代码：
 - en: '[PRE4]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Pretty spiffy! The bouncy nature of the readings is not uncommon. If we needed
     a steadier reading, say, to prevent a false alarm going off, there are a few electronic
     options we could employ, like adding resistors and capacitors. We could also read
@@ -496,26 +730,36 @@
     in the serial monitor. If you want to make sure the sensor is working, try holding
     it gently with your fingers—they should be warmer than room temperature, and you
     should see the trend of the readings going up.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 看起来相当不错！读数的跳动性质并不罕见。如果我们需要更稳定的读数，比如为了防止误报警响，我们可以采用一些电子选项，比如添加电阻和电容。我们还可以多次读取传感器的数据并取平均值。或者我们可以更进一步，使用统计学方法排除任何真正的异常值，然后取平均值。但我们大多数时候只是想证明传感器能工作，并且我们可以在串行监视器中看到读数。如果你想确保传感器工作正常，试着轻轻用手指触摸它——你的手指应该比室温更暖，你应该看到读数趋势上升。
 - en: Tip
+  id: totrans-111
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: For a bit of fun, try popping open the “Serial Plotter” from the Tools menu
     (just under the Serial Monitor). It tracks simple values printed via `Serial.println()`
     as a graph. It can even track multiple values as separate lines; just print a
     space in between the values on the same line.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了一点乐趣，试着从工具菜单中打开“串行绘图仪”（就在串行监视器下面）。它可以跟踪通过`Serial.println()`打印的简单值作为图表。它甚至可以将多个值作为单独的线路跟踪；只需在同一行中的值之间打印一个空格。
 - en: But as I said, you likely won’t have your Arduino plugged into your USB port
     constantly. Let’s explore a better output option.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 但正如我所说的，你可能不会一直将你的Arduino插入USB端口。让我们探讨一个更好的输出选项。
 - en: Segmented Displays
+  id: totrans-114
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分段显示
 - en: LCD and segmented LED displays come in a wealth of size and price options. You
     can get high-resolution LCDs the size of a postage stamp, touch-capable screens
     similar to those found in cell phones, or segmented LED displays for text or numeric
@@ -525,21 +769,31 @@
     less than $7 at a local Micro Center. We can use just such a display to show our
     TMP36 readings (properly converted to Fahrenheit or Celsius) without resorting
     to the serial monitor.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: LCD和分段LED显示器有丰富的尺寸和价格选择。您可以获得邮票大小的高分辨率LCD，类似于手机的触摸屏，或用于文本或数字输出的分段LED显示器。我买了一个简单的4位数LED显示器（Velleman
+    VMA425，显示在[图9-4](#smallerc-CHP-9-FIG-segmented-display)中），带有内置的驱动芯片（因此您无需为每个单独的段连接引脚），在当地的Micro
+    Center不到7美元。我们可以使用这样的显示器显示我们的TMP36读数（经过适当转换为华氏或摄氏度），而不必使用串行监视器。
 - en: '![smac 0904](Images/smac_0904.png)'
+  id: totrans-116
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0904](Images/smac_0904.png)'
 - en: Figure 9-4\. An example of a 4-digit, 7-segment display component
+  id: totrans-117
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-4。一个4位数的7段显示器组件示例
 - en: Unfortunately, these peripherals usually require a little help to operate. Fortunately,
     that help is almost always readily available in the form of a library. We’ll go
     over libraries in much more detail in [Chapter 11](ch11.xhtml#smallerc-CHP-11),
     but we can take a short detour now to grab what we need for our 4-digit LED display.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，这些外设通常需要一些帮助才能运行。幸运的是，这种帮助几乎总是以库的形式随时可得。我们将在[第11章](ch11.xhtml#smallerc-CHP-11)中更详细地讨论库，但现在我们可以稍作停顿，获取我们4位数LED显示器所需的内容。
 - en: The driver chip I mentioned that comes with my particular display is a TM1637\.
     There was no magic involved in finding that name—it is noted on the package and
     more plainly on the chip itself. Using the Arduino IDE Library Manager, I entered
@@ -547,120 +801,175 @@
     came back, and I chose a library (written by Avishay Orpaz) that looked simple
     and stable. After clicking the Install button, I simply included the library’s
     lone header file and was immediately ready to put up some numbers!^([6](ch09.xhtml#idm45018718210600))
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 我提到的驱动芯片是我的特定显示器上配备的TM1637。找到这个名字并非偶然——它标注在包装上，更明显地标在芯片本身上。使用Arduino IDE库管理器，我输入“TM1637”作为搜索词。^([5](ch09.xhtml#idm45018718211544))
+    返回了几个结果，我选择了一个看起来简单而稳定的库（由Avishay Orpaz编写）。点击安装按钮后，我只需包含库的唯一头文件，就可以立即开始显示数字了！^([6](ch09.xhtml#idm45018718210600))
 - en: '[PRE5]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Doesn’t get much easier than that. You will often follow this process for adding
     new peripherals, both sensors and other outputs. You may also decide nothing available
     is quite right, and roll your own code. Again, we’ll look at the mechanics of
     creating your own libray in [Chapter 11](ch11.xhtml#smallerc-CHP-11).
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 没有比这更容易的了。您经常会按照这个过程添加新的外设，包括传感器和其他输出。您也可能会认为现有的东西都不太合适，然后自己编写代码。同样，我们将在[第11章](ch11.xhtml#smallerc-CHP-11)中探讨创建自己的库的机制。
 - en: I shouldn’t really say I was immediately ready after installing the library.
     I did have to wire up the display. [Figure 9-5](#smallerc-CHP-9-FIG-tmp36-led-wiring)
     shows the connections required. I also had to read the documentation for the library
     which I found by clicking the “More info” link in the Library Manager listing.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 安装完库后，我不能立即开始工作。我确实需要连接显示器。[图9-5](#smallerc-CHP-9-FIG-tmp36-led-wiring)展示了所需的连接。我还需要阅读库的文档，我是通过点击库管理器列表中的“更多信息”链接找到的。
 - en: '![smac 0905](Images/smac_0905.png)'
+  id: totrans-123
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0905](Images/smac_0905.png)'
 - en: Figure 9-5\. Wiring for temperatures on an LED display
+  id: totrans-124
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-5。LED显示屏上的温度接线
 - en: Ignoring the TMP36 sensor for the moment, [*ch09/display_test/display_test.ino*](https://oreil.ly/jzXm9)
     is a simple test of the 4-digit display. We’ll display “1234” to prove our connections
     are working and that we understand the library functions from the documentation.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 暂时忽略TMP36传感器，[*ch09/display_test/display_test.ino*](https://oreil.ly/jzXm9)是对4位数显示器的简单测试。我们将显示“1234”，以证明我们的连接正常工作，并且我们理解了文档中的库函数。
 - en: '[PRE6]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '[![1](Images/1.png)](#co_smaller_systems_CO2-1)'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_smaller_systems_CO2-1)'
 - en: The library I chose has one header, so include that to get going.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 我选择的库只有一个头文件，所以包含它就可以开始了。
 - en: '[![2](Images/2.png)](#co_smaller_systems_CO2-2)'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_smaller_systems_CO2-2)'
 - en: The display needs two pins (in addition to power and ground), so name those
     for ease of use.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 显示器除了电源和接地外，还需要两个引脚，因此为了方便使用，请为其命名。
 - en: '[![3](Images/3.png)](#co_smaller_systems_CO2-3)'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_smaller_systems_CO2-3)'
 - en: Create a global `display` variable similar to how we created the NeoPixel objects.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建一个全局的`display`变量，类似我们创建NeoPixel对象的方式。
 - en: '[![4](Images/4.png)](#co_smaller_systems_CO2-4)'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_smaller_systems_CO2-4)'
 - en: Use our `display` object with functions described in the documentation to initialize
     our display and put up a simple test number, 1234 in this case.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用我们的`display`对象和文档中描述的函数初始化我们的显示器，并在这种情况下显示一个简单的测试数字1234。
 - en: '[![5](Images/5.png)](#co_smaller_systems_CO2-5)'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![5](Images/5.png)](#co_smaller_systems_CO2-5)'
 - en: Nothing changes, and the display will hold whatever number it was last sent,
     so we can leave the `loop()` function empty.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 什么也不变，显示器将保持上次发送的任何数字，所以我们可以将`loop()`函数保留为空。
 - en: Hooray! If all goes well, you’ll see something like [Figure 9-4](#smallerc-CHP-9-FIG-segmented-display).
     If you chose a different display or library and you aren’t seeing what you hoped,
     see if you can find other examples of using your hardware or library online. Usually
     someone has posted useful, minimal code examples you can easily copy and try yourself.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 太棒了！如果一切顺利，你会看到类似[图9-4](#smallerc-CHP-9-FIG-segmented-display)的东西。如果你选择了不同的显示器或库，但并未看到你希望看到的东西，请看看是否可以找到其他在线使用硬件或库的示例。通常有人会发布有用的、简洁的代码示例，你可以轻松复制并自己尝试。
 - en: Buttons and Digital Input
+  id: totrans-138
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 按钮和数字输入
 - en: 'But we’re not done yet! We can add another peripheral to add a little more
     functionality to our temperature display sketch and expand our coding skills at
     the same time. Let’s attach a very common input: the push button. We’ll use it
     to toggle our display between Fahrenheit and Celsius output.'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是我们还没有完成！我们可以添加另一个外围设备，以增加我们温度显示草图的功能，同时扩展我们的编程技能。让我们附加一个非常常见的输入：按键。我们将使用它来在华氏度和摄氏度之间切换显示输出。
 - en: I grabbed a [Tactile Button](http://adafru.it/367) from Adafruit; it’s simple
     and breadboard friendly. [Figure 9-6](#smallerc-CHP-9-FIG-tmp36-led-button) shows
     the final connections for the TMP36 sensor, the 4-digit display, and our newly
     added button. The diagonal connections to the button are intentional. Either diagonal
     works; other arrangements are possible if you look at the specs for the button,
     but this choice guarantees we get the functionality we need.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 我从Adafruit抓取了一个[Tactile Button](http://adafru.it/367)，它简单且适合面包板。[图9-6](#smallerc-CHP-9-FIG-tmp36-led-button)显示了TMP36传感器、4位数字显示器和我们新添加的按钮的最终连接。对按钮的对角连接是故意的。任何对角线都可以；如果你查看按钮的规格，还有其他安排可能，但这个选择保证了我们获得所需的功能。
 - en: '![smac 0906](Images/smac_0906.png)'
+  id: totrans-141
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0906](Images/smac_0906.png)'
 - en: Figure 9-6\. Wiring for our sensor, display, and button
+  id: totrans-142
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-6\. 我们传感器、显示器和按钮的接线
 - en: To use the button, we need to set one pin to be an input and then use the `digitalRead()`
     function on that pin. In particular, this button will use the `INPUT_PULLUP` constant.
     This common approach causes the default state of the pin (when the button is not
     pressed) to return `HIGH`. When the button is pressed, then, the pin will read
     `LOW`. We can watch for that `LOW` value and use it to trigger a change—like our
     F/C choice.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使用按钮，我们需要将一个引脚设置为输入，然后在该引脚上使用`digitalRead()`函数。特别是，此按钮将使用`INPUT_PULLUP`常量。这种常见的方法会导致引脚的默认状态（当按钮未按下时）返回`HIGH`。当按下按钮时，引脚将读取`LOW`。我们可以监视该`LOW`值并使用它来触发更改，比如我们的华氏度/摄氏度选择。
 - en: 'But watch out! Just because we’re using the `digitalRead()` function does not
     mean the button is digital. It takes time to get the physical mechanism all the
     way down. It also takes a little time to fully release. All told, it takes a human
     much longer to press the button than it does for the Arduino to register a change.
     Consider this naive read-and-change loop snippet:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 但要小心！仅仅因为我们使用了`digitalRead()`函数并不意味着按钮是数字的。需要时间才能完全按下物理机制。完全释放也需要一点时间。总之，人类按下按钮所需时间比Arduino注册变化所需时间长得多。考虑这个简单的读取和更改循环片段：
 - en: '[PRE7]'
+  id: totrans-145
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The pin will read low for tens of milliseconds during even the fastest press.
     Our microcontroller can read the pin and change the display much faster than we
     can let go of the button, causing a crazy flicker as the display rapidly bounces
@@ -669,8 +978,10 @@
     idea of debouncing has gained traction in a lot of user interface work—it generally
     means making sure you don’t report multiple presses (or clicks or taps or whatever)
     in too short a period.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最快的按压期间，引脚将低电平读取数十毫秒。我们的微控制器可以读取引脚并更改显示速度比我们放开按钮快得多，导致显示器在我们的F和C温度之间快速跳动。我们想要停止这种闪烁，因此在我们的代码中需要更聪明一些。我们需要*去抖动*按钮。去抖动的概念在很多用户界面工作中已经得到了推广——通常意味着确保在太短的时间内不报告多次按下（或点击或轻拍或其他什么）。
 - en: I’ll show you a few methods we can use to accomplish this debounce behavior.
     It usually involves keeping some extra state information around. For the first
     debounce technique, I simply keep a `bool` that tracks when the button state first
@@ -678,12 +989,16 @@
     Is It?”](#smallerc-CHP-9-SECT-2.6), we pause for exactly one second, in fact,
     but you can certainly choose a different delay.) After that gap has passed, we
     can read another change.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 我将向您展示一些方法，可以用来实现去抖动行为。通常涉及保留一些额外的状态信息。对于第一种去抖动技术，我只需保持一个跟踪按钮状态第一次变化的`bool`标志。如果该标志为`true`，我们只需暂停一秒钟。（实际上，在[“究竟有多热？”](#smallerc-CHP-9-SECT-2.6)中，我们确实暂停了一秒钟，但您当然可以选择不同的延迟。）之后，我们可以再次读取另一个变化。
 - en: Just How Hot Is It?
+  id: totrans-148
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 究竟有多热？
 - en: 'So let’s tie all of these new topics together and create the code for the components
     we wired up in [Figure 9-6](#smallerc-CHP-9-FIG-tmp36-led-button). We’ll initialize
     our display in the setup. In the loop, we’ll read the temperature, print out some
@@ -691,36 +1006,50 @@
     in the correct units, and then watch the button to see if we need to change those
     units. You can open [*ch09/temp_display/temp_display.ino*](https://oreil.ly/flVsn)
     or type in the following code:'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，让我们把所有这些新主题联系起来，为我们在[图 9-6](#smallerc-CHP-9-FIG-tmp36-led-button)中连接的组件创建代码。我们将在设置中初始化我们的显示器。在循环中，我们将读取温度，在串行监视器中打印一些调试语句，将温度以正确的单位显示在显示器上，然后观察按钮，看看我们是否需要更改这些单位。您可以打开[*ch09/temp_display/temp_display.ino*](https://oreil.ly/flVsn)或键入以下代码：
 - en: '[PRE8]'
+  id: totrans-150
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'Notice I use a new function from the TM1637 library: `setSegments()`. This
     function allows you to turn on any pattern of segments you want. You can make
     cute animations or present a somewhat rough version of any English letter. You
     can see my results in [Figure 9-7](#smallerc-CHP-9-FIG-tmp36-led-live).'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意我使用了TM1637库中的新函数：`setSegments()`。该函数允许您打开任何模式的LED段。您可以制作可爱的动画或呈现任何英文字母的粗略版本。您可以在[图 9-7](#smallerc-CHP-9-FIG-tmp36-led-live)中看到我的结果。
 - en: '![smac 0907](Images/smac_0907.png)'
+  id: totrans-152
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0907](Images/smac_0907.png)'
 - en: Figure 9-7\. Our temperature reading on an LED display
+  id: totrans-153
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-7。我们LED显示器上的温度读数
 - en: 'Give this bigger example a try with your own setup. The project is in the *ch09*
     folder as *temp_display*. You can adjust the debounce pause or try making the
     “C” pattern a lowercase version. Tweaking existing projects is a great way to
     build up your understanding of new concepts! Speaking of new concepts, there are
     two more biggies I want to cover for the Arduino platform: memory management and
     interrupts.'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 给这个更大的示例尝试一下，使用你自己的设置。该项目位于*ch09*文件夹中，名为*temp_display*。你可以调整去抖动暂停时间，或尝试将“C”模式做成小写版本。调整现有项目是建立对新概念理解的好方法！说到新概念，有两个我想在Arduino平台上介绍的重要内容：内存管理和中断。
 - en: Memory Management on Arduino
+  id: totrans-155
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Arduino上的内存管理
 - en: Memory management is much more important on small devices, so I want to highlight
     how memory works on a microcontroller like Arduino. Arduino has three types of
     memory. *Flash* memory is where our program is stored. *SRAM* is where the program
@@ -728,109 +1057,158 @@
     and write a small amount of data that will persist between power cycles. Let’s
     look at each of these types of memory in more detail and see how we can use them
     in our code.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 在小型设备上，内存管理更加重要，因此我想重点介绍Arduino这样的微控制器上的内存工作原理。Arduino有三种类型的内存。*Flash* 内存是存储程序的地方。*SRAM*
+    是Arduino有电源时程序运行的地方。最后，*EEPROM* 允许您在电源循环之间读写少量数据。让我们更详细地查看每种类型的内存，并看看如何在我们的代码中使用它们。
 - en: Flash (PROGMEM)
+  id: totrans-157
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: Flash（PROGMEM）
 - en: If the word “flash” sounds familiar, it probably is. This is the same type of
     memory found in flash (or thumb) drives. It is much slower than something like
     RAM, but it is generally on par with storage like hard drives. It is also persistent
     and does not require power to retain its information. That makes it perfect for
     storing our compiled sketches.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果“闪存”一词听起来很熟悉，那可能是因为确实如此。这与闪存（或拇指）驱动器中找到的存储器类型相同。它比像RAM这样的存储器速度慢得多，但通常与硬盘等存储器速度相当。它也是持久性的，不需要电源来保持其信息。这使其非常适合存储我们编译的草图。
 - en: 'In microcontroller parlance, you may also hear a less familiar term: *PROGMEM*
     or “program memory.” It’s the same memory, but the latter term tells you a little
     more about what we’re doing with that memory.'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 在微控制器术语中，您可能还会听到一个不太熟悉的术语：*PROGMEM*或“程序存储器”。它是同一段存储器，但后一个术语告诉您更多关于我们如何使用该存储器的信息。
 - en: Even though this flash is the same technology as you find in thumb drives, we
     don’t have write access to this memory when our program is running. Writing is
     reserved for the “upload” step in our IDE. The chip is put in a special mode for
     modification, and the new program is loaded. After the upload is complete, the
     chip restarts, reads the new program from flash, and off we go. We do have read
     access, though.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管这种闪存技术与你在拇指驱动器中找到的技术相同，但在我们的程序运行时，我们没有对这段内存的写访问权限。写入操作保留在IDE中的“上传”步骤中。芯片被置于修改模式，然后加载新程序。上传完成后，芯片重新启动，从闪存中读取新程序，然后开始运行。不过，我们确实有读取访问权限。
 - en: Most Arduino chips have more flash storage than you need for your compiled program.
     You can make use of the leftover space to reduce the amount of RAM needed to run
     your program. Since RAM is almost always more limited, this feature can be a real
     boon. You can store arrays or strings or individual values. You can use special
     functions to grab those stored values as you need them while your program is actively
     running.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数Arduino芯片的闪存存储比编译程序所需的要多。您可以利用剩余空间来减少运行程序所需的RAM量。由于RAM几乎总是更有限的，这个功能可以带来真正的好处。您可以存储数组、字符串或单个值。在程序运行时，您可以使用特殊函数来获取这些存储的值。
 - en: Storing values in flash
+  id: totrans-162
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 在闪存中存储值
 - en: 'To get a particular value into flash for use in your code, you can use the
     special `PROGMEM` modifier when declaring and initializing the variable. For example,
     we could store an array of 32-bit colors that would work with the RGBW NeoPixel
     ring from [“C++ Considerations”](ch08.xhtml#smallerc-CHP-8-SECT-4.3):'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 要将特定值放入闪存以供代码使用，可以在声明和初始化变量时使用特殊的`PROGMEM`修饰符。例如，我们可以存储适用于RGBW NeoPixel环的32位颜色数组，这些信息来自[“C++
+    Considerations”](ch08.xhtml#smallerc-CHP-8-SECT-4.3)：
 - en: '[PRE9]'
+  id: totrans-164
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: At this point, the `colors` array is no longer a simple list of 32-bit values.
     It now contains the location of these values in flash. You need a special function
     to get at the contents of this array.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 此时，`colors`数组不再是32位值的简单列表。它现在包含这些值在闪存中的位置。您需要一个特殊函数来访问此数组的内容。
 - en: Reading values from flash
+  id: totrans-166
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 从闪存中读取值
 - en: Those special functions are defined in the [*pgmspace.h* header](https://oreil.ly/nIk62).
     In recent versions of the Arduino IDE, that header is one of the many “behind-the-scenes”
     elements handled for you automatically. There are several functions for reading
     absolutely every data type supported on Arduino. [Table 9-4](#smallerc-CHP-9-TAB-pgm-read)
     lists the few functions we’ll use in our projects.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些特殊函数在[*pgmspace.h*头文件](https://oreil.ly/nIk62)中定义。在Arduino IDE的最新版本中，该头文件是自动处理的“幕后”元素之一。有几个函数可用于读取Arduino支持的每种数据类型。[Table 9-4](#smallerc-CHP-9-TAB-pgm-read)列出了我们项目中将使用的几个函数。
 - en: Table 9-4\. Program memory (flash) read functions
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: Table 9-4\. 程序存储器（闪存）读取函数
 - en: '| Name | Description |'
+  id: totrans-169
   prefs: []
   type: TYPE_TB
+  zh: '| 名称 | 描述 |'
 - en: '| --- | --- |'
+  id: totrans-170
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| `pgm_read_byte()` | Read one byte |'
+  id: totrans-171
   prefs: []
   type: TYPE_TB
+  zh: '| `pgm_read_byte()` | 读取一个字节 |'
 - en: '| `pgm_read_word()` | Read one word (two bytes, like `int` on many microcontrollers)
     |'
+  id: totrans-172
   prefs: []
   type: TYPE_TB
+  zh: '| `pgm_read_word()` | 读取一个字（两个字节，类似于许多微控制器上的`int`） |'
 - en: '| `pgm_read_dword()` | Read one double word (four bytes, like `long`) |'
+  id: totrans-173
   prefs: []
   type: TYPE_TB
+  zh: '| `pgm_read_dword()` | 读取一个双字（四个字节，类似于`long`） |'
 - en: '| `pgm_read_float()` | Read four bytes as a `float` or `double` |'
+  id: totrans-174
   prefs: []
   type: TYPE_TB
+  zh: '| `pgm_read_float()` | 读取四个字节作为`float`或`double` |'
 - en: 'If we wanted to get the first entry from our `colors` array for actual use,
     we could use the `pgm_read_dword()` function like so:'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们想要从我们的`colors`数组中获取第一个条目以进行实际使用，我们可以使用`pgm_read_dword()`函数，如下所示：
 - en: '[PRE10]'
+  id: totrans-176
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: This is obviously a little cumbersome. When you are running low on RAM, though,
     cumbersome is often a fair trade-off. 32 bytes for eight colors is not much, but
     what about a 256-color palette? At four bytes per color, that’s an entire kilobyte.
     Some microcontrollers like our Metro Mini have a tiny 2K operating memory, so
     offloading such a palette to flash memory is a big win.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 这显然有点复杂。然而，当你的RAM不足时，复杂往往是一个公平的权衡。对于八种颜色的32字节来说并不多，但对于256色调色板呢？每种颜色占用四个字节，总共是一整个千字节。像我们的Metro
+    Mini这样的一些微控制器只有微小的2K操作内存，因此将这样的调色板移到闪存中是一个很大的优势。
 - en: Reading strings from flash
+  id: totrans-178
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 从闪存中读取字符串
 - en: Printing to the serial monitor is a great way to debug your program, or even
     just to watch what’s going on as a sort of cheap status indicator. However, every
     one of the strings you print consumes some precious runtime memory. Moving these
@@ -838,50 +1216,72 @@
     pull the string you need out of flash just at the moment you need it. If you put
     it into a common, reusable buffer, that buffer is the only memory we have to make
     room for at runtime.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 将信息打印到串行监视器是调试程序的好方法，甚至只是作为一种廉价的状态指示器观察正在进行的操作。然而，你打印的每一个字符串都会消耗一些宝贵的运行时内存。将这些字符串移到闪存中是回收一些空间的好方法。你只需在需要的时候从闪存中提取你需要的字符串。如果将它放入一个通用的、可重复使用的缓冲区中，那么在运行时我们只需要为该缓冲区腾出内存。
 - en: 'This is such a common memory-saving technique that the Arduino environment
     includes a special macro to simplify the round trip: `F()`. (Again, more on macros
     and `#define` in [“Preprocessor Macros”](ch11.xhtml#smallerc-CHP-11-SECT-1.2).)
     `F()` is remarkably easy to use and provides an immediate savings. Say we have
     a few debugging statements like this:'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一种非常常见的节省内存的技术，Arduino环境中包含一个特殊的宏来简化这个回路：`F()`。 （关于宏和`#define`更多信息请见[“预处理器宏”](ch11.xhtml#smallerc-CHP-11-SECT-1.2)。）`F()`的使用非常简单，并且能够立即节省空间。假设我们有一些像这样的调试语句：
 - en: '[PRE11]'
+  id: totrans-181
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'There are likely other variables and such in your program, too. Verifying your
     code in the Arduino IDE might produce some output similar to this:'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 在你的程序中可能还有其他变量等。在Arduino IDE中验证你的代码可能会产生类似于这样的输出：
 - en: '[PRE12]'
+  id: totrans-183
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'Great. We have plenty of room at the moment, but 1773 bytes is not much! Let’s
     use the `F()` macro now to move those strings to flash memory:'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 很好。目前我们有足够的空间，但1773字节并不多！现在让我们使用`F()`宏将这些字符串移到闪存中：
 - en: '[PRE13]'
+  id: totrans-185
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'Pretty simple to incorporate, right? And now if we verify our program, we can
     see a small but advantageous change:'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 非常简单地整合进去，对吧？现在如果我们验证我们的程序，我们可以看到一个小但有利的变化：
 - en: '[PRE14]'
+  id: totrans-187
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Our new sketch takes up a little more room in flash, but a little less room
     at runtime. That’s exactly what we came for. Now, obviously, removing those debugging
     statements entirely saves space in both types of memory, but there are certainly
     times when you will have nice peripherals such as mini LCD displays that show
     text. `F()` can give you more room to play without much added effort.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的新草图在闪存中占用了更多的空间，但在运行时占用的空间少了一些。这正是我们所追求的。显然，完全删除这些调试语句可以节省两种内存中的空间，但肯定有时你会拥有像迷你LCD显示器这样的漂亮外设。使用`F()`可以让你更轻松地获得更多的可操作空间。
 - en: SRAM
+  id: totrans-189
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: SRAM
 - en: I’ve been tossing around the terms “at runtime” and “operating memory,” among
     others. These terms refer to a type of memory called *SRAM*. Static random-access
     memory is the Arduino equivalent to the generic RAM term so often applied to bigger
@@ -890,12 +1290,17 @@
     are found here in SRAM while your program is running. The operating size of your
     program is limited by the amount of SRAM you have. Let’s take a look at some implications
     of this limit.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 我已经在“在运行时”和“操作内存”等术语中徘徊，还有其他一些术语。这些术语指的是一种叫做*SRAM*的内存类型。静态随机访问存储器是Arduino中等效于通常应用于更大系统的泛用RAM术语。[^7](ch09.xhtml#idm45018717257432)
+    Flash是我们程序存储的地方，SRAM是我们程序运行的地方。在你的程序运行时，堆栈和堆如[图6-3](ch06.xhtml#smallerc-CHP-6-FIG-stack-and-heap)所示都在SRAM中。你的程序的运行大小由你拥有的SRAM量限制。让我们来看看这个限制的一些影响。
 - en: Stacks and heaps
+  id: totrans-191
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 堆栈和堆
 - en: Recall the discussion of global variables and the heap from [“Local Variables
     and the Stack”](ch06.xhtml#smallerc-CHP-6-SECT-1.3). I mentioned that you could
     potentially run out of memory if you had too many variables or made too many nested
@@ -903,8 +1308,11 @@
     even terabytes of memory like modern desktop systems. But 2K? What about our Metro
     Mini and its meager 2K of SRAM? The stack and heap—active at runtime, so not part
     of flash memory—must fit in this limited space as we run our Arduino sketches.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 回想一下关于全局变量和堆的讨论来自[“本地变量和堆”](ch06.xhtml#smallerc-CHP-6-SECT-1.3)。我提到如果你有太多变量或进行了太多嵌套函数调用，你可能会因此耗尽内存。如果你有像现代桌面系统那样的几千兆字节甚至几千兆字节内存，这是一个很大程度上的理论讨论。但2K呢？我们的Metro
+    Mini和它微薄的2K SRAM怎么办？堆和栈——在运行时活跃，所以不是闪存的一部分——必须适应这个有限的空间，当我们运行我们的Arduino草图时。
 - en: Imagine redoing the addresses from [Figure 6-3](ch06.xhtml#smallerc-CHP-6-FIG-stack-and-heap)
     to fit in 2K. That middle is *much* smaller now. It is much easier to imagine
     too many function calls or too many global variables or `malloc()` allocations.
@@ -912,19 +1320,25 @@
     just 64 lines to represent the entire contents of SRAM on some microcontrollers.
     That’s *one* two-sided piece of paper from a high school notepad! That means a
     careless loop or large array can overrun our SRAM and cause our program to crash.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 想象一下重做来自[图6-3](ch06.xhtml#smallerc-CHP-6-FIG-stack-and-heap)的地址，以适应2K的情况。中间部分现在小得多了。现在很容易想象太多函数调用或太多全局变量或`malloc()`分配。如果你每行写出32字节（64个十六进制字符），只需64行即可表示某些微控制器上SRAM的全部内容。这就是来自高中笔记本的一张双面纸！这意味着一个粗心的循环或大数组可能会超出我们的SRAM，并导致程序崩溃。
 - en: For example, our recursive Fibonacci calculating function could easily fill
     up available memory after a few dozen calls—especially since we will still need
     memory for our LEDs, sensor libraries, etc. It’s not forbidden to use recursion
     when working with microcontrollers, but it does require paying a little more attention
     to detail on your part.
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，我们的递归斐波那契计算函数在几十次调用后就可以轻松填满可用内存——特别是因为我们仍然需要内存来控制LED、传感器库等。在与微控制器一起工作时使用递归并不是被禁止的，但确实需要你在细节上多加注意。
 - en: Global variables in Arduino
+  id: totrans-195
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: Arduino中的全局变量
 - en: Unlike desktop applications where globals (allocated on the heap) are almost
     always optional (if convenient), the Arduino environment makes regular use of
     them. The Arduino IDE hides a lot of the effort done on our behalf to create a
@@ -932,8 +1346,10 @@
     for example. As such, if we need to initialize a variable in the `setup()` function
     and then refer to that variable in our `loop()` function, we have to use a globally
     declared variable.
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 与桌面应用程序不同，其中全局变量（分配在堆上）几乎总是可选的（如果方便的话），Arduino环境则经常使用它们。Arduino IDE在我们创建一个可行的可执行程序时为我们做了很多工作。例如，请记住我们不需要编写自己的`main()`函数。因此，如果我们需要在`setup()`函数中初始化一个变量，然后在`loop()`函数中引用该变量，我们必须使用一个全局声明的变量。
 - en: That fact is not terribly controversial. Many examples online, and certainly
     in this book, rely on globals. But given our limited space, it does require more
     of that attention to detail. For example, I often use `int` for any numeric variable
@@ -942,20 +1358,27 @@
     presses so that I can distinguish between single or double (or even triple) clicks,
     that count fits easily in a `byte`. Remembering to use the smallest appropriate
     data type is a great habit to get into.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个事实并不是非常有争议。许多在线示例，当然还有这本书，都依赖于全局变量。但考虑到我们有限的空间，确实需要更多的细节注意力。例如，我经常使用`int`来表示任何我知道不会存储十亿数量级数字的数值变量。像`int
+    count = 0;`这样的输入几乎已经成了肌肉记忆。好吧，如果我要计数连续的按钮按下，以便我可以区分单击、双击（甚至三击），这个计数很容易适合一个`byte`中。记住使用最小适当的数据类型是一个很好的习惯。
 - en: In fact, if you get *really* pressed for memory, remember that you can read
     and manipulate individual bits using the operators we discussed in [“Bitwise Operators”](ch04.xhtml#smallerc-CHP-4-SECT-3.4).
     If you had two buttons and needed to track potential triple clicks, those counts
     could *both* fit in one `byte` variable. Indeed, you could store the count of
     *four* buttons in that variable. That’s definitely a little extreme, but again,
     when you need it, every byte counts. We’re not on desktops anymore, Toto.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，如果内存真的不够用，记住我们在[“位操作符”](ch04.xhtml#smallerc-CHP-4-SECT-3.4)中讨论过的操作符，你可以读取和操作单个位。如果你有两个按钮并且需要追踪可能的三次点击，这些计数可以都存储在一个`byte`变量中。事实上，你甚至可以在这个变量中存储四个按钮的计数。这肯定有点极端，但当你需要时，每个字节都很重要。我们不再处于桌面环境了，托托。
 - en: EEPROM
+  id: totrans-199
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: EEPROM
 - en: If you did come to Arduino from the land of desktop computing, you may also
     have noticed the lack of filesystem discussions. You likely weren’t surprised
     that a physical, 3.5” hard drive was not attached to your tiny microcontroller,
@@ -964,24 +1387,32 @@
     many satisfying projects do not require any such storage, but some do. Happily,
     many controllers have some (limited) capacity for storing values you can manipulate
     in the form of electronically erasable programmable read-only memory, or *EEPROM*.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你是从桌面计算机的领域转到Arduino的，你可能也注意到缺少文件系统的讨论。你可能不会对你的微控制器没有连接物理的3.5英寸硬盘感到惊讶，但长期读写存储的缺失可能让你措手不及。重启你的Arduino，每个变量都会重新从头开始。许多令人满意的项目根本不需要这样的存储，但有些项目需要。幸运的是，许多控制器具有一定（有限）的电子可擦写程序只读存储器（EEPROM）存储值的能力。
 - en: 'Not every microcontroller includes EEPROM. Enough don’t, in fact, that this
     type of memory is not something the IDE expects you to use. You have to include
     the *EEPROM.h* header manually to store and retrieve values from this area. We
     only need two of the functions from this libray: `get()` and `put()`, but you
     can see the other functions available in the [EEPROM library documentation](https://oreil.ly/Hbgqn).'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 并非每个微控制器都包含EEPROM。事实上，有足够多的微控制器不包含EEPROM，以至于IDE并不期望你使用这种类型的存储器。你必须手动包含*EEPROM.h*头文件来从这个区域存储和检索值。我们只需要这个库中的两个函数：`get()`和`put()`，但你可以在[EEPROM库文档](https://oreil.ly/Hbgqn)中看到其他可用的函数。
 - en: 'Both functions take two arguments: an offset into EEPROM (the “address” in
     the documentation) and some “data,” which can be a variable or `struct` for `get()`,
     or also a literal value for `put()`. Putting and getting a `float`, for example,
     would look something like this:'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个函数都接受两个参数：EEPROM中的偏移量（文档中的“地址”）和一些“数据”，可以是`get()`的变量或结构体，或者是`put()`的文字值。例如，放入和取出一个`float`看起来可能像这样：
 - en: '[PRE15]'
+  id: totrans-203
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: Notice that unlike the `scanf()` function we have used to accept input from
     users, I did *not* use `&` with the `temperature` variable in the call to `get()`.
     This library does the work of assigning the value to the correct location for
@@ -989,8 +1420,10 @@
     be a little careful and remember to use simple variables and not their addresses.
     In the snippet above, `EEPROM.get()` will fill our `temperature` variable with
     the value stored in EEPROM exactly as we expect.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，与我们用来接受用户输入的`scanf()`函数不同的是，在调用`get()`时，我没有在`temperature`变量前使用`&`。这个库会为你将值分配到正确的位置。通常在`setup()`期间从EEPROM读取，所以希望能小心一点并记住使用简单的变量而不是它们的地址。在上面的代码段中，`EEPROM.get()`会像我们期望的那样将EEPROM中存储的值填充到我们的`temperature`变量中。
 - en: Using `get()` and `put()` and remembering the exact byte offset of where you
     stored your persistent values in EEPROM may seem tedious, and I agree that it
     is. In return, however, you have total control over what goes in and how you retrieve
@@ -998,69 +1431,93 @@
     two `float` numbers and a `byte`, in that order, you need to make sure the second
     `float` is stored at address 4 and the `byte` at address 8\. Or better yet, use
     `sizeof` to advance a running location variable by exactly the right amount.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用`get()`和`put()`，并记住你在EEPROM中存储持久值的确切字节偏移量可能看起来很繁琐，我同意这一点。然而，作为回报，你完全控制了存入什么和如何检索它。只需确保正确管理地址。如果你要存储两个`float`数和一个`byte`，按顺序，你需要确保第二个`float`存储在地址4，而`byte`存储在地址8。或者更好的办法是使用`sizeof`来确保一个运行位置变量按照恰当的数量增加。
 - en: It’s important to know that reading and writing to EEPROM is “expensive,” in
     that it is not a speedy operation. EEPROM also has limits on how often it can
     be read and changed. You aren’t likely to hit those read/write limits, and the
     speed is fine for initializing our tiny projects, but EEPROM is definitely not
     a simple extension of SRAM.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 重要的是要知道，读写EEPROM是“昂贵”的，因为它不是一个快速的操作。EEPROM还有读写次数的限制。你不太可能达到这些读写限制，而且速度对于初始化我们的小型项目来说是可以接受的，但EEPROM绝对不是SRAM的简单扩展。
 - en: Remembering Choices
+  id: totrans-207
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 记住选择
 - en: All of this memory stuff sure is esoteric. I think it’s time for another kitchen
     sink example! Let’s get that nifty LED ring wired back up and add a tactile button
     to change its color. We’ll store the selected color in EEPROM, too, so that if
     we shut off the Arduino and turn it back on later, the ring will light up with
     our most recent choice. This project uses only the ring and the button, as shown
     in [Figure 9-8](#smallerc-CHP-9-FIG-eeprom-button-wiring).
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些内存相关的东西确实很深奥。我觉得是时候再来一个厨房水槽示例了！让我们重新接线那个漂亮的LED环并添加一个触觉按钮来改变其颜色。我们还会将选择的颜色存储在EEPROM中，以便如果我们关闭Arduino并稍后重新打开它，环将以我们最近的选择点亮。这个项目只使用环和按钮，如[图9-8](#smallerc-CHP-9-FIG-eeprom-button-wiring)所示。
 - en: '![smac 0908](Images/smac_0908.png)'
+  id: totrans-209
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0908](Images/smac_0908.png)'
 - en: Figure 9-8\. Wiring for our EEPROM demo with our LED ring and button
+  id: totrans-210
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图9-8。我们EEPROM演示的布线，包括LED环和按钮
 - en: Along the way, we can use a new technique to debounce the button, and we’ll
     even borrow the debounce concept to keep from writing to EEPROM too much. When
     you let users change things, they often take you up on the offer and change them
     a lot. If they press the button to change the color, we’ll wait a few seconds
     before committing that change to EEPROM, in case they just want to quickly cycle
     through the colors to see their options.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 在此过程中，我们可以使用一种新的技术来去抖动按钮，甚至借用去抖动概念来减少对EEPROM的写入次数。当用户改变事物时，他们通常会接受你的提议并频繁更改它们。如果他们按下按钮更改颜色，我们将等待几秒钟再将该更改提交到EEPROM，以防他们只是快速循环查看颜色选项。
 - en: If you are up for a challenge, try sketching out (get it?) a solution yourself
     before reviewing the code here. But that is a pretty hefty challenge. Feel free
     to enter in this code or compile and upload [*ch09/ring_eeprom/ring_eeprom.ino*](https://oreil.ly/yir2G)
     if you’d rather just get on with the joy of changing LED colors!
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你愿意接受挑战，在查看这里的代码之前，请尝试自己草绘（get it？）一个解决方案。但这是一个相当艰巨的挑战。如果你宁愿只是享受更改LED颜色的乐趣，请随意输入此代码或编译并上传[*ch09/ring_eeprom/ring_eeprom.ino*](https://oreil.ly/yir2G)。
 - en: '[PRE16]'
+  id: totrans-213
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: There are three parts of this program I specifically want to highlight. The
     first is the use of the `previousState` variable to track the state of our button.
     Rather than use a Boolean value to know if we are in the middle of a debounce
     period, I only act on the button press when I notice it changing from a `HIGH`
     state to the `LOW` state. It’s about the same amount of work, but I wanted to
     show you an alternative.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个程序有三个部分我特别想强调。第一个是使用`previousState`变量来跟踪我们按钮的状态。我不使用布尔值来知道我们是否处于去抖动周期中，而是仅在我注意到它从`HIGH`状态变为`LOW`状态时才执行按钮按下操作。工作量大致相同，但我想向你展示一个替代方法。
 - en: The other two interesting parts are the functions at the bottom, `retrieveIndex()`
     and `storeIndex()`. Here you can see the use of the EEPROM functions. Storing
     the index is straightforward, but I added a safety check when reading the index
     to make sure that it is a valid value.
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 另外两个有趣的部分是底部的函数`retrieveIndex()`和`storeIndex()`。在这里你可以看到EEPROM函数的使用。存储索引很简单，但我在读取索引时添加了一个安全检查，以确保它是一个有效的值。
 - en: Interrupts
+  id: totrans-216
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 中断
 - en: There is one last bit of cool functionality that can streamline the code you
     write to handle inputs like our tactile buttons. While not peculiar to Arduino,
     the use of *interrupts* is not something many desktop or web developers encounter
@@ -1069,8 +1526,10 @@
     device was connected, or maybe a key was pressed. They get their name from the
     advantageous fact that they “interrupt” the normal flow of your program and transfer
     control somewhere else.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有一个很酷的功能可以简化处理像我们的触觉按钮输入的代码。虽然不是Arduino特有的，但*中断*的使用对许多桌面或Web开发者来说不再陌生。中断是硬件信号，可以触发软件响应。中断可以让你知道某些网络数据已到达，或者USB设备已连接，或者可能有键被按下。它们得名于它们“中断”了程序的正常流程并将控制传输到其他地方的有利事实。
 - en: I say advantageous because interrupts can significantly simplify the process
     of worrying about asynchronous, unreliable events. Think about typing at your
     keyboard. One way your operating system could go about “listening” for keys to
@@ -1082,14 +1541,18 @@
     just isn’t something we want to worry about. Interrupts take away that worry.
     When a key is pressed, a signal arrives telling your computer to go check the
     keyboard. It’s an on-demand system.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 我说有利，因为中断可以显著简化担心异步、不可靠事件的过程。想想在键盘上打字。您的操作系统可以通过运行一个大循环并逐个检查每个键来“监听”是否有键被按下。多么乏味的任务。即使我们稍微抽象一下，让操作系统询问是否有*任何*键被按下，我们也需要询问每个输入设备。每个硬盘驱动器，每个闪存驱动器，鼠标，麦克风，每个USB端口等等。这种轮询的方式并不是我们想担心的事情。中断消除了这种担忧。当按下键时，会发送一个信号告知您的计算机去检查键盘。这是一个按需系统。
 - en: When such a demand is made, the computer typically goes to a function you have
     supplied with the express intent of handling the interruption in question. You
     register a handler and the operating system does the management of stopping anything
     else that is happening and switching to that handler.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 当出现这种需求时，计算机通常会调用您提供的函数，以处理相关的中断。您注册一个处理程序，操作系统管理停止任何其他正在进行的操作，并切换到该处理程序。
 - en: On an Arduino project, you can use interrupts for various input devices like
     our tactile buttons. Rather than polling the button like we’ve done in some of
     our previous projects, we can register a function for the button press. We write
@@ -1097,87 +1560,123 @@
     nothing. The microcontroller is doing its own internal work to watch each of its
     pins, and when one of them changes, say the one attached to our button, an interrupt
     fires and we jump to our registered function.
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Arduino项目中，您可以为各种输入设备（如我们的触摸按钮）使用中断。与以往的一些项目中轮询按钮不同，我们可以注册一个函数来处理按钮按下事件。我们的循环中不再提及按钮。没有轮询，没有去抖动标志或计时器，什么都没有。微控制器正在进行内部工作，监视其每个引脚，当其中一个引脚发生变化时（例如连接到我们的按钮的引脚），触发中断并跳转到我们注册的函数。
 - en: Interrupt Service Routines
+  id: totrans-221
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 中断服务程序
 - en: 'An interrupt service routine, or ISR, is really just a function. But you do
     want to obey a few rules and a few guidelines:'
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 中断服务程序（ISR）实际上只是一个函数。但是您确实希望遵守一些规则和准则：
 - en: An ISR cannot have any parameters (rule)
+  id: totrans-223
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: ISR不能有任何参数（规则）
 - en: An ISR should not return any values (guideline)
+  id: totrans-224
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: ISR不应返回任何值（准则）
 - en: Timing functions like `delay()` and `millis()` themselves use interrupts so
     you can’t use them inside an ISR (rule)^([8](ch09.xhtml#idm45018716772200))
+  id: totrans-225
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 像`delay()`和`millis()`这样的定时函数本身使用中断，因此您不能在ISR内部使用它们（规则）^([8](ch09.xhtml#idm45018716772200))
 - en: Because you are “holding up the line” while inside your ISR, these functions
     should be designed to run as quickly as possible (guideline)
+  id: totrans-226
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 因为您在ISR内部“阻塞了线路”，所以这些函数应尽可能快地运行（准则）
 - en: 'To register an ISR in Arduino, you use the `attachInterrupt()` function. That
     function takes three arguments:'
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在Arduino中注册中断服务程序（ISR），您需要使用`attachInterrupt()`函数。该函数接受三个参数：
 - en: 'The interrupt to listen for: use the function `digitalPinToInterrupt(pin)`
     for this argument'
+  id: totrans-228
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 要监听的中断：使用函数`digitalPinToInterrupt(pin)`作为此参数
 - en: 'The ISR: just give the name of the function you want to use'
+  id: totrans-229
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: ISR：只需提供您想使用的函数名称
 - en: 'The mode, one of:'
+  id: totrans-230
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 模式之一：
 - en: '`LOW`: triggered when the pin is LOW'
+  id: totrans-231
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`LOW`：在引脚为LOW时触发'
 - en: '`CHANGE`: triggered when there is any change in the pin’s value'
+  id: totrans-232
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`CHANGE`：在引脚值发生任何变化时触发'
 - en: '`RISING`: triggered when the pin goes from `LOW` to `HIGH`'
+  id: totrans-233
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`RISING`：在引脚从`LOW`到`HIGH`时触发'
 - en: '`FALLING`: triggered when the pin goes from `HIGH` to `LOW`'
+  id: totrans-234
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`FALLING`：在引脚从`HIGH`到`LOW`时触发'
 - en: '`HIGH`: some—but not all—boards support triggers when a pin is `HIGH`'
+  id: totrans-235
   prefs:
   - PREF_IND
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`HIGH`：一些——但不是所有——板支持在引脚为`HIGH`时触发中断'
 - en: If you no longer want to handle an interrupt, you can use `detachInterrupt()`.
     That function takes one argument, the same `digitalPinToInterrupt(pin)` as the
     first argument to `attachInterrupt()`. (This helper function correctly translates
     your pin number to the necessary interrupt number. It is not recommended to supply
     the interrupt number directly.)
+  id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果不再需要处理中断，可以使用`detachInterrupt()`。该函数接受一个参数，即与`attachInterrupt()`的第一个参数相同的`digitalPinToInterrupt(pin)`。（这个辅助函数正确地将您的引脚号转换为必要的中断号。不建议直接提供中断号。）
 - en: Interrupt-Driven Programming
+  id: totrans-237
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 中断驱动编程
 - en: Let’s dive into one more project to try harnessing an interrupt. We’ll take
     our LED ring and light up one LED after the other to make a cycling animation.
     We’ll use a button to change the speed of that cycle. We certainly could write
@@ -1186,108 +1685,157 @@
     the LED ring. We’ll actually use the exact same hardware setup as we did for that
     project. You can look back at [Figure 9-8](#smallerc-CHP-9-FIG-eeprom-button-wiring)
     if you need to re-create it.
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们再深入一个项目，尝试利用中断。我们将拿出LED环，并依次点亮一个LED，形成循环动画。我们将使用一个按钮来改变循环速度。我们确实可以编写这种类型的程序而不使用中断，但我认为您会喜欢这个项目比我们轮询按钮改变LED环颜色的示例要干净得多。实际上，我们将使用与该项目相同的硬件设置。如果需要重新创建，可以回顾[图 9-8](#smallerc-CHP-9-FIG-eeprom-button-wiring)。
 - en: 'As always, feel free to grab this sketch ([*ch09/ring_interrupt/ring_interrupt.ino*](https://oreil.ly/iZ5JJ)),
     or enter it yourself. The only wiring on this project is connecting the power
     and ground of the NeoPixel ring and the data line to an acceptable pin on your
     microcontroller. You’ll need to check the documentation for your board to see
     which pins support interrupts. For our Metro Mini (compatible with the Arduino
     Uno), we can use either pin 2 or pin 3:'
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 如往常一样，随意获取这个示例（[*ch09/ring_interrupt/ring_interrupt.ino*](https://oreil.ly/iZ5JJ)），或者自己输入。本项目唯一的接线是将NeoPixel环的电源和地线连接到微控制器上的适当引脚以及数据线。您需要查看您的开发板文档，了解支持中断的引脚。对于我们的Metro
+    Mini（兼容Arduino Uno），我们可以使用引脚2或引脚3：
 - en: '[PRE17]'
+  id: totrans-240
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '[![1](Images/1.png)](#co_smaller_systems_CO3-1)'
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_smaller_systems_CO3-1)'
 - en: Set an initial pause duration of 1 second for our ring animation.
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 为我们的环形动画设置初始暂停持续时间为1秒。
 - en: '[![2](Images/2.png)](#co_smaller_systems_CO3-2)'
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_smaller_systems_CO3-2)'
 - en: Create a concise function to respond to button presses by cycling through different
     pause durations.
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建一个简洁的函数来响应按钮按下事件，通过不同的暂停持续时间进行循环。
 - en: '[![3](Images/3.png)](#co_smaller_systems_CO3-3)'
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_smaller_systems_CO3-3)'
 - en: Setup our button pin as an `INPUT_PULLUP`, just as we have before.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 将我们的按钮引脚设置为`INPUT_PULLUP`，就像以前一样。
 - en: '[![4](Images/4.png)](#co_smaller_systems_CO3-4)'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_smaller_systems_CO3-4)'
 - en: Configure `nextPause()` to handle the event of our button being pressed.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: 配置`nextPause()`以处理按钮按下的事件。
 - en: '[![5](Images/5.png)](#co_smaller_systems_CO3-5)'
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![5](Images/5.png)](#co_smaller_systems_CO3-5)'
 - en: Set up our LED ring, also like we have before.
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 像以前一样设置我们的LED环。
 - en: '[![6](Images/6.png)](#co_smaller_systems_CO3-6)'
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![6](Images/6.png)](#co_smaller_systems_CO3-6)'
 - en: Our animation loop does not have to include any button-polling logic (hooray!).
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的动画循环不必包含任何按钮轮询逻辑（万岁！）。
 - en: Hopefully, this feels simpler than our other projects that included buttons.
     Our `loop()` function is devoted solely to driving the animated pixel around the
     ring. And although I use the `FALLING` mode to trigger the interrupt, we could
     have used `RISING` just as easily for this example. Changing that mode is a great
     tweak to try now if you’re curious about the effect.
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: 希望这比我们包含按钮的其他项目更简单。我们的`loop()`函数专门用于驱动动画像素绕环运动。尽管我使用`FALLING`模式触发中断，但对于这个例子，我们同样可以轻松使用`RISING`。如果你对效果感到好奇，改变这种模式是一个很好的调整。
 - en: Exercises
+  id: totrans-254
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 练习
 - en: Now that we’ve seen several sketches up and running with help from the Arduino
     environment to make use of some interesting peripherals, here are a few small
     projects you can try to test your new skills. I’m including the wiring diagrams
     for my setups, but you are certainly welcome to arrange the components however
     you like and use whichever pins are appropriate for your microcontroller. The
     solutions are in the [*ch09/exercises*](https://oreil.ly/ezhYB) folder.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们已经看到几个Sketch在Arduino环境中运行，并利用了一些有趣的外设，这里有几个小项目可以测试您的新技能。我包含了我的设置的接线图，但您当然可以根据需要安排组件，并使用适合您微控制器的引脚。解决方案在[*ch09/exercises*](https://oreil.ly/ezhYB)文件夹中。
 - en: '*Automatic night-light*. With a photoresistor and an LED (see [Figure 9-9](#smallerc-CHP-9-FIG-night-light-wiring)),
     create a night-light that responds to a decrease in light by increasing the brightness
     of the LED. Try using the `map()` function to convert the sensor reading value
     to an appropriate LED value. (You can use a NeoPixel or a regular LED with PWM.)'
+  id: totrans-256
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*自动夜灯*。使用光敏电阻和LED（参见[图 9-9](#smallerc-CHP-9-FIG-night-light-wiring)），创建一个根据光线减少增加LED亮度的夜灯。尝试使用`map()`函数将传感器读数转换为适当的LED值。（可以使用NeoPixel或带有PWM的常规LED。）'
 - en: '![smac 0909](Images/smac_0909.png)'
+  id: totrans-257
   prefs:
   - PREF_IND
   type: TYPE_IMG
+  zh: '![smac 0909](Images/smac_0909.png)'
 - en: Figure 9-9\. Wiring for an automatic night-light
+  id: totrans-258
   prefs:
   - PREF_IND
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-9\. 自动夜灯的接线图
 - en: '*Stopwatch*. Use our 4-digit display and one button (see [Figure 9-10](#smallerc-CHP-9-FIG-stopwatch-wiring))
     to create a stopwatch. When you first press the button, the stopwatch starts and
     tracks the elapsed time in seconds (up to 99:99 seconds). Pressing the button
     again will stop the count. Pressing it a third time will reset the stopwatch to
     0:00.'
+  id: totrans-259
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*秒表*。使用我们的4位数显示器和一个按钮（参见[图 9-10](#smallerc-CHP-9-FIG-stopwatch-wiring)），创建一个秒表。第一次按下按钮时，秒表开始并跟踪经过的秒数（最多99:99秒）。再次按下按钮将停止计数。第三次按下将秒表重置为0:00。'
 - en: '![smac 0910](Images/smac_0910.png)'
+  id: totrans-260
   prefs:
   - PREF_IND
   type: TYPE_IMG
+  zh: '![smac 0910](Images/smac_0910.png)'
 - en: Figure 9-10\. Wiring for a simple stopwatch
+  id: totrans-261
   prefs:
   - PREF_IND
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-10\. 简易秒表的接线图
 - en: '*Scoreboard*. Use four buttons and a 4-digit display (see [Figure 9-11](#smallerc-CHP-9-FIG-scoreboard-wiring))
     to run a small scoreboard for two teams. The left two digits of the display will
     keep the score for team 1, the right two digits for team 2\. Use two buttons for
@@ -1296,22 +1844,30 @@
     teams working. You may need to consult the documentation for your segmented display
     library to make sure you can update the score for one team without clobbering
     the score for the other team.'
+  id: totrans-262
   prefs:
   - PREF_OL
   type: TYPE_NORMAL
+  zh: '*计分板*。使用四个按钮和一个4位数显示器（参见[图 9-11](#smallerc-CHP-9-FIG-scoreboard-wiring)），为两支队伍运行一个小型计分板。显示器的左两位数字为队伍1的得分，右两位数字为队伍2的得分。每支队伍使用两个按钮：一个增加得分，一个减少得分。从小处着手，逐步构建。先让一个按钮起作用。然后让一个队伍运作。最后让两支队伍都能运行。您可能需要查阅分段显示库的文档，以确保您可以更新一支队伍的分数而不干扰另一支队伍的分数。'
 - en: '![smac 0911](Images/smac_0911.png)'
+  id: totrans-263
   prefs:
   - PREF_IND
   type: TYPE_IMG
+  zh: '![smac 0911](Images/smac_0911.png)'
 - en: Figure 9-11\. Wiring for a scoreboard
+  id: totrans-264
   prefs:
   - PREF_IND
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-11\. 计分板的接线图
 - en: Next Steps
+  id: totrans-265
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 下一步
 - en: My goodness that was a lot of code. But I sincerely hope you enjoyed our tour
     of the functions and features available for programming in Arduino. We tried out
     several new peripherals and covered the ways Arduino programmers can work with
@@ -1319,8 +1875,10 @@
     You are wholly encouraged to feel overwhelmed! Hopefully not discouraged, though.
     If any of the examples remain unclear, let them sit a day or two and come back
     to try again.
+  id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: 天哪，那真是一大堆代码。但我真诚地希望您喜欢我们在Arduino编程可用功能和特性之旅中的表演。我们尝试了几个新的外设，并介绍了Arduino程序员如何处理有限内存的方法。我们还介绍了[中断](https://oreil.ly/z4YpN)的主题。您完全可以感到不知所措！但希望不要灰心。如果有任何示例不清楚，请让它们静置一两天，然后再试一次。
 - en: The next chapter won’t be quite so intense. In the discussion on memory, we
     saw that sometimes you have to be a bit clever when dealing with microcontrollers.
     We’ll take a look at how you can optimize some patterns common in Arduino programming
@@ -1328,34 +1886,48 @@
     valid on desktops, too, they just might not make as much of an impact. But right
     now, we’re still focusing on Arduino, so read on to see just how much of an impact
     a few small changes can have!
+  id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一章不会像这一章那样紧张。在讨论内存时，我们看到在处理微控制器时有时候需要有些技巧。我们将通过一个简单的例子来看看如何集中精力优化一些常见的Arduino编程模式。这些优化在台式机上当然也是有效的，只是可能影响不会那么大。但现在，我们仍然专注于Arduino，所以继续阅读，看看几个小改变可以产生多大的影响！
 - en: ^([1](ch09.xhtml#idm45018719041400-marker)) Generic C calls these named values
     *symbolic constants*. I’ll use the unqualified “constant” to match the Arduino
     documentation.
+  id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch09.xhtml#idm45018719041400-marker)) 通用C语言称这些命名值为*符号常量*。我将使用未限定的“常量”来与Arduino文档匹配。
 - en: ^([2](ch09.xhtml#idm45018718922072-marker)) This is true for GCC, but some compilers
     use wholly separate executables for preprocessing and compiling.
+  id: totrans-269
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch09.xhtml#idm45018718922072-marker)) 对于GCC而言是正确的，但某些编译器使用完全分开的可执行文件进行预处理和编译。
 - en: ^([3](ch09.xhtml#idm45018718661080-marker)) The Arduino Language provides some
     alternate names for these functions with slightly different casing that you might
     find more readable, like `isDigit()` and `isUpperCase()`.
+  id: totrans-270
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch09.xhtml#idm45018718661080-marker)) Arduino语言为这些函数提供了一些具有稍微不同大小写的替代名称，可能更易读，例如`isDigit()`和`isUpperCase()`。
 - en: ^([4](ch09.xhtml#idm45018718648824-marker)) On typical pinout diagrams, digital
     pins that can do PWM often have a ~ prefix or other distinguishing mark.
+  id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch09.xhtml#idm45018718648824-marker)) 在典型的引脚布局图上，可以进行 PWM 的数字引脚通常有一个~前缀或其他明显标记。
 - en: ^([5](ch09.xhtml#idm45018718211544-marker)) Other popular driver chips such
     as the MAX7219 will have similar search results.
+  id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch09.xhtml#idm45018718211544-marker)) 其他流行的驱动芯片，如 MAX7219，会有类似的搜索结果。
 - en: ^([6](ch09.xhtml#idm45018718210600-marker)) If you are using a similar display,
     it has a nicely documented repo on [GitHub](https://oreil.ly/RVv2F).
+  id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch09.xhtml#idm45018718210600-marker)) 如果你正在使用类似的显示器，它在[GitHub](https://oreil.ly/RVv2F)上有一个很好文档化的存储库。
 - en: ^([7](ch09.xhtml#idm45018717257432-marker)) Dynamic random-access memory, or
     *DRAM*, is the type of memory you buy in “sticks” and physically insert into your
     aging Windows 7 box so you can eke one more year out of it. The “dynamic” term
@@ -1363,11 +1935,16 @@
     power—in contrast to SRAM, which does not. Both types, however, require at least
     *some* power and are therefore termed *volatile*, as their contents will be reset
     during a power cycle.
+  id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch09.xhtml#idm45018717257432-marker)) 动态随机存取存储器，或称*DRAM*，是你可以购买并物理插入老旧的
+    Windows 7 机箱以延长一年寿命的内存类型。“动态”一词表明此RAM需要定期刷新一小段电源来维持—与不需要的SRAM相对。然而，两种类型都需要*一些*电源，因此被称为*挥发性*，因为在电源循环期间它们的内容将被重置。
 - en: ^([8](ch09.xhtml#idm45018716772200-marker)) The `micros()` function will work,
     but only for a millisecond or two. `delayMicroseconds()` uses a different mechanism
     to pause, so it actually can be used. But you really don’t want to delay inside
     an ISR at all if you can help it.
+  id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch09.xhtml#idm45018716772200-marker)) `micros()`函数可以工作，但只能持续一两毫秒。`delayMicroseconds()`使用了不同的机制来暂停，所以实际上可以使用。但如果可能的话，你真的不想在ISR内部延迟。

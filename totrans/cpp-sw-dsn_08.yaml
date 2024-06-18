@@ -1,7 +1,9 @@
 - en: Chapter 8\. The Type Erasure Design Pattern
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第8章。类型擦除设计模式
 - en: 'Separation of concerns and value semantics are two of the essential takeaways
     from this book that I have mentioned a couple of times by now. In this chapter,
     these two are beautifully combined into one of the most interesting modern C++
@@ -9,56 +11,78 @@
     hottest irons in the fire, in this chapter I will give you a very thorough, in-depth
     introduction to all aspects of Type Erasure. This, of course, includes all design-specific
     aspects and a lot of specifics about implementation details.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 分离关注点和值语义是本书的两个重要收获，我已经多次提到过。在本章中，这两者被美妙地结合成为现代C++设计模式中最有趣的之一：类型擦除。由于这种模式可以被认为是最热门的选项之一，本章将非常详细地介绍类型擦除的各个方面。当然，这包括所有与设计相关的方面以及大量的实现细节。
 - en: 'In [“Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure”](#consider_replacing_inheritance_hierarchies_with_type_erasure),
     I will introduce you to Type Erasure and give you an idea why this design pattern
     is such a great combination of dependency reduction and value semantics. I will
     also give you a walkthrough of a basic, owning Type Erasure implementation.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 32：考虑使用类型擦除替代继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)，我将向您介绍类型擦除，并让您了解为何这种设计模式如此出色地结合了依赖项减少和值语义。我还将带您走过一个基本的拥有型类型擦除实现。
 - en: '[“Guideline 33: Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure)
     is an exception: despite the fact that in this book I primarily focus on dependencies
     and design aspects, in this one guideline I will entirely focus on performance-related
     implementation details. I will show you how to apply the *Small Buffer Optimization
     (SBO)* and how to implement a manual virtual dispatch to speed up your Type Erasure
     implementation.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '[“指南 33：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)是一个例外：尽管在本书中我主要关注依赖和设计方面，但在这一指南中我将完全专注于与性能相关的实现细节。我将向您展示如何应用*小缓冲区优化（SBO）*以及如何实现手动虚分派来加速您的类型擦除实现。'
 - en: 'In [“Guideline 34: Be Aware of the Setup Costs of Owning Type Erasure Wrappers”](#be_aware_of_the_setup_costs_of_owning_type_erasure_wrappers),
     we will investigate the setup costs of the owning Type Erasure implementation.
     We will find that there is a cost associated with value semantics that sometimes
     we may not be willing to pay. For this reason, we dare to take a step into the
     realm of reference semantics and implement a form of nonowning Type Erasure.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 34：了解拥有型类型擦除包装器的设置成本”](#be_aware_of_the_setup_costs_of_owning_type_erasure_wrappers)，我们将调查拥有型类型擦除实现的设置成本。我们将发现，与值语义相关联的成本有时可能是我们不愿支付的。因此，我们敢于踏入引用语义的领域，并实现一种非拥有型类型擦除形式。
 - en: 'Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure'
+  id: totrans-5
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 32：考虑使用类型擦除替代继承层次结构
 - en: 'There are a couple of recurring pieces of advice throughout this book:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本书中有几个反复出现的建议：
 - en: Minimize dependencies.
+  id: totrans-7
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 最小化依赖。
 - en: Separate concerns.
+  id: totrans-8
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 分离关注点。
 - en: Prefer composition to inheritance.
+  id: totrans-9
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 更倾向于组合而非继承。
 - en: Prefer nonintrusive solutions.
+  id: totrans-10
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 倾向于非侵入性的解决方案。
 - en: Prefer value semantics over reference semantics.
+  id: totrans-11
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 更倾向于值语义而非引用语义。
 - en: 'Used on their own, all of these have very positive effects on the quality of
     your code. In combination, however, these guidelines prove to be so much better.
     This is what you have experienced in our discussion about the External Polymorphism
@@ -73,12 +97,16 @@
     Hence, the missing detail you’re waiting for is a value semantics–based implementation
     of the External Polymorphism design pattern. And I will not keep you waiting anymore:
     the resulting solution is commonly called *Type Erasure*.^([2](ch08.xhtml#idm45043085802544))'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 单独使用，所有这些对您的代码质量都有非常积极的影响。然而，这些指南的组合证明要好得多。这就是我们在关于“第31条指南：使用外部多态性进行非侵入式运行时多态性”的讨论中所经历的。提取多态行为被证明是极其强大的，并解锁了前所未有的松散耦合水平。然而，可能令人失望的是，外部多态性的演示实现并没有让你觉得是解决问题的现代方式。与其遵循更倾向于值语义的建议，该实现坚定地建立在引用语义上：许多指针、许多手动分配和手动生命周期管理。^([1](ch08.xhtml#idm45043085804224))因此，你等待的缺失细节是基于值语义的外部多态性设计模式实现。我不会再让你等待了：得到的解决方案通常被称为*类型擦除*。^([2](ch08.xhtml#idm45043085802544))
 - en: The History of Type Erasure
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 类型擦除的历史
 - en: Before I give you a detailed introduction, let’s quickly talk about the history
     of Type Erasure. “Come on,” you argue. “Is this really necessary? I’m dying to
     finally see how this stuff works.” Well, I promise to keep it short. But yes,
@@ -86,8 +114,10 @@
     demonstrate that we as a community, aside from the circle of the most experienced
     C++ experts, may have overlooked and ignored this technique for too long. And
     second, to give some well-deserved credit to the inventor of the technique.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我详细介绍之前，让我们快速谈谈类型擦除的历史。“来吧”，你反驳道。“这真的有必要吗？我渴望最终看到这些东西如何工作。”好吧，我承诺简短地介绍一下。但是是的，我认为这对于我们讨论的这个问题是必要的细节，有两个原因。首先，要证明我们作为一个社区，除了最有经验的C++专家圈子之外，可能已经忽视和忽略了这种技术太久了。其次，要给这项技术的发明者一些应得的赞赏。
 - en: The Type Erasure design pattern is very often attributed to one of the first
     and therefore most famous presentations of this technique. At the GoingNative
     2013 conference, Sean Parent gave a talk called “Inheritance Is the Base Class
@@ -95,8 +125,10 @@
     development of Photoshop and talked about the dangers and disadvantages of inheritance-based
     implementations. However, he also presented a solution to the inheritance problem,
     which later came to be known as Type Erasure.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 类型擦除设计模式通常归功于最早的、因此也是最著名的这种技术的演示之一。在2013年的GoingNative会议上，Sean Parent做了一个名为“继承是邪恶的基类”的演讲^([3](ch08.xhtml#idm45043085797440))，回顾了他在开发Photoshop过程中的经验，并讨论了基于继承的实现的危险和缺点。然而，他还提出了解决继承问题的方法，后来被称为类型擦除。
 - en: Despite Sean’s talk being one of the first recorded, and for that reason probably
     the most well-known resource about Type Erasure, the technique was used long before
     that. For instance, Type Erasure was used in several places in the [*Boost* libraries](https://www.boost.org),
@@ -107,26 +139,39 @@
     evolved into what we today know as C++17’s `std::any`. Most importantly, he was
     the first to elegantly combine several design patterns to form a value semantics–based
     implementation around a collection of unrelated, nonpolymorphic types.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管肖恩的讲话是第一个被记录下来的关于类型擦除的讲话，因此可能是最著名的资源之一，但这种技术早在那之前就已经被使用了。例如，类型擦除在[*Boost*库](https://www.boost.org)中的几个地方都有使用，例如，Douglas
+    Gregor为[`boost::function`](https://oreil.ly/XslzJ)使用了它。尽管据我所知，该技术首次在*Kevlin Henney*于2000年7-8月刊登在*C++
+    Report*上的一篇文章中进行了讨论。^([4](ch08.xhtml#idm45043085793120)) 在这篇文章中，Kevlin用一个代码示例演示了类型擦除，后来演变为我们今天所知的C++17的`std::any`。最重要的是，他是第一个巧妙地结合多个设计模式来形成基于值语义的实现，围绕一组不相关的非多态类型。
 - en: 'Since then, a lot of common types have acquired the technique to provide value
     types for various applications. Some of these types have even found their way
     into the Standard Library. For instance, we have already seen `std::function`,
     which represents a value-based abstraction of a callable.^([5](ch08.xhtml#idm45043085790080))
     I’ve already mentioned `std::any`, which represents an abstract container-like
     value for virtually anything (hence the name) but without exposing any functionality:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 从那时起，许多常见类型已经采用了该技术，为各种应用程序提供值类型。其中一些类型甚至已经进入了标准库。例如，我们已经见过`std::function`，它代表了一个可调用对象的基于值的抽象。^([5](ch08.xhtml#idm45043085790080))
+    我已经提到过`std::any`，它表示几乎任何东西的抽象容器状值（因此得名），但不暴露任何功能：
 - en: '[PRE0]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'And then there is `std::shared_ptr`, which uses Type Erasure to store the assigned
     deleter:'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有`std::shared_ptr`，它使用类型擦除来存储分配的删除器：
 - en: '[PRE1]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '“It appears to be simpler to just provide a second template parameter for the
     deleter as `std::unique_ptr` does. Why isn’t `std::shared_ptr` implemented in
     the same way?” you inquire. Well, the designs of `std::shared_ptr` and `std::unique_ptr`
@@ -137,22 +182,30 @@
     pointer. Consequently, `std::unique_ptr` is designed such that for stateless deleters,
     any size overhead can be avoided. However, unfortunately, this second template
     parameter is easily overlooked and causes artificial restrictions:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: “看起来简单的方法就是像`std::unique_ptr`那样为删除器提供第二个模板参数。为什么`std::shared_ptr`不是用同样的方式实现？”你询问道。嗯，`std::shared_ptr`和`std::unique_ptr`的设计出于非常充分的理由是不同的。`std::unique_ptr`的哲学是仅代表最简单的可能是原始指针的包装：它应该像原始指针一样快速，并且应该具有与原始指针相同的大小。因此，不希望将删除器与托管指针一起存储。因此，`std::unique_ptr`设计成这样，对于无状态的删除器，可以避免任何大小的开销。但是，不幸的是，这第二个模板参数很容易被忽视，并引起人为的限制：
 - en: '[PRE2]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: This kind of coupling is avoided in the design of `std::shared_ptr`. Since `std::shared_ptr`
     has to store many more data items in its so-called control block (that includes
     the reference count, the weak count, etc.), it has the opportunity to use Type
     Erasure to literally erase the type of the deleter, removing any kind of possible
     dependency.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种耦合在`std::shared_ptr`的设计中是避免的。由于`std::shared_ptr`必须在其所谓的控制块中存储许多数据项（包括引用计数、弱引用计数等），因此它有机会使用类型擦除字面上擦除删除器的类型，消除任何可能的依赖关系。
 - en: The Type Erasure Design Pattern Explained
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**类型擦除设计模式的解释**'
 - en: '“Wow, that truly sounds intriguing. This makes me even more excited to learn
     about Type Erasure.” OK then, here we go. However, please don’t expect any magic
     or revolutionary new ideas. Type Erasure is nothing but a compound design pattern,
@@ -169,70 +222,99 @@
     in mind that different interpretations and implementations exist, mainly to adapt
     to specific contexts. The point of combining these three design patterns is to
     create a wrapper type, which represents a loosely coupled, nonintrusive abstraction.'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这听起来真是令人兴奋。这让我更加期待了解类型擦除。” 好吧，我们开始吧。不过，请不要期望有任何魔法或革命性的新想法。类型擦除只是一个复合设计模式，意味着它是三种其他设计模式非常聪明和优雅的组合。选择的三种设计模式是外部多态（实现解耦效果和类型擦除的非侵入性本质的关键因素；参见[“准则31：使用外部多态实现非侵入式运行时多态”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)）、桥接（创建基于值语义的实现的关键；参见[“准则28：构建桥梁以消除物理依赖”](ch07.xhtml#build_bridges_to_remove_physical_dependencies)）和（可选的）原型（处理结果值的复制语义所必需；参见[“准则30：应用原型进行抽象复制操作”](ch07.xhtml#apply_prototype_for_abstract_copy_operations)）。这三种设计模式构成了类型擦除的核心，但当然要记住，存在不同的解释和实现，主要是为了适应特定的上下文。结合这三种设计模式的目的是创建一个包装类型，该类型代表一个松散耦合的、非侵入性的抽象。
 - en: The Type Erasure Compound Design Pattern
+  id: totrans-26
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: '[类型擦除复合设计模式](https://oreil.ly/aLbCD)'
 - en: 'Intent: “Provide a value-based, non-intrusive abstraction for an extendable
     set of unrelated, potentially non-polymorphic types with the same semantic behavior.”'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“为一组不相关的、潜在非多态类型提供基于值的、非侵入性抽象。”
 - en: 'The purpose of this formulation is to be as short as possible, and as precise
     as necessary. However, every detail of this intent carries meaning. Thus, it may
     be helpful to elaborate:'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种表述的目的是尽可能简短，同时又足够精确。然而，这种意图的每个细节都有其含义。因此，详细说明可能会有所帮助：
 - en: Value-based
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 基于值
 - en: The intent of Type Erasure is to create value types that may be copyable, movable,
     and most importantly, easily reasoned about. However, such a value type is not
     of the same quality as a [regular](https://oreil.ly/aLbCD) value type; there are
     some limitations. In particular, Type Erasure works best for unary operations
     but has its limits for binary operations.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 类型擦除的目的是创建可以复制、可移动，最重要的是易于推理的值类型。然而，这样的值类型与[常规](https://oreil.ly/aLbCD)值类型不同质量上有一些限制。特别是，类型擦除在一元操作中表现最佳，但在二元操作中存在限制。
 - en: Nonintrusive
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 非侵入性
 - en: The intent of Type Erasure is to create an external, nonintrusive abstraction
     based on the example set by the External Polymorphism design pattern. All types
     providing the behavior expected by the abstraction are automatically supported,
     without the need to apply any modifications to them.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 类型擦除的目的是创建一个基于外部非侵入式抽象的设计模式，这种抽象受到外部多态设计模式的影响。所有提供所期望行为的类型都会自动支持，无需对它们进行任何修改。
 - en: Extendable, unrelated set of types
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 可扩展的、不相关的类型集合
 - en: Type Erasure is firmly based on object-oriented principles, i.e., it enables
     you to add types easily. These types, though, should not be connected in any way.
     They do not have to share common behavior via some base class. Instead, it should
     be possible to add any fitting type, without any intrusive measure, to this set
     of types.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 类型擦除牢固地基于面向对象的原则，即它使您能够轻松添加类型。但这些类型不应以任何方式相连。它们不必通过某个基类共享常见行为。相反，应该可以添加任何适合的类型，而不需要任何侵入性措施。
 - en: Potentially nonpolymorphic
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 可能非多态的
 - en: As demonstrated with the External Polymorphism design pattern, types should
     not have to buy into the set by inheritance. They should also not have to provide
     virtual functionality on their own, but they should be decoupled from their polymorphic
     behavior. However, types with base classes or virtual functions are not excluded.
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如外部多态设计模式所示，类型不应该通过继承购买集合。它们也不必自行提供虚拟功能，但它们应该与它们的多态行为解耦。但是，具有基类或虚拟函数的类型并不被排除在外。
 - en: Same semantic behavior
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 具有相同的语义行为
 - en: 'The goal is not to provide an abstraction for all possible types but to provide
     a semantic abstraction for a set of types that provide the same operations (including
     same syntax) and adhere to some expected behavior, according to the LSP (see [“Guideline
     6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)).
     If possible, for any type that does not provide the expected functionality, a
     compile-time error should be created.'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '目标不是为所有可能的类型提供抽象，而是为一组提供相同操作（包括相同语法）并遵循某些预期行为的类型提供语义抽象，根据 LSP（参见[“Guideline
+    6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）。如果可能，对于任何不提供期望功能的类型，应该创建编译时错误。'
 - en: With this formulation of the intent in mind, let’s take a look at the dependency
     graph of Type Erasure (see [Figure 8-1](#fig_type_erasure_dependency_graph)).
     The graph should look very familiar, as the structure of the pattern is dominated
@@ -243,19 +325,28 @@
     hierarchy will not be used directly anymore, but also to reflect the fact that
     `ShapeModel` is storing, or “owning,” a concrete type, the name of the class template
     has been adapted to `OwningShapeModel`.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个意图的表述，让我们来看看 Type Erasure 的依赖图（参见[图 8-1](#fig_type_erasure_dependency_graph)）。该图应该看起来非常熟悉，因为模式的结构主要由外部多态设计模式的固有结构主导（参见[图
+    7-8](ch07.xhtml#fig_external_polymorphism_dependency_graph)）。最重要的区别和补充是架构的最高级别上的`Shape`类。这个类作为外部多态引入的外部层次结构的包装器。主要是因为这个外部层次结构将不再直接使用，但也反映了`ShapeModel`存储或“拥有”具体类型的事实，类模板的名称已经调整为`OwningShapeModel`。
 - en: '![The dependency graph for the Type Erasure design pattern.](assets/cpsd_0801.png)'
+  id: totrans-40
   prefs: []
   type: TYPE_IMG
+  zh: '![Type Erasure 设计模式的依赖图。](assets/cpsd_0801.png)'
 - en: Figure 8-1\. Dependency graph for the Type Erasure design pattern
+  id: totrans-41
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-1\. Type Erasure 设计模式的依赖图
 - en: An Owning Type Erasure Implementation
+  id: totrans-42
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 拥有型 Type Erasure 实现
 - en: 'OK, but now, with the structure of Type Erasure in mind, let’s take a look
     at its implementation details. Still, despite the fact that you’ve seen all the
     ingredients in action before, the implementation details are not particularly
@@ -269,28 +360,42 @@
     save us a lot of headache. However, if you want to dig deeper into the implementation
     details and optimization options, I recommend taking a look at [“Guideline 33:
     Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure).'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '好的，现在，有了 Type Erasure 的结构，让我们来看看它的实现细节。尽管你之前已经看过所有的组成部分在实际中的应用，但实现细节并不特别适合初学者，并非易懂。这是因为我选择了我所知道的最简单的
+    Type Erasure 实现。因此，我会尽量保持在一个合理的水平上，不过多涉及实现细节的领域。这意味着我不会试图挤出每一个微小的性能提升。例如，我不会使用*转发引用*或避免动态内存分配。同时，我会倾向于可读性和代码清晰度。虽然这可能会让你失望，但我相信这将避免我们许多头疼的问题。然而，如果你想深入了解实现细节和优化选项，我建议参考[“Guideline
+    33: Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure)。'
 - en: 'We again start with the `Circle` and `Square` classes:'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们再次从`Circle`和`Square`类开始：
 - en: '[PRE3]'
+  id: totrans-45
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: These two classes have not changed since we last encountered them in the discussion
     of External Polymorphism. But it still pays off to again stress that these two
     are completely unrelated, do not know about each other, and—most importantly—are
     nonpolymorphic, meaning that they do not inherit from any base class or introduce
     virtual function on their own.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 自从我们在外部多态性讨论中遇到它们以来，这两个类并未发生变化。但是再次强调，这两个类完全没有关联，彼此不知道，最重要的是它们是非多态的，这意味着它们不继承任何基类，也不引入自己的虚函数。
 - en: 'We have also seen the `ShapeConcept` and `OwningShapeModel` classes before,
     the latter under the name `ShapeModel`:'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们之前也见过 `ShapeConcept` 和 `OwningShapeModel` 类，后者以 `ShapeModel` 的名义出现：
 - en: '[PRE4]'
+  id: totrans-48
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Next to the name change, there are a couple of other, important differences.
     For instance, both classes have been moved to the `detail` namespace. The name
     of the namespace indicates that these two classes are now becoming implementation
@@ -309,16 +414,28 @@
     could as well name them `do_draw()` and `do_clone()`, and it would not have any
     consequence on the `ShapeT` types. The real requirement on the `ShapeT` types
     is defined by the *implementation* of the `draw()` and `clone()` functions.'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 名称更改之外，还有几个重要的不同之处。例如，这两个类都已移至`detail`命名空间。命名空间的名称表明，这两个类现在正在成为实现细节，即它们不再用于直接使用。^([6](ch08.xhtml#idm45043084954144))
+    `ShapeConcept`类 ([![1](assets/1.png)](#code_g32_1)) 仍然引入了纯虚函数 `draw()` 来表示绘制形状的要求
+    ([![2](assets/2.png)](#code_g32_2))。此外，`ShapeConcept` 现在还引入了一个纯虚的 `clone()` 函数
+    ([![3](assets/3.png)](#code_g32_3))。"我知道这是什么了，这是原型设计模式！" 你大声说道。是的，正确。`clone()`
+    的命名与原型设计模式紧密相关，并且是这种设计模式的一个强烈指示（但不是保证）。然而，尽管函数名的选择非常合理和经典，但让我明确指出，`clone()` 和
+    `draw()` 的函数名选择是我们自己的：这些名称现在是实现细节，并且与我们从 `ShapeT` 类型中所需的名称没有任何关系。我们也可以将它们命名为 `do_draw()`
+    和 `do_clone()`，这对 `ShapeT` 类型没有任何影响。对 `ShapeT` 类型的真正要求是由 `draw()` 和 `clone()`
+    函数的*实现*定义的。
 - en: As `ShapeConcept` is again the base class for the external hierarchy, the `draw()`
     function, the `clone()` function, and the destructor represent the set of requirements
     for all kinds of shapes. This means that all shapes must provide some drawing
     behavior—they must be copyable and destructible. Note that these three functions
     are only requirement choices for this example. In particular, copyability is not
     a general requirement for all implementations of Type Erasure.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 `ShapeConcept` 再次成为外部层次结构的基类，因此 `draw()` 函数、`clone()` 函数和析构函数代表了所有形状的一组要求。这意味着所有形状必须提供某种绘制行为
+    — 它们必须是可复制和可销毁的。请注意，这三个函数仅是此示例的要求选择。特别是，复制性不是类型擦除所有实现的通用要求。
 - en: The `OwningShapeModel` class ([![4](assets/4.png)](#code_g32_4)) again represents
     the one and only implementation of the `ShapeConcept` class. As before, `OwningShapeModel`
     takes a concrete shape type and a drawing Strategy in its constructor ([![5](assets/5.png)](#code_g32_5))
@@ -328,19 +445,31 @@
     function is implemented by applying the given drawing Strategy ([![8](assets/8.png)](#code_g32_8)),
     while the `clone()` function is implemented to return an exact copy of the corresponding
     `OwningShapeModel` ([![9](assets/9.png)](#code_g32_9)).
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '`OwningShapeModel` 类（[![4](assets/4.png)](#code_g32_4)）再次代表了 `ShapeConcept`
+    类的唯一实现。与之前一样，`OwningShapeModel` 在其构造函数中接受一个具体的形状类型和一个绘制策略（[![5](assets/5.png)](#code_g32_5)），并使用它们来初始化其两个数据成员（[![6](assets/6.png)](#code_g32_6)
+    和 [![7](assets/7.png)](#code_g32_7)）。由于 `OwningShapeModel` 继承自 `ShapeConcept`，因此必须实现这两个纯虚函数。`draw()`
+    函数通过应用给定的绘制策略来实现（[![8](assets/8.png)](#code_g32_8)），而 `clone()` 函数则实现为返回对应的 `OwningShapeModel`
+    的精确副本（[![9](assets/9.png)](#code_g32_9))。'
 - en: Note
+  id: totrans-52
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: 'If you’re right now thinking, “Oh no, `std::make_unique()`. That means dynamic
     memory. Then I can’t use that in my code!”—don’t worry. `std::make_unique()` is
     merely an implementation detail, a choice to keep the example simple. In [“Guideline
     33: Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure),
     you will see how to avoid dynamic memory with the SBO.'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你现在在想，“哦不，`std::make_unique()`。那意味着动态内存。那么我不能在我的代码中使用！” ——不用担心。`std::make_unique()`
+    只是一个实现细节，选择它只是为了保持示例的简洁。在 [“指南 33：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)，你将看到如何使用
+    SBO 避免动态内存。
 - en: '“I’m pretty unimpressed so far. We’ve barely moved beyond the implementation
     of the External Polymorphism design pattern.” I completely understand the criticism.
     However, we are just one step away from turning External Polymorphism into Type
@@ -350,11 +479,17 @@
     don’t want to perform manually: the instantiation of the `OwningShapeModel` class
     template, managing pointers, performing allocations, and dealing with lifetime.
     This wrapper is given in the form of the `Shape` class:'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: “到目前为止，我对此并不感到特别印象深刻。我们几乎没有超越外部多态设计模式的实现。” 我完全理解这种批评。然而，我们距离将外部多态转换为类型擦除只有一步之遥，距离从引用语义转换为值语义也只有一步之遥。我们所需要的只是一个值类型，一个围绕
+    `ShapeConcept` 和 `OwningShapeModel` 引入的外部层次结构的包装器，处理我们不希望手动执行的所有细节：`OwningShapeModel`
+    类模板的实例化、管理指针、执行分配以及处理生命周期。这个包装器以 `Shape` 类的形式给出：
 - en: '[PRE5]'
+  id: totrans-55
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The first, and perhaps most important, detail about the `Shape` class is the
     templated constructor ([![10](assets/10.png)](#code_g32_10)). As the first argument,
     this constructor takes any kind of shape (called `ShapeT`), and as the second
@@ -363,8 +498,12 @@
     type alias ([![11](assets/11.png)](#code_g32_11)). This alias is used to instantiate
     the required model by `std::make_unique()` ([![12](assets/12.png)](#code_g32_12)).
     Both the shape and the drawing Strategy are passed to the new model.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Shape` 类的第一个，也许是最重要的细节是模板化的构造函数（[![10](assets/10.png)](#code_g32_10)）。作为第一个参数，这个构造函数接受任何类型的形状（称为
+    `ShapeT`），作为第二个参数，接受期望的 `DrawStrategy`。为了简化对应的 `detail::OwningShapeModel` 类模板的实例化，使用一个便捷的类型别名（[![11](assets/11.png)](#code_g32_11)）是有帮助的。这个别名用于通过
+    `std::make_unique()` 实例化所需的模型（[![12](assets/12.png)](#code_g32_12)）。形状和绘制策略都传递给新模型。'
 - en: 'The newly created model is used to initialize the one data member of the `Shape`
     class: the `pimpl_` ([![13](assets/13.png)](#code_g32_13)). “I recognize this
     one, too; this is a Bridge!” you happily announce. Yes, correct again. This is
@@ -378,18 +517,24 @@
     that remembers the given type. All it holds is a pointer to the `ShapeConcept`
     base class. Thus, its memory of the real shape type has been erased. Hence the
     name of the design pattern: Type Erasure.'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 新创建的模型用于初始化`Shape`类的一个数据成员：`pimpl_`（[![13](assets/13.png)](#code_g32_13)）。“我也认识这个；这是桥接模式！”你高兴地宣布道。是的，再次正确。这是桥接设计模式的应用。在构造中，我们基于实际给定的类型`ShapeT`和`DrawStrategy`创建一个具体的`OwningShapeModel`，但我们将其存储为指向`ShapeConcept`的指针。通过这样做，你创建了一个到实现细节的桥梁，一个到真实形状类型的桥梁。然而，在初始化`pimpl_`之后，构造函数完成之后，`Shape`不记得实际类型了。`Shape`没有模板参数或任何会显示其存储的具体类型的成员函数，也没有记住给定类型的数据成员。它仅仅持有指向`ShapeConcept`基类的指针。因此，它对真实形状类型的记忆已经被抹去。这就是设计模式名称的由来：类型擦除。
 - en: 'The only thing missing in our `Shape` class is the functionality required for
     a true value type: the copy and move operations. Luckily, due to the application
     of `std::unique_ptr`, our effort is pretty limited. Since the compiler-generated
     destructor and the two move operations will work, we only need to deal with the
     two copy operations:'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的`Shape`类中唯一缺少的功能是真正值类型所需的功能：复制和移动操作。幸运的是，由于应用了`std::unique_ptr`，我们的工作相当有限。由于编译器生成的析构函数和两个移动操作将起作用，我们只需要处理两个复制操作：
 - en: '[PRE6]'
+  id: totrans-59
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: The copy constructor ([![14](assets/14.png)](#code_g32_14)) could be a very
     difficult function to implement, since we do not know the concrete type of shape
     stored in the `other` `Shape`. However, by providing the `clone()` function in
@@ -397,15 +542,20 @@
     know anything about the concrete type. The shortest, most painless, and most convenient
     way to implement the copy assignment operator ([![15](assets/15.png)](#code_g32_15))
     is to build on the [*Copy-and-Swap idiom*](https://oreil.ly/Pm1uW).
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 复制构造函数（[![14](assets/14.png)](#code_g32_14)）可能是一个非常难以实现的函数，因为我们不知道存储在`other`
+    `Shape`中的具体类型。然而，通过在`ShapeConcept`基类中提供`clone()`函数，我们可以请求一个精确的副本，而无需知道任何具体类型的信息。实现复制赋值运算符（[![15](assets/15.png)](#code_g32_15)）最简短、最无痛、最方便的方法是建立在*复制-交换惯用法*之上。
 - en: In addition, the `Shape` class provides a so-called [hidden `friend`](https://oreil.ly/ylXGZ)
     called `draw()` ([![16](assets/16.png)](#code_g32_16)). This `friend` function
     is called a *hidden friend*, since although it’s a free function, it is defined
     within the body of the `Shape` class. As a `friend`, it’s granted full access
     to the `private` data member and will be injected into the surrounding namespace.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，`Shape`类提供了一个所谓的 [隐藏的`friend`](https://oreil.ly/ylXGZ) ，称为`draw()`（[![16](assets/16.png)](#code_g32_16)）。这个`friend`函数被称为*隐藏的友元*，因为虽然它是一个自由函数，但它定义在`Shape`类的主体内。作为`friend`，它被授予对`private`数据成员的完全访问权限，并将被注入到周围的命名空间中。
 - en: '“Didn’t you say that `friend`s are bad?” you ask. I admit, that’s what I said
     in [“Guideline 4: Design for Testability”](ch01.xhtml#design_for_testability).
     However, I also explicitly stated that hidden `friend`s are OK. In this case,
@@ -417,15 +567,21 @@
     This goal should also be reflected in the `Shape` implementation. However, since
     the function requires access to the `pimpl_` data member, and in order to not
     increase the overload set of `draw()` functions, I implement it as a hidden `friend`.'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: '“你不是说`friend`s很糟糕吗？”你问道。我承认，在[“Guideline 4: Design for Testability”](ch01.xhtml#design_for_testability)中确实是这样说的。然而，我也明确表示隐藏的`friend`s是可以接受的。在这种情况下，`draw()`函数是`Shape`类的一个组成部分，绝对是一个真正的`friend`（几乎是家庭的一部分）。“但那它不应该是成员函数吗？”你反驳道。确实，那也是一个有效的替代方案。如果你更喜欢这样，就这么做吧。在这种情况下，我更倾向于使用自由函数，因为我们的目标之一是通过提取`draw()`操作来减少依赖关系。这个目标也应该在`Shape`的实现中体现出来。然而，由于这个函数需要访问`pimpl_`数据成员，并且为了不增加`draw()`函数的重载集合，我将其实现为一个隐藏的`friend`。'
 - en: 'This is it. All of it. Let’s take a look at how beautifully the new functionality
     works:'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 就是这样。所有的一切。让我们看看新功能的美妙之处：
 - en: '[PRE7]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'We first create `shape1` as an abstraction for a `Circle` and an associated
     drawing Strategy. This feels easy, right? There’s no need to manually allocate
     and no need to deal with pointers. With the `draw()` function, we’re able to draw
@@ -434,8 +590,10 @@
     Drawing the copy with the `draw()` function will result in the same output ([![18](assets/18.png)](#code_g32_18)).
     Again, this feels good: you can rely on the copy operations of the value type
     (in this case, the copy constructor), and you do not have to `clone()` manually.'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们首先创建`shape1`作为一个抽象的`Circle`和相关的绘制策略。这感觉很简单，对吧？无需手动分配，也无需处理指针。通过`draw()`函数，我们能够绘制这个`Shape`（[![17](assets/17.png)](#code_g32_17)）。紧接着，我们创建形状的一个副本。一个真正的副本——一个“深复制”，不只是指针的复制。使用`draw()`函数绘制副本将得到相同的输出（[![18](assets/18.png)](#code_g32_18)）。再次，这感觉很好：你可以依赖值类型的复制操作（在这种情况下是复制构造函数），而不必手动`clone()`。
 - en: 'Pretty amazing, right? And definitely much better than using External Polymorphism
     manually. I admit that after all these implementation details, it may be a little
     hard to see it right away, but if you step through the jungle of implementation
@@ -446,15 +604,21 @@
     lose any of the decoupling benefits: you are still able to easily add new types,
     and the concrete shape types are still oblivious about the drawing behavior. They
     are only connected to the desired functionality via the `Shape` constructor.'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 相当惊人，对吧？绝对比手动使用外部多态性要好得多。我承认，在所有这些实现细节之后，也许一下子看起来有点困难，但是如果你跨越了实现细节的丛林，希望你能意识到这种方法的美丽：你不再需要处理指针，没有手动分配，也不再需要处理继承层次结构。所有这些细节都在那里，是的，但所有的证据都很好地封装在`Shape`类内部。然而，你没有失去任何解耦的好处：你仍然能够轻松地添加新类型，并且具体的形状类型对绘制行为仍然是毫不知情的。它们只通过`Shape`构造函数连接到所需的功能。
 - en: '“I’m wondering,” you begin to ask, “Couldn’t we make this much easier? I envision
     a `main()` function that looks like this”:'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: “我在想”，你开始问道，“我们难道不能让这个变得更简单吗？我设想一个像这样的`main()`函数”：
 - en: '[PRE8]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'That is a great idea. Remember, you are in charge of all the implementation
     details of the Type Erasure wrapper and how to bring together types and their
     operation implementation. If you like this form better, go for it! However, please
@@ -471,18 +635,25 @@
     which you, however, shouldn’t consider the true and only solution. On the contrary,
     you should strive to fully exploit the potential of the loose coupling of Type
     Erasure.'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 那是一个很好的想法。记住，你要负责类型擦除包装器的所有实现细节，以及如何将类型和它们的操作实现结合在一起。如果你更喜欢这种形式，就去做吧！然而，请不要忘记，在我们的`Shape`示例中，为了简洁和代码的简短性，我故意仅使用了一个具有外部依赖项（绘图）的功能。可能会有更多引入依赖的功能，比如形状的序列化。在这种情况下，Lambda
+    方法将不起作用，因为你需要多个命名函数（例如`draw()`和`serialize()`）。所以，最终，这取决于具体情况。这取决于你的类型擦除包装器代表的抽象类型。但无论你更喜欢哪种实现方式，都要确保不要在不同功能和/或代码之间引入人为依赖和/或代码重复。换句话说，请记住[“指导原则2：设计用于变更”](ch01.xhtml#design_for_change)！这就是我偏爱基于策略设计模式的解决方案的原因，但你不应该认为这是唯一的解决方案。相反，你应该努力充分利用类型擦除的松耦合潜力。
 - en: Analyzing the Shortcomings of the Type Erasure Design Pattern
+  id: totrans-70
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析类型擦除设计模式的缺点
 - en: Despite the beauty of Type Erasure and the large number of benefits that you
     acquire, especially from a design perspective, I don’t pretend that there are
     no downsides to this design pattern. No, it wouldn’t be fair to keep potential
     disadvantages from you.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管类型擦除的美丽以及从设计角度获得的大量好处，我并不认为这种设计模式没有任何缺点。不，隐瞒潜在的缺点对你也不公平。
 - en: 'The first, and probably most obvious, drawback for you might be the implementation
     complexity of this pattern. As stated before, I have explicitly kept the implementation
     details at a reasonable level, which hopefully helped you to get the idea. I hope
@@ -497,49 +668,71 @@
     library](https://oreil.ly/rB8uj) from Eduardo Madrid, the [*erasure* library](https://oreil.ly/zKwXF)
     from Gašper Ažman, and the [*Boost Type Erasure*](https://oreil.ly/IGNoq) library
     from Steven Watanabe.'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 对你来说，可能最明显的第一个缺点就是这种模式的实现复杂性。如前所述，我明确地保持了实现细节在一个合理的水平上，希望这能帮助你理解这个概念。我希望你也有这样的印象，即毕竟这并不是*那么*难：Type
+    Erasure 的基本实现可以在大约 30 行代码内实现。然而，你可能觉得它太复杂了。而且，一旦你开始超越基本实现并考虑性能、异常安全性等，实现细节确实很快变得非常棘手。在这些情况下，你最安全、最方便的选择是使用第三方库，而不是自己处理所有这些细节。可能的库包括
+    Louis Dionne 的[*dyno* 库](https://oreil.ly/PvVFI)，Eduardo Madrid 的[*zoo* 库](https://oreil.ly/rB8uj)，Gašper
+    Ažman 的[*erasure* 库](https://oreil.ly/zKwXF)，以及 Steven Watanabe 的[*Boost Type
+    Erasure*](https://oreil.ly/IGNoq) 库。
 - en: 'In the explanation of the intent of Type Erasure, I mentioned the second disadvantage,
     which is much more important and limiting: although we are now dealing with values
     that can be copied and moved, using Type Erasure for binary operations is not
     straightforward. For instance, it is not easily possible to do an equality comparison
     on these values, as you would expect from regular values:'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 在解释类型擦除意图时，我提到了第二个缺点，这个缺点更加重要和限制性：尽管我们现在处理的是可以复制和移动的值，但在二进制操作中使用类型擦除并不简单。例如，对这些值进行等式比较并不容易，就像对常规值所期望的那样。
 - en: '[PRE9]'
+  id: totrans-74
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: The reason is that, after all, `Shape` is only an abstraction from a concrete
     shape type and only stores a pointer-to-base. As you would deal with exactly the
     same problem if you used External Polymorphism directly, this is definitely not
     a new problem in Type Erasure, and you might not even count this as a real disadvantage.
     Still, while equality comparison is not an expected operation when you’re dealing
     with pointers-to-base, it usually is an expected operation on values.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 原因是，毕竟，`Shape`只是从具体形状类型中抽象出来，并且只存储一个指向基类的指针。如果你直接使用外部多态性，你会面对完全相同的问题，所以这绝对不是类型擦除中的一个新问题，你甚至可能不把它算作一个真正的缺点。尽管当你处理指向基类的指针时，等式比较不是一个预期的操作，但在值上通常是一个预期的操作。
 - en: Comparing Two Type Erasure Wrappers
+  id: totrans-76
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 比较两个类型擦除封装器
 - en: '“Isn’t this just a question of exposing the necessary functionality in the
     interface of `Shape`s?” you wonder. “For instance, we could simply add an `area()`
     function to the `public` interface of shapes and use it to compare two items”:'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: “这只是在`Shape`接口中公开必要功能的问题，对吗？”你想知道。“例如，我们可以简单地在形状的`public`接口中添加一个`area()`函数，并用它来比较两个项目”：
 - en: '[PRE10]'
+  id: totrans-78
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '“This is easy to do. So what am I missing?” I agree that this might be all
     you need: if two objects are equal if some public properties are equal, then this
     operator will work for you. In general, the answer would have to be “it depends.”
     In this particular case, it depends on the semantics of the abstraction that the
     `Shape` class represents. The question is: when are two `Shape`s equal? Consider
     the following example with a `Circle` and a `Square`:'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: “这很容易做到。那我错过了什么？”我同意这可能是你所需要的一切：如果两个对象在某些公共属性相等时是相等的，那么这个运算符将适用于你。总的来说，答案将是“取决于情况”。在这种特殊情况下，这取决于`Shape`类所代表的抽象的语义。问题是：什么时候两个`Shape`是相等的？考虑以下`Circle`和`Square`的例子：
 - en: '[PRE11]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: When are these two `Shape`s equal? Are they equal if their areas are equal,
     or are they equal if the instances behind the abstraction are equal, meaning that
     both `Shape`s are of the same type and have the same properties? It depends. In
@@ -550,17 +743,23 @@
     situation is far more likely to be the desired semantics, and therefore I argue
     that using Type Erasure for equality comparison and more generally for binary
     operations is not straightforward.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个`Shape`何时相等？如果它们的面积相等，它们就相等吗？或者如果抽象背后的实例相等，即这两个`Shape`是相同类型并且具有相同属性，它们就相等吗？这取决于情况。同样地，我可以问，两个`Person`何时相等？如果他们的名字相等，它们就相等吗？还是如果他们的所有特征都相等，它们就相等？这取决于所需的语义。虽然第一个比较很容易完成，但第二个不是。在一般情况下，我认为第二种情况更有可能是所需的语义，因此我认为在等式比较和更普遍地在二进制操作中使用类型擦除不是一件简单的事情。
 - en: 'Note, however, that I did not say that equality comparison is impossible. Technically,
     you can make it work, although it turns out to be a rather ugly solution. Therefore,
     you have to promise not to tell anyone that you got this idea from me. “You just
     made me even more curious,” you smile whimsically. OK, so here it is:'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，我并没有说等式比较是不可能的。从技术上讲，你可以让它工作，尽管它会变成一个相当丑陋的解决方案。因此，你必须承诺不告诉任何人你是从我这里得到这个想法的。“你刚刚让我更加好奇了，”你笑着耐心等待。好吧，这就是它：
 - en: '[PRE12]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'To make equality comparison work, you could use a `dynamic_cast` ([![19](assets/19.png)](#code_g32_19)).
     However, this implementation of equality comparison holds two severe disadvantages.
     First, as you saw in [“Guideline 18: Beware the Performance of Acyclic Visitor”](ch04.xhtml#beware_the_performance_of_acyclic_visitors),
@@ -574,12 +773,17 @@
     In summary, depending on the context, equality comparison may be possible, but
     it’s usually neither easy nor cheap to accomplish. This is evidence to my earlier
     statement that Type Erasure doesn’t support binary operations.'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使相等比较工作，你可以使用`dynamic_cast`（[![19](assets/19.png)](#code_g32_19)）。然而，这种相等比较的实现有两个严重的缺点。首先，正如你在[“第18条准则：注意无环访问者的性能”](ch04.xhtml#beware_the_performance_of_acyclic_visitors)中看到的那样，`dynamic_cast`绝对不能算是一种快速的操作。因此，每次比较都会产生相当大的运行时开销。其次，在这种实现中，只有在两个`Shape`具有相同的`DrawStrategy`时才能成功比较。虽然这在某些情境下可能是合理的，但在另一些情境下可能被视为一个不幸的限制。我唯一知道的解决方案是返回到使用`std::function`来存储绘制策略，然而这会导致另一种性能惩罚。^([7](ch08.xhtml#idm45043083389632))
+    总结来说，根据具体情境，相等比较可能是可能的，但通常并不容易或便宜。这证明了我之前的论点，即类型擦除不支持二元操作。
 - en: Interface Segregation of Type Erasure Wrappers
+  id: totrans-85
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**接口分离的类型擦除包装器**'
 - en: '“What about the Interface Segregation Principle (ISP)?” you ask. “While using
     External Polymorphism, it was easy to separate concerns in the base class. It
     appears we’ve lost this ability, right?” Excellent question. So you remember my
@@ -588,22 +792,32 @@
     Indeed, with Type Erasure we are no longer able to use the hidden base class,
     only the abstracting value type. Therefore, it may appear as if the ISP is out
     of reach:'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: “接口分离原则（ISP）呢？”你问道。“在使用外部多态性时，很容易在基类中分离关注点。看起来我们失去了这种能力，对吧？”好问题。所以你还记得我在[“第31条准则：使用外部多态性进行非侵入式运行时多态性”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)中的例子，使用了`JSONExportable`和`Serializable`基类。确实，使用类型擦除后，我们不再能够使用隐藏的基类，只能使用抽象的值类型。因此，看起来ISP是难以实现的：
 - en: '[PRE13]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: However, fortunately, this impression is incorrect. You can easily adhere to
     the ISP by providing several type-erased abstractions:^([8](ch08.xhtml#idm45043083443376))
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 幸运的是，这种印象是不正确的。你可以通过提供多个类型擦除的抽象轻松遵循ISP：^([8](ch08.xhtml#idm45043083443376))
 - en: '[PRE14]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'Before considering this, take a look at [“Guideline 34: Be Aware of the Setup
     Costs of Owning Type Erasure Wrappers”](#be_aware_of_the_setup_costs_of_owning_type_erasure_wrappers).'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 在考虑这点之前，请看[“第34条准则：注意拥有类型擦除包装器的设置成本”](#be_aware_of_the_setup_costs_of_owning_type_erasure_wrappers)。
 - en: “Apart from the implementation complexity and the restriction to unary operations,
     there seem to be no disadvantages. Well, then, I have to say this is amazing stuff
     indeed! The benefits clearly outweigh the drawbacks.” Well, of course it always
@@ -614,12 +828,16 @@
     your software. However, although this is already fascinating, there’s more. I’ve
     mentioned performance a couple of times but haven’t yet shown any performance
     numbers. So let’s take a look at the performance results.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: “除了实现复杂性和限制于一元操作之外，似乎没有其他缺点了。好吧，那么，我必须说这确实是令人惊奇的东西！其好处显然超过了缺点。” 当然，这总是取决于具体的情境，这意味着在某些情况下，这些问题可能会引起一些困扰。但我同意，总的来说，类型擦除证明是一种非常有价值的设计模式。从设计的角度来看，你已经获得了可观的解耦程度，这肯定会在更改或扩展软件时减少痛苦。然而，尽管这已经很迷人，还有更多内容。我多次提到性能，但还没有展示任何性能数据。所以让我们看看性能结果。
 - en: Performance Benchmarks
+  id: totrans-92
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: '**性能基准测试**'
 - en: 'Before showing you the performance results for Type Erasure, let me remind
     you about the benchmark scenario that we also used to benchmark the Visitor and
     Strategy solutions (see [Table 4-2](ch04.xhtml#table_cyclic_visitor_benchmark_results)
@@ -633,39 +851,64 @@
     both GCC 11.1 and Clang 11.1, and for both compilers, I’m adding only the `-O3`
     and `-DNDEBUG` compilation flags. The platform I’m using is macOS Big Sur (version
     11.4) on an 8-Core Intel Core i7 with 3.8 GHz, 64 GB of main memory.'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 在展示类型擦除的性能结果之前，让我提醒您一下我们用来测试访问者和策略解决方案性能的基准场景（参见 [表 4-2](ch04.xhtml#table_cyclic_visitor_benchmark_results)
+    中的“指南16：使用访问者扩展操作”和 [表 5-1](ch05.xhtml#table_strategy_benchmark_results) 中的“指南23：偏好基于值的策略和命令实现”）。这次，我使用了基于
+    `OwningShapeModel` 实现的类型擦除解决方案扩展了基准测试。在此基准测试中，我们仍然使用四种不同类型的形状（圆形、正方形、椭圆和矩形）。而且，我对
+    10,000 个随机创建的形状执行了 25,000 次转换操作。我同时使用了 GCC 11.1 和 Clang 11.1，并为这两个编译器添加了 `-O3`
+    和 `-DNDEBUG` 编译标志。我使用的平台是 macOS Big Sur（版本 11.4），配备有 8 核 Intel Core i7 处理器，主频为
+    3.8 GHz，64 GB 主存。
 - en: '[Table 8-1](#table_type_erasure_benchmark_results) shows the performance numbers.
     For your convenience, I reproduced the performance results from the Strategy benchmarks.
     After all, the Strategy design pattern is the solution that is aiming at the same
     design space. The most interesting line, though, is the last line. It shows the
     performance result for the Type Erasure design pattern.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: '[表 8-1](#table_type_erasure_benchmark_results) 展示了性能数据。为了您的方便，我重新制作了策略基准测试的性能结果。毕竟，策略设计模式是针对相同设计空间的解决方案。尽管如此，最有趣的一行是最后一行。它展示了类型擦除设计模式的性能结果。'
 - en: Table 8-1\. Performance results for the Type Erasure implementations
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 8-1\. 类型擦除实现的性能结果
 - en: '| Type Erasure implementation | GCC 11.1 | Clang 11.1 |'
+  id: totrans-96
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-97
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
+  id: totrans-98
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象解决方案 | 1.5205 秒 | 1.1480 秒 |'
 - en: '| `std::function` | 2.1782 s | 1.4884 s |'
+  id: totrans-99
   prefs: []
   type: TYPE_TB
+  zh: '| `std::function` 手动实现 | 2.1782 秒 | 1.4884 秒 |'
 - en: '| Manual implementation of `std::function` | 1.6354 s | 1.4465 s |'
+  id: totrans-100
   prefs: []
   type: TYPE_TB
+  zh: '| `std::function` 的手动实现 | 1.6354 秒 | 1.4465 秒 |'
 - en: '| Classic Strategy | 1.6372 s | 1.4046 s |'
+  id: totrans-101
   prefs: []
   type: TYPE_TB
+  zh: '| 经典策略 | 1.6372 秒 | 1.4046 秒 |'
 - en: '| Type Erasure | 1.5298 s | 1.1561 s |'
+  id: totrans-102
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除 | 1.5298 秒 | 1.1561 秒 |'
 - en: '“Looks very interesting. Type Erasure seems to be pretty fast. Apparently only
     the object-oriented solution is faster.” Yes. For Clang, the performance of the
     object-oriented solution is a little better. But only a little. However, please
@@ -677,26 +920,36 @@
     Erasure are truly marvelous: it performs between 6% and 20% better than any Strategy
     implementation. Thus, Type Erasure not only provides the strongest decoupling
     but also performs better than all the other attempts to reduce coupling.^([9](ch08.xhtml#idm45043083097792))'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: “看起来非常有趣。类型擦除似乎非常快。显然，只有面向对象的解决方案更快。” 是的。对于Clang而言，面向对象的解决方案略好一些。但只是略好一些。然而，请记住，面向对象的解决方案并未解耦任何东西：`draw()`
+    函数在 `Shape` 层次结构中作为虚成员函数实现，因此您会经历与绘图功能的密切耦合。虽然这可能带来一些性能开销，但从设计的角度来看，这是最糟糕的情况。考虑到这一点，类型擦除的性能数据确实令人惊叹：它的性能比任何策略实现都要好，提升了6%到20%。因此，类型擦除不仅提供最强的解耦，而且比所有其他减少耦合尝试的性能都更好。^([9](ch08.xhtml#idm45043083097792))
 - en: A Word About Terminology
+  id: totrans-104
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 关于术语的说明
 - en: In summary, Type Erasure is an amazing approach to achieve both efficient and
     loosely coupled code. While it may have a few limitations and disadvantages, the
     one thing you probably cannot ignore easily is the complex implementation details.
     For that reason, many people, including me and Eric Niebler, feel that Type Erasure
     should become a language feature:^([10](ch08.xhtml#idm45043083092752))
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，类型擦除是一种实现高效且松散耦合代码的惊人方法。虽然它可能有一些局限性和缺点，但您很可能无法轻易忽略的是其复杂的实现细节。因此，包括我和Eric
+    Niebler在内的许多人认为，类型擦除应该成为一种语言特性：^([10](ch08.xhtml#idm45043083092752))
 - en: If I could go back in time and had the power to change C++, rather than adding
     virtual functions, I would add language support for type erasure and concepts.
     Define a single-type concept, automatically generate a type-erasing wrapper for
     it.
+  id: totrans-106
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 如果我能穿越时空并有权改变C++，而不是添加虚函数，我会为类型擦除和概念（concepts）添加语言支持。定义一个单一类型概念，自动生成其类型擦除包装器。
 - en: 'There is more to be done, though, to establish Type Erasure as a real design
     pattern. I have introduced Type Erasure as a compound design pattern built from
     External Polymorphism, Bridge, and Prototype. I’ve introduced it as a value-based
@@ -707,8 +960,11 @@
     Type Erasure. Rarely, you also hear about Type Erasure in the context of inheritance
     hierarchies, or more specifically a pointer-to-base. And finally, you also might
     hear about Type Erasure in the context of `std::variant`.^([11](ch08.xhtml#idm45043083089328))'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，要将类型擦除确立为真正的设计模式还有更多工作要做。我已将类型擦除作为由外部多态性、桥接（Bridge）和原型（Prototype）构建的复合设计模式引入。我将其介绍为一种基于值的技术，用于强大地将一组类型与其关联操作解耦。然而，不幸的是，您可能会看到其他“形式”的类型擦除：随着时间的推移，术语*Type
+    Erasure*已被误用和滥用于各种技术和概念。例如，有时人们将`void*`称为类型擦除。偶尔，您还会在继承层次结构或更具体地说是指向基类的指针的上下文中听到关于类型擦除的提及。最后，您还可能会在`std::variant`的上下文中听到关于类型擦除的提及。^([11](ch08.xhtml#idm45043083089328))
 - en: 'The `std::variant` example especially demonstrates how deeply flawed this overuse
     of the term *Type Erasure* really is. While External Polymorphism, the main design
     pattern behind Type Erasure, is about enabling you to add new types, the Visitor
@@ -723,17 +979,24 @@
     Type Erasure to solve this problem.” “Could you please be more specific? Do you
     want to add types or operations?” As such, the term would not fulfill the qualities
     of a design pattern; it wouldn’t carry any intent. Therefore, it would be useless.'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 特别是`std::variant`示例展示了过度使用术语*Type Erasure*的严重缺陷。虽然外部多态性（External Polymorphism）作为类型擦除背后的主要设计模式是关于允许您添加新类型的，但访问者（Visitor）设计模式及其现代实现作为`std::variant`是关于添加新操作的（参见[“指南15：设计以添加类型或操作”](ch04.xhtml#design_for_the_addition_of_types_or_operations)）。从软件设计的角度来看，这两种解决方案完全是正交的：尽管类型擦除真正地解耦了具体类型并擦除了类型信息，但`std::variant`的模板参数揭示了所有可能的替代方案，因此使您依赖这些类型。对这两者使用相同的术语导致在使用术语*Type
+    Erasure*时传达的信息完全为空，并引发这些类型的评论：“我建议我们使用类型擦除来解决这个问题。”“请您更具体一些好吗？您是想添加类型还是操作？”因此，该术语将无法满足设计模式的特性；它不会携带任何意图。因此，它将毫无用处。
 - en: To give Type Erasure its well-earned place in the hall of design patterns and
     to give it any meaning, consider using the term only for the intent discussed
     in this guideline.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 要让类型擦除（Type Erasure）在设计模式的殿堂中占据其应得的位置，并赋予其任何意义，请考虑仅在本指南讨论的意图中使用此术语。
 - en: 'Guideline 33: Be Aware of the Optimization Potential of Type Erasure'
+  id: totrans-110
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南33：了解类型擦除的优化潜力
 - en: 'The primary focus of this book is software design. Therefore, all this talk
     about structuring software, about design principles, about tools for managing
     dependencies and abstractions, and, of course, all the information on design patterns
@@ -749,27 +1012,39 @@
     keep my publisher happy), I will not elaborate on every implementation detail
     or demonstrate all the alternatives. I will, however, give additional references
     that should help you to dig deeper.^([12](ch08.xhtml#idm45043083072592))'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 本书的主要重点是软件设计。因此，关于软件结构、设计原则、管理依赖和抽象的工具，当然还有设计模式的所有信息都是焦点所在。但我已经多次提到性能的重要性。*非常*
+    重要！毕竟，C++ 是一个以性能为中心的编程语言。因此，我现在要例外了：这个指导原则是专门讨论性能的。是的，我很认真：不谈论依赖，(几乎) 不举例说明关注点分离，也不谈价值语义。就只有性能。"终于，一些性能内容——太棒了！"
+    你会欢呼。然而，请注意后果：这个指导原则在实现细节上非常重。而且因为涉及到 C++，一提到一个细节，你就需要处理另外两个细节，所以你很快就会深陷于实现细节的领域。为了避免这种情况（并让我的出版商满意），我不会详细说明每一个实现细节或展示所有的替代方案。但是，我会提供额外的参考资料，这应该帮助你深入挖掘。^([12](ch08.xhtml#idm45043083072592))
 - en: 'In [“Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure”](#consider_replacing_inheritance_hierarchies_with_type_erasure),
     you saw great performance numbers for our basic, unoptimized Type Erasure implementation.
     However, since we are now in possession of a value type and a wrapper class, not
     just a pointer, we have gained a multitude of opportunities to speed up performance.
     This is why we will take a look at two options to improve performance: the SBO
     and manual virtual dispatch.'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 [“指导原则 32：考虑用类型擦除替换继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)
+    中，你看到了我们基本、未优化的类型擦除实现的出色性能数字。然而，由于我们现在拥有值类型和包装类，而不仅仅是一个指针，我们获得了许多提高性能的机会。这就是为什么我们将看看两个提高性能的选项：SBO
+    和手动虚拟分发。
 - en: Small Buffer Optimization
+  id: totrans-113
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 小缓冲优化
 - en: 'Let’s start our quest to speed up the performance of our Type Erasure implementation.
     One of the first things that usually comes to mind when talking about performance
     is optimizing memory allocations. This is because acquiring and freeing dynamic
     memory can be very *slooowww* and nondeterministic. And for real: optimizing memory
     allocations can make all the difference between slow and lightning fast.'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们开始加速我们的类型擦除实现的性能之旅。在谈论性能时，通常首先想到的是优化内存分配。这是因为获取和释放动态内存可能非常 *缓慢* 和不确定。而且确实如此：优化内存分配可以决定程序是慢还是飞快。
 - en: 'However, there is a second reason to look into memory. In [“Guideline 32: Consider
     Replacing Inheritance Hierarchies with Type Erasure”](#consider_replacing_inheritance_hierarchies_with_type_erasure),
     I might have accidentally given you the impression that we need dynamic memory
@@ -786,15 +1061,24 @@
     memory and emit a compile-time error if objects are too large. Alternatively,
     you might switch between in-class and dynamic memory, depending on the size of
     the stored object. Both of these are made possible by the SBO.'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，研究内存的第二个原因在于 [“指南 32：考虑用类型擦除替换继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)，我可能让你误以为我们需要动态内存来实现类型擦除。事实上，在我们第一个
+    `Shape` 类的初始实现细节中，构造函数和 `clone()` 函数中无条件地进行动态内存分配，独立于给定对象的大小，因此无论对象大小如何，我们总是使用
+    `std::make_unique()` 进行动态内存分配。这种选择是有限的，不仅仅是因为性能问题，特别是对于小对象，而且因为在某些环境中动态内存是不可用的。因此，我应该向你展示，在内存方面你可以做很多事情。事实上，你完全可以控制内存管理！因为你正在使用值类型，一个包装器，你可以按照自己的意愿处理内存。其中的一个选择是完全依赖于类内存，并在对象过大时发出编译时错误。或者，你可以根据存储对象的大小在类内存和动态内存之间切换。这两种方式都是由
+    SBO 可能实现的。
 - en: 'To give you an idea of how SBO works, let’s take a look at a `Shape` implementation
     that never allocates dynamically but uses only in-class memory:'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了让你了解 SBO 的工作原理，让我们看一个 `Shape` 的实现，它从不动态分配，而是仅使用类内存：
 - en: '[PRE15]'
+  id: totrans-117
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: This `Shape` class does not store `std::unique_ptr` anymore, but instead owns
     an array of properly aligned bytes ([![1](assets/1.png)](#code_g33_1)).^([13](ch08.xhtml#idm45043082896256))
     To give users of `Shape` the flexibility to adjust both the capacity and the alignment
@@ -807,8 +1091,12 @@
     might have to move code from source files into header files. However, be aware
     that this is just one of many possibilities. As stated before, you are in full
     control.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个 `Shape` 类不再存储 `std::unique_ptr`，而是拥有一个正确对齐的字节数组 ([![1](assets/1.png)](#code_g33_1))^([13](ch08.xhtml#idm45043082896256))。为了让
+    `Shape` 的用户能够调整数组的容量和对齐方式，你可以向 `Shape` 类提供两个非类型模板参数，`Capacity` 和 `Alignment` ([![2](assets/2.png)](#code_g33_2))^([14](ch08.xhtml#idm45043082912976))。虽然这提高了适应不同情况的灵活性，但这种方法的缺点是将
+    `Shape` 类变成了一个类模板。因此，所有使用这种抽象的函数可能都会变成函数模板。这可能是不希望的，例如，因为你可能不得不将代码从源文件移到头文件中。但是，请注意，这只是众多可能性之一。正如前面所述，你完全可以控制。
 - en: To conveniently work with the `std::byte` array, we add a pair of `pimpl()`
     functions (named based on the fact that this still realizes the Bridge design
     pattern, just using in-class memory) ([![3](assets/3.png)](#code_g33_3) and [![4](assets/4.png)](#code_g33_4)).
@@ -816,26 +1104,35 @@
     correct; in general, a `reinterpret_cast` should be considered potentially dangerous.
     However, in this particular case, we are backed up by the [C++ standard](https://oreil.ly/HKWCv),
     which explains that what we are doing here is perfectly safe.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了方便地处理`std::byte`数组，我们添加了一对`pimpl()`函数（基于这个事实命名，这仍然实现了桥接设计模式，只是使用了类内存）（[![3](assets/3.png)](#code_g33_3)
+    和 [![4](assets/4.png)](#code_g33_4)）。“哦不，一个`reinterpret_cast`！”你说。“这不是超级危险吗？”你是正确的；一般来说，`reinterpret_cast`应被视为潜在的危险操作。然而，在这种特定情况下，我们有[C++标准](https://oreil.ly/HKWCv)的支持，解释了我们在这里所做的是完全安全的。
 - en: 'As you probably expect by now, we also need to introduce an external inheritance
     hierarchy based on the External Polymorphism design pattern. This time we realize
     this hierarchy in the `private` section of the `Shape` class. Not because this
     is better or more suited for this `Shape` implementation, but for the sole reason
     to show you another alternative:'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 如您现在可能期望的那样，我们还需要基于外部多态设计模式引入一个外部继承层次结构。这一次，我们将在`Shape`类的`private`部分实现这个层次结构。并不是因为这样做更好或更适合这个`Shape`的实现，而只是为了向您展示另一种选择：
 - en: '[PRE16]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: The first interesting detail in this context is the `clone()` function ([![5](assets/5.png)](#code_g33_5)).
     As `clone()` carries the responsibility of creating a copy, it needs to be adapted
     to the in-class memory. So instead of creating a new `Model` via `std::make_unique()`,
     it creates a new `Model` in place via `std::construct_at()`. Alternatively, you
     could use a [placement `new`](https://oreil.ly/6G3bn) to create the copy at the
     given memory location.^([15](ch08.xhtml#idm45043082806592))
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个背景下，第一个有趣的细节是`clone()`函数（[![5](assets/5.png)](#code_g33_5)）。由于`clone()`负责创建一个副本，它需要适应类内存。因此，与其通过`std::make_unique()`创建一个新的`Model`，它通过`std::construct_at()`在原地创建一个新的`Model`。或者，您可以使用[放置`new`](https://oreil.ly/6G3bn)在给定的内存位置创建副本。^([15](ch08.xhtml#idm45043082806592))
 - en: '“Wow, wait a second! That’s a pretty tough piece of code to swallow. What’s
     with all these casts? Are they really necessary?” I admit, these lines are a little
     challenging. Therefore, I should explain them in detail. The good old approach
@@ -848,82 +1145,121 @@
     not the most obvious piece of code. Therefore, it is advisable to use the C++20
     algorithm `std::construct_at()`: it provides you with exactly the same functionality
     but with a significantly nicer syntax.'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，等等！这段代码有点难理解。所有这些强制转换是怎么回事？它们真的必要吗？”我承认，这些代码有点具有挑战性。因此，我应该详细解释一下。在原地创建实例的传统方法是通过放置`new`。然而，使用`new`总是存在一个危险，即有人（无意或恶意）可能提供一个替换类特定`new`操作符的实现。为了避免任何问题并可靠地在原地构造对象，给定的地址首先通过`static_cast`转换为`void
+    const volatile*`，然后通过`const_cast`转换为`void*`。得到的地址被传递给全局的放置`new`操作符。确实，这不是最明显的代码片段。因此，建议使用C++20算法`std::construct_at()`：它为您提供完全相同的功能，但具有明显更友好的语法。
 - en: 'However, we need one more function: `clone()` is concerned only with copy operations.
     It doesn’t apply to move operations. For that reason, we extend the `Concept`
     with a pure virtual `move()` function and consequently implement it in the `OwningModel`
     class template ([![6](assets/6.png)](#code_g33_6)).'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，我们需要另外一个函数：`clone()`仅涉及复制操作。它不适用于移动操作。因此，我们在`Concept`中扩展了一个纯虚拟的`move()`函数，并在`OwningModel`类模板中实现了它（[![6](assets/6.png)](#code_g33_6)）。
 - en: “Is this really necessary? We’re using in-class memory, which cannot be *moved*
     to another instance of `Shape`. What’s the point of that `move()`?” Well, you
     are correct that we can’t move the memory itself from one object to another, but
     we can still move the shape stored inside. Thus, the `move()` function moves an
     `OwningModel` from one buffer to another instead of copying it.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: “这真的有必要吗？我们使用的是类内存，不能将其*移动*到另一个`Shape`实例中。那`move()`的意义何在？” 嗯，你是对的，我们不能将内存本身从一个对象移动到另一个对象，但我们仍然可以移动存储在内部的形状。因此，`move()`函数将`OwningModel`从一个缓冲区移动到另一个缓冲区，而不是复制它。
 - en: 'The `clone()` and `move()` functions are used in the copy constructor ([![7](assets/7.png)](#code_g33_7)),
     the copy assignment operator ([![8](assets/8.png)](#code_g33_8)), the move constructor
     ([![9](assets/9.png)](#code_g33_9)), and the move assignment operator of `Shape`
     ([![10](assets/10.png)](#code_g33_10)):'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: '`clone()`和`move()`函数用于`Shape`的复制构造函数（[![7](assets/7.png)](#code_g33_7)）、复制赋值运算符（[![8](assets/8.png)](#code_g33_8)）、移动构造函数（[![9](assets/9.png)](#code_g33_9)）以及移动赋值运算符。`Shape`（[![10](assets/10.png)](#code_g33_10)）：'
 - en: '[PRE17]'
+  id: totrans-127
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: Definitely noteworthy to mention is the destructor of `Shape` ([![11](assets/11.png)](#code_g33_11)).
     Since we manually create an `OwningModel` within the byte buffer by `std::construct_at()`
     or a placement `new`, we are also responsible for explicitly calling a destructor.
     The easiest and most elegant way of doing that is to use the C++17 algorithm [`std::destroy_at()`](https://oreil.ly/2FNtm).
     Alternatively, you can explicitly call the `Concept` destructor.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得一提的是`Shape`的析构函数（[![11](assets/11.png)](#code_g33_11)）。由于我们通过`std::construct_at()`或者放置`new`在字节缓冲区内手动创建了一个`OwningModel`，因此我们也要负责显式调用析构函数。最简单和最优雅的方法是使用C++17算法[`std::destroy_at()`](https://oreil.ly/2FNtm)。或者，你也可以显式调用`Concept`的析构函数。
 - en: 'The last, but essential, detail of `Shape` is the templated constructor:'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Shape`的最后但至关重要的细节是模板化构造函数：'
 - en: '[PRE18]'
+  id: totrans-130
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: After a pair of compile-time checks that the required `OwningModel` fits into
     the in-class buffer and adheres to the alignment restrictions, an `OwningModel`
     is instantiated into the in-class buffer by `std::construct_at()`.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一对编译时检查确保所需的`OwningModel`适合于类内缓冲区并遵守对齐限制之后，通过`std::construct_at()`在类内缓冲区实例化了一个`OwningModel`。
 - en: 'With this implementation in hand, we now adapt and rerun the performance benchmark
     from [“Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure”](#consider_replacing_inheritance_hierarchies_with_type_erasure).
     We run exactly the same benchmark, this time without allocating dynamic memory
     inside `Shape` and without fragmenting the memory with many, tiny allocations.
     As expected, the performance results are impressive (see [Table 8-2](#table_type_erasure_sbo_benchmark_results)).'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 拿到这个实现后，我们现在适应并重新运行来自[“指导原则 32：考虑用类型擦除替换继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)的性能基准测试。我们完全运行相同的基准测试，这次不在`Shape`内分配动态内存，也不通过许多小的分配来碎片化内存。正如预期的那样，性能结果令人印象深刻（见[表 8-2](#table_type_erasure_sbo_benchmark_results)）。
 - en: Table 8-2\. Performance results for the Type Erasure implementations with SBO
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 8-2\. 带 SBO 的类型擦除实现的性能结果
 - en: '| Type Erasure implementation | GCC 11.1 | Clang 11.1 |'
+  id: totrans-134
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-135
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
+  id: totrans-136
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象的解决方案 | 1.5205 秒 | 1.1480 秒 |'
 - en: '| `std::function` | 2.1782 s | 1.4884 s |'
+  id: totrans-137
   prefs: []
   type: TYPE_TB
+  zh: '| `std::function` | 2.1782 秒 | 1.4884 秒 |'
 - en: '| Manual implementation of `std::function` | 1.6354 s | 1.4465 s |'
+  id: totrans-138
   prefs: []
   type: TYPE_TB
+  zh: '| 手动实现`std::function` | 1.6354 秒 | 1.4465 秒 |'
 - en: '| Classic Strategy | 1.6372 s | 1.4046 s |'
+  id: totrans-139
   prefs: []
   type: TYPE_TB
+  zh: '| 经典策略 | 1.6372 秒 | 1.4046 秒 |'
 - en: '| Type Erasure | 1.5298 s | 1.1561 s |'
+  id: totrans-140
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除 | 1.5298 秒 | 1.1561 秒 |'
 - en: '| Type Erasure (SBO) | 1.3591 s | 1.0348 s |'
+  id: totrans-141
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除（SBO） | 1.3591 秒 | 1.0348 秒 |'
 - en: “Wow, this is fast. This is…well, let me do the math…amazing, roughly 20% faster
     than the fastest Strategy implementation, and even faster than the object-oriented
     solution.” It is, indeed. Very impressive, right? Still, you should remember that
@@ -931,8 +1267,10 @@
     almost certainly. But even though your numbers might not be the same, the general
     takeaway is that there is a lot of potential to optimize performance by dealing
     with memory allocations.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这速度真快。这…嗯，让我算一下…真是惊人，比最快的策略实现快大约 20%，甚至比面向对象的解决方案还快。” 的确如此。非常令人印象深刻，对吧？不过请记住，这些是我在我的系统上得到的数字。你的数字肯定会不同。但即使你的数字可能不同，总的来说，通过处理内存分配，有很大的性能优化潜力。
 - en: 'However, while the performance is extraordinary, we’ve lost a lot of flexibility:
     only `OwningModel` instantiations that are smaller or equal to the specified `Capacity`
     can be stored inside `Shape`. Bigger models are excluded. This brings me back
@@ -945,40 +1283,62 @@
     into the `Shape` class, it would be easier and (much) more flexible to separate
     the implementation details and implement `Shape` with policy-based design (see
     [“Guideline 19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)):'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，尽管性能非常出色，我们失去了很多灵活性：只有小于或等于指定 `Capacity` 的 `OwningModel` 实例可以存储在 `Shape`
+    内。更大的模型被排除在外。这让我回到了我们可以根据给定形状的大小在类内缓冲区和动态内存之间进行切换的想法。现在您可以继续更新 `Shape` 的实现，以使用两种类型的内存。但是，在这一点上，指出我们最重要的设计原则之一可能是个好主意：关注点分离。与其将所有逻辑和功能挤入
+    `Shape` 类中，不如使用基于策略的设计更容易和（更）灵活，详见 [“指南 19：使用策略隔离实现方式”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)。
 - en: '[PRE19]'
+  id: totrans-144
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'The `Shape` class template is rewritten to accept a `StoragePolicy`. Via this
     policy, you would be able to specify from outside how the class should acquire
     memory. And of course, you would perfectly adhere to SRP and OCP. One such storage
     policy could be the `DynamicStorage` policy class:'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Shape` 类模板被重写以接受 `StoragePolicy`。通过此策略，您可以从外部指定类应如何获取内存。当然，您将完全遵循 SRP 和 OCP
+    原则。其中一种存储策略可以是 `DynamicStorage` 策略类：'
 - en: '[PRE20]'
+  id: totrans-146
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: 'As the name suggests, `DynamicPolicy` would acquire memory dynamically, for
     instance via `new`. Alternatively, if you have stronger requirements, you could
     build on [`std::aligned_alloc()`](https://oreil.ly/oIP3K) or similar functionality
     to provide dynamic memory with a specified alignment. Similarly to `DynamicStorage`,
     you could provide an `InClass​Stor⁠age` policy:'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 如其名称所示，`DynamicPolicy` 将动态获取内存，例如通过 `new`。或者，如果您有更强的要求，可以构建在 [`std::aligned_alloc()`](https://oreil.ly/oIP3K)
+    或类似功能之上，以提供具有指定对齐方式的动态内存。与 `DynamicStorage` 类似，您可以提供一个 `InClass​Stor⁠age` 策略：
 - en: '[PRE21]'
+  id: totrans-148
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: 'All of these policy classes provide the same interface: a `create()` function
     to instantiate an object of type `T` and a `destroy()` function to do whatever
     is necessary to clean up. This interface is used by the `Shape` class to trigger
     construction and destruction, for instance, in its templated constructor ([![12](assets/12.png)](#code_g33_12))^([16](ch08.xhtml#idm45043081309312))
     and in the destructor ([![13](assets/13.png)](#code_g33_13)):'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些策略类都提供相同的接口：一个 `create()` 函数用于实例化类型 `T` 的对象，以及一个 `destroy()` 函数用于执行必要的清理。`Shape`
+    类使用此接口触发构造和销毁，例如，在其模板化构造函数中（[![12](assets/12.png)](#code_g33_12))^([16](ch08.xhtml#idm45043081309312))
+    和析构函数中（[![13](assets/13.png)](#code_g33_13))：
 - en: '[PRE22]'
+  id: totrans-150
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: 'The last detail that should not be left unnoticed is the data members ([![14](assets/14.png)](#code_g33_14)):
     the `Shape` class now stores an instance of the given `StoragePolicy` and, do
     not be alarmed, a *raw* pointer to its `Concept`. Indeed, there is no need to
@@ -989,8 +1349,13 @@
     to not reserve any memory for the data member. Without this attribute, it would
     be necessary to reserve at least a single byte for `policy_`, but likely more
     bytes due to alignment restrictions.'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后一个不应被忽视的细节是数据成员（[![14](assets/14.png)](#code_g33_14)）：`Shape` 类现在存储给定 `StoragePolicy`
+    的实例，并且，请不要惊慌，它的 `Concept` 的*原始*指针。事实上，再次在我们自己的析构函数中手动销毁对象后，就不再需要存储 `std::unique_ptr`。您还可能注意到存储策略上的
+    [`[[no_unique_address]]` 属性](https://oreil.ly/5gF5n)。这是 C++20 的特性，允许您节省存储策略的内存。如果策略为空，编译器现在可以不为数据成员保留任何内存。没有这个属性，必须至少为
+    `policy_` 保留一个字节，但可能由于对齐限制而需要更多字节。
 - en: In summary, SBO is an effective and one of the most interesting optimizations
     for a Type Erasure implementation. For that reason, many standard types, such
     as `std::function` and `std::any`, use some form of SBO. Unfortunately, the C++
@@ -999,20 +1364,26 @@
     is so important and because SBO plays such a decisive role, there are already
     proposals out there that also suggest standardizing the types `inplace_function`
     and `inplace_any`. Time will tell if these find their way into the Standard Library.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结来说，SBO是类型擦除实现中有效且最有趣的优化之一。因此，许多标准类型，如`std::function`和`std::any`，使用某种形式的SBO。不幸的是，C++标准库规范并不*要求*使用SBO。这就是为什么你只能希望使用SBO；你不能依赖它。然而，由于性能如此重要，而SBO又扮演如此决定性的角色，已经有提案建议标准化`inplace_function`和`inplace_any`类型。时间将告诉我们这些是否会进入标准库。
 - en: Manual Implementation of Function Dispatch
+  id: totrans-153
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 函数调度的手动实现
 - en: “Wow, this will prove useful. Is there anything else I can do to improve the
     performance of my Type Erasure implementation?” you ask. Oh yes, you can do more.
     There is a second potential performance optimization. This time we try to improve
     the performance of the virtual functions. And yes, I’m talking about the virtual
     functions that are introduced by the external inheritance hierarchy, i.e., by
     the External Polymorphism design pattern.
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这将会很有用。还有什么我可以做来改进我的类型擦除实现的性能吗？”你问道。哦，是的，你可以做更多的事情。这里还有第二个潜在的性能优化。这次我们尝试改进虚函数的性能。是的，我说的是由外部继承层次引入的虚函数。也就是外部多态设计模式。
 - en: “How should we be able to optimize the performance of virtual functions? Isn’t
     this something that is completely up to the compiler?” Absolutely, you’re correct.
     However, I am not talking about fiddling with backend, compiler-specific implementation
@@ -1025,35 +1396,45 @@
     table with every instance of that type, the class stores an additional, hidden
     data member, which we commonly call the `vptr` and which is a raw pointer to the
     virtual function table.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: “我们应该如何优化虚函数的性能？这难道不完全取决于编译器吗？”当然，你是对的。然而，我说的并不是调整后端、特定于编译器的实现细节，而是用更高效的方法替换虚函数。这确实是可能的。请记住，虚函数只是存储在虚函数表中的函数指针。每个至少有一个虚函数的类型都有一个这样的虚函数表。然而，每种类型只有一个虚函数表。换句话说，这个表不是存储在每个实例中的。因此，为了将虚函数表与该类型的每个实例连接起来，该类存储一个额外的隐藏数据成员，我们通常称之为`vptr`，它是指向虚函数表的原始指针。
 - en: 'When you call a virtual function, you first go through the `vptr` to fetch
     the virtual function table. Once you’re there, you can grab the corresponding
     function pointer from the virtual function table and call it. Therefore, in total,
     a virtual function call entails two indirections: the `vptr` and the pointer to
     the actual function. For that reason, roughly speaking, a virtual function call
     is twice as expensive as a regular, noninline function call.'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你调用虚函数时，首先通过`vptr`访问虚函数表。一旦进入，你可以从虚函数表中获取相应的函数指针并调用它。因此，总体而言，虚函数调用涉及两次间接引用：`vptr`和实际函数的指针。因此，粗略地说，虚函数调用比常规的非内联函数调用昂贵大约两倍。
 - en: 'These two indirections provide us with the opportunity for optimization: we
     can in fact reduce the number of indirections to just one. To achieve that, we
     will employ an optimization strategy that works fairly often: we’ll trade space
     for speed. What we will do is implement the virtual dispatch manually by storing
     the virtual function pointers inside the `Shape` class. The following code snippet
     already gives you a pretty good idea of the details:'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两次间接引用为我们提供了优化的机会：事实上，我们可以将间接引用的数量减少到一次。为了实现这一点，我们将采用一种通常很有效的优化策略：我们将通过在`Shape`类中存储虚函数指针来手动实现虚分发。下面的代码片段已经让你对细节有了相当好的了解：
 - en: '[PRE23]'
+  id: totrans-158
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'Since we are replacing *all* virtual functions, even the virtual destructor,
     there’s no need for a `Concept` base class anymore. Consequently, the external
     hierarchy is reduced to just the `OwningModel` class template ([![15](assets/15.png)](#code_g33_15)),
     which still acts as storage for a specific kind of shape (`ShapeT`) and `DrawStrategy`.
     Still, it meets the same fate: all virtual functions are removed. The only remaining
     details are the constructor and the data members.'
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于我们替换了*所有*虚函数，甚至包括虚析构函数，因此不再需要`Concept`基类。因此，外部层次结构仅减少到`OwningModel`类模板（[![15](assets/15.png)](#code_g33_15)），它仍然充当特定类型形状（`ShapeT`）和`DrawStrategy`的存储。不过，它们命运相同：所有虚函数都被移除。唯一剩下的细节是构造函数和数据成员。
 - en: The virtual functions are replaced by manual function pointers. Since the syntax
     for function pointers is not the most pleasant to use, we add a couple of function
     type aliases for our convenience:^([17](ch08.xhtml#idm45043080813136)) `DestroyOperation`
@@ -1065,18 +1446,25 @@
     The latter two, `DrawOperation` and `CloneOperation`, are used for the two additional
     function pointer data members, `draw_` and `clone_` ([![20](assets/20.png)](#code_g33_20)
     and [![21](assets/21.png)](#code_g33_21)).
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 虚函数被手动函数指针替代。由于函数指针的语法不是最令人愉悦的，我们为了方便添加了一些函数类型别名：^([17](ch08.xhtml#idm45043080813136))
+    `DestroyOperation`代表原来的虚析构函数（[![16](assets/16.png)](#code_g33_16)），`DrawOperation`代表原来的虚`draw()`函数（[![17](assets/17.png)](#code_g33_17)），`CloneOperation`代表原来的虚`clone()`函数（[![18](assets/18.png)](#code_g33_18))。`DestroyOperation`用于配置`pimpl_`数据成员的`Deleter`（[![19](assets/19.png)](#code_g33_19)）（是的，作为策略）。后两者，`DrawOperation`和`CloneOperation`，用于两个额外的函数指针数据成员，`draw_`和`clone_`（[![20](assets/20.png)](#code_g33_20)和[![21](assets/21.png)](#code_g33_21)）。
 - en: '“Oh no, `void*`s! Isn’t that an archaic and super dangerous way of doing things?”
     you gasp. OK, I admit that without explanation it looks *very* suspicious. However,
     stay with me, I promise that everything will be perfectly fine and type safe.
     The key to making this work now lies in the initialization of these function pointers.
     They are initialized in the templated constructor of the `Shape` class:'
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: “哦不，`void*`！这不是一种过时和超级危险的做法吗？” 你惊呼道。好吧，我承认没有解释的情况下看起来*非常*可疑。不过，请跟我走，我保证一切都会完全没问题并且类型安全。现在使这一切生效的关键在于这些函数指针的初始化。它们在`Shape`类的模板化构造函数中初始化：
 - en: '[PRE24]'
+  id: totrans-162
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: 'Let’s focus on the `pimpl_` data member. It is initialized both by a pointer
     to the newly instantiated `OwningModel` ([![22](assets/22.png)](#code_g33_22))
     and by a stateless lambda expression ([![23](assets/23.png)](#code_g33_23)). You
@@ -1085,8 +1473,10 @@
     lambda as the deleter to the constructor of `unique_ptr`, force the compiler to
     apply the implicit conversion to a `DestroyOperation*`, and thus bind the lambda
     function to the `std::unique_ptr`.'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们专注于`pimpl_`数据成员。它通过指向新实例化的`OwningModel`的指针（[![22](assets/22.png)](#code_g33_22)）和一个无状态lambda表达式（[![23](assets/23.png)](#code_g33_23)）进行初始化。你可能记得无状态lambda可以隐式转换为函数指针。这个语言保证是我们利用的优势：我们直接将lambda作为`unique_ptr`构造函数的删除器传递，强制编译器将其隐式转换为`DestroyOperation*`，从而将lambda函数绑定到`std::unique_ptr`。
 - en: '“OK, I get the point: the lambda can be used to initialize the function pointer.
     But how does it work? What does it do?” Well, also remember that we are creating
     this lambda inside the templated constructor. That means that at this point we
@@ -1100,80 +1490,118 @@
     be a wild guess, in this context it is perfectly type safe: we can be certain
     about the correct type of `OwningModel`. Therefore, we can use the resulting pointer
     to trigger the correct cleanup behavior ([![25](assets/25.png)](#code_g33_25)).'
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，我明白了：lambda可以用来初始化函数指针。但是它是如何工作的？它做了什么？”请记住，我们也要记得我们是在模板化构造函数内创建此lambda。这意味着在这一点上，我们完全了解传递的`ShapeT`和`DrawStrategy`的实际类型。因此，lambda是使用对`OwningModel`的实际类型已经知晓并存储在`pimpl_`中的知识生成的。最终它将通过`void*`即某个`OwningModel`的地址来调用。但是，基于它对`OwningModel`实际类型的知识，它首先可以执行从`void*`到`OwningModel<ShapeT,DrawStrategy>*`的`static_cast`（[![24](assets/24.png)](#code_g33_24)）。虽然在大多数其他上下文中，这种转换可能会被怀疑，很可能是一次野猜测，但在这个上下文中它是完全类型安全的：我们可以确定`OwningModel`的正确类型。因此，我们可以使用生成的指针来触发正确的清理行为（[![25](assets/25.png)](#code_g33_25)）。
 - en: 'The initialization of the `draw_` and `clone_` data members is very similar
     ([![26](assets/26.png)](#code_g33_26) and [![27](assets/27.png)](#code_g33_27)).
     The only difference is, of course, the action performed by the lambdas: they perform
     the correct actions to draw the shape and to create a copy of the model, respectively.'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 初始化`draw_`和`clone_`数据成员非常类似（[![26](assets/26.png)](#code_g33_26)和[![27](assets/27.png)](#code_g33_27)）。唯一的区别当然是，由lambda执行的动作不同：它们分别执行绘制形状和创建模型副本的正确操作。
 - en: 'I know, this may take some time to digest. But we are almost done; the only
     missing detail is the special member functions. For the destructor and the two
     move operations, we can again ask for the compiler-generated default. However,
     we have to deal with the copy constructor and copy assignment operator ourselves:'
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 我知道，这可能需要一些时间来消化。但我们几乎完成了；唯一缺少的细节是特殊成员函数。对于析构函数和两个移动操作，我们可以再次请求编译器生成默认的。然而，我们必须自己处理复制构造函数和复制赋值运算符：
 - en: '[PRE25]'
+  id: totrans-167
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: 'This is all we need to do, and we’re ready to try this out. So let’s put this
     implementation to the test. Once again we update the benchmark from [“Guideline
     32: Consider Replacing Inheritance Hierarchies with Type Erasure”](#consider_replacing_inheritance_hierarchies_with_type_erasure)
     and run it with our manual implementation of virtual functions. I have even combined
     the manual virtual dispatch with the previously discussed SBO. [Table 8-3](#table_type_erasure_vd_benchmark_results)
     shows the performance results.'
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是我们需要做的一切，我们已经准备好尝试这个实现。所以让我们将这个实现放到测试中去。我们再次更新来自[“指南32：考虑用类型擦除替换继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)的基准，并用我们手动实现的虚函数运行它。我甚至将手动虚函数分发与先前讨论的SBO结合起来。[表 8-3](#table_type_erasure_vd_benchmark_results)显示了性能结果。
 - en: Table 8-3\. Performance results for the Type Erasure implementations with manual
     virtual dispatch
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 表8-3。使用手动虚函数分发的类型擦除实现的性能结果
 - en: '| Type Erasure implementation | GCC 11.1 | Clang 11.1 |'
+  id: totrans-170
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-171
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
+  id: totrans-172
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象的解决方案 | 1.5205 s | 1.1480 s |'
 - en: '| `std::function` | 2.1782 s | 1.4884 s |'
+  id: totrans-173
   prefs: []
   type: TYPE_TB
+  zh: '| `std::function` | 2.1782 s | 1.4884 s |'
 - en: '| Manual implementation of `std::function` | 1.6354 s | 1.4465 s |'
+  id: totrans-174
   prefs: []
   type: TYPE_TB
+  zh: '| `std::function`的手动实现 | 1.6354 s | 1.4465 s |'
 - en: '| Classic Strategy | 1.6372 s | 1.4046 s |'
+  id: totrans-175
   prefs: []
   type: TYPE_TB
+  zh: '| 经典策略 | 1.6372 s | 1.4046 s |'
 - en: '| Type Erasure | 1.5298 s | 1.1561 s |'
+  id: totrans-176
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除 | 1.5298 s | 1.1561 s |'
 - en: '| Type Erasure (SBO) | 1.3591 s | 1.0348 s |'
+  id: totrans-177
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除（SBO） | 1.3591 s | 1.0348 s |'
 - en: '| Type Erasure (manual virtual dispatch) | 1.1476 s | 1.1599 s |'
+  id: totrans-178
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除（手动虚函数分发） | 1.1476 s | 1.1599 s |'
 - en: '| Type Erasure (SBO + manual virtual dispatch) | 1.2538 s | 1.2212 s |'
+  id: totrans-179
   prefs: []
   type: TYPE_TB
+  zh: '| 类型擦除（SBO + 手动虚函数分发） | 1.2538 s | 1.2212 s |'
 - en: The performance improvement for the manual virtual dispatch is extraordinary
     for GCC. On my system, I get down to 1.1476 seconds, which is an improvement of
     25% in comparison to the based, unoptimized implementation of Type Erasure. Clang,
     on the other hand, does not show any improvement in comparison to the basic, unoptimized
     implementation. Although this may be a little disappointing, the runtime is, of
     course, still remarkable.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 GCC，手动虚拟调度的性能提升是非常显著的。在我的系统上，我将运行时间降低到了 1.1476 秒，这相比于基本的未优化的类型擦除实现提升了 25%。然而，Clang
+    并没有显示出与基本未优化实现相比的任何改进。虽然这可能有点令人失望，但运行时当然仍然是显著的。
 - en: Unfortunately the combination of SBO and manual virtual dispatch does not lead
     to an even better performance. While GCC shows a small improvement in comparison
     to the pure SBO approach (which might be interesting for environments without
     dynamic memory), on Clang this combination does not work as well as you might
     have hoped for.
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，SBO 和手动虚拟调度的组合并没有带来更好的性能。虽然在 GCC 中与纯 SBO 方法相比略有改进（这可能对于没有动态内存的环境来说很有趣），但在
+    Clang 中，这种组合并不如你希望的那样有效。
 - en: 'In summary, there is a lot of potential for optimizing the performance for
     Type Erasure implementations. If you’ve been skeptical before about Type Erasure,
     this gain in performance should give you a strong incentive to investigate for
@@ -1182,83 +1610,117 @@
     virtual behavior and encapsulating the behavior into a value type have we gained
     these optimization opportunities. We wouldn’t have been able to achieve this if
     all we had was a pointer-to-base.'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结来说，优化类型擦除实现的性能潜力很大。如果你之前对类型擦除持怀疑态度，这种性能提升应该会激励你自行调查。虽然这很神奇，无疑非常令人兴奋，但重要的是要记住这是从哪里来的：只有将虚拟行为的关注点分离，并将行为封装到值类型中，我们才能获得这些优化机会。如果我们只有指向基类的指针，是无法实现这一点的。
 - en: 'Guideline 34: Be Aware of the Setup Costs of Owning Type Erasure Wrappers'
+  id: totrans-183
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指导原则 34：注意拥有类型擦除包装的设置成本
 - en: 'In [“Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure”](#consider_replacing_inheritance_hierarchies_with_type_erasure)
     and [“Guideline 33: Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure),
     I guided you through the thicket of implementation details for a basic Type Erasure
     implementation. Yes, that was tough, but definitely worth the effort: you have
     emerged stronger, wiser, and with a new, efficient, and strongly decoupling design
     pattern in your toolbox. Great!'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 [“指导原则 32：考虑用类型擦除替换继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)
+    和 [“指导原则 33：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)
+    中，我指导您穿越了基本类型擦除实现的实现细节的丛林。是的，那很艰难，但绝对值得：您以更强大、更明智的方式脱颖而出，并在您的工具箱中得到了一个新的、高效且强耦合的设计模式。太棒了！
 - en: 'However, we have to go back into the thicket. I see you are rolling your eyes,
     but there is more. And I have to admit: I lied. At least a little. Not by telling
     you something incorrect, but by omission. There is one more disadvantage of Type
     Erasure that you should know of. A big one. One that you might not like at all.
     *Sigh*.'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，我们必须回到复杂的问题中。我看到你在翻白眼，但还有更多内容。我必须承认：我撒了谎。至少有点。不是因为给你讲了错误的事情，而是因为有所遗漏。有一个关于类型擦除的缺点你应该知道。一个很大的缺点。可能你一点也不喜欢。*叹气*。
 - en: The Setup Costs of an Owning Type Erasure Wrapper
+  id: totrans-186
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 拥有类型擦除包装的设置成本
 - en: 'Assume for a second that `Shape` is a base class again, and `Circle` one of
     many deriving classes. Then passing a `Circle` to a function expecting a `Shape
     const&` would be easy and cheap ([![1](assets/1.png)](#code_g34_1)):'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设 `Shape` 再次是一个基类，而 `Circle` 是许多派生类之一。那么将 `Circle` 传递给期望 `Shape const&` 的函数将会很容易且廉价（[![1](assets/1.png)](#code_g34_1)）：
 - en: '[PRE26]'
+  id: totrans-188
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: 'Although the Type Erasure `Shape` abstraction is a little different (for instance,
     it always requires a drawing Strategy), this kind of conversion is still possible:'
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管类型擦除 `Shape` 抽象有点不同（例如，它总是需要一个绘图策略），但这种转换仍然是可能的：
 - en: '[PRE27]'
+  id: totrans-190
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: 'Unfortunately, it is no longer cheap. On the contrary, based on our previous
     implementations, which include both the basic one and optimized ones, the call
     to the `useShape()` function would involve a couple of potentially expensive operations
     ([![2](assets/2.png)](#code_g34_2)):'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，它现在不再廉价。相反，根据我们之前的实现，包括基本实现和优化实现，调用`useShape()`函数将涉及几个可能昂贵的操作（[![2](assets/2.png)](#code_g34_2))。
 - en: To convert a `Circle` into a `Shape`, the compiler creates a temporary `Shape`
     using the non-`explicit`, templated `Shape` constructor.
+  id: totrans-192
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 要将`Circle`转换为`Shape`，编译器使用非`explicit`的模板化`Shape`构造函数创建一个临时`Shape`。
 - en: The call of the constructor results in a copy operation of the given shape (not
     expensive for `Circle`, but potentially expensive for other shapes) and the given
     draw Strategy (essentially free if the Strategy is stateless, but potentially
     expensive, depending on what is stored inside the object).
+  id: totrans-193
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 构造函数的调用导致给定形状的复制操作（对于`Circle`而言不昂贵，但对于其他形状可能昂贵），以及给定的绘制策略（如果策略是无状态的，基本上是免费的，但根据对象内部存储的内容可能昂贵）。
 - en: Inside the `Shape` constructor, a `new` shape model is created, involving a
     memory allocation (hidden in the call to `std::make_unique()` in the `Shape` constructor
     and definitely expensive).
+  id: totrans-194
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在`Shape`构造函数内部，创建一个新的形状模型，涉及内存分配（隐藏在`Shape`构造函数中的`std::make_unique()`调用中，绝对昂贵）。
 - en: The temporary (rvalue) `Shape` is passed by reference-to-`const` to the `useShape()`
     function.
+  id: totrans-195
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 临时（rvalue）`Shape`以对`useShape()`函数的`const`引用传递。
 - en: 'It is important to point out that this is not a specific problem of our `Shape`
     implementation. The same problem will hit you if, for instance, you use `std::function`
     as a function argument:'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: 需要指出的重要一点是，这不是我们`Shape`实现的特定问题。例如，如果您将`std::function`用作函数参数，也会遇到同样的问题：
 - en: '[PRE28]'
+  id: totrans-197
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: In this example, the given lambda is converted into the `std::function` instance.
     This conversion will involve a copy operation and might involve a memory allocation.
     It entirely depends on the size of the given callable and on the implementation
@@ -1270,8 +1732,10 @@
     on the other hand, is an owning abstraction that performs a deep copy. Therefore,
     it is not the perfect type to be used as a function parameter. Unfortunately,
     the same is true for our `Shape` implementation.^([18](ch08.xhtml#idm45043079519664))
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个例子中，给定的lambda被转换为`std::function`实例。这种转换涉及复制操作，并可能涉及内存分配。这完全取决于给定可调用对象的大小以及`std::function`的实现。因此，`std::function`是一种不同类型的抽象，与`std::string_view`和`std::span`不同。`std::string_view`和`std::span`是非拥有的抽象，由于它们仅由指向第一个元素的指针和大小组成，因此复制起来很廉价。由于这两种类型执行浅复制，它们非常适合作为函数参数。另一方面，`std::function`是一种拥有抽象，执行深复制。因此，它不是作为函数参数使用的完美类型。不幸的是，我们的`Shape`实现也是如此。^([18](ch08.xhtml#idm45043079519664))
 - en: '“Oh my, I don’t like this. Not at all. That is terrible! I want my money back!”
     you exclaim. I have to agree that this may be a severe issue in your codebase.
     However, you understand that the underlying problem is the owning semantics of
@@ -1282,12 +1746,17 @@
     in this context it results in a pretty unfortunate performance penalty. However,
     stay calm—there is something we can do: for such a context, we can provide a nonowning
     Type Erasure implementation.'
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: '“哦，我不喜欢这个。一点也不。太糟糕了！我要退钱！” 你大声说道。我不得不同意，这可能是你的代码库中一个严重的问题。然而，你理解到底层问题在于`Shape`类的拥有语义：基于其值语义背景，我们当前的`Shape`实现总是会创建给定形状的副本并始终拥有该副本。虽然这完全符合[“Guideline
+    22: Prefer Value Semantics over Reference Semantics”](ch05.xhtml#prefer_value_semantics_to_reference_semantics)中讨论的所有好处，但在这种情况下，它导致了一个非常不幸的性能惩罚。然而，请保持冷静——我们可以做些什么：针对这样的情况，我们可以提供一个非拥有类型擦除实现。'
 - en: A Simple Nonowning Type Erasure Implementation
+  id: totrans-200
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 简单的非拥有类型擦除实现
 - en: Generally speaking, the value semantics–based Type Erasure implementation is
     beautiful and perfectly adheres to the spirit of modern C++. However, performance
     is important. It might be so important that sometimes you might not care about
@@ -1295,8 +1764,10 @@
     In that case, you might want to reach for a nonowning implementation of Type Erasure,
     despite the disadvantage that this pulls you back into the realm of reference
     semantics.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 一般来说，基于值语义的类型擦除实现非常优雅，完全符合现代 C++ 的精神。然而，性能也很重要。有时性能如此重要，以至于你可能不关心值语义的部分，而只关心类型擦除提供的抽象。在这种情况下，你可能想要使用一个非拥有的类型擦除实现，尽管这会将你带回引用语义的领域。
 - en: 'The good news is that if you desire only a simple Type Erasure wrapper, a wrapper
     that represents a reference-to-base, that is nonowning and trivially copyable,
     then the required code is fairly simple. That is particularly true because you
@@ -1304,11 +1775,17 @@
     33: Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure).
     With this technique, a simple, nonowning Type Erasure implementation is just a
     matter of a few lines of code:'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有一个好消息，如果你只需要一个简单的类型擦除包装器，一个代表基类引用的包装器，它是非拥有的并且可以简单地复制，那么所需的代码就非常简单。这一点特别明显，因为你已经看到了如何在
+    [“第33条指南：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)
+    中手动实现虚拟调度。使用这种技术，一个简单的、非拥有的类型擦除实现只是几行代码的事情：
 - en: '[PRE29]'
+  id: totrans-203
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: 'As the name suggests, the `ShapeConstRef` class represents a reference to a
     `const` shape type. Instead of storing a copy of the given shape, it only holds
     a pointer to it in the form of a `void*` ([![3](assets/3.png)](#code_g34_3)).
@@ -1316,8 +1793,12 @@
     and as the third data member, a function pointer to the manually implemented virtual
     `draw()` function ([![5](assets/5.png)](#code_g34_5)) (see [“Guideline 33: Be
     Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure)).'
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 如其名，`ShapeConstRef` 类表示对 `const` 形状类型的引用。它不是存储给定形状的副本，而是以 `void*` 的形式仅保存一个指向它的指针（[![3](assets/3.png)](#code_g34_3)）。此外，它还保存了一个指向关联的
+    `DrawStrategy` 的 `void*`（[![4](assets/4.png)](#code_g34_4)），作为第三个数据成员，还保存了手动实现的虚拟
+    `draw()` 函数的函数指针（[![5](assets/5.png)](#code_g34_5)）（见 [“第33条指南：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)）。
 - en: '`ShapeConstRef` takes its two arguments, the shape and the drawing Strategy,
     both possibly cv qualified, by reference-to-non-`const` ([![6](assets/6.png)](#code_g34_6)).^([19](ch08.xhtml#idm45043079442800))
     In this form, it is not possible to pass rvalues to the constructor, which prevents
@@ -1327,8 +1808,12 @@
     to allow rvalues, you should reconsider. And if you’re really, *really* willing
     to risk lifetime issues with temporaries, then you can simply take the argument(s)
     by reference-to-`const`. Just remember that you did not get this advice from me!'
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ShapeConstRef` 接受它的两个参数，形状和绘制策略，两者可能是 cv 限定的，通过引用到非 `const` （[![6](assets/6.png)](#code_g34_6)）。^([19](ch08.xhtml#idm45043079442800))
+    在这种形式下，不可能将右值传递给构造函数，这可以防止任何与临时值有关的生命周期问题。不幸的是，这并不能保护你免受所有可能的左值生命周期问题的影响，但仍然提供了一个非常合理的保护。^([20](ch08.xhtml#idm45043079319984))
+    如果你想允许右值，你应该重新考虑。如果你真的、*真的* 愿意冒着与临时值生命周期问题的风险，那么你可以简单地通过引用到 `const` 来接受参数。只是记住，这个建议不是我给的！'
 - en: 'This is it. This is the complete nonowning implementation. It is efficient,
     short, simple, and can be even shorter and simpler if you do not need to store
     any kind of associated data or Strategy object. With this functionality in place,
@@ -1338,29 +1823,42 @@
     implementation by simply using a `ShapeConstRef` as the function argument. In
     the `main()` function, we call `useShapeConstRef()` by a concrete shape and a
     concrete drawing Strategy (in this case, a lambda) ([![7](assets/7.png)](#code_g34_7)):'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 就是这样。这是完整的非拥有实现。它高效、简短、简单，如果您不需要存储任何相关数据或策略对象，甚至可以更加简短和简单。有了这个功能，您现在可以创建廉价的形状抽象。这在下面的代码示例中通过`useShapeConstRef()`函数进行了演示。这个函数使您能够使用`ShapeConstRef`作为函数参数，以便简单地使用任何可能的形状（`Circle`、`Square`等）和任何可能的绘制实现。在`main()`函数中，我们通过具体的形状和具体的绘制策略（在本例中是lambda）调用了`useShapeConstRef()`
+    ([![7](assets/7.png)](#code_g34_7))：
 - en: '[PRE30]'
+  id: totrans-207
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: This call triggers the desired effect, notably without any memory allocation
     or expensive copy operation, but only by wrapping polymorphic behavior around
     a set of pointers to the given shape and drawing Strategy.
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个调用触发了期望的效果，特别是在没有任何内存分配或昂贵的复制操作的情况下，只是通过将多态行为包装在给定形状的指针集合和绘制策略周围来实现。
 - en: A More Powerful Nonowning Type Erasure Implementation
+  id: totrans-209
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 更强大的非拥有类型擦除实现
 - en: 'Most of the time, this simple nonowning Type Erasure implementation should
     prove to be enough and fulfill all your needs. Sometimes, however, and only sometimes,
     it might not be enough. Sometimes, you might be interested in a slightly different
     form of `Shape` reference:'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 大多数情况下，这个简单的非拥有类型擦除实现应该足够并满足所有您的需求。然而，有时，可能不够。有时，您可能对稍微不同形式的`Shape`引用感兴趣：
 - en: '[PRE31]'
+  id: totrans-211
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: Assuming that you have a type-erased `circle` called `shape1`, you might want
     to convert this `Shape` instance to a `ShapeConstRef` ([![8](assets/8.png)](#code_g34_8)).
     With the current implementation, this works, but the `shaperef` instance would
@@ -1373,8 +1871,11 @@
     resulting `Shape` abstraction contains and represents this copy. Unfortunately,
     with the current implementation, the `Shape` would create a copy of the `ShapeConstRef`
     instance, and thus introduce a third indirection. *Sigh*.
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设您有一个类型擦除的`circle`称为`shape1`，您可能希望将此`Shape`实例转换为`ShapeConstRef` ([![8](assets/8.png)](#code_g34_8))。通过当前的实现，这是可以的，但`shaperef`实例将会持有指向`shape1`实例的指针，而不是指向`circle`的指针。因此，任何对`shaperef`的使用都会导致两次间接引用（一次通过`ShapeConstRef`，一次通过`Shape`抽象）
+    ([![9](assets/9.png)](#code_g34_9))。此外，您可能还希望将`ShapeConstRef`实例转换为`Shape`实例 ([![10](assets/10.png)](#code_g34_10))。在这种情况下，您可能期望创建基础`Circle`的完整副本，并且生成的`Shape`抽象包含和表示此副本。然而，通过当前的实现，`Shape`将创建`ShapeConstRef`实例的副本，从而引入第三次间接引用。*哎*。
 - en: 'If you need a more efficient interaction between owning and nonowning Type
     Erasure wrappers, and if you need a real copy when copying a nonowning wrapper
     into an owning wrapper, then I can offer you a working solution. Unfortunately,
@@ -1384,26 +1885,39 @@
     which includes the `ShapeConcept` and `OnwingShapeModel` classes in the `detail`
     namespace, and the `Shape` Type Erasure wrapper. You will see that it just requires
     a few additions, all of which you have already seen before.'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: '如果你需要在拥有和非拥有的类型擦除包装器之间进行更高效的交互，并且在将非拥有的包装器复制到拥有的包装器时需要真正的复制，那么我可以为你提供一个可行的解决方案。不幸的是，这比之前的实现更为复杂，但幸运的是它并不过于复杂。该解决方案基于[“指导原则
+    32: 考虑用类型擦除替换继承层次结构”](#consider_replacing_inheritance_hierarchies_with_type_erasure)中的基本类型擦除实现，其中包括`ShapeConcept`和`OnwingShapeModel`类在`detail`命名空间中，以及`Shape`类型擦除包装器。您会看到，它只需要进行一些添加，这些添加您之前都已经看过了。'
 - en: 'The first addition happens in the `ShapeConcept` base class:'
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一个添加发生在`ShapeConcept`基类中：
 - en: '[PRE32]'
+  id: totrans-215
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: The `ShapeConcept` class is extended with a second `clone()` function ([![11](assets/11.png)](#code_g34_11)).
     Instead of returning a newly instantiated copy of the corresponding model, this
     function is passed the address of the memory location where the new model needs
     to be created.
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ShapeConcept`类扩展了第二个`clone()`函数（[![11](assets/11.png)](#code_g34_11)）。该函数不是返回相应模型的新实例化副本，而是传递需要创建新模型的内存位置的地址。'
 - en: 'The second addition is a new model class, the `NonOwningShapeModel`:'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个添加是一个新的模型类，`NonOwningShapeModel`：
 - en: '[PRE33]'
+  id: totrans-218
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE33]'
 - en: 'The `NonOwningShapeModel` is very similar to the `OwningShapeModel` implementation,
     but, as the name suggests, it does not store copies of the given shape and strategy.
     Instead, it stores only pointers ([![12](assets/12.png)](#code_g34_12) and [![13](assets/13.png)](#code_g34_13)).
@@ -1416,31 +1930,46 @@
     ([![15](assets/15.png)](#code_g34_15)). The second `clone()` function is implemented
     by creating a new `NonOwningShapeModel` at the specified address by `std::construct_at()`
     ([![16](assets/16.png)](#code_g34_16)).'
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: '`NonOwningShapeModel`与`OwningShapeModel`实现非常相似，但正如其名称所示，它不存储给定形状和策略的副本。相反，它仅存储指针（[![12](assets/12.png)](#code_g34_12)
+    和 [![13](assets/13.png)](#code_g34_13)）。因此，该类表示`OwningShapeModel`类的引用语义版本。此外，`NonOwningShapeModel`需要重写`ShapeConcept`类的纯虚函数：`draw()`再次将绘图请求转发给给定的绘图策略（[![14](assets/14.png)](#code_g34_14)），而`clone()`函数执行复制。第一个`clone()`函数通过创建一个新的`OwningShapeModel`并复制存储的形状和绘图策略来实现（[![15](assets/15.png)](#code_g34_15)）。第二个`clone()`函数通过`std::construct_at()`在指定地址创建一个新的`NonOwningShapeModel`（[![16](assets/16.png)](#code_g34_16)）。'
 - en: 'In addition, the `OwningShapeModel` class needs to provide an implementation
     of the new `clone()` function:'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，`OwningShapeModel`类需要提供新`clone()`函数的实现：
 - en: '[PRE34]'
+  id: totrans-221
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE34]'
 - en: The `clone()` function in `OwningShapeModel` is implemented similarly to the
     implementation in the `NonOwningShapeModel` class by creating a new instance of
     a `NonOwningShapeModel` by `std::construct_at()` ([![17](assets/17.png)](#code_g34_17)).
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: '`OwningShapeModel`中的`clone()`函数的实现与`NonOwningShapeModel`类中的实现类似，通过`std::construct_at()`创建一个`NonOwningShapeModel`的新实例（[![17](assets/17.png)](#code_g34_17)）。'
 - en: 'The next addition is the corresponding wrapper class that acts as a wrapper
     around the external hierarchy `ShapeConcept` and `NonOwningShapeModel`. This wrapper
     should take on the same responsibilities as the `Shape` class (i.e., the instantiation
     of the `NonOwningShapeModel` class template and the encapsulation of all pointer
     handling) but should merely represent a reference to a `const` concrete shape,
     not a copy. This wrapper is again given in the form of the `ShapeConstRef` class:'
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一个添加是相应的包装类，充当外部层次结构 `ShapeConcept` 和 `NonOwningShapeModel` 的包装器。该包装器应承担与 `Shape`
+    类相同的职责（即 `NonOwningShapeModel` 类模板的实例化和所有指针处理的封装），但仅应表示对 `const` 具体形状的引用，而不是副本。这个包装器再次以
+    `ShapeConstRef` 类的形式给出：
 - en: '[PRE35]'
+  id: totrans-224
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE35]'
 - en: As you will see, the `ShapeConstRef` class is very similar to the `Shape` class,
     but there are a few important differences. The first noteworthy detail is the
     use of a `raw_` storage in the form of a properly aligned `std::byte` array ([![18](assets/18.png)](#code_g34_18)).
@@ -1449,28 +1978,44 @@
     we can predict the size of the required `NonOwningShapeModel` to be equal to the
     size of three pointers (assuming that the pointer to the virtual function table,
     the `vptr`, has the same size as any other pointer) ([![19](assets/19.png)](#code_g34_19)).
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如您将看到的，`ShapeConstRef` 类与 `Shape` 类非常相似，但存在一些重要的区别。第一个值得注意的细节是以正确对齐的 `std::byte`
+    数组形式使用 `raw_` 存储（[![18](assets/18.png)](#code_g34_18)）。这表明 `ShapeConstRef` 不会动态分配内存，而是牢固地依赖于类内存。然而，在这种情况下，这是很容易实现的，因为我们可以预测所需的
+    `NonOwningShapeModel` 的大小等于三个指针的大小（假设虚函数表指针 `vptr` 与其他任何指针具有相同的大小）（[![19](assets/19.png)](#code_g34_19)）。
 - en: 'The `private` section of `ShapeConstRef` also contains a couple of member functions:'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ShapeConstRef` 的 `private` 部分还包含一些成员函数：'
 - en: '[PRE36]'
+  id: totrans-227
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE36]'
 - en: 'We also add a `draw()` function as a hidden `friend` and, just as in the SBO
     implementation in [“Guideline 33: Be Aware of the Optimization Potential of Type
     Erasure”](#know_about_the_optimization_potential_of_type_erasure), we add a pair
     of `pimpl()` functions ([![20](assets/20.png)](#code_g34_20) and [![21](assets/21.png)](#code_g34_21)).
     This will enable us to work conveniently with the in-class `std::byte` array.'
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还添加了一个作为隐藏 `friend` 的 `draw()` 函数，并且就像在 [“指南 33：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)
+    中的 SBO 实现一样，我们添加了一对 `pimpl()` 函数（[![20](assets/20.png)](#code_g34_20) 和 [![21](assets/21.png)](#code_g34_21)）。这将使我们能够方便地使用类内
+    `std::byte` 数组。
 - en: 'The second noteworthy detail is the signature function of every Type Erasure
     implementation, the templated constructor:'
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个类型擦除实现的签名函数的第二个值得注意的细节是模板化构造函数：
 - en: '[PRE37]'
+  id: totrans-230
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE37]'
 - en: 'Again, you have the choice to accept the arguments by reference-to-non-`const`
     to prevent lifetime issues with temporaries (very much recommended!) ([![22](assets/22.png)](#code_g34_22)).
     Alternatively, you accept the arguments by reference-to-`const`, which would allow
@@ -1481,11 +2026,16 @@
     If it does not adhere to the expected `MODEL_SIZE` or pointer alignment, we create
     a compile-time error. Then we construct the new model inside the in-class memory
     by `std::construct_at()` ([![25](assets/25.png)](#code_g34_25)):'
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，您可以选择接受非`const`引用参数以防止临时对象的生命周期问题（非常推荐！）（[![22](assets/22.png)](#code_g34_22)）。或者，您可以接受`const`引用参数，这样可以传递右值，但会面临临时对象的生命周期问题风险。在构造函数内部，我们再次首先使用所需模型的便捷类型别名（[![23](assets/23.png)](#code_g34_23)），然后检查模型的实际大小和对齐方式（[![24](assets/24.png)](#code_g34_24)）。如果它不符合预期的
+    `MODEL_SIZE` 或指针对齐要求，我们将创建编译时错误。然后，我们通过 `std::construct_at()` 在类内存中构造新模型（[![25](assets/25.png)](#code_g34_25)）：
 - en: '[PRE38]'
+  id: totrans-232
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE38]'
 - en: 'In addition to the templated `ShapeConstRef` constructor, `ShapeConstRef` offers
     two constructors to enable a conversion from `Shape` instances ([![26](assets/26.png)](#code_g34_26)).
     While these are not strictly required, as we could also create an instance of
@@ -1496,8 +2046,10 @@
     though, as this is a good example for `friend`ship: `Shape` and `ShapeConstRef`
     truly belong together, work hand in hand, and are even provided in the same header
     file.'
+  id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了模板化的`ShapeConstRef`构造函数之外，`ShapeConstRef`还提供了两个构造函数，以便从`Shape`实例转换为`Shape`实例（[![26](assets/26.png)](#code_g34_26)）。虽然这些并非严格要求，因为我们也可以为`Shape`创建一个`NonOwningShapeModel`的实例，但这些构造函数直接为相应的底层形状类型创建了一个`NonOwningShapeModel`，从而减少了一个间接性，这有助于提高性能。请注意，要使这些构造函数起作用，`ShapeConstRef`需要成为`Shape`类的`friend`。不过，不用担心，这是友谊的一个很好的例子：`Shape`和`ShapeConstRef`真正是一对，共同工作，甚至在同一个头文件中提供。
 - en: 'The last noteworthy detail is the fact that the two move operations are neither
     explicitly declared nor deleted ([![27](assets/27.png)](#code_g34_27)). Since
     we have explicitly defined the two copy operations, the compiler neither creates
@@ -1509,20 +2061,28 @@
     the copy operations would be used instead, which are cheap and efficient, since
     `ShapeConstRef` only represents a reference. Thus, this class deliberately implements
     the [Rule of 3](https://oreil.ly/hYYiq).'
+  id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后一个值得注意的细节是，这两个移动操作既没有显式声明也没有删除（[![27](assets/27.png)](#code_g34_27)）。由于我们已经显式定义了这两个复制操作，编译器既不创建也不删除这两个移动操作，因此它们不存在。完全不存在的意思是这两个函数在重载解析中从不参与。是的，这与显式删除它们是不同的：如果它们被删除，它们将参与重载解析，如果被选择，将导致编译错误。但是这两个函数不存在时，当您尝试移动`ShapeConstRef`时，将使用复制操作而不是移动操作，因为后者是廉价和高效的，由于`ShapeConstRef`只表示一个引用。因此，这个类有意实现了[三法则](https://oreil.ly/hYYiq)。
 - en: 'We are almost finished. The last detail is one more addition, one more constructor
     in the `Shape` class:'
+  id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们即将结束。最后一个细节是`Shape`类中的另一个构造函数的添加：
 - en: '[PRE39]'
+  id: totrans-236
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE39]'
 - en: Via this constructor, an instance of `Shape` creates a deep copy of the shape
     stored in the passed `ShapeConstRef` instance. Without this constructor, `Shape`
     stores a copy of the `ShapeConstRef` instance and thus acts as a reference itself.
+  id: totrans-237
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过这个构造函数，`Shape`的一个实例创建了传递的`ShapeConstRef`实例中存储的形状的深拷贝。如果没有这个构造函数，`Shape`将存储`ShapeConstRef`实例的副本，因此本质上也充当一个引用。
 - en: In summary, both nonowning implementations, the simple and the more complex
     one, give you all the design advantages of the Type Erasure design pattern but
     at the same time pull you back into the realm of reference semantics, with all
@@ -1532,33 +2092,47 @@
     tools for function arguments, but do not use them to store anything for a longer
     period, for instance in the form of a data member. The danger of lifetime-related
     issues is just too high.
+  id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，无论是简单的非所有权实现还是更复杂的实现，都能够为您提供类型擦除设计模式的所有设计优势，但同时将您拉回到引用语义的领域，伴随着所有其缺陷。因此，要利用这种非所有权形式的类型擦除的优势，但也要注意通常的生命周期问题。将其视为`std::string_view`和`std::span`的同等级别。所有这些都是非常有用的函数参数工具，但不要用它们来长期存储任何东西，比如作为数据成员的形式。生命周期相关问题的危险性实在是太高了。
 - en: ^([1](ch08.xhtml#idm45043085804224-marker)) Yes, I consider the manual use of
     `std::unique_ptr` manual lifetime management. But of course it could be much worse
     if we would not reach for the power of RAII.
+  id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch08.xhtml#idm45043085804224-marker)) 是的，我认为手动使用`std::unique_ptr`是手动管理生命周期。但当然，如果我们不利用RAII的力量，情况可能会更糟。
 - en: '^([2](ch08.xhtml#idm45043085802544-marker)) The term Type Erasure is heavily
     overloaded, as it is used in different programming languages and for many different
     things. Even within the C++ community, you hear the term being used for various
     purposes: you might have heard it being used to denote `void*`, pointers-to-base,
     and `std::variant`. In the context of software design, I consider this a very
     unfortunate issue. I will address this issue at the end of this guideline.'
+  id: totrans-240
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch08.xhtml#idm45043085802544-marker)) “类型擦除”这个术语的意义非常多样化，在不同的编程语言中用于许多不同的事情。即使在C++社区内部，此术语也被用于多种目的：您可能听说过它被用来表示`void*`、指向基类的指针和`std::variant`。在软件设计的背景下，我认为这是一个非常不幸的问题。我将在本指南的末尾解决这个问题。
 - en: ^([3](ch08.xhtml#idm45043085797440-marker)) Sean Parent, “Inheritance Is the
     Base Class of Evil,” GoingNative 2013, [YouTube](https://oreil.ly/COYs2).
+  id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch08.xhtml#idm45043085797440-marker)) Sean Parent，《Inheritance Is the
+    Base Class of Evil》，GoingNative 2013，[YouTube](https://oreil.ly/COYs2)。
 - en: ^([4](ch08.xhtml#idm45043085793120-marker)) Kevlin Henney, “Valued Conversions,”
     *C++ Report*, July-August 2000, [CiteSeer](https://oreil.ly/BPCjV).
+  id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch08.xhtml#idm45043085793120-marker)) Kevlin Henney，《Valued Conversions》，*C++
+    Report*，2000年7-8月，[CiteSeer](https://oreil.ly/BPCjV)。
 - en: '^([5](ch08.xhtml#idm45043085790080-marker)) For an introduction to `std::function`,
     see [“Guideline 23: Prefer a Value-Based Implementation of Strategy and Command”](ch05.xhtml#prefer_a_value_based_implementation_of_strategy_and_command).'
+  id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch08.xhtml#idm45043085790080-marker)) 欲了解`std::function`的简介，请参阅[“指南23：偏好基于值的策略和命令实现”](ch05.xhtml#prefer_a_value_based_implementation_of_strategy_and_command)。
 - en: '^([6](ch08.xhtml#idm45043084954144-marker)) The placement of `ShapeConcept`
     and `OwningShapeModel` in a namespace is purely an implementation detail of this
     example implementation. Still, as you will see in [“Guideline 34: Be Aware of
@@ -1566,83 +2140,115 @@
     this choice will come in pretty handy. Alternatively, these two classes can be
     implemented as nested classes. You will see examples of this in [“Guideline 33:
     Be Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure).'
+  id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch08.xhtml#idm45043084954144-marker)) 在这个示例实现中，`ShapeConcept`和`OwningShapeModel`的命名空间放置纯粹是一个实现细节。然而，正如您将在[“指南34：注意拥有类型擦除包装器的设置成本”](#be_aware_of_the_setup_costs_of_owning_type_erasure_wrappers)中看到的，这个选择非常方便。或者，这两个类可以作为嵌套类实现。您将在[“指南33：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)中看到这方面的示例。
 - en: '^([7](ch08.xhtml#idm45043083389632-marker)) Refer to [“Guideline 31: Use External
     Polymorphism for Nonintrusive Runtime Polymorphism”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)
     for the implementation based on `std::function`.'
+  id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch08.xhtml#idm45043083389632-marker)) 有关基于`std::function`实现的非侵入式运行时多态的详细内容，请参阅[“指南31：使用外部多态实现非侵入式运行时多态”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)。
 - en: ^([8](ch08.xhtml#idm45043083443376-marker)) Many thanks to Arthur O’Dwyer for
     providing this example.
+  id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch08.xhtml#idm45043083443376-marker)) 非常感谢Arthur O’Dwyer提供此示例。
 - en: '^([9](ch08.xhtml#idm45043083097792-marker)) Again, please don’t consider these
     performance numbers the perfect truth. These are the performance results on my
     machine and my implementation. Your results will differ for sure. However, the
     takeaway is that Type Erasure performs really well and might perform even better
     if we take the many optimization options into account (see [“Guideline 33: Be
     Aware of the Optimization Potential of Type Erasure”](#know_about_the_optimization_potential_of_type_erasure)).'
+  id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch08.xhtml#idm45043083097792-marker)) 再次强调，请不要认为这些性能数字是绝对的真相。这些是在我的机器和我的实现上的性能结果。您的结果肯定会有所不同。然而，重要的是，类型擦除的性能表现非常出色，如果我们考虑到许多优化选项，它可能会表现得更好（参见[“指南33：了解类型擦除的优化潜力”](#know_about_the_optimization_potential_of_type_erasure)）。
 - en: ^([10](ch08.xhtml#idm45043083092752-marker)) Eric Niebler on [Twitter](https://oreil.ly/SXeni),
     June 19, 2020.
+  id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch08.xhtml#idm45043083092752-marker)) Eric Niebler在[推特](https://oreil.ly/SXeni)，2020年6月19日。
 - en: '^([11](ch08.xhtml#idm45043083089328-marker)) For an introduction of `std::variant`,
     see [“Guideline 17: Consider std::variant for Implementing Visitor”](ch04.xhtml#consider_std_variant_for_implementing_visitors).'
+  id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch08.xhtml#idm45043083089328-marker)) 欲了解`std::variant`的简介，请参阅[“指南17：考虑使用std::variant实现访问者”](ch04.xhtml#consider_std_variant_for_implementing_visitors)。
 - en: ^([12](ch08.xhtml#idm45043083072592-marker)) You should avoid going too deep,
     though, as you probably remember what happened to the dwarves of Moria who dug
     too deep…
+  id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch08.xhtml#idm45043083072592-marker)) 不过，您应该避免过度深入，就像摩利亚的矮人挖得太深时发生的事情一样……
 - en: ^([13](ch08.xhtml#idm45043082896256-marker)) Alternatively, you could use an
     array of bytes, e.g., `std::byte[Capacity]` or [`std::aligned_storage`](https://oreil.ly/nE5SK).
     The advantage of `std::array` is that it enables you to copy the buffer (if that
     is applicable!).
+  id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch08.xhtml#idm45043082896256-marker)) 或者，您可以使用字节数组，例如，`std::byte[Capacity]`或[`std::aligned_storage`](https://oreil.ly/nE5SK)。`std::array`的优点在于它使您能够复制缓冲区（如果适用的话！）。
 - en: ^([14](ch08.xhtml#idm45043082912976-marker)) Note that the choice for the default
     arguments for `Capacity` and `Alignment` are reasonable but still arbitrary. You
     can, of course, use different defaults that best fit the properties of the expected
     actual types.
+  id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([14](ch08.xhtml#idm45043082912976-marker)) 请注意，默认参数`Capacity`和`Alignment`的选择是合理的，但仍然是任意的。当然，您可以使用最适合预期实际类型属性的不同默认值。
 - en: ^([15](ch08.xhtml#idm45043082806592-marker)) You might not have seen a placement
     `new` before. If that’s the case, rest assured that this form of `new` doesn’t
     perform any memory allocation, but only calls a constructor to create an object
     at the specified address. The only syntactic difference is that you provide an
     additional pointer argument to `new`.
+  id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([15](ch08.xhtml#idm45043082806592-marker)) 您可能以前没有见过放置`new`。如果是这样，请放心，这种形式的`new`不执行任何内存分配，而仅调用构造函数以在指定地址创建对象。唯一的语法区别是您提供了一个额外的指针参数给`new`。
 - en: '^([16](ch08.xhtml#idm45043081309312-marker)) As a reminder, since you might
     not see this syntax often: the `template` keyword in the constructor is necessary
     because we are trying to call a function template on a dependent name (a name
     whose meaning depends on a template parameter). Therefore, you have to make it
     clear to the compiler that the following is the beginning of a template argument
     list and not a less-than comparison.'
+  id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([16](ch08.xhtml#idm45043081309312-marker)) 作为提醒，由于您可能不经常看到这种语法：构造函数中的`template`关键字是必需的，因为我们试图在一个依赖名称（其含义依赖于模板参数的名称）上调用一个函数模板。因此，您必须向编译器明确表明以下内容是模板参数列表的开始，而不是小于比较。
 - en: ^([17](ch08.xhtml#idm45043080813136-marker)) Some people consider function pointers
     to be the best feature of C++. In his lightning talk, [“The Very Best Feature
     of C++”](https://oreil.ly/hq15H), James McNellis demonstrates their syntactic
     beauty and enormous flexibility. Please do not take this too seriously, though,
     but rather as a humorous demonstration of a C++ imperfection.
+  id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([17](ch08.xhtml#idm45043080813136-marker)) 有些人认为函数指针是C++的最佳功能。在他的闪电演讲中，[“C++的最佳功能”](https://oreil.ly/hq15H)，James
+    McNellis展示了它们的语法美感和巨大的灵活性。但请不要过于认真，而是把它作为C++缺陷的一种幽默演示。
 - en: ^([18](ch08.xhtml#idm45043079519664-marker)) At the time of writing, there is
     an active [proposal](https://oreil.ly/p3cFD) for the `std::function_ref` type,
     a nonowning version of `std::function`.
+  id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([18](ch08.xhtml#idm45043079519664-marker)) 在撰写本文时，有一个关于`std::function_ref`类型的活跃[提案](https://oreil.ly/p3cFD)，这是`std::function`的非拥有版本。
 - en: ^([19](ch08.xhtml#idm45043079442800-marker)) The term [*cv qualified*](https://oreil.ly/TGlBO)
     refers to the `const` and `volatile` qualifiers.
+  id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([19](ch08.xhtml#idm45043079442800-marker)) 术语[*cv qualified*](https://oreil.ly/TGlBO)指的是`const`和`volatile`限定符。
 - en: '^([20](ch08.xhtml#idm45043079319984-marker)) For a reminder about lvalues and
     rvalues, refer to Nicolai Josuttis’s book on move semantics: *C++ Move Semantics
     - The Complete Guide*.'
+  id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([20](ch08.xhtml#idm45043079319984-marker)) 关于左值和右值的提醒，请参阅Nicolai Josuttis的关于移动语义的书籍：*C++
+    Move Semantics - The Complete Guide*。

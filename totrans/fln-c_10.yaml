@@ -1,7 +1,9 @@
 - en: 'Chapter 9\. Escaping #ifdef Hell'
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第九章\. 逃离`#ifdef`地狱
 - en: C is widespread, in particular with systems where high-performance or hardware-near
     programming is required. With hardware-near programming comes the necessity of
     dealing with hardware variants. Aside from hardware variants, some systems support
@@ -10,8 +12,10 @@
     of the C preprocessor to distinguish variants in the code. The C preprocessor
     comes with this power, but with this power also comes the responsibility to use
     it in a well-structured way.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: C语言广泛应用于需要高性能或接近硬件编程的系统中。与接近硬件编程相关的是处理硬件变体的必要性。除了硬件变体，一些系统在代码中支持多个操作系统或处理多个产品变体。解决这些问题的常用方法是使用C预处理器的`#ifdef`语句来区分代码中的变体。C预处理器提供了这种功能，但使用它需要按照良好的结构化方式使用。
 - en: However, that is where the weakness of the C preprocessor with its `#ifdef`
     statements shows up. The C preprocessor does not support any methods to enforce
     rules regarding its usage. That is a pity, because it can very easily be abused.
@@ -20,65 +24,92 @@
     be abused to add quick bug fixes that only affect a single variant. That makes
     the code for different variants more diverse and leads to code that increasingly
     has to be fixed for each of the variants separately.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这也揭示了C预处理器及其`#ifdef`语句的弱点。C预处理器不支持强制其使用规则的方法。这很遗憾，因为它很容易被滥用。通过添加另一个`#ifdef`，很容易为代码添加另一个硬件变体或另一个可选功能。此外，`#ifdef`语句很容易被滥用来添加仅影响单个变体的快速错误修复。这使得不同变体的代码更加多样化，并导致需要为每个变体单独修复代码的情况越来越多。
 - en: Using `#ifdef` statements in such an unstructured and ad-hoc way is the certain
     path to hell. The code becomes unreadable and unmaintainable, which all developers
     should avoid. This chapter presents approaches to escape from such a situation
     or avoid it altogether.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种非结构化和临时的方式中使用`#ifdef`语句是通往地狱的必定路径。代码变得难以阅读和维护，所有开发人员都应该避免。本章介绍了几种摆脱这种情况或完全避免的方法。
 - en: This chapter gives detailed guidance on how to implement variants, like operating
     system variants or hardware variants, in C code. It discusses five patterns on
     how to cope with code variants as well as how to organize or even get rid of `#ifdef`
     statements. The patterns can be viewed as an introduction to organizing such code
     or as a guide on how to refactor unstructured `#ifdef` code.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章详细介绍了如何在C代码中实现操作系统变体或硬件变体。它讨论了五种处理代码变体的模式以及如何组织或甚至摆脱`#ifdef`语句。这些模式可以视为组织此类代码的入门或重构非结构化`#ifdef`代码的指南。
 - en: '[Figure 9-1](#fig_ifdef) shows the way out of the `#ifdef` nightmare, and [Table 9-1](#tab_ifdef)
     provides a short summary of the patterns discussed in this chapter.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 9-1](#fig_ifdef)展示了逃离`#ifdef`噩梦的方式，[表 9-1](#tab_ifdef)提供了本章讨论的模式的简要总结。'
 - en: '![The way out of the #ifdef nightmare](assets/fluc_0901.png)'
+  id: totrans-6
   prefs: []
   type: TYPE_IMG
+  zh: '![逃离`#ifdef`噩梦的方法](assets/fluc_0901.png)'
 - en: Figure 9-1\. The way out of `#ifdef` hell
+  id: totrans-7
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 9-1\. 逃离`#ifdef`地狱的方式
 - en: Table 9-1\. Patterns on how to escape `#ifdef` hell
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 表格 9-1\. 逃离`#ifdef`地狱的模式
 - en: '|  | Pattern name | Summary |'
+  id: totrans-9
   prefs: []
   type: TYPE_TB
+  zh: '|  | 模式名称 | 摘要 |'
 - en: '| --- | --- | --- |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '|  | Avoid Variants | Using different functions for each platform makes the
     code harder to read and write. The programmer is required to initially understand,
     correctly use, and test these multiple functions in order to achieve a single
     functionality across multiple platforms. Therefore, use standardized functions
     that are available on all platforms. If there are no standardized functions, consider
     not implementing the functionality. |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '|  | 避免变体 | 在每个平台上使用不同的函数使得代码更难读写。程序员需要最初理解、正确使用和测试这些多个函数，以实现跨多个平台的单一功能。因此，应使用在所有平台上都可用的标准化函数。如果没有标准化函数，则考虑不实现此功能。
+    |'
 - en: '|  | Isolated Primitives | Having code variants organized with `#ifdef` statements
     makes the code unreadable. It is very difficult to follow the program flow, because
     it is implemented multiple times for multiple platforms. Therefore, isolate your
     code variants. In your implementation file, put the code handling the variants
     into separate functions and call these functions from your main program logic,
     which then contains only platform-independent code. |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '|  | 隔离原语 | 使用`#ifdef`语句组织代码变体使得代码难以阅读。很难跟踪程序流程，因为为多个平台多次实现了代码。因此，隔离您的代码变体。在您的实现文件中，将处理变体的代码放入单独的函数，并从主程序逻辑调用这些函数，这样主程序逻辑只包含与平台无关的代码。
+    |'
 - en: '|  | Atomic Primitives | The function that contains the variants and is called
     by the main program is still hard to comprehend because all the complex `#ifdef`
     code was only put into this function in order to get rid of it in the main program.
     Therefore, make your primitives atomic. Only handle exactly one kind of variant
     per function. If you handle multiple kinds of variants—for example, operating
     system variants and hardware variants—then have separate functions for each. |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '|  | 原子原语 | 包含变体的函数仍然难以理解，因为所有复杂的`#ifdef`代码仅放入该函数以便在主程序中摆脱它。因此，将您的原语设为原子。每个函数仅处理一种变体类型。如果处理多种类型的变体，例如操作系统变体和硬件变体，则为每种类型单独创建函数。
+    |'
 - en: '|  | Abstraction Layer | You want to use the functionality that handles platform
     variants at several places in your codebase, but you do not want to duplicate
     the code of that functionality. Therefore, provide an API for each functionality
@@ -86,34 +117,48 @@
     in the header file and put all platform-specific `#ifdef` code into the implementation
     file. The caller of your functions includes only your header file and does not
     have to include any platform-specific files. |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '|  | 抽象层 | 你希望在代码库中的多个地方使用处理平台变体的功能，但不希望复制该功能的代码。因此，为每个需要特定于平台的功能提供一个API。在头文件中只定义与平台无关的函数，并将所有特定于平台的`#ifdef`代码放入实现文件中。调用您函数的人只需包含您的头文件，而不需要包含任何特定于平台的文件。
+    |'
 - en: '|  | Split Variant Implementations | The platform-specific implementations
     still contain `#ifdef` statements to distinguish between code variants. That makes
     it difficult to see and select which part of the code should be built for which
     platform. Therefore, put each variant implementation into a separate implementation
     file and select per file what you want to compile for which platform. |'
+  id: totrans-15
   prefs: []
   type: TYPE_TB
+  zh: '|  | 拆分变体实现 | 仍然包含`#ifdef`语句的特定于平台的实现以区分代码变体。这使得难以看到并选择应为哪个平台构建的代码部分。因此，将每个变体实现放入单独的实现文件中，并选择每个文件为哪个平台编译。
+    |'
 - en: Running Example
+  id: totrans-16
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 运行示例
 - en: Let’s say you want to implement the functionality to write some text into a
     file to be stored in a newly created directory that, depending on a configuration
     flag, is either created in the current or in the home-directory. To make things
     more complicated, your code should run on Windows systems as well as on Linux
     systems.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设你想要实现将一些文本写入文件的功能，该文件将存储在新创建的目录中，具体取决于配置标志，可能是当前目录或主目录。为了使事情更复杂，您的代码应该在Windows系统和Linux系统上运行。
 - en: 'Your first attempt is to have one implementation file that contains all the
     code for all configurations and operating systems. To do that, the file contains
     many `#ifdef` statements to distinguish between the code variants:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的第一次尝试是创建一个包含所有配置和操作系统代码的实现文件。为了做到这一点，该文件包含许多`#ifdef`语句来区分代码变体：
 - en: '[PRE0]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: This code is chaos. The program logic is completely duplicated. This is not
     operating system-independent code; instead, it is only two different operating
     system–specific implementations put into one file. In particular, the orthogonal
@@ -125,360 +170,504 @@
     to fix errors or to add new features only in the code variant that they currently
     work on. That causes the code pieces and the behavior for the variants to drift
     apart, which makes the code hard to maintain.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种代码是混乱的。程序逻辑完全重复。这不是操作系统无关的代码；相反，它只是将两个不同的操作系统特定实现放入一个文件中。特别是，不同操作系统和不同目录创建位置的正交代码变体使代码变得丑陋，因为它们导致嵌套的`#ifdef`语句，这些语句非常难以理解。在阅读代码时，你必须不断地在这些行之间跳跃。你必须跳过其他`#ifdef`分支中的代码，以便跟随程序逻辑。这种重复的程序逻辑促使程序员只在当前工作的代码变体中修复错误或添加新功能。这导致代码片段和变体的行为分离，使代码难以维护。
 - en: Where to start? How to clean this mess up? As a first step, if possible, you
     can use standardized functions in order to Avoid Variants.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 从哪里开始？如何整理这一混乱局面？作为第一步，如果可能的话，你可以使用标准化函数以避免变体。
 - en: Avoid Variants
+  id: totrans-22
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 避免变体
 - en: Context
+  id: totrans-23
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You write portable code that should be used on multiple operating system platforms
     or on multiple hardware platforms. Some of the functions you call in your code
     are available on one platform, but are not available in exactly the same syntax
     and semantics on another platform. Because of this, you implement code variants—one
     for each platform. Now you have different pieces of code for your different platforms,
     and you distinguish between the variants with `#ifdef` statements in your code.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你编写可在多个操作系统平台或多个硬件平台上使用的可移植代码时，你可能会调用一些函数，这些函数在一个平台上可用，但在另一个平台上的语法和语义可能不完全相同。因此，你需要实现不同的代码变体——每个平台一个。现在你在不同平台上有不同的代码片段，并且在代码中使用`#ifdef`语句区分这些变体。
 - en: Problem
+  id: totrans-25
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**Using different functions for each platform makes the code harder to read
     and write. The programmer is required to initially understand, correctly use,
     and test these multiple functions in order to achieve a single functionality across
     multiple platforms.**'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: '**为每个平台使用不同的函数使得代码更难阅读和编写。程序员需要首先理解、正确使用和测试这些多个函数，才能在多个平台上实现单一功能。**'
 - en: Quite often it is the aim to implement functionality that should behave exactly
     the same on all platforms, but when using platform-dependent functions, that aim
     is more difficult to achieve and might require writing additional code. This is
     because not only the syntax but also the semantics of the functions might differ
     slightly between the platforms.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 很多时候，我们的目标是在所有平台上实现行为完全相同的功能，但是当使用依赖于平台的函数时，这一目标变得更加困难，并且可能需要编写额外的代码。这是因为函数的语法和语义在各平台间可能略有不同。
 - en: Using multiple functions for multiple platforms makes the code more difficult
     to write, read, and understand. Distinguishing between the different functions
     with `#ifdef` statements makes the code longer and requires the reader to jump
     across lines to find out what the code does for a single `#ifdef` branch.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 对多个平台使用多个函数使得代码更难编写、阅读和理解。用`#ifdef`语句区分不同函数使得代码变得更长，并要求读者在多个行之间跳跃以查明单个`#ifdef`分支的代码功能。
 - en: With any piece of code that you have to write, you can ask yourself if it is
     worth the effort. If the required functionality is not an important one, and if
     platform-specific functions make it very difficult to implement and support that
     functionality, then it is an option to not provide that functionality at all.
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于你需要编写的任何代码片段，你可以问自己这样一个问题：这是否值得努力？如果所需功能并不重要，并且如果特定于平台的函数使得实现和支持该功能非常困难，那么有可能选择根本不提供该功能。
 - en: Solution
+  id: totrans-30
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Use standardized functions that are available on all platforms. If there
     are no standardized functions, consider not implementing the functionality.**'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用在所有平台上都可用的标准化函数。如果没有标准化函数可用，则考虑不实现该功能。**'
 - en: 'Good examples of standardized functions that you can use are the C standard
     library functions and the POSIX functions. Consider which platforms you want to
     support and check that these standardized functions are available on all your
     platforms. If possible, such standardized functions should be used instead of
     more specific platform-dependent functions as shown in the following code:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以使用的良好的标准化函数示例包括 C 标准库函数和 POSIX 函数。考虑要支持的平台，并检查这些标准化函数在所有平台上是否可用。如果可能的话，应该使用这些标准化函数，而不是更特定的依赖平台的函数，如下面代码所示：
 - en: '*Caller’s code*'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE1]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '*Standardized API*'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '*标准化的 API*'
 - en: '[PRE2]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Again, if no standardized functions exist for what you want, you probably shouldn’t
     implement the requested functionality. If there are only platform-dependent functions
     available for the functionality you want to implement, then it might not be worth
     the implementation, testing, and maintenance effort.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次强调，如果没有您想要的标准化函数，那么您可能不应该实现所请求的功能。如果仅有依赖于平台的函数可用于您要实现的功能，则可能不值得进行实现、测试和维护工作。
 - en: However, in some cases you do have to provide functionality in your product
     even if there are no standardized functions available. That means you have to
     use different functions across different platforms or maybe even implement features
     on one platform that are already available on another. To do that in a structured
     way, have Isolated Primitives for your code variants and hide them behind an Abstraction
     Layer.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在某些情况下，即使没有标准化的函数可用，您也必须在产品中提供功能。这意味着您必须在不同平台上使用不同的函数，或者甚至在一个平台上实现已在另一个平台上可用的功能。为了以结构化的方式实现这一点，对于您的代码变体，请使用隔离原语，并将其隐藏在一个抽象层后面。
 - en: To avoid variants you can, for example, use C standard library file access functions
     like `fopen` instead of using operating system–specific functions like Linux’s
     `open` or Windows’ `CreateFile` functions. As another example, you can use the
     C standard library time functions. Avoid using operating system–specific time
     functions like Windows’ `GetLocalTime` and Linux’s `localtime_r`; use the standardized
     `localtime` function from *time.h* instead.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，为了避免变体，您可以使用 C 标准库文件访问函数如 `fopen`，而不是使用操作系统特定的函数如 Linux 的 `open` 或 Windows
+    的 `CreateFile` 函数。另一个例子，您可以使用 C 标准库的时间函数。避免使用操作系统特定的时间函数，如 Windows 的 `GetLocalTime`
+    和 Linux 的 `localtime_r`，而应该使用 *time.h* 中的标准化 `localtime` 函数。
 - en: Consequences
+  id: totrans-40
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: The code is simple to write and read because a single piece of code can be used
     for multiple platforms. The programmer does not have to understand different functions
     for different platforms when writing the code, and they don’t have to jump between
     `#ifdef` branches when reading the code.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 代码写起来和读起来都很简单，因为可以为多个平台使用同一段代码。在编写代码时，程序员不必理解不同平台的不同函数，而在阅读代码时也不必在 `#ifdef`
+    分支之间跳转。
 - en: Since the same piece of code is being used across all platforms, functionality
     doesn’t differ. But the standardized function might not be the most efficient
     or high-performance way to achieve the required functionality on each of the platforms.
     Some platforms might provide other platform-specific functions that, for example,
     use specialized hardware on that platform to achieve higher performance. These
     advantages may not be used by the standardized functions.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于相同的代码片段在所有平台上都被使用，功能不会有所不同。但标准化的函数可能不是在每个平台上实现所需功能的最有效或高性能方式。一些平台可能提供其他平台特定的函数，例如使用该平台上的专用硬件来实现更高性能。这些优势可能无法被标准化函数利用。
 - en: Known Uses
+  id: totrans-43
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知的用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的例子展示了这种模式的应用：
 - en: The code of the VIM text editor uses the operating system–independent functions
     `fopen`, `fwrite`, `fread`, and `fclose` to access files.
+  id: totrans-45
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: VIM 文本编辑器的代码使用操作系统独立的函数 `fopen`、`fwrite`、`fread` 和 `fclose` 来访问文件。
 - en: The OpenSSL code writes the current local time to its log messages. To do that,
     it converts the current UTC time to local time using the operating system–independent
     function `localtime`.
+  id: totrans-46
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL 代码将当前的本地时间写入其日志消息中。为此，它使用操作系统独立函数 `localtime` 将当前的 UTC 时间转换为本地时间。
 - en: The OpenSSL function `BIO_lookup_ex` looks up the node and service to connect
     to. This function is compiled on Windows and Linux and uses the operating system–independent
     function `htons` to convert a value to network byte order.
+  id: totrans-47
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL 函数 `BIO_lookup_ex` 查找要连接的节点和服务。此函数在 Windows 和 Linux 上编译，并使用操作系统独立函数
+    `htons` 将值转换为网络字节顺序。
 - en: Applied to Running Example
+  id: totrans-48
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'For your functionality to access files, you are in a lucky position because
     there are operating system–independent functions available. You now have the following
     code:'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于访问文件功能，您处于幸运的位置，因为现在有可用的操作系统无关函数。现在您有以下代码：
 - en: '[PRE3]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '[![1](assets/1.png)](#co_escaping__ifdef_hell_CO1-1)'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_escaping__ifdef_hell_CO1-1)'
 - en: The functions `fopen`, `fwrite`, and `fclose` are part of the C standard library
     and are available on Windows as well as on Linux.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数`fopen`、`fwrite`和`fclose`属于C标准库的一部分，可以在Windows和Linux上使用。
 - en: The standardized file-related function calls in that code made things a lot
     simpler already. Instead of having the separate file access calls for Windows
     and for Linux, you now have one common code. The common code ensures that the
     calls perform the same functionality for both operating systems, and there is
     no danger that two different implementations run apart after bug fixes or added
     features.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 该代码中的标准化文件相关函数调用已经简化了事情。现在不再需要为Windows和Linux分别提供独立的文件访问调用，而是有了一个通用代码。通用代码确保这些调用在两个操作系统上执行相同的功能，并且不存在在bug修复或添加功能后两种不同实现运行不同的危险。
 - en: However, because your code is still dominated by `#ifdefs`, it is very difficult
     to read. Therefore, make sure that your main program logic does not get obfuscated
     by code variants. Have Isolated Primitives separating the code variants from the
     main program logic.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，由于您的代码仍然被`#ifdef`所主导，因此阅读起来非常困难。因此，请确保您的主程序逻辑不会被代码变体混淆。使用隔离的原语将代码变体与主程序逻辑分开。
 - en: Isolated Primitives
+  id: totrans-55
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 隔离的原语
 - en: Context
+  id: totrans-56
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 背景
 - en: Your code calls platform-specific functions. You have different pieces of code
     for different platforms, and you distinguish between the code variants with `#ifdef`
     statements. You cannot simply Avoid Variants because there are no standardized
     functions available that provide the feature you need in a uniform way on all
     your platforms.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的代码调用特定于平台的函数。您为不同平台编写了不同的代码片段，并使用`#ifdef`语句区分代码变体。您不能简单地避免变体，因为没有可用的标准化函数可以在所有平台上以统一的方式提供所需功能。
 - en: Problem
+  id: totrans-58
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**Having code variants organized with `#ifdef` statements makes the code unreadable.
     It is very difficult to follow the program flow, because it is implemented multiple
     times for multiple platforms.**'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '**使用`#ifdef`语句组织代码变体会使代码变得难以阅读。程序流程非常难以跟踪，因为为多个平台实现了多次。**'
 - en: When trying to understand the code, you usually focus on only one platform,
     but the `#ifdefs` force you to jump between the lines in the code to find the
     code variant you are interested in.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 在尝试理解代码时，通常只关注一个平台，但`#ifdef`强制您在代码行之间跳转，以找到感兴趣的代码变体。
 - en: The `#ifdef` statements also make the code difficult to maintain. Such statements
     invite programmers to only fix the code for the one platform they are interested
     in and to not touch any other code because of the danger of breaking it. But only
     fixing a bug or introducing a new feature for one platform means that the behavior
     of the code on the other platforms drifts apart. The alternative—to fix such a
     bug on all platforms in different ways—requires testing the code on all platforms.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '`#ifdef`语句还使代码难以维护。这些语句促使程序员仅修复他们感兴趣的平台上的代码，并因危险破坏其他代码而不敢触碰其他代码。但仅为一个平台修复错误或引入新功能意味着代码在其他平台上的行为会分歧。另一种选择——以不同方式在所有平台上修复此类错误——需要在所有平台上测试代码。'
 - en: Testing code with many code variants is difficult. Each new kind of `#ifdef`
     statement doubles the testing effort because all possible combinations have to
     be tested. Even worse, each such statement doubles the number of binaries that
     can be built and have to be tested. That brings in a logistic problem because
     build times increase and the number of binaries provided to the test department
     and to the customer increases.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用许多代码变体测试代码很困难。每个新的`#ifdef`语句都会使测试工作量加倍，因为必须测试所有可能的组合。更糟糕的是，每个这样的语句都会使可以构建和必须测试的二进制文件数量加倍。这带来了一个物流问题，因为构建时间增加，向测试部门和客户提供的二进制文件数量也增加。
 - en: Solution
+  id: totrans-63
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Isolate your code variants. In your implementation file, put the code handling
     the variants into separate functions and call these functions from your main program
     logic, which then only contains platform-independent code.**'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '**隔离您的代码变体。在实现文件中，将处理变体的代码放入单独的函数中，并从主程序逻辑中调用这些函数，这样主程序逻辑只包含与平台无关的代码。**'
 - en: 'Each of your functions should either only contain program logic or only cope
     with handling variants. None of your functions should do both. So either there
     is no `#ifdef` statement at all in a function, or there are `#ifdef` statements
     with a single variant-dependent function call per `#ifdef` branch. Such a variant
     could be a software feature that is turned on or off by a build configuration,
     or it could be a platform variant as shown in the following code:'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个函数应该只包含程序逻辑或仅处理变体。不能有函数同时包含两者。因此，函数中要么根本没有`#ifdef`语句，要么有带有单个依赖于变体的函数调用的`#ifdef`分支。这样的变体可以是构建配置中打开或关闭的软件功能，也可以是平台变体，如下面的代码所示：
 - en: '[PRE4]'
+  id: totrans-66
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '[![1](assets/1.png)](#co_escaping__ifdef_hell_CO2-1)'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_escaping__ifdef_hell_CO2-1)'
 - en: Similar to `else if` statements, mutually exclusive variants can be expressed
     nicely using `#elif`.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似于`else if`语句，互斥的变体可以使用`#elif`表达得很好。
 - en: Utilizing a single function call per `#ifdef` branch should make it possible
     to find a good abstraction granularity for the functions handling the variants.
     Usually the granularity is exactly at the level of the available platform-specific
     or feature-specific functions to be wrapped.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个`#ifdef`分支每次调用一个函数应该使得能够找到处理变体的函数的良好抽象粒度。通常，粒度正好在可用的特定于平台或特性的函数包装级别上。
 - en: If the functions that handle the variants are still complicated and contain
     `#ifdef` cascades (nested `#ifdef` statements), it helps to make sure you only
     have Atomic Variants.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果处理变体的函数仍然复杂并包含`#ifdef`级联（嵌套的`#ifdef`语句），则有助于确保仅有原子变体。
 - en: Consequences
+  id: totrans-71
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: The main program logic is now easy to follow, because the code variants are
     separated from it. When reading the main code, it is no longer necessary to jump
     between the lines to find out what the code does on one specific platform.
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在可以轻松跟踪主程序逻辑，因为代码变体已与其分离。在阅读主代码时，不再需要在行之间跳跃以查明代码在特定平台上的作用。
 - en: To determine what the code does on one specific platform, you have to look at
     the called function that implements this variant. Having that code in a separately
     called function has the advantage that it can be called from other places in the
     file, and thus code duplications can be avoided. If the functionality is also
     required in other implementation files, then an Abstraction Layer has to be implemented.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 要确定代码在特定平台上的作用，必须查看实现此变体的调用函数。将该代码放在单独调用的函数中具有优势，因为可以从文件中的其他位置调用它，从而避免了代码重复。如果其他实现文件中也需要此功能，则必须实现抽象层。
 - en: No program logic should be introduced in the functions handling the variants,
     so it is easier to pinpoint bugs that do not occur on all platforms, because it
     is easy to identify the places in the code where the behavior of the platforms
     differs.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 不应在处理变体的函数中引入任何程序逻辑，因此更容易精确定位不在所有平台上发生的错误，因为可以轻松识别代码中平台行为不同的位置。
 - en: Code duplication becomes less of an issue since the main program logic is well
     separated from the variant implementations. There is no temptation to duplicate
     the program logic anymore, so there is no threat of then accidentally only making
     bug fixes in one of these duplications.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于主程序逻辑与变体实现明确分离，代码重复不再是问题。不再有重复程序逻辑的诱惑，因此不会意外地仅在这些复制中的一个中进行错误修复。
 - en: Known Uses
+  id: totrans-76
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: The code of the VIM text editor isolates the function `htonl2` that converts
     data to network byte order. The program logic of VIM defines `htonl2` as a macro
     in the implementation file. The macro is compiled differently depending on the
     platform endianness.
+  id: totrans-78
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: VIM文本编辑器的代码隔离了将数据转换为网络字节顺序的函数`htonl2`。VIM的程序逻辑在实现文件中将`htonl2`定义为宏。该宏根据平台的字节序编译方式不同。
 - en: The OpenSSL function `BIO_ADDR_make` copies socket information into an internal
     `struct`. The function uses `#ifdef` statements to handle operating system–specific
     and feature-specific variants distinguishing between Linux/Windows and IPv4/IPv6\.
     The function isolates these variants from the main program logic.
+  id: totrans-79
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL函数`BIO_ADDR_make`将套接字信息复制到内部`struct`中。该函数使用`#ifdef`语句处理特定于操作系统和特性的变体，区分Linux/Windows和IPv4/IPv6。该函数将这些变体与主程序逻辑隔离开来。
 - en: The function `load_rcfile` of GNUplot reads data from an initialization file
     and isolates operating system–specific file access operations from the rest of
     the code.
+  id: totrans-80
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: GNUplot的函数`load_rcfile`从初始化文件中读取数据，并将操作系统特定的文件访问操作与其余代码隔离开来。
 - en: Applied to Running Example
+  id: totrans-81
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now that you have Isolated Primitives, your main program logic is a lot easier
     to read and doesn’t require the reader to jump between the lines to keep the variants
     apart:'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你有了孤立的基元，你的主程序逻辑变得更容易阅读，不需要读者在各种变体之间跳来跳去了：
 - en: '[PRE5]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: The code variants are now well isolated. The program logic of the `main` function
     is very easy to read and understand without the variants. However, the new function
     `getDirectoryName` is still dominated by `#ifdefs` and is not easy to comprehend.
     It may help to only have Atomic Primitives.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在代码变体已经很好地隔离开来了。`main`函数的程序逻辑非常容易阅读和理解，没有变体的干扰。然而，新函数`getDirectoryName`仍然被`#ifdef`主导，不容易理解。只有原子基元可能会有所帮助。
 - en: Atomic Primitives
+  id: totrans-85
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 原子基元
 - en: Context
+  id: totrans-86
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You implemented variants in your code with `#ifdef` statements, and you put
     these variants into separate functions in order to have Isolated Primitives that
     handle these variants. The primitives separate the variants from the main program
     flow, which makes the main program well structured and easy to comprehend.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 你在代码中用`#ifdef`语句实现了变体，并将这些变体放入了单独的函数中，以处理这些变体。这些基元将变体从主程序流中分离出来，使得主程序结构清晰，易于理解。
 - en: Problem
+  id: totrans-88
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**The function that contains the variants and is called by the main program
     is still hard to comprehend because all the complex `#ifdef` code was only put
     into this function in order to get rid of it in the main program.**'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '**包含变体并被主程序调用的函数仍然很难理解，因为所有复杂的`#ifdef`代码只是为了在主程序中摆脱它。**'
 - en: Handling all kinds of variants in one function becomes difficult as soon as
     there are many different variants to handle. If, for example, a single function
     uses `#ifdef` statements to distinguish between different hardware types and operating
@@ -487,165 +676,230 @@
     in one place anymore; instead, the effort multiplies with the number of different
     variants. That is a problem. It should be easy to add new variants at one place
     in the code.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 处理所有种类的变体在一个函数中变得困难，一旦有许多不同的变体需要处理。例如，如果单个函数使用`#ifdef`语句区分不同的硬件类型和操作系统，则添加新的操作系统变体会变得困难，因为必须为所有硬件变体添加。每种变体不能再在一个地方处理；相反，随着不同变体数量的增加，工作量也会成倍增加。这是一个问题。在代码中添加新的变体应该是简单的。
 - en: Solution
+  id: totrans-91
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Make your primitives atomic. Only handle exactly one kind of variant per
     function. If you handle multiple kinds of variants—for example, operating system
     variants and hardware variants—then have separate functions for each.**'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: '**确保你的基元是原子的。每个函数只处理一种变体。如果你处理多种变体，例如操作系统变体和硬件变体，那么应该为每种情况编写独立的函数。**'
 - en: 'Let one of these functions call another that already abstracts one kind of
     variant. If you abstract a platform-dependence and a feature-dependence, then
     let the feature-dependent function be the one calling the platform-dependent function,
     because you usually provide features across all platforms. Therefore, platform-dependent
     functions should be the most atomic functions, as shown in the following code:'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 让其中一个函数调用另一个已经抽象化了一种变体的函数。如果你抽象了一个平台依赖和一个特性依赖，那么让处理特性的函数调用处理平台的函数，因为通常你会在所有平台上提供这些特性。因此，平台相关函数应该是最原子化的函数，如下面的代码所示：
 - en: '[PRE6]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: If there is a function that clearly has to provide a functionality across multiple
     kinds of variants as well as handle all these kinds of variants, then the function
     scope might be wrong. Perhaps the function is too general or does more than one
     thing. Split the function as suggested by the Function Split pattern.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果有一个函数明显需要在多种变体之间提供功能，并处理所有这些变体，那么函数的范围可能有问题。也许函数过于通用或者功能不单一。按照“函数分割”模式建议，将函数进行拆分。
 - en: Call Atomic Primitives in your main code containing the program logic. If you
     want to use the Atomic Primitives in other implementation files with a well-defined
     interface, then use an Abstraction Layer.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 在包含程序逻辑的主代码中调用原子基元。如果你希望在具有明确定义接口的其他实现文件中使用原子基元，则应该使用抽象层。
 - en: Consequences
+  id: totrans-97
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: Each function now only handles one kind of variant. That makes each of the functions
     easy to understand because there are no more cascades of `#ifdef` statements.
     Each of the functions now only abstracts one kind of variant and does no more
     than exactly that one thing. So the functions follow the single-responsibility
     principle.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在每个函数只处理一种变体。这使得每个函数易于理解，因为不再存在`#ifdef`语句的级联。每个函数现在只抽象一种变体，只做这一件事。因此，函数遵循单一责任原则。
 - en: Having no `#ifdef` cascades makes it less tempting for programmers to simply
     handle one additional kind of variant in one function, because starting an `#ifdef`
     cascade is less likely than extending an existing cascade.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 没有`#ifdef`级联使得程序员在一个函数中处理额外的变体不那么诱人，因为开始一个`#ifdef`级联比扩展现有级联的可能性小。
 - en: With separate functions, each kind of variant can easily be extended for an
     additional variant. To achieve this, only one `#ifdef` branch has to be added
     in one function, and the functions which handle other kinds of variants do not
     have to be touched.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过独立的功能，每种变体都可以轻松地扩展为另一种变体。为了实现这一点，在一个函数中只需要添加一个`#ifdef`分支即可，而处理其他种类变体的函数则不需要改动。
 - en: Known Uses
+  id: totrans-101
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的示例展示了此模式的应用：
 - en: The OpenSSL implementation file *threads_pthread.c* contains functions for thread
     handling. There are separate functions to abstract operating systems and separate
     functions to abstract whether pthreads are available at all.
+  id: totrans-103
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL实现文件*threads_pthread.c*包含了线程处理的函数。有用于抽象操作系统的独立函数，以及用于抽象pthread是否可用的独立函数。
 - en: The code of SQLite contains functions to abstract operating system–specific
     file access (for example, the `fileStat` function). The code abstracts file access–related
     compile-time features with other separate functions.
+  id: totrans-104
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: SQLite的代码包含用于抽象特定操作系统文件访问（例如`fileStat`函数）的函数。代码用其他独立函数抽象与文件访问相关的编译时特性。
 - en: The Linux function `boot_jump_linux` calls another function that performs different
     boot actions depending on the CPU architecture that is handled via `#ifdef` statements
     in that function. Then the function `boot_jump_linux` calls another function that
     uses `#ifdef` statements to select which configured resources (USB, network, etc.)
     have to be cleaned up.
+  id: totrans-105
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Linux函数`boot_jump_linux`调用另一个函数，根据处理器体系结构执行不同的引导操作，通过该函数中的`#ifdef`语句选择配置资源（USB、网络等）进行清理。
 - en: Applied to Running Example
+  id: totrans-106
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'With Atomic Primitives you now have the following code for your functions to
     determine the directory path:'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，对于函数确定目录路径，使用原子原语，你有以下代码：
 - en: '[PRE7]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The code variants are now very well isolated. To obtain the directory name,
     instead of having one complicated function with many `#ifdefs`, you now have several
     functions that only have one `#ifdef` each. That makes it a lot easier to understand
     the code because now each of these functions only performs one thing instead of
     distinguishing between several kinds of variants with `#ifdef` cascades.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在代码变体被非常好地隔离。为了获取目录名，现在没有一个复杂的函数有许多`#ifdef`，而是有几个只有一个`#ifdef`的函数。这使得理解代码变得更容易，因为现在每个函数只执行一件事情，而不是用`#ifdef`级联区分几种变体。
 - en: The functions are now very simple and easy to read, but your implementation
     file is still very long. In addition, one implementation file contains the main
     program logic as well as code to distinguish between variants. This makes parallel
     development or separate testing of the variant code next to impossible.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数现在非常简单易读，但你的实现文件仍然很长。此外，一个实现文件既包含主程序逻辑，又包含区分变体的代码，这使得并行开发或在程序逻辑旁边独立测试变体代码几乎不可能。
 - en: To improve things, split the implementation file up into variant-dependent and
     variant-independent files. To do that, create an Abstraction Layer.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了改进，将实现文件分成依赖于变体和独立于变体的文件。为此，创建一个抽象层。
 - en: Abstraction Layer
+  id: totrans-112
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 抽象层
 - en: Context
+  id: totrans-113
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have platform variants that are distinguished with `#ifdef` statements in
     your code. You may have Isolated Primitives to separate the variants from the
     program logic and made sure that you have Atomic Primitives.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 在你的代码中，你有用`#ifdef`语句区分的平台变体。你可能有用于分离变体和确保具有原子原语的隔离原语，以确保在你的程序逻辑中分离变体。
 - en: Problem
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to use the functionality which handles platform variants at several
     places in your codebase, but you do not want to duplicate the code of that functionality.**'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: '**您希望在代码库中的多个位置使用处理平台变体的功能，但不希望复制该功能的代码。**'
 - en: Your callers might be used to work directly with platform-specific functions,
     but you don’t want that anymore because each of the callers has to implement platform
     variants on their own. Generally, callers should not have to cope with platform
     variants. In the callers’ code, it should not be necessary to know anything about
     implementation details for the different platforms, and the callers should not
     have to use any `#ifdef` statements or include any platform-specific header files.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的调用者可能习惯于直接使用特定于平台的函数，但您不再希望如此，因为每个调用者都必须自行实现平台变体。通常情况下，调用者不应该处理平台变体。在调用者的代码中，不需要了解不同平台的实现细节，调用者也不需要使用任何
+    `#ifdef` 语句或包含任何特定于平台的头文件。
 - en: You are even considering working with different programmers (not the ones responsible
     for the platform-independent code) to separately develop and test the platform-dependent
     code.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 您甚至在考虑与不负责平台无关代码的不同程序员分开开发和测试平台相关代码。
 - en: You want to be able to change the platform-specific code later on without requiring
     the caller of this code to care about this change. If programmers of the platform-dependent
     code perform a bug fix for one platform or if they add an additional platform,
     then this must not require changes to the caller’s code.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望能够在不要求调用此代码的调用者关心此更改的情况下稍后更改特定于平台的代码。如果平台相关代码的程序员为一个平台修复错误或添加额外的平台，则不应要求调用者的代码进行更改。
 - en: Solution
+  id: totrans-120
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Provide an API for each functionality that requires platform-specific code.
     Define only platform-independent functions in the header file and put all platform-specific
     `#ifdef` code into the implementation file. The caller of your functions only
     includes your header file and does not have to include any platform-specific files.**'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: '**为每个需要特定于平台代码的功能提供一个 API。在头文件中仅定义平台无关函数，并将所有特定于平台的 `#ifdef` 代码放入实现文件中。您的函数的调用者仅包含您的头文件，不必包含任何特定于平台的文件。**'
 - en: Try to design a stable API for the abstraction layer, because changing the API
     later on requires changes in your caller’s code and sometimes that is not possible.
     However, it is very difficult to design a stable API. For platform abstractions,
@@ -653,334 +907,483 @@
     you have a sense of how they work and what the differences are, you can create
     an API to abstract features for these platforms. That way, you won’t need to change
     the API later, even when you’re adding support for different platforms.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 尝试为抽象层设计稳定的 API，因为以后更改 API 将需要更改调用者的代码，有时这是不可能的。然而，设计稳定的 API 非常困难。对于平台抽象，请试着查看不同的平台，甚至是您尚未支持的平台。在了解它们的工作方式和差异之后，您可以创建一个
+    API 来为这些平台的特性进行抽象。这样，即使在为不同平台添加支持时，您也不需要后续更改 API。
 - en: Make sure to document the API thoroughly. Add comments to each function describing
     what the function does. Also, describe on which platforms the functions are supported
     if that is not clearly defined elsewhere for your whole codebase.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 确保彻底记录 API。添加注释到每个函数以描述其功能。此外，如果在整个代码库中未明确定义的话，请描述这些函数支持的平台。
 - en: 'The following code shows a simple Abstraction Layer:'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的代码展示了一个简单的抽象层：
 - en: '*caller.c*'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '*caller.c*'
 - en: '[PRE8]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '*someFeature.h*'
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFeature.h*'
 - en: '[PRE9]'
+  id: totrans-128
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '*someFeature.c*'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFeature.c*'
 - en: '[PRE10]'
+  id: totrans-130
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Consequences
+  id: totrans-131
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: The abstracted features can be used from anywhere in the code and not only from
     one single implementation file. In other words, now you have distinct roles of
     caller and callee. The callee has to cope with platform variants, and the caller
     can be platform independent.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 抽象特性可以从代码的任何地方使用，而不仅仅是从单个实现文件中。换句话说，现在您有了调用者和被调用者的明确角色。被调用者必须处理平台变体，而调用者可以是平台无关的。
 - en: The benefit to this setup is the caller does not have to cope with platform-specific
     code. The caller simply includes the provided header file and does not have to
     include any platform-specific header files. The downside is the caller cannot
     directly use all platform-specific functions anymore. If the caller is accustomed
     to these functions, then the caller might not be satisfied with using the abstracted
     functionality and may find it difficult to use or suboptimal in functionality.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种设置的好处是调用者无需处理特定于平台的代码。调用者只需包含提供的头文件，而无需包含任何特定于平台的头文件。缺点是调用者不能直接再使用所有特定于平台的函数。如果调用者习惯于这些函数，则可能不满意使用抽象功能，并可能发现使用或功能上不理想。
 - en: The platform-specific code can now be developed and even tested separately from
     the other code. Now the testing effort is manageable, even with many platforms,
     because you can mock the hardware-specific code in order to write simple tests
     for the platform-independent code.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，平台特定的代码可以分开开发，甚至可以单独进行测试。现在测试工作量是可管理的，即使有多个平台，因为您可以模拟硬件特定代码，以便为平台独立代码编写简单的测试。
 - en: When building up such APIs for all platform-specific functions, the sum of these
     functions and APIs is the platform abstraction layer for the codebase. With a
     platform abstraction layer, it is very clear which code is platform dependent
     and which is platform independent. A platform abstraction layer also makes it
     clear which parts of the code have to be touched in order to support an additional
     platform.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 当为所有平台特定函数构建这种API时，这些函数和API的总和构成了代码库的平台抽象层。通过平台抽象层，非常清楚哪些代码是平台相关的，哪些是平台独立的。平台抽象层还清楚地表明，为了支持额外的平台，必须触及代码的哪些部分。
 - en: Known Uses
+  id: totrans-136
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: Most larger-scale code that runs on multiple platforms has a hardware Abstraction
     Layer. For example, Nokia’s Maemo platform has such an Abstraction Layer to abstract
     which actual device drivers are loaded.
+  id: totrans-138
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 大多数在多个平台上运行的大规模代码都有硬件抽象层。例如，诺基亚的Maemo平台有这样一个抽象层，用于抽象加载的实际设备驱动程序。
 - en: The function `sock_addr_inet_pton` of the lighttpd web server converts an IP
     address from text to binary form. The implementation uses `#ifdef` statements
     to distinguish between code variants for IPv4 and IPv6\. Callers of the API do
     not see this distinction.
+  id: totrans-139
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: lighttpd web服务器的`sock_addr_inet_pton`函数将IP地址从文本转换为二进制形式。该实现使用`#ifdef`语句区分IPv4和IPv6的代码变体。API的调用者看不到这种区别。
 - en: The function `getprogname` of the gzip data compression program returns the
     name of the invoking program. The way to obtain this name depends on the operating
     system and is distinguished via `#ifdef` statements in the implementation. The
     caller does not have to care on which operating system the function is called.
+  id: totrans-140
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: gzip数据压缩程序的`getprogname`函数返回调用程序的名称。获取该名称的方法取决于操作系统，并通过实现中的`#ifdef`语句进行区分。调用者无需关心函数在哪个操作系统上调用。
 - en: A hardware abstraction is used for the Time-Triggered Ethernet protocol described
     in the bachelor’s thesis [“Hardware-Abstraction of an Open Source Real-Time Ethernet
     Stack—Design, Realisation and Evaluation”](https://oreil.ly/hs0Jh) by Flemming
     Bunzel. The hardware abstraction layer contains functions for accessing interrupts
     and timers. The functions are marked as `inline` to not lose performance.
+  id: totrans-141
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 硬件抽象用于本科论文“开源实时以太网堆栈的硬件抽象—设计、实现和评估”中描述的Time-Triggered Ethernet协议。硬件抽象层包含用于访问中断和定时器的函数。这些函数标记为`inline`以避免性能损失。
 - en: Applied to Running Example
+  id: totrans-142
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now you have a much more streamlined piece of code. Each of the functions only
     performs one action, and you hide implementation details about the variants behind
     APIs:'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在您有了一个更简化的代码片段。每个函数仅执行一个操作，并且您隐藏了关于不同变体的实现细节在API背后：
 - en: '*directoryNames.h*'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryNames.h*'
 - en: '[PRE11]'
+  id: totrans-145
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '*directoryNames.c*'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryNames.c*'
 - en: '[PRE12]'
+  id: totrans-147
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '*directorySelection.h*'
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directorySelection.h*'
 - en: '[PRE13]'
+  id: totrans-149
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '*directorySelection.c*'
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directorySelection.c*'
 - en: '[PRE14]'
+  id: totrans-151
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: '*directoryHandling.h*'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryHandling.h*'
 - en: '[PRE15]'
+  id: totrans-153
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '*directoryHandling.c*'
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryHandling.c*'
 - en: '[PRE16]'
+  id: totrans-155
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '*main.c*'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '*main.c*'
 - en: '[PRE17]'
+  id: totrans-157
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: Your file with the main program logic is finally completely independent from
     the operating system; operating system–specific header files are not even included
     here. Separating the implementation files with an Abstraction Layer makes the
     files easier to comprehend and makes it possible to reuse the functions in other
     parts of the code. Also, development, maintenance, and testing can be split for
     the platform-dependent and platform-independent code.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的主程序逻辑文件最终完全独立于操作系统；特定于操作系统的头文件甚至没有包含在这里。使用抽象层分离实现文件使文件更易于理解，并且使得可以在代码的其他部分重用这些函数。此外，开发、维护和测试可以分为依赖于平台和独立于平台的代码。
 - en: If you have Isolated Primitives behind an Abstraction Layer and you’ve organized
     them according to the kind of variant that they abstract, then you’ll end up with
     a hardware abstraction layer or operating system abstraction layer. Now that you
     have a lot more code files than before—particularly those handling different variants—you
     may want to consider structuring them into Software-Module Directories.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你在抽象层后面有隔离的基元，并且根据它们抽象的种类进行了组织，那么你最终会得到一个硬件抽象层或操作系统抽象层。现在你有了比以前更多的代码文件，特别是处理不同变体的文件，你可能需要考虑将它们组织成软件模块目录。
 - en: The code that uses the API of the Abstraction Layer is very clean now, but the
     implementations below that API still contain `#ifdef` code for different variants.
     This has the disadvantage that these implementations have to be touched and will
     grow if, for example, additional operating systems have to be supported. To avoid
     touching existing implementation files when adding another variant, you could
     Split Variant Implementations.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在使用抽象层API的代码非常干净，但在该API下面的实现仍然包含不同变体的`#ifdef`代码。这种做法的缺点是，如果需要支持额外的操作系统，这些实现必须进行修改并且会增长。为了避免在添加另一个变体时修改现有实现文件，可以分离变体实现。
 - en: Split Variant Implementations
+  id: totrans-161
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 分离变体实现
 - en: Context
+  id: totrans-162
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have platform variants hidden behind an Abstraction Layer. In the platform-specific
     implementation, you distinguish between the code variants with `#ifdef` statements.
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 你将平台变体隐藏在一个抽象层后面。在特定于平台的实现中，你使用`#ifdef`语句区分代码变体。
 - en: Problem
+  id: totrans-164
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**The platform-specific implementations still contain `#ifdef` statements to
     distinguish between code variants. That makes it difficult to see and select which
     part of the code should be built for which platform.**'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '**特定于平台的实现仍然包含`#ifdef`语句来区分代码变体。这使得很难看到并选择应该为哪个平台构建代码的哪一部分。**'
 - en: Because code for different platforms is put into a single file, it is not possible
     to select the platform-specific code on a file-basis. However, that is the approach
     taken by tools such as Make, which are usually responsible for selecting via Makefiles
     which files should be compiled in order to come up with variants for different
     platforms.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为将不同平台的代码放在单个文件中，所以无法按文件选择特定于平台的代码。然而，像Make这样的工具通常负责通过Makefile选择应该编译哪些文件，以生成不同平台的变体。
 - en: When looking at the code from a high-level view, it is not possible to see which
     parts are platform-specific and which are not, but that would be very desirable
     when porting the code to another platform, in order to quickly see which code
     has to be touched.
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 当从高层次观点看代码时，不可能看出哪些部分是特定于平台的，哪些不是，但在将代码移植到另一个平台时，能够迅速看出哪些代码需要修改是非常理想的。
 - en: The open-closed principle says that to bring in new features (or to port to
     a new platform), it should not be necessary to touch existing code. The code should
     be open for such modifications. However, having platform variants separated with
     `#ifdef` statements requires that existing implementations have to be touched
     when introducing a new platform, because another `#ifdef` branch has to be placed
     into an existing function.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 开闭原则表明，为了引入新特性（或移植到新平台），不应该必须修改现有代码。代码应该对这些修改开放。然而，通过`#ifdef`语句区分平台变体要求在引入新平台时必须修改现有实现，因为必须在现有函数中放置另一个`#ifdef`分支。
 - en: Solution
+  id: totrans-169
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Put each variant implementation into a separate implementation file and select
     per file what you want to compile for which platform.**'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: '**将每个变体实现放入单独的实现文件中，并根据需要为每个文件选择要为哪个平台编译。**'
 - en: Related functions of the same platform can still be put into the same file.
     For example, there could be a file gathering all socket handling functions on
     Windows and one such file doing the same for Linux.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 同一平台的相关函数仍然可以放在同一个文件中。例如，可以有一个文件收集 Windows 上所有 socket 处理函数的函数，以及一个类似的文件在 Linux
+    上也这样做。
 - en: 'With separate files for each platform, it is OK to use `#ifdef` statements
     to determine which code is compiled on a specific platform. For example, a *someFeatureWindows.c*
     file could have an `#ifdef _WIN32` statement across the whole file similar to
     Include Guards:'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于每个平台单独的文件，可以使用 `#ifdef` 语句确定在特定平台上编译哪些代码是可以接受的。例如，*someFeatureWindows.c* 文件可以在整个文件中使用类似于
+    Include Guards 的 `#ifdef _WIN32` 语句：
 - en: '*someFeature.h*'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFeature.h*'
 - en: '[PRE18]'
+  id: totrans-174
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: '*someFeatureWindows.c*'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFeatureWindows.c*'
 - en: '[PRE19]'
+  id: totrans-176
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: '*someFeatureLinux.c*'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFeatureLinux.c*'
 - en: '[PRE20]'
+  id: totrans-178
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: Alternatively to using `#ifdef` statements across the whole file, other platform-independent
     mechanisms such as Make can be used to decide on a file-basis which code to compile
     on a specific platform. If your IDE helps with generating Makefiles, that alternative
     might be more comfortable for you, but be aware that when changing the IDE, you
     might have to reconfigure which files to compile on which platform in the new
     IDE.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了在整个文件中使用 `#ifdef` 语句之外，还可以使用其他独立于平台的机制，例如 Make，在文件层面上决定在特定平台上编译哪些代码。如果你的 IDE
+    能帮助生成 Makefile，那么这种替代方案可能更为舒适，但要注意，当更改 IDE 时，可能需要重新配置在新 IDE 中要在哪些平台上编译哪些文件。
 - en: 'With separate files for the platforms comes the question of where to put these
     files and how to name them:'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于每个平台单独的文件，问题就来了，应该把这些文件放在哪里以及如何命名：
 - en: One option is to put platform-specific files per software-module next to each
     other and name them in a way that makes it clear which platform they cover (for
     example *fileHandlingWindows.c*). Such Software-Module Directories provide the
     advantage that the implementations of the software-modules are in the same place.
+  id: totrans-181
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 一种选择是将每个软件模块的平台特定文件放在一起，并以一种清晰表明它们覆盖哪个平台的方式命名（例如 *fileHandlingWindows.c*）。这种软件模块目录的优势在于软件模块的实现位于同一位置。
 - en: Another option is to put all platform-specific files from the codebase into
     one directory and to have one subdirectory for each platform. The advantage of
     this is that all files for one platform are in the same place and it becomes easier
     to configure in your IDE which files to compile on which platform.
+  id: totrans-182
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 另一种选择是将代码库中所有平台特定的文件放入一个目录，并为每个平台创建一个子目录。这样做的好处是，一个平台的所有文件都在同一个地方，你可以更轻松地配置你的
+    IDE 来决定在哪个平台上编译哪些文件。
 - en: Consequences
+  id: totrans-183
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 影响
 - en: Now it is possible to not have any `#ifdef` statements at all in the code but
     to instead distinguish between the variants on a file-basis with tools such as
     Make.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，可以在代码中完全不使用任何 `#ifdef` 语句，而是通过工具（如 Make）在文件层面上区分不同的变体。
 - en: In each implementation file there is now just one code variant, so there is
     no need to jump between the lines when reading the code in order to only read
     the `#ifdef` branch you are looking for. It is much easier to read and understand
     the code.
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 在每个实现文件中，现在只有一种代码变体，因此在阅读代码时不需要在不同的 `#ifdef` 分支之间跳转。这样阅读和理解代码会更加容易。
 - en: When fixing a bug on one platform, no files for other platforms have to be touched.
     When porting to a new platform, only new files have to be added, and no existing
     file or existing code has to be modified.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在一个平台上修复 bug 时，无需触碰其他平台的文件。当移植到新平台时，只需添加新文件，无需修改现有文件或现有代码。
 - en: It is easy to spot which part of the code is platform-dependent and which code
     has to be added in order to port to a new platform. Either all platform-specific
     files are in one directory, or the files are named in a way that makes it clear
     they are platform-dependent.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 容易识别哪部分代码依赖于特定平台，以及哪些代码必须添加以便在新平台上进行移植。要么所有平台特定的文件在一个目录中，要么文件命名方式明确表明它们是依赖于特定平台的。
 - en: However, putting each variant into a separate file creates many new files. The
     more files you have, the more complex your build procedure gets and the longer
     the compile time for your code gets. You will need to think about structuring
     the files, for example, with Software-Module Directories.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，将每个变体放入单独的文件中会创建许多新文件。你拥有的文件越多，构建过程就变得越复杂，代码编译时间就越长。你需要考虑如何组织文件结构，例如使用软件模块目录。
 - en: Known Uses
+  id: totrans-189
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用法
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: 'The Simple Audio Library presented in the book *Write Portable Code: An Introduction
     to Developing Software for Multiple Platforms* by Brian Hook (No Starch Press,
     2005) uses separate implementation files to provide access to threads and Mutexes
     for Linux and OS X. The implementation files use `#ifdef` statements to ensure
     that only the correct code for the platform is compiled.'
+  id: totrans-191
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 书籍《编写可移植代码：开发多平台软件入门》（Brian Hook 著，No Starch Press，2005年）中介绍的简单音频库使用单独的实现文件为
+    Linux 和 OS X 提供访问线程和互斥锁的功能。实现文件使用 `#ifdef` 语句确保仅编译适合该平台的正确代码。
 - en: The Multi-Processing-Module of the Apache web server, which is responsible for
     handling accesses to the web server, is implemented in separate implementation
     files for Windows and Linux. The implementation files use `#ifdef` statements
     to ensure that only the correct code for the platform is compiled.
+  id: totrans-192
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Apache Web 服务器的多处理模块负责处理对 Web 服务器的访问，为 Windows 和 Linux 分别实现了单独的实现文件。实现文件使用 `#ifdef`
+    语句确保仅编译适合该平台的正确代码。
 - en: The code of the U-Boot bootloader puts the source code for each hardware platform
     it supports into a separate directory. Each of these directories contains, among
     others, the file *cpu.c*, which contains a function to reset the CPU. A Makefile
@@ -988,77 +1391,125 @@
     no `#ifdef` statements in these files. The main program logic of U-Boot calls
     the function to reset the CPU and does not have to care about hardware platform
     details at that point.
+  id: totrans-193
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: U-Boot bootloader 的代码将其支持的每个硬件平台的源代码放入单独的目录中。每个目录包含文件 *cpu.c*，其中包含重置 CPU 的函数。一个
+    Makefile 决定应该编译哪个目录（以及哪个 *cpu.c* 文件）——这些文件中没有 `#ifdef` 语句。U-Boot 的主程序逻辑调用该函数来重置
+    CPU，在这一点上不必关心硬件平台的细节。
 - en: Applied to Running Example
+  id: totrans-194
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'After Splitting Variant Implementations, you’ll end up with the following final
     code for your functionality to create a directory and write data to a file:'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 分离变体实现后，您将得到以下用于创建目录并向文件写入数据的功能的最终代码：
 - en: '*directoryNames.h*'
+  id: totrans-196
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryNames.h*'
 - en: '[PRE21]'
+  id: totrans-197
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: '*directoryNamesLinux.c*'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryNamesLinux.c*'
 - en: '[PRE22]'
+  id: totrans-199
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: '*directoryNamesWindows.c*'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryNamesWindows.c*'
 - en: '[PRE23]'
+  id: totrans-201
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: '*directorySelection.h*'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directorySelection.h*'
 - en: '[PRE24]'
+  id: totrans-203
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: '*directorySelectionHomeDir.c*'
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directorySelectionHomeDir.c*'
 - en: '[PRE25]'
+  id: totrans-205
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: '*directorySelectionWorkingDir.c*'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directorySelectionWorkingDir.c*'
 - en: '[PRE26]'
+  id: totrans-207
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: '*directoryHandling.h*'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryHandling.h*'
 - en: '[PRE27]'
+  id: totrans-209
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: '*directoryHandlingLinux.c*'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryHandlingLinux.c*'
 - en: '[PRE28]'
+  id: totrans-211
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: '*directoryHandlingWindows.c*'
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: '*directoryHandlingWindows.c*'
 - en: '[PRE29]'
+  id: totrans-213
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: '*main.c*'
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: '*main.c*'
 - en: '[PRE30]'
+  id: totrans-215
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: There are still `#ifdef` statements present in this code. Each of the implementation
     files has one huge `#ifdef` in order to make sure that the correct code is compiled
     for each platform and variant. Alternatively, the decision regarding which files
@@ -1066,8 +1517,11 @@
     but you’d simply use another mechanism to chose between variants. Deciding which
     mechanism to use is not so important. It is much more important, as described
     throughout this chapter, to isolate and abstract the variants.
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 此代码中仍然存在 `#ifdef` 语句。每个实现文件都有一个大的 `#ifdef`，以确保为每个平台和变体编译正确的代码。或者，决定应编译哪些文件可以放入
+    Makefile 中。这样可以摆脱 `#ifdef`，但您只需使用另一种机制来选择变体。决定使用哪种机制并不那么重要。如本章所述，更重要的是隔离和抽象变体。
 - en: While the code files would look cleaner when using other mechanisms to handle
     the variants, the complexity would still be there. Putting the complexity into
     Makefiles can be a good idea because the purpose of Makefiles is to decide which
@@ -1078,24 +1532,34 @@
     is much cleaner; configuring which files should be built for which operating system
     is only done once by the `#ifdef` statements, and there is no need to touch that
     when changing to another IDE.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用其他机制处理变体时，代码文件看起来更清晰，但复杂性仍然存在。将复杂性放入 Makefile 中是个好主意，因为 Makefile 的目的是决定要构建哪些文件。在其他情况下，最好使用
+    `#ifdef` 语句。例如，如果正在构建特定于操作系统的代码，可能会使用专有的 Windows IDE 和 Linux IDE 来决定要构建哪些文件。在这种情况下，在代码中使用
+    `#ifdef` 语句的解决方案要干净得多；通过 `#ifdef` 语句只需配置一次要为哪个操作系统构建哪些文件，并且在切换到另一个 IDE 时无需更改。
 - en: The final code of the running example showed very clearly how code with operating
     system–specific variants or other variants can be improved step by step. Compared
     to the first code example, this final piece of code is readable and can easily
     be extended with additional features or ported to additional operating systems
     without touching any of the existing code.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: 运行示例的最终代码非常清晰地展示了如何逐步改进具有特定操作系统变体或其他变体的代码。与第一个代码示例相比，这段最终代码可读性强，可以轻松扩展以增加额外功能或移植到其他操作系统，而无需触及现有代码中的任何部分。
 - en: Summary
+  id: totrans-219
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 摘要
 - en: This chapter presented patterns on how to handle variants, like hardware or
     operating system variants, in C code and how to organize and get rid of `#ifdef`
     statements.
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章介绍了如何处理C代码中的变体，如硬件或操作系统变体，以及如何组织和摆脱`#ifdef`语句。
 - en: The Avoid Variants pattern suggests using standardized functions instead of
     self-implemented variants. This pattern should be applied anytime it is applicable,
     because it resolves issues with code variants in one blow. However, there is not
@@ -1106,55 +1570,75 @@
     takes the additional step to hide the implementations of the primitives behind
     an API. Split Variant Implementations suggests putting each variant into a separate
     implementation file.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 避免变体模式建议使用标准化函数而不是自行实现的变体。每当适用时，都应该应用这种模式，因为它一举解决了代码变体的问题。然而，并非总是有标准化函数可用，在这种情况下，程序员必须实现自己的函数来抽象变体。作为一种起步，孤立的原始元素建议将变体放入单独的函数中，而原子原始元素建议在这些函数中仅处理一种类型的变体。抽象层进一步采取了隐藏原始元素实现在API后面的附加步骤。分割变体实现建议将每个变体放入单独的实现文件中。
 - en: With these patterns as part of the programming vocabulary, a C programmer has
     a toolbox and step-by-step guidance on how to tackle C code variants in order
     to structure code and escape from `#ifdef` hell.
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 将这些模式作为编程词汇的一部分，C程序员可以获得一个工具箱和逐步指导，以便处理C代码中的各种变体，从而组织代码并摆脱`#ifdef`地狱。
 - en: For experienced programmers, some of the patterns might look like obvious solutions
     and that is a good thing. One of the tasks of patterns is to educate people on
     how to do the right thing; once they know how to do the right thing, the patterns
     are not necessary anymore because people then intuitively do as suggested by the
     patterns.
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于经验丰富的程序员来说，有些模式可能看起来像是显而易见的解决方案，这是一件好事。模式的一个任务是教育人们如何做正确的事情；一旦他们知道如何做正确的事情，模式就不再必要，因为人们会直观地按照模式建议的方式去做。
 - en: Further Reading
+  id: totrans-224
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 进一步阅读
 - en: If you’re ready for more, here are some resources that can help you further
     your knowledge of platform and variant abstractions.
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你已经准备好继续学习，这里有一些资源可以帮助你进一步了解平台和变体抽象。
 - en: 'The book *Write Portable Code: An Introduction to Developing Software for Multiple
     Platforms* by Brian Hook (No Starch Press, 2005) describes how to write portable
     code in C. The book covers operating system variants and hardware variants by
     giving advice for specific situations, like coping with byte ordering, data type
     sizes, or line-separator tokens.'
+  id: totrans-226
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由Brian Hook（No Starch Press，2005年）撰写的书籍《编写可移植代码：多平台软件开发入门》描述了如何在C语言中编写可移植代码。该书涵盖了操作系统变体和硬件变体，并通过针对特定情况的建议，如处理字节顺序、数据类型大小或行分隔符标记，来提供指导。
 - en: The article [“#ifdef Considered Harmful”](https://oreil.ly/eZ2CW) by Henry Spencer
     and Geoff Collyer is one of the first that skeptically discusses the use of `#ifdef`
     statements. The article elaborates on problems that arise when using them in an
     unstructured way and provides alternatives.
+  id: totrans-227
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 文章[“#ifdef被认为有害”](https://oreil.ly/eZ2CW)由Henry Spencer和Geoff Collyer撰写，是最早对使用`#ifdef`语句持怀疑态度的文章之一。该文章详细阐述了在结构不清晰地使用它们时可能出现的问题，并提供了替代方案。
 - en: The article [“Writing Portable Code”](https://oreil.ly/XkTbj) by Didier Malenfant
     describes how to structure portable code and which functionality should be put
     below an abstraction layer.
+  id: totrans-228
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 文章[“编写可移植代码”](https://oreil.ly/XkTbj)由Didier Malenfant描述了如何构建可移植代码以及应该将哪些功能放置在抽象层下面。
 - en: Outlook
+  id: totrans-229
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 展望
 - en: You are now equipped with more patterns. Next, you’ll learn how to apply these
     patterns as well as the patterns from the previous chapters. The next chapters
     cover larger code examples that show the application of all these patterns.
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你已经掌握了更多的模式。接下来，你将学习如何应用这些模式，以及前几章的模式。下一章将涵盖更大的代码示例，展示所有这些模式的应用。

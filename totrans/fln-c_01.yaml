@@ -1,12 +1,16 @@
 - en: Part I. C Patterns
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第一部分：C模式
 - en: Patterns make your life easier. They take the burden of having to cope with
     each and every design decision from you. Patterns explain to you well-proven solutions,
     and in this first part of the book, you’ll find such well-proven solutions and
     the consequences that arise when applying these solutions. Each of the following
     chapters focuses on a particular topic for C programming, presents patterns on
     that topic, and shows their application to a running example.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 模式让你的生活更轻松。它们减轻了你必须应对每一个设计决策的负担。模式向你解释了经过充分验证的解决方案，在本书的第一部分，你将找到这样的经过充分验证的解决方案及其应用所带来的后果。接下来的每个章节都专注于C编程的特定主题，介绍该主题上的模式，并展示它们在运行示例中的应用。

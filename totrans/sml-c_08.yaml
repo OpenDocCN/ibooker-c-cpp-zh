@@ -1,7 +1,9 @@
 - en: Chapter 8\. Real-World C With Arduino
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第8章。与Arduino一起的真实世界C语言
 - en: We’ve seen our C skills grow from compiling a short list of simple statements
     to passing pointers to functions with nested flow of control. But so far we’ve
     been printing results in our terminal windows. That’s great for proving that our
@@ -10,8 +12,10 @@
     of all the great hardware out there. In the rest of this book, we’re going to
     write code aimed at microcontrollers. And what better microcontroller to start
     with than an Arduino.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们的C语言技能从编译简单语句的短列表到传递指向带有嵌套控制流的函数指针都有所成长。但到目前为止，我们一直在终端窗口中打印结果。这对于验证我们的逻辑是否正确以及我们的程序是否按预期运行非常好，但最终我们会希望代码能在除终端外的其他地方运行，以利用所有出色的硬件。在本书的其余部分，我们将编写针对微控制器的代码。而选择与Arduino一起开始再好不过了。
 - en: The Arduino family of microcontrollers has been around for over 15 years. Starting
     with [8-bit Atmel AVR](https://oreil.ly/EH7un) controllers designed specifically
     to facilitate learning and tinkering, these gadgets have exploded in popularity.
@@ -21,71 +25,97 @@
     For us, that makes this platform a perfect target. You can grab an inexpensive
     controller and LEDs to start, and expand into robotics or weather stations or
     radio control or just about any other electronics niche that tickles your fancy.^([1](ch08.xhtml#idm45018720330312))
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: Arduino家族的微控制器已经存在15多年了。从专门设计用于学习和创新的[8位Atmel AVR](https://oreil.ly/EH7un)控制器开始，这些设备已经大受欢迎。如今，您可以找到预装各种传感器和连接的开发板。WiFi、GPS、蓝牙，甚至是无线电选项都可以轻松添加。输入、输出和容器的生态系统确实令人惊叹。对我们来说，这使得这个平台成为一个完美的目标。您可以购买一个廉价的控制器和LED灯开始，然后扩展到机器人技术、气象站、无线电控制或其他任何您感兴趣的电子领域。^([1](ch08.xhtml#idm45018720330312))
 - en: '[“Getting the Hardware: Adafruit”](app01.xhtml#smallerc-APP-A-SECT-2) includes
     information on all the microcontrollers and peripherals I’ll be using throughout
     the rest of the book. But any Arduino-compatible microcontroller will work with
     the majority of our examples.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '[“获取硬件：Adafruit”](app01.xhtml#smallerc-APP-A-SECT-2)包含了本书其余部分将要使用的所有微控制器和外设的信息。但任何兼容Arduino的微控制器都可以与我们大多数示例兼容。'
 - en: Arduino IDE (Win, Mac, Linux)
+  id: totrans-4
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Arduino集成开发环境（Win，Mac，Linux）
 - en: Way back in [“Compiling Your Code”](ch01.xhtml#smallerc-CHP-1-SECT-2.3), we
     learned how to compile C source code into an executable for our operating system
     on our machine. And while it might be possible to run a C compiler on an Arduino
     controller, we can use the notion of a *cross-compiler* to let our fancy laptops
     and desktops do the hard work of compiling, yet still produce a binary built for
     Arduino.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“编译您的代码”](ch01.xhtml#smallerc-CHP-1-SECT-2.3)一章中，我们学习了如何将C源代码编译成在我们的操作系统上运行的可执行文件。尽管可能可以在Arduino控制器上运行C编译器，但我们可以使用*交叉编译器*的概念，让我们的笔记本电脑和台式电脑来完成编译的繁重工作，同时生成适用于Arduino的二进制文件。
 - en: You can find tools like `gcc-avr` to run from the command line as we did with
     `gcc`, but fortunately there is a nifty IDE that does what it says on the label.
     The Arduino IDE is an integrated development environment where you can edit your
     source code, compile it, load to a microcontroller, and watch a serial console
     for help debugging. See an error in that console? Fix the source, recompile, and
     reload. And it runs on all three major platforms.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以像我们使用`gcc`一样从命令行运行`gcc-avr`等工具，但幸运的是有一个方便的IDE可以实现其上标注的功能。Arduino IDE是一个集成开发环境，您可以在其中编辑源代码、编译、加载到微控制器，并观察串行控制台以帮助调试。在控制台看到错误？修复源代码，重新编译和加载。而且它在所有三个主要平台上都可以运行。
 - en: No matter your platform, head to the [Arduino Software](https://oreil.ly/jMXH0)
     page (see [Figure 8-1](#smallerc-CHP-8-FIG-arduino-download)) and download the
     appropriate version. If you want background on the features of the IDE, you can
     look over the [IDE Environment Guide](https://oreil.ly/FKreY) online.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论您使用的是哪个平台，请访问[Arduino软件](https://oreil.ly/jMXH0)页面（参见[图 8-1](#smallerc-CHP-8-FIG-arduino-download)），并下载适当版本。如果您想了解IDE的功能特点，可以在线查阅[IDE环境指南](https://oreil.ly/FKreY)。
 - en: '![smac 0801](Images/smac_0801.png)'
+  id: totrans-8
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0801](Images/smac_0801.png)'
 - en: Figure 8-1\. The Arduino IDE download site
+  id: totrans-9
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-1。Arduino IDE下载站点
 - en: Let’s take a look at the installation details for Windows, macOS, and Linux.
     Mostly the Arudino IDE is a mature tool with a typical installer, but there are
     a few platform-specific steps and gotchas I want to point out.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们看看 Windows、macOS 和 Linux 的安装详细信息。尽管 Arudino IDE 大多数时候是一个成熟的工具，具有典型的安装程序，但我想指出一些特定于平台的步骤和要点。
 - en: Installing on Windows
+  id: totrans-11
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 在 Windows 上安装
 - en: From the download page, be sure to grab one of the downloads that come direct
     from arduino.cc, either the ZIP file or the Windows 7 and up installer.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 从下载页面，请确保获取来自 arduino.cc 直接提供的下载之一，可以是 ZIP 文件或 Windows 7 及更高版本的安装程序。
 - en: Warning
+  id: totrans-13
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 警告
 - en: If you use the Microsoft Store for apps, you may have noticed the Arduino IDE
     there as well. Regrettably, there are many reports of difficulties using this
     version of the IDE. It is older, and the store listing does not seem to be well
     maintained. We recommend avoiding this version, even though a link to the store
     is available on the downloads page.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您使用 Microsoft Store 下载应用程序，可能会注意到其中也有 Arduino IDE。遗憾的是，有许多关于使用该版本 IDE 的困难报告。它是较老的版本，并且商店中的列表似乎没有得到很好的维护。尽管下载页面提供了商店的链接，我们建议避免使用这个版本。
 - en: The [online guide](https://oreil.ly/Fa8kZ) has detailed instructions for installing
     the Arduino IDE through the *.exe* file you downloaded. It’s a fairly standard
     Windows installer; our only suggestion is to install all of the components available
@@ -93,60 +123,91 @@
     you can certainly uncheck those.) You may also be prompted to install some ports
     and drivers, which we recommend using as well. If all goes well, you can launch
     the IDE and see an empty document, as shown in [Figure 8-2](#smallerc-CHP-8-FIG-win10-ide-launch).
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '[在线指南](https://oreil.ly/Fa8kZ) 提供了通过您下载的 *.exe* 文件安装 Arduino IDE 的详细说明。这是一个相当标准的
+    Windows 安装程序；我们唯一的建议是在提示时安装所有可用的组件。（如果您不想要桌面或开始菜单上的快捷方式，当然可以取消勾选。）您可能还会提示安装一些端口和驱动程序，我们建议您也安装这些。如果一切顺利，您可以启动
+    IDE 并看到一个空文档，如 [图 8-2](#smallerc-CHP-8-FIG-win10-ide-launch) 所示。'
 - en: '![smac 0802](Images/smac_0802.png)'
+  id: totrans-16
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0802](Images/smac_0802.png)'
 - en: Figure 8-2\. The Arduino IDE running on Windows 10
+  id: totrans-17
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-2\. Arduino IDE 在 Windows 10 上的运行状态
 - en: Once your IDE is running, go ahead and try the first project in [“Your First
     Arduino Project”](#smallerc-CHP-8-SECT-2).
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦您的 IDE 启动，请尝试 [“您的第一个 Arduino 项目”](#smallerc-CHP-8-SECT-2) 中的第一个项目。
 - en: Installing on macOS
+  id: totrans-19
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 在 macOS 上安装
 - en: The macOS version of Arduino IDE is delivered as a simple *.zip* file. Many
     browsers will automatically unzip the download, but you can always double-click
     the file yourself to unzip. The only thing in the *.zip* file is the macOS application.
     Go ahead and drag the application to your *Applications* folder. (This may require
     you to enter your administrative password.) That’s it! If it worked, you should
     see the standard startup in [Figure 8-3](#smallerc-CHP-8-FIG-mac-ide-launch).
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: macOS 版本的 Arduino IDE 以一个简单的 *.zip* 文件形式提供。许多浏览器会自动解压下载，但您也可以自己双击文件解压。*.zip*
+    文件中唯一的内容就是 macOS 应用程序。请将该应用程序拖到您的 *应用程序* 文件夹中。（这可能需要您输入管理员密码。）就是这样！如果成功了，您应该能够看到标准的启动界面，如
+    [图 8-3](#smallerc-CHP-8-FIG-mac-ide-launch) 所示。
 - en: '![smac 0803](Images/smac_0803.png)'
+  id: totrans-21
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0803](Images/smac_0803.png)'
 - en: Figure 8-3\. The Arduino IDE running on macOS
+  id: totrans-22
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-3\. Arduino IDE 在 macOS 上的运行状态
 - en: Once your IDE is running, go ahead and try the first project in [“Your First
     Arduino Project”](#smallerc-CHP-8-SECT-2).
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦您的 IDE 启动，请尝试 [“您的第一个 Arduino 项目”](#smallerc-CHP-8-SECT-2) 中的第一个项目。
 - en: Installing on Linux
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 在 Linux 上安装
 - en: 'For Linux, you also receive the application as a simple archive, *.tar.xz*
     in this case. Most distributions have an archive manager app that will happily
     unpack your download with a double-click. If you don’t have such an accommodating
     app already, you can try your version of `tar` as it can automatically decompress
     most types of archives:'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 Linux，您还可以将应用程序作为一个简单的存档文件，*.tar.xz*。大多数发行版都有一个存档管理器应用程序，可以通过双击愉快地解压您的下载。如果您还没有这样的方便的应用程序，可以尝试使用您的
+    `tar` 版本，因为它可以自动解压大多数类型的存档文件：
 - en: '[PRE0]'
+  id: totrans-26
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: (Of course your filename may be different depending on your platform and the
     currently released version of the app itself.)
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: （当然，根据您的平台和当前发布版本的应用程序本身，您的文件名可能会有所不同。）
 - en: Place the unpacked folder (named *arduino-1.8.13*, again, depending on the version
     you downloaded) wherever you want to keep the application. That might be in a
     shared location or just in your own user directory somewhere. Once you have it
@@ -155,22 +216,34 @@
     Go ahead and start the app to make sure the installation worked. You should end
     up with something like [Figure 8-4](#smallerc-CHP-8-FIG-linux-ide-launch), similar
     to that for the other operating systems.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 将解压后的文件夹（名为 *arduino-1.8.13*，根据你下载的版本不同而异）放在你想要的任何位置保存该应用程序。这可能是一个共享位置，也可能只是你自己的用户目录中的某个位置。一旦把它放在你喜欢的地方，切换到那个
+    *arduino-1.8.13* 文件夹并运行 **`./install.sh`**。该脚本会尽力将快捷方式添加到你的启动菜单和桌面。继续启动应用程序，确保安装成功。你应该会看到类似
+    [图 8-4](#smallerc-CHP-8-FIG-linux-ide-launch) 的界面，与其他操作系统类似。
 - en: '![smac 0804](Images/smac_0804.png)'
+  id: totrans-29
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0804](Images/smac_0804.png)'
 - en: Figure 8-4\. The Arduino IDE running on Linux (with Gnome)
+  id: totrans-30
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-4\. 运行在 Linux 上的 Arduino IDE（带有 Gnome）
 - en: Hooray! Let’s get that first program running on our microcontroller.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 万岁！让我们在我们的微控制器上运行第一个程序。
 - en: Your First Arduino Project
+  id: totrans-32
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 你的第一个 Arduino 项目
 - en: Of course, with microcontrollers like Arduino, the IDE is only half of the equation.
     You need an actual Arduino controller! Or at least one of its many siblings. You
     can get these boards from a wide variety of sellers and manufacturers. I’ll toss
@@ -178,12 +251,18 @@
     array of both boards and peripherals—plus everything else that goes into building
     actual electronics projects. Their Trinkets and Feathers and ultra dimunitive
     QT Py pack some great features in some small packages.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，对于像 Arduino 这样的微控制器，IDE 只是问题的一半。你需要一个真正的 Arduino 控制器！或者至少是它的许多衍生产品之一。你可以从各种卖家和制造商那里获得这些板子。我要为
+    [Adafruit](https://adafruit.com) 隆重推荐一下，因为他们有非常出色的各种板子和外围设备，还有所有用于构建实际电子项目的其他配件。他们的
+    Trinkets 和 Feathers 以及超小巧的 QT Py 为一些小型设备提供了很多出色的功能。
 - en: Selecting Your Board
+  id: totrans-34
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 选择你的板子
 - en: 'Whatever microcontroller you choose, you’ll need to specify that choice in
     the Arduino IDE. Under the Tools menu, look for the Board: item. Then comes a
     long, long list of supported boards ready for you to use, as shown in [Figure 8-5](#smallerc-CHP-8-FIG-ide-boards).
@@ -192,29 +271,44 @@
     is amazing what fits on a microcontroller these days! If you don’t see a matching
     board in this list, go back to the top for the “Boards Manager…” option. That
     option opens a dialog where you can browse for other supported boards.'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论你选择哪种微控制器，你都需要在 Arduino IDE 中指定它。在工具菜单下找到“板子：”选项。然后会列出大量支持的板子供你使用，如 [图 8-5](#smallerc-CHP-8-FIG-ide-boards)
+    所示。你可以看到我选择了“Adafruit ESP32 Feather”板子。那只是我最近处理的一个项目——一个 ESP32 WiFi 可控LED项目。现在微控制器能做到的真是令人惊讶！如果你在列表中找不到匹配的板子，可以返回顶部找“板子管理器…”选项。该选项打开一个对话框，你可以浏览其他支持的板子。
 - en: '![smac 0805](Images/smac_0805.png)'
+  id: totrans-36
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0805](Images/smac_0805.png)'
 - en: Figure 8-5\. Supported development boards
+  id: totrans-37
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-5\. 支持的开发板
 - en: For most of the examples in this book, I’ll be using a [Metro Mini from Adafruit](https://oreil.ly/6oe6O),
     as shown in [Figure 8-6](#smallerc-CHP-8-FIG-metro-mini). It has a 16MHz ATmega328P
     with 2K of RAM and 32K of flash. With lots of I/O pins, we’ll be free to tackle
     a good range of interesting projects getting input from sensors and switches while
     providing output through LEDs, LCDs, and servos.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本书的大多数示例中，我将使用来自 Adafruit 的 [Metro Mini](https://oreil.ly/6oe6O)，如 [图 8-6](#smallerc-CHP-8-FIG-metro-mini)
+    所示。它配备了一个 16MHz 的 ATmega328P 芯片，拥有 2K 的 RAM 和 32K 的 Flash 存储器。具有大量的 I/O 引脚，我们可以自由地处理从传感器和开关获取的输入，并通过
+    LED、LCD 和伺服电机提供输出。
 - en: '![smac 0806](Images/smac_0806.png)'
+  id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0806](Images/smac_0806.png)'
 - en: Figure 8-6\. The Metro Mini microcontroller from Adafruit
+  id: totrans-40
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-6\. Adafruit 公司的 Metro Mini 微控制器
 - en: The Metro Mini is pin-compatible with the Arduino UNO, so let’s select that
     as our board option. [Figure 8-7](#smallerc-CHP-8-FIG-select-uno) shows the Boards
     list again with our UNO selected. A *pin*, by the way, is what you call the things
@@ -224,37 +318,52 @@
     a wire directly, “pin” is still the term for a named or numbered connection to
     the microcontroller. A “pin-out diagram” is a sort of cheat sheet for matching
     up those names and numbers to actual connecting points on the device.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: Metro Mini与Arduino UNO兼容引脚，因此让我们选择它作为我们的开发板选项。[图8-7](#smallerc-CHP-8-FIG-select-uno)再次显示了我们选择UNO的开发板列表。顺便说一句，“引脚”是你称呼从微控制器伸出并插入到面包板（工程术语，用于连接元件的方便、穿孔基座）的东西。即使你使用鳄鱼夹或直接焊接导线连接Arduino，
+    “引脚”仍然是指连接到微控制器的具名或编号连接。 “引脚布局图”是一种匹配这些名称和数字到设备实际连接点的备忘单。
 - en: '![smac 0807](Images/smac_0807.png)'
+  id: totrans-42
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0807](Images/smac_0807.png)'
 - en: Figure 8-7\. Selecting the UNO board
+  id: totrans-43
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图8-7 选择UNO开发板
 - en: Tip
+  id: totrans-44
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: Chances are pretty high that you’ll have a different microcontroller. There
     are so many wonderful options out there for makers and anyone else tinkering with
     electronics. Hopefully, you see your board in the list and can simply select it
     like we did with the UNO. Sadly, we can’t cover every option or even predict the
     most popular ones. The [Arduino Help Center](https://oreil.ly/bgyMM) has some
     great documentation and FAQs. Their community is top-notch as well.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 很可能你会有一个不同的微控制器。对于制造商和其他电子爱好者来说，有很多精彩的选择。希望你在列表中能找到你的开发板，并像我们选用UNO一样简单地选择它。遗憾的是，我们无法涵盖每一个选项，甚至无法预测最流行的选项。[Arduino帮助中心](https://oreil.ly/bgyMM)提供了一些出色的文档和常见问题解答。他们的社区也是一流的。
 - en: Hello, LED!
+  id: totrans-46
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 你好，LED！
 - en: In Arduinoland, making an LED blink is the electronics equivalent of our “Hello,
     World” program from [“Creating a C ‘Hello, World’”](ch01.xhtml#smallerc-CHP-1-SECT-2.2).
     We’ll do our best to lay out any circuitry and connections we build, but you’ll
     have to adjust as needed for your own controller and components.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Arduinoland，让LED闪烁相当于我们“Hello, World”程序的电子版，详见[“创建C 'Hello, World'”](ch01.xhtml#smallerc-CHP-1-SECT-2.2)。我们将尽力描述我们构建的电路和连接，但你需要根据自己的控制器和组件进行必要的调整。
 - en: Many development boards include an LED with an appropriate resistor right on
     the board itself. We’ll start by blinking the LED on our Metro Mini to make sure
     our C code can be uploaded and then run on our microcontroller. Back in the Arduino
@@ -263,49 +372,68 @@
     (More on sketches in [“C++ Objects and Variables”](#smallerc-CHP-8-SECT-4.1).)
     You’ll see two empty functions, `setup()` and `loop()`. These two functions serve
     as the microcontroller version of the `main()` function from our desktop C programs.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多开发板上都集成了一个LED和适当的电阻器。我们将从我们的Metro Mini开始让LED闪烁，以确保我们的C代码可以上传并在我们的微控制器上运行。回到Arduino
+    IDE，选择 文件 → 新建 选项。现在应该有一个新的*草图*标签。“草图”是指用于在微控制器上执行的编译包。 （更多关于草图的信息请见[“C++对象和变量”](#smallerc-CHP-8-SECT-4.1)。）你会看到两个空函数，`setup()`和`loop()`。这两个函数是微控制器版本的我们桌面C程序的`main()`函数。
 - en: The `setup()` function is the entry point for our code and is run once, typically
     when power is first supplied to the board or after the user presses a reset button
     (if such a button is part of the board). Here we set up any global information
     we need or run any initializations that are required of our hardware such as resetting
     a servo position or specifying how we plan to use the I/O pins.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: '`setup()`函数是我们代码的入口点，通常在首次给板子供电或用户按下复位按钮时运行（如果板子有这样的按钮）。在这里，我们设置任何需要的全局信息或运行硬件初始化，例如重置舵机位置或指定如何使用I/O引脚。'
 - en: The `loop()` function then takes over to repeat your program indefinitely. Microcontrollers
     are typically used to do one task (or perhaps a modest few) over and over as long
     as they have power. They can continuously read a sensor. They can drive an LED
     animation. They can read a sensor and use that value to alter an LED animation.
     They can nudge a clock hand forward. But they all repeat some flow or other until
     you cut the power, so `loop()` is an aptly named function.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 然后`loop()`函数接管并无限重复您的程序。微控制器通常用于一遍又一遍地执行一个任务（或者可能是少量任务），只要它们有电源。它们可以持续读取传感器。它们可以驱动LED动画。它们可以读取传感器并使用该值来改变LED动画。它们可以推动时钟手指向前。但它们都会重复某些流程，直到您切断电源，因此`loop()`是一个恰当命名的函数。
 - en: 'While there is a lot more going on behind the scenes, it’s reasonable to imagine
     the standard `main()` function for Arduino projects defined like this:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然幕后发生了更多事情，但是可以合理地想象Arduino项目的标准`main()`函数定义如下：
 - en: '[PRE1]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Note that our `while` loop “condition” is just the value 1\. Recall that “not
     zero” is considered to be true in these Boolean contexts. So this `while` loop
     runs forever. Just what we need for Arduino.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意我们的`while`循环“条件”仅为值1。请记住在这些布尔上下文中，“非零”被视为真。因此这个`while`循环将永远运行。这正是Arduino所需要的。
 - en: 'For our blinking hello program, we’ll use `setup()` to tell our board we want
     to use the built-in LED for output (meaning we’ll “write” on and off values to
     the pin associated with the LED). Then we’ll use `loop()` to do that writing along
     with some small delays to make the blinking readily visible to humans. Here’s
     our first iteration using constants described in the [Arduino docs](https://oreil.ly/Qt6DM):'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于我们的闪烁hello程序，我们将使用`setup()`告诉板子我们要使用内置LED作为输出（这意味着我们将在与LED相关联的引脚上“写入”开和关的值）。然后我们将使用`loop()`进行该写入，并加入一些小延迟，以便让闪烁对人类更加可见。这是我们在[Arduino文档](https://oreil.ly/Qt6DM)中描述的常量的第一次迭代：
 - en: '[PRE2]'
+  id: totrans-55
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Note
+  id: totrans-56
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: 'The all-caps names like `LED_BUILTIN` and `HIGH` were defined in headers that
     are included automatically by the Arduino IDE. They are technically preprocessor
     macros, and we’ll look at those in more detail in [“Preprocessor Directives”](ch11.xhtml#smallerc-CHP-11-SECT-1.1).
@@ -316,12 +444,17 @@
     number `5`. A typical variable or constant would reserve a slot in memory and
     could be initialized at runtime, perhaps after you have gathered some necessary
     information from the user.'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 像`LED_BUILTIN`和`HIGH`这样的全大写名称是在Arduino IDE自动包含的头文件中定义的。它们在技术上是预处理器宏，我们将在[“预处理指令”](ch11.xhtml#smallerc-CHP-11-SECT-1.1)中更详细地讨论它们。它们非常方便，在您自己的代码中非常容易使用：`#define
+    PIN 5`定义了`PIN`为值5。这有点像变量或常量。不同之处在于预处理器将在编译器之前（因此有“预-”前缀）通过您的代码，并且在找到每个`PIN`的地方替换为字面数字`5`。典型的变量或常量将在内存中保留一个槽，并且可以在运行时初始化，也许在您从用户那里收集了一些必要信息之后。
 - en: Go ahead and type this simple program in. You can also open the [*ch08/blink1/blink1.ino*](https://oreil.ly/p6eGd)
     project directly in the IDE.
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 接着，输入这个简单的程序。您还可以直接在IDE中打开[*ch08/blink1/blink1.ino*](https://oreil.ly/p6eGd)项目。
 - en: Before trying it on your board, you can use the IDE’s Verify button (shown in
     [Figure 8-8](#smallerc-CHP-8-FIG-verify-message)) to make sure the code compiles.
     Verifying your code also checks to make sure your finished program will fit on
@@ -330,15 +463,21 @@
     leaving off a semicolon on some statement like we did in [“Statements in C”](ch02.xhtml#smallerc-CHP-2-SECT-1).
     Click Verify again and you can see the type of message you might encounter as
     you write your own code going forward.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 在将其尝试在您的板子上运行之前，您可以使用IDE的验证按钮（如[图8-8](#smallerc-CHP-8-FIG-verify-message)所示）来确保代码编译通过。验证您的代码还会检查您的最终程序是否适合您选择的控制器。如果您使用了太多变量或仅仅有太多逻辑，您将在底部状态区看到警告和错误。尝试在某些语句上留下一个分号，就像我们在[“C语言语句”](ch02.xhtml#smallerc-CHP-2-SECT-1)中所做的那样。再次点击验证，您可以看到您在未来编写自己代码时可能会遇到的消息类型。
 - en: '![smac 0808](Images/smac_0808.png)'
+  id: totrans-60
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0808](Images/smac_0808.png)'
 - en: Figure 8-8\. Verifying your sketch before uploading
+  id: totrans-61
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图8-8。上传前验证您的草图
 - en: After verifying your code is OK, you can ship it over to your microcontroller
     using the Upload shortcut button next to Verify or select the appropriate item
     from the Sketch menu. Uploading will compile the code (even if you have recently
@@ -346,41 +485,63 @@
     the Metro Mini on this step—it’s all delightfully automatic. Some development
     boards need to be manually configured for upload. Again, the [Arduino Help Center](https://oreil.ly/csLX6)
     is your friend here.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 在确认您的代码没有问题后，您可以使用上传快捷按钮将其发送到微控制器，该按钮位于验证旁边，或从 Sketch 菜单中选择适当的项目。上传将编译代码（即使您最近已验证过），然后将其写入您的板子。Arduino
+    IDE 在这一步与 Metro Mini 配合得很好——这一切都是令人愉快的自动化。某些开发板需要手动配置上传。再次提醒，[Arduino 帮助中心](https://oreil.ly/csLX6)
+    在这里是您的朋友。
 - en: Once the upload completes, you should see your LED start blinking at half-second
     intervals. While less impressive on the printed page, [Figure 8-9](#smallerc-CHP-8-FIG-internal-on-off)
     shows the on/off states of our nifty LED.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦上传完成，您应该看到您的 LED 以半秒间隔开始闪烁。虽然在纸上印刷时不那么显眼，但 [Figure 8-9](#smallerc-CHP-8-FIG-internal-on-off)
+    显示了我们时髦 LED 的开关状态。
 - en: '![smac 0809](Images/smac_0809.png)'
+  id: totrans-64
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0809](Images/smac_0809.png)'
 - en: Figure 8-9\. Our “Hello, World” LED blinking
+  id: totrans-65
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-9\. 我们的“Hello, World” LED 闪烁
 - en: An External LED Upgrade
+  id: totrans-66
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 外部 LED 升级
 - en: We are focusing on the software side of Arduino projects, but it is impossible
     to work with an Arduino and not use *some* external components. Let’s upgrade
     our simple blinker to use an external LED.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们专注于 Arduino 项目的软件部分，但使用 Arduino 而不使用 *一些* 外部组件是不可能的。让我们将我们简单的闪烁器升级为使用外部 LED。
 - en: '[Figure 8-10](#smallerc-CHP-8-FIG-external-led) shows the simple circuit we’re
     using. We have our controller, one LED, and a resistor. For this setup, we can
     rely on the power being supplied over USB.'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: '[Figure 8-10](#smallerc-CHP-8-FIG-external-led) 显示了我们使用的简单电路。我们有我们的控制器、一个 LED
+    和一个电阻。对于这个设置，我们可以依赖 USB 提供的电力。'
 - en: '![smac 0810](Images/smac_0810.png)'
+  id: totrans-69
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0810](Images/smac_0810.png)'
 - en: Figure 8-10\. Simple circuit for an external LED
+  id: totrans-70
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-10\. 外部 LED 的简单电路
 - en: We can pick a pin to use and learn more about the voltage supplied over the
     pins by reading the specs for our microcontroller. In the case of our Metro Mini,
     we looked at the [Pinouts page](https://oreil.ly/H2wNN) on the Adafruit site.
@@ -391,42 +552,66 @@
     different configurations, but for ours, pins 0 through 13 map directly to digital
     pins 0 through 13\. So we can either use our own `#define` and attach a nice name
     (yay!) or just use the value `2` in our `pinMode()` and `digitalWrite()` calls.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以选择一个引脚，并通过阅读我们微控制器规格的电压来学习更多信息。在我们的 Metro Mini 的情况下，我们查看了 Adafruit 网站上的
+    [Pinouts 页面](https://oreil.ly/H2wNN)。详细信息告诉我们，板子上的哪些引脚映射到 UNO 的引脚。在板的“顶部”（芯片上的微小文字是正向的）有几个数字
+    I/O 引脚，特别是引脚 2 到 12 正是我们需要的。我们将从 2 开始，因为这个数字很好。不同的板子可能有不同的配置，但对于我们的板子，引脚 0 到 13
+    直接映射到数字引脚 0 到 13。因此，我们可以使用自己的 `#define` 并附加一个好名字（耶！）或者只是在我们的 `pinMode()` 和 `digitalWrite()`
+    调用中使用值 `2`。
 - en: 'The Metro Mini provides 5V on its digital pins. Using the specs provided by
     the LED manufacturer, we know our blue LED has a forward voltage drop of 2.5V.
     If we want to supply 30mA of current for a bright light, [Ohm’s law](https://oreil.ly/6ihdc)
     tells us a 100Ω resistor will work fine. With everything wired up, we can make
     a new sketch (or just tweak the first one). Here’s [*ch08/blink2/blink2.ino*](https://oreil.ly/xpo2a)
     as it stands:'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: Metro Mini 在其数字引脚上提供 5V。根据 LED 制造商提供的规格，我们知道我们的蓝色 LED 具有 2.5V 的正向电压降。如果我们想要提供
+    30mA 的电流以获得明亮的光，[欧姆定律](https://oreil.ly/6ihdc) 告诉我们，100Ω 电阻器效果很好。一切都连接好后，我们可以制作一个新的草图（或者只是微调第一个）。这里是
+    [*ch08/blink2/blink2.ino*](https://oreil.ly/xpo2a) 的当前状态：
 - en: '[PRE3]'
+  id: totrans-73
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Notice I went with the preprocessor `#define` feature to designate which digital
     pin we are using with our LED (`D2`). You can see this simple configuration up
     and running in [Figure 8-11](#smallerc-CHP-8-FIG-external-on-off). Hooray!
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，我使用预处理器 `#define` 功能来指定我们与 LED (`D2`) 使用的数字引脚。您可以在 [Figure 8-11](#smallerc-CHP-8-FIG-external-on-off)
+    中看到这个简单的配置运行。太棒了！
 - en: '![smac 0811](Images/smac_0811.png)'
+  id: totrans-75
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0811](Images/smac_0811.png)'
 - en: Figure 8-11\. Our external LED blinking
+  id: totrans-76
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-11\. 我们的外部 LED 闪烁
 - en: There is something extra satisfying in these small, physical projects. The “Hello,
     World” programs are all designed to prove your development environment works and
     that you can produce some output. That’s all we’ve done here, but gosh it’s fun
     seeing the LED light turn on. Every time I throw the switch on a new project,
     it feels a bit like Dr. Frankenstein screaming, “It’s alive!” in his lab. :-)
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这些小型物理项目中有一种额外的满足感。这些“Hello, World”程序的设计目的是证明您的开发环境正常工作，并且您可以产生一些输出。这就是我们在这里做的一切，但是看到
+    LED 灯亮起真是太有趣了。每当我在一个新项目上投入开关时，就感觉有点像弗兰肯斯坦博士在实验室里尖叫，“它活了！” :-)
 - en: Arduino Libraries
+  id: totrans-78
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Arduino 库
 - en: We’re not done making blinking lights just yet. While you can do an amazing
     amount of work with these microcontrollers right out of the box, quite often you’ll
     be building projects with some interesting accessories like multicolor LEDs, LCD
@@ -436,16 +621,23 @@
     are “official” and come from the component maker; others are produced by fellow
     hobbyists. Whatever the provenance, libraries can speed up devlopment on your
     projects.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管您可以立即使用这些微控制器做大量工作，但通常情况下，您将会构建一些带有一些有趣附件的项目，如多色 LED、LCD 屏幕、电子墨水、传感器、舵机、键盘甚至游戏控制器。这些组件中的许多都已经写好了一些代码块。这些代码块被收集到一个库中，您可以将其添加到
+    Arduino IDE 中。其中一些库是“官方”的，来自组件制造商；其他则是由同好制作的。不管来源如何，库都可以加快项目的开发速度。
 - en: Let’s take a look at finding and managing libraraies through the IDE. Doing
     so properly will help ensure your sketch does not contain any unused libraries.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们来看看如何通过 IDE 查找和管理库。正确地做这件事将有助于确保您的草图不包含任何未使用的库。
 - en: Managing Libraries
+  id: totrans-81
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 管理库
 - en: 'The Tools menu of the Arduino IDE has an entry to “Manage Libraries…” that
     pulls up a dialog for searching and installing libraries. We’re going to add an
     Adafruit library and try lighting up one of their fantastic NeoPixels—individually
@@ -453,23 +645,33 @@
     just about any possible use. They can even be chained together to build fancier
     rigs. For this example, though, we’ll be sticking with one of the simplest form
     factors: the [Flora](https://oreil.ly/JEuFF).'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: Arduino IDE 的“工具”菜单中有一个“管理库…”的入口，打开对话框以搜索和安装库。我们将添加一个 Adafruit 库，并尝试点亮其中一个他们的神奇
+    NeoPixel——单独可寻址的三色 LED，可用于各种各样的形态。它们甚至可以串联在一起以构建更复杂的装置。不过，在这个例子中，我们将继续使用其中一个最简单的形态因子：[Flora](https://oreil.ly/JEuFF)。
 - en: In the Library Manager dialog, enter the term “neopixel” in the search box at
     the top. You should get several results; we want the simple “Adafruit NeoPixel”
     entry. Click the Install button (or Update if you happen to have an older version
     of this library already installed as we do in [Figure 8-12](#smallerc-CHP-8-FIG-neopixel-library)),
     and that’s it! The IDE downloads the library and does the appropriate work to
     make it available behind the scenes.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 在库管理器对话框中，在顶部的搜索框中输入“neopixel”。您应该会得到几个结果；我们需要简单的“Adafruit NeoPixel”条目。点击安装按钮（或者如果您已经安装了较旧版本的此库，如我们在
+    [Figure 8-12](#smallerc-CHP-8-FIG-neopixel-library) 中所示，请点击更新），就这样！IDE 将下载库并在幕后进行适当的工作以使其可用。
 - en: '![smac 0812](Images/smac_0812.png)'
+  id: totrans-84
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0812](Images/smac_0812.png)'
 - en: Figure 8-12\. Finding a NeoPixel library
+  id: totrans-85
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-12\. 寻找 NeoPixel 库
 - en: The physical circuit for using NeoPixels is similar to what we use for simple
     LEDs, but they have three wires rather than two. You have standard `V`+ and `Ground`
     connectors for the basic power needs, and the third wire provides the “data” to
@@ -477,19 +679,29 @@
     to try this circuit, pay attention to where you connect the data input. Like our
     simple LED, we also want a small resistor (470Ω in our case) before the data signal
     gets to the NeoPixel. You can see the full setup in [Figure 8-13](#smallerc-CHP-8-FIG-flora-circuit).
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用 NeoPixels 的物理电路类似于我们用于简单 LED 的电路，但它们有三根导线而不是两根。您有标准的`V`+和`Ground`连接器用于基本电源需求，第三根线提供给像素或条的“数据”。数据在特定方向流动，因此，如果您决定尝试此电路，请注意连接数据输入的位置。与我们的简单
+    LED 一样，数据信号到达 NeoPixel 之前我们也需要一个小电阻器（在我们的情况下是 470Ω）。您可以在 [Figure 8-13](#smallerc-CHP-8-FIG-flora-circuit)
+    中看到完整的设置。
 - en: '![smac 0813](Images/smac_0813.png)'
+  id: totrans-87
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0813](Images/smac_0813.png)'
 - en: Figure 8-13\. A simple NeoPixel setup
+  id: totrans-88
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-13\. 简单的 NeoPixel 设置
 - en: Note
+  id: totrans-89
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: You can follow along with this project without NeoPixels, by the way. You can
     use any other addressable LEDs. If you have some of your own WS281x or APA102
     or other lights, they’ll likely work with the excellent [FastLED](http://fastled.io)
@@ -497,45 +709,64 @@
     are the same. FastLED has nice documentation on GitHub. For example, the work
     we’ll do in the next section with NeoPixels is covered in FastLED’s [Basic Usage](https://oreil.ly/eupDp)
     page.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以顺便学习一下这个项目，而不用NeoPixels。你可以使用任何其他可寻址的LED。如果你有自己的WS281x或APA102或其他灯光，它们很可能可以与优秀的[FastLED](http://fastled.io)库一起使用。你需要做一些更多的独立阅读，但所有的概念都是相同的。FastLED在GitHub上有很好的文档。例如，我们将在下一节中使用NeoPixels进行的工作在FastLED的[Basic
+    Usage](https://oreil.ly/eupDp)页面中有详细介绍。
 - en: Using Arduino Libraries
+  id: totrans-91
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 使用Arduino库
 - en: 'So how do we pull an Arduino library into our sketch? We use the familiar `#include`
     preprocessor command just like we did with the various header files from the C
     standard library in previous chapters. For the NeoPixels, our include looks like
     this:'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么我们如何将Arduino库引入我们的sketch中呢？我们使用熟悉的`#include`预处理命令，就像我们在前几章中使用C标准库的各种头文件一样。对于NeoPixels，我们的包含看起来像这样：
 - en: '[PRE4]'
+  id: totrans-93
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The IDE even helps confirm you have the library installed by bolding and coloring
     the name of the header file. Take a look at the comparison in [Figure 8-14](#smallerc-CHP-8-FIG-library-good-bad)
     where we used a lower-case “p” when spelling NeoPixel. The nice, bold color disappears.
     So if your library is correctly installed and the name stands out in your include
     line, you are ready to go!
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: IDE甚至会通过加粗和着色头文件的名称来确认你已安装好库。看一下[图 8-14](#smallerc-CHP-8-FIG-library-good-bad)中的比较，我们在拼写NeoPixel时使用了小写的“p”。漂亮的、粗体的颜色消失了。所以，如果你的库安装正确并且名称在包含行中突出显示，你就准备好了！
 - en: '![smac 0814](Images/smac_0814.png)'
+  id: totrans-95
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0814](Images/smac_0814.png)'
 - en: Figure 8-14\. Noticing library name mistakes
+  id: totrans-96
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-14\. 注意库名称的错误
 - en: Note
+  id: totrans-97
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: You can use multiple libraries within any given sketch. It’s entirely reasonable
     to have a library for things like your LEDs as well as one for servos or for an
     LCD screen. The only real limitation is memory—a ubiquitous concern when working
     with microcontrollers.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以在任何一个sketch中使用多个库。像LEDs的库以及伺服马达或LCD屏幕的库都是完全合理的。唯一的真正限制是内存——在使用微控制器时是一个无处不在的关注点。
 - en: When you verify a sketch, check the messages in the lower section of the IDE.
     You’ll get a report on the memory used as well as how much remains (assuming you
     have the correct board selected.) Happily, most folks and companies writing libraries
@@ -544,19 +775,25 @@
     about 2.5K (2636 bytes). While you could say it tripled the amount of flash required
     to store, getting all of the niceties of the library for less than 2K seems a
     fair trade-off!
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你验证一个sketch时，检查IDE下部分的消息。你将得到有关已使用内存以及剩余内存的报告（假设你选择了正确的开发板）。幸运的是，大多数为Arduino编写库的人和公司都非常清楚内存有多有限。例如，添加这个NeoPixel库使我们的闪烁sketch从接近1K（964字节）增加到大约2.5K（2636字节）。虽然可以说是需要存储的Flash量增加了三倍，但为了在少于2K的情况下获得库的所有好处似乎是一个公平的交换！
 - en: Arduino Sketches and C++
+  id: totrans-100
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Arduino Sketches和C++
 - en: To put this NeoPixel library to use, we need to take a tiny detour into C++,
     a successor to C with an object orientation (compared to C’s procedural orientation).
     Sketches are actually C++ projects. Happily, since C++ grew out of C, C code is
     legal C++ code as well. As programmers, we don’t have to learn much C++ if we
     don’t want to.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 要使用这个NeoPixel库，我们需要稍微涉足一下C++，这是C的后继版本，具有面向对象的特性（与C的过程化特性相比）。Sketches实际上是C++项目。幸运的是，由于C++起源于C，C代码也是合法的C++代码。作为程序员，如果不想学习太多C++也是可以的。
 - en: But notice that “much” qualifier in that last sentence. Many libraries—including
     our NeoPixel library—are written as C++ classes (a *class* is the organizing unit
     of object-oriented languages.) These libraries often take advantage of some nifty
@@ -565,139 +802,202 @@
     object, in turn, is an encapsulation of both data and functions meant to access
     and manipulate that data. Those functions defined for an object are referred to
     as the object’s methods.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 但请注意上文中的“much”修饰语。许多库——包括我们的NeoPixel库——都是用C++类写成的（*class* 是面向对象语言中的组织单元）。这些库经常利用C++的一些巧妙特性。特别是，你会发现构造函数和方法在各处被广泛应用。构造函数是初始化一个*对象*的函数。而对象本身则封装了数据和用于访问和操作该数据的函数。那些为对象定义的函数被称为对象的方法。
 - en: 'To see where constructors and methods show up in an Arduino library, let’s
     go ahead and finish our next iteration of the blinking light. Recall the setup
     shown in [Figure 8-13](#smallerc-CHP-8-FIG-flora-circuit). We can write a new
     sketch, *blink3*, that cycles the NeoPixel through its primary colors: red, green,
     and blue. Here’s the full code, including (no pun intended!) the appropriate `#include`
     line, [*ch08/blink3/blink3.ino*](https://oreil.ly/Ughez):'
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 要查看构造函数和方法在Arduino库中的显示位置，请继续完成我们闪烁灯光的下一个迭代。回顾[图 8-13](#smallerc-CHP-8-FIG-flora-circuit)中显示的设置。我们可以编写一个名为
+    *blink3* 的新程序，通过其主要颜色：红色、绿色和蓝色，循环NeoPixel。以下是完整代码，包括（无意打趣！）适当的`#include`行，[*ch08/blink3/blink3.ino*](https://oreil.ly/Ughez)：
 - en: '[PRE5]'
+  id: totrans-104
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[![1](Images/1.png)](#co_real_world_c_with_arduino_CO1-1)'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_real_world_c_with_arduino_CO1-1)'
 - en: Our constructed variable, `strip`. Its class (roughly analagous to its type)
     is `Adafruit_NeoPixel`. The name “strip” here is common, but a little wrong for
     our single Flora. But technically we are allocating a strip that is simply one
     pixel long.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们创建的变量是`strip`。它的类（粗略地类似于类型）是`Adafruit_NeoPixel`。这里的名称“strip”很常见，但对于我们的单个Flora来说有点不太合适。但从技术上讲，我们正在分配一个长度仅为一个像素的条。
 - en: '[![2](Images/2.png)](#co_real_world_c_with_arduino_CO1-2)'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_real_world_c_with_arduino_CO1-2)'
 - en: 'An example of a method: `begin()` is a function that applies to `strip`. The
     `begin()` method gets our strip of lights ready by filling in default values and
     performing other miscellaneous startup tasks.'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个方法的示例：`begin()`是一个应用于`strip`的函数。`begin()`方法通过填充默认值和执行其他杂项启动任务，使我们的灯带准备就绪。
 - en: '[![3](Images/3.png)](#co_real_world_c_with_arduino_CO1-3)'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_real_world_c_with_arduino_CO1-3)'
 - en: The `setBrightness()` method controls a premultiplied max brightness on `strip`.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: '`setBrightness()` 方法控制`strip`上的预乘最大亮度。'
 - en: '[![4](Images/4.png)](#co_real_world_c_with_arduino_CO1-4)'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_real_world_c_with_arduino_CO1-4)'
 - en: Another example of a method. `show()` causes the current colors in memory to
     be displayed on the actual LEDs of `strip`.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个方法的示例。`show()`会使存储在内存中的当前颜色显示在`strip`的实际LED上。
 - en: '[![5](Images/5.png)](#co_real_world_c_with_arduino_CO1-5)'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![5](Images/5.png)](#co_real_world_c_with_arduino_CO1-5)'
 - en: 'The `setPixelColor()` method takes four arguments: which pixel on `strip` to
     set (starting at 0), and the red, green, and blue values to apply. Color values
     range from 0 (off) to 255 (full brightness, though the final value is adjusted
     by that `setBrightness()` call we made in `setup()`).'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: '`setPixelColor()` 方法接受四个参数：要设置的`strip`上的哪个像素（从0开始），以及要应用的红色、绿色和蓝色值。颜色值从0（关闭）到255（全亮度），尽管最终值会受到我们在`setup()`中调用的`setBrightness()`的影响。'
 - en: '[![6](Images/6.png)](#co_real_world_c_with_arduino_CO1-6)'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![6](Images/6.png)](#co_real_world_c_with_arduino_CO1-6)'
 - en: To see our new pixel color on `strip`, we repeat our call to `show()`.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 要查看我们在`strip`上的新像素颜色，我们重复调用`show()`。
 - en: Try uploading this with your NeoPixel connected. Hopefully, you’ll see it run
     through red, green, and blue colors, as shown in [Figure 8-15](#smallerc-CHP-8-FIG-flora-rgb).
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 尝试使用连接了NeoPixel的设备上传这个程序。希望你能看到它以红色、绿色和蓝色依次运行，就像[图 8-15](#smallerc-CHP-8-FIG-flora-rgb)中展示的那样。
 - en: '![smac 0815](Images/smac_0815.png)'
+  id: totrans-118
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0815](Images/smac_0815.png)'
 - en: Figure 8-15\. Our blinking NeoPixel
+  id: totrans-119
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-15\. 我们闪烁的NeoPixel
 - en: Neat! Feel free to play around with the color or blink patterns. It can be surprisingly
     fun getting just the right hue. It really is magic. And now, you too know the
     right incantations!
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 很棒！随意尝试改变颜色或闪烁模式。调整到恰到好处的色调可以令人惊喜。这确实是魔法。现在，你也知道了正确的咒语！
 - en: C++ Objects and Variables
+  id: totrans-121
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: C++对象和变量
 - en: 'When you create an object variable, the declaration and initialization look
     a little funny. In C, we can create a variable and give it some starting value
     like this:'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 当您创建一个对象变量时，声明和初始化看起来有点奇怪。在C中，我们可以创建一个变量并为其赋予一些初始值，如下所示：
 - en: '[PRE6]'
+  id: totrans-123
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'If we had a C++ class named `Integer`, trying the same type of setup might
     look like this:'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们有一个名为`Integer`的C++类，尝试相同类型的设置可能会像这样：
 - en: '[PRE7]'
+  id: totrans-125
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The parentheses give you a clue that a function is being called. That’s the
     constructor. If you decide to go on and study C++ down the road, you’ll learn
     all the clever things that can be done in constructors. For now, though, we just
     want you to be aware of the syntax so that you’re comfortable creating variables
     that refer to objects.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 括号给了你一个线索，说明正在调用一个函数。那就是构造函数。如果你决定继续学习C++，你会学到构造函数中可以完成的所有聪明技巧。不过现在，我们只是希望你了解语法，以便能够轻松创建引用对象的变量。
 - en: The `strip.begin()` and `strip.setPixelColor()` lines that we called out are
     examples of calling an object’s functions (again, object-oriented languages use
     the term “methods”). The idea is the `strip` is what we want to work on, and `begin()`
     or `setPixelColor()` represents the work to be done.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们称之为`strip.begin()`和`strip.setPixelColor()`的行是调用对象函数的示例（再次说明，面向对象的语言使用术语“方法”）。这个想法是`strip`是我们要操作的对象，而`begin()`或`setPixelColor()`代表要完成的工作。
 - en: 'One way to think about this syntax is that it is a sort of transformation.
     In pure C, we could imagine writing normal functions for `begin()` and `setPixelColor()`.
     But we’d have to tell those functions which strip of NeoPixels we want to set
     up or change. So we would need an extra argument to pass a reference to the correct
     strip like so:'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于这种语法的一种思考方式是，它是一种转换的方式。在纯C中，我们可以想象为`begin()`和`setPixelColor()`编写普通函数。但是我们必须告诉这些函数我们想要设置或更改哪个NeoPixels带。所以我们需要额外的参数来传递对正确带的引用，如下所示：
 - en: '[PRE8]'
+  id: totrans-129
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: But again, for our work in this book, you mostly just need to get comfortable
     with statements that create a new object from a library, and then remember that
     using the methods of objects follows the `object.method()` pattern.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是在本书的工作中，你大多数时候只需要熟悉从库中创建新对象的语句，然后记住使用对象的方法遵循`object.method()`的模式。
 - en: More Practice with Objects
+  id: totrans-131
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 更多关于对象的实践
 - en: Before we move on to other aspects of coding for microcontrollers, let’s make
     one more blinking application with an eye toward reinforcing the object syntax.
     We’ll try using some actual strips of LEDs with more than one LED. In particular,
     we’ll be using a small [stick](https://oreil.ly/yeieS) of 8 NeoPixels and a [ring](https://oreil.ly/1CTcw)
     of 24 NeoPixels. To make things even more fun, we’ll be using them at the same
     time!
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们继续为微控制器编码的其他方面之前，让我们再做一个眨眼应用程序，着重加强对象语法。我们将尝试使用一些实际的LED带，这些带上不止一个LED。特别是，我们将使用一个包含8个NeoPixels的小[条](https://oreil.ly/yeieS)和一个包含24个NeoPixels的[环](https://oreil.ly/1CTcw)。为了让事情更有趣，我们将同时使用它们！
 - en: To keep the code simple, we’ll make a blink program that shows one pixel at
     a time on each strip. This will also keep the power requirement down so that we
     can continue to use what we get from our USB connection. (If you are familiar
@@ -705,93 +1005,141 @@
     create your own arrangement.) [Figure 8-16](#smallerc-CHP-8-FIG-ring-stick) shows
     our new setup. We removed the blue LED and the previous “strip” of the lonely
     NeoPixel Flora.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了保持代码简洁，我们将制作一个眨眼程序，每次在每条带上显示一个像素。这样做还能降低功率需求，以便我们可以继续使用从USB连接获取的电力。（如果您熟悉更大的LED设置，并且已经知道如何添加外部电源，请随意创建您自己的安排。）[图 8-16](#smallerc-CHP-8-FIG-ring-stick)
+    展示了我们的新设置。我们移除了蓝色LED和之前的“条”孤独NeoPixel Flora。
 - en: '![smac 0816](Images/smac_0816.png)'
+  id: totrans-134
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0816](Images/smac_0816.png)'
 - en: Figure 8-16\. A more interesting NeoPixel setup
+  id: totrans-135
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 8-16\. 一个更有趣的NeoPixel设置
 - en: We are reusing the same output pins for the data line, though. In this arrangement,
     the stick is using pin 2 and the ring is using pin 4.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将重复使用相同的输出引脚作为数据线。在这个布置中，条使用引脚2，环使用引脚4。
 - en: Without further ado, here is the code for our two-strip blink extravaganza,
     *blink4*. We’ll dive into the callouts after the snippet to make sure the steps
     we take here make sense. Before reading those callouts, though, try going through
     [*ch08/blink4/blink4.ino*](https://oreil.ly/19dUL) and see if you can guess how
     the objects work.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 不多说了，这里是我们两条带眨眼盛会*blink4*的代码。我们将在片段后深入讨论这些步骤，确保我们在这里采取的步骤是有意义的。在阅读这些调用之前，尝试去[*ch08/blink4/blink4.ino*](https://oreil.ly/19dUL)并看看您能否猜到对象的工作原理。
 - en: '[PRE9]'
+  id: totrans-138
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: '[![1](Images/1.png)](#co_real_world_c_with_arduino_CO2-1)'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_real_world_c_with_arduino_CO2-1)'
 - en: Here we create an Adafruit_NeoPixel object named `stick` similar to how we created
     `strip` in [“Arduino Sketches and C++”](#smallerc-CHP-8-SECT-4).
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这里，我们创建了一个名为`stick`的Adafruit_NeoPixel对象，类似于我们在[“Arduino Sketches and C++”](#smallerc-CHP-8-SECT-4)中创建`strip`的方式。
 - en: '[![2](Images/2.png)](#co_real_world_c_with_arduino_CO2-2)'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_real_world_c_with_arduino_CO2-2)'
 - en: And now we create a second, distinct object named `ring`. (The ring uses a fancier
     LED configuration with a white component so we add a third argument to the constructor.
     You can find this value in the NeoPixel documentation.)
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们创建一个名为`ring`的第二个独立对象。（该环采用更复杂的LED配置，带有白色元件，因此我们在构造函数中添加了第三个参数。你可以在NeoPixel文档中找到这个值。）
 - en: '[![3](Images/3.png)](#co_real_world_c_with_arduino_CO2-3)'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_real_world_c_with_arduino_CO2-3)'
 - en: We initialize our stick just as we did before with the strip.
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们像之前使用`strip`一样初始化了我们的`stick`。
 - en: '[![4](Images/4.png)](#co_real_world_c_with_arduino_CO2-4)'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_real_world_c_with_arduino_CO2-4)'
 - en: We also initialize our ring; notice we use the `begin()` method on both objects.
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还初始化了我们的`ring`；请注意，我们在两个对象上都使用了`begin()`方法。
 - en: '[![5](Images/5.png)](#co_real_world_c_with_arduino_CO2-5)'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![5](Images/5.png)](#co_real_world_c_with_arduino_CO2-5)'
 - en: Now we set the color of one of the pixels on our stick.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们设置了我们`stick`上一个像素的颜色。
 - en: '[![6](Images/6.png)](#co_real_world_c_with_arduino_CO2-6)'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![6](Images/6.png)](#co_real_world_c_with_arduino_CO2-6)'
 - en: We use a similar method with a fifth argument to set the color on our ring.
     (The arguments here are which pixel, red, green, blue, and white. The ring will
     blink green.)
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们使用了类似的方法，并通过第五个参数设置了我们的`ring`的颜色。（这里的参数是像素位置、红色、绿色、蓝色和白色。环将闪烁为绿色。）
 - en: '[![7](Images/7.png)](#co_real_world_c_with_arduino_CO2-7)'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![7](Images/7.png)](#co_real_world_c_with_arduino_CO2-7)'
 - en: Last but not least, show both changes.
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后但同样重要，展示两个变化。
 - en: Hopefully, seeing two objects in use side by side helps illustrate how the object-oriented
     syntax works. Again, our `for` loop is pure C. We dip into the C++ syntax on an
     as-needed basis.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 希望看到并行使用两个对象有助于说明面向对象的语法是如何工作的。再次强调，我们的`for`循环纯粹是C。我们根据需要使用C++语法。
 - en: C++ Considerations
+  id: totrans-154
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: C++注意事项
 - en: There is definitely more to the role of object-oriented programming in Arduino
     development. OO programming is a fairly natural fit for an environment where so
     many of things we get to work with are physical objects. C++ also offers several
     features that are well suited to bundling up code to share with others. If you
     interact with your microcontrollers primarily through the Arduino IDE, it’s worth
     spending some time investigating C++.
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Arduino开发中，面向对象编程在对象数量众多的物理对象环境中非常自然。C++还提供了几个功能，非常适合用来打包代码与他人分享。如果你主要通过Arduino
+    IDE与你的微控制器交互，花一些时间研究C++是值得的。
 - en: Diving into C++ will teach you about classes and members and methods. You’ll
     create constructors and destructors. As your understanding of objects improves,
     you’ll likely start breaking down your projects along object lines rather than
@@ -799,23 +1147,31 @@
     a few that you don’t. Some libraries will be easier to use if you understand C++,
     but none of them will be out of your reach even if you never crack an official
     C++ book.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 深入学习C++将教会你关于类、成员和方法。你将创建构造函数和析构函数。随着你对对象的理解加深，你可能会开始按照对象的方式而不是功能的方式来分解你的项目。你肯定会发现C++中有一些你喜欢的东西，也可能会有一些你不喜欢的东西。如果你理解了C++，使用一些库会更容易，但即使你从未打开过正式的C++书籍，也不会遇到完全无法解决的问题。
 - en: The C language on its own remains a powerful core in Arduino programming, and
     I’ll keep the focus of the remaining chapters on using functions and other basic
     C features to code up our projects. Where we use any third-party libraries for
     specific peripherals, I’ll try to use the minimum of object notation. I’ll also
     try to highlight any spots where C++ syntax stands out.
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Arduino编程中，C语言本身仍然是一个强大的核心，我将继续把剩余的章节重点放在使用函数和其他基本的C特性来编写我们的项目上。在使用任何第三方库来处理特定外设时，我会尽量减少对象表示法的使用。我也会尝试突出显示C++语法显著的地方。
 - en: 'To reiterate the most common object-oriented patterns you’ll see in the remaining
     chapters, here is a recap from our NeoPixel example in [“Arduino Sketches and
     C++”](#smallerc-CHP-8-SECT-4):'
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了重申在接下来的章节中你将看到的最常见的面向对象模式，这里是我们在[“Arduino Sketches and C++”](#smallerc-CHP-8-SECT-4)中NeoPixel示例的总结：
 - en: '[PRE10]'
+  id: totrans-159
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Hopefully, you’ll grow more comfortable with these small dips into C++. I also
     hope that comfort grows into curiosity about what more you can do with C++! But
     don’t worry if you never really get curious or even comfortable. One of the things
@@ -824,61 +1180,88 @@
     mastering C++. A brief scan of my own projects shows that I stuck with C more
     than 90% of the time, even though every one of those projects also uses a library
     written in C++.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 希望您对这些小小的 C++ 尝试更加自如。我也希望这种舒适感能引发您对 C++ 更多的好奇心！但如果您真的不感兴趣，或者甚至不感到舒适，也不用担心。我编写微控制器代码最喜欢的一点是，少量的代码也能大有作为。即使我的项目简要概述显示，大多数时间我都使用
+    C，尽管这些项目中每一个都使用了用 C++ 编写的库。
 - en: Object Homework
+  id: totrans-161
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 对象作业
 - en: 'If you’d like a little more practice with the object notation we’ve already
     seen and will bump into occasionally in the coming chapters, try creating some
     of these ideas:'
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您想要更多练习我们已经见过并且在接下来的章节中偶尔会遇到的对象表示法，请尝试创建以下一些想法：
 - en: Blink every other pixel on the stick so that the even pixels turn on, then the
     odd pixels, back and forth.
+  id: totrans-163
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 交替闪烁棒子上的每一个像素，使偶数像素亮起，然后是奇数像素，来回交替。
 - en: Blink each pixel on the ring once for every pixel on the stick, like a counter.
     (I.e., keep one pixel showing on the stick as you march around the ring. Then
     move to the next pixel on the stick, and march around the ring again. Repeat!)
+  id: totrans-164
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于每个棒子上的像素，像计数器一样在环上闪烁一次。 （即，保持棒子上的一个像素显示，然后绕环行进。然后移到棒子上的下一个像素，再次绕环行进。重复！）
 - en: Working with just the stick, try “filling” it from left to right. Then clear
     all the pixels and let it fill again.
+  id: totrans-165
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 仅使用棒子，尝试从左到右“填充”它。然后清除所有像素，再次填充它。
 - en: Take a look at the documentation for [NeoPixels](https://oreil.ly/GxxxI) (or
     [FastLED](https://oreil.ly/9Ln6A), or whatever library you are using) and see
     if there are any methods to turn the entire strip one color with a single call.
     Use that method to turn the entire stick red, then green, then blue, similar to
     our *blink3* program that used the single Flora.
+  id: totrans-166
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 查看 [NeoPixels](https://oreil.ly/GxxxI)（或 [FastLED](https://oreil.ly/9Ln6A)，或者您使用的任何库）的文档，看看是否有任何方法可以一次调用将整个条带变成一种颜色。
+    使用这种方法将整个棒子变成红色，然后绿色，然后蓝色，类似于我们使用单个 Flora 的 *blink3* 程序。
 - en: Next Steps
+  id: totrans-167
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 接下来的步骤
 - en: We now have the basics of an Arduino project up and running. We’ve worked with
     the Arduino IDE and we’ve seen where C++ might crop up in our code. Putting it
     all together, we turned on an LED! While that is exciting, there is a lot more
     fun to be had.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们现在已经完成了 Arduino 项目的基础工作。我们使用了 Arduino IDE，并且看到了 C++ 在我们的代码中的应用。把这些结合起来，我们成功地点亮了一个
+    LED！虽然这很令人兴奋，但还有更多有趣的东西等着我们。
 - en: In the next chapter, we’ll explore some of the many inputs and outputs available
     for use with a microcontroller. We certainly can’t cover every sensor or button
     or speaker or display, but we can (and will!) look at several good examples of
     these peripherals. We’ll concentrate on getting these disparate gadgets to work
     together so you have a solid foundation to rely on as you tackle your own projects
     down the road.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 在下一章中，我们将探索许多可用于与微控制器配合使用的输入和输出。 我们当然无法涵盖每个传感器、按钮、扬声器或显示器，但我们可以（而且将会！）看几个这些外围设备的好例子。
+    我们将集中精力使这些不同的小工具能够一起工作，这样您就可以在未来处理自己的项目时有一个可靠的基础。
 - en: '^([1](ch08.xhtml#idm45018720330312-marker)) For more (much more!) information
     on the details of Arduino, check out [*Arduino: A Technical Reference*](https://learning.oreilly.com/library/view/arduino-a-technical/9781491934319/)
     by J. M. Hughes (O’Reilly).'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([1](ch08.xhtml#idm45018720330312-marker)) 欲了解更多关于 Arduino 的细节信息，请参阅 J. M.
+    Hughes（O’Reilly）的 [*Arduino: A Technical Reference*](https://learning.oreilly.com/library/view/arduino-a-technical/9781491934319/)。'

@@ -1,15 +1,19 @@
 - en: Chapter 1\. The ABCs of C
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第1章《C 语言的基础知识》
 - en: C is a powerful language. It is procedural (meaning you do a lot of your coding
     work with procedures) and compiled (meaning the code you write must be translated
     for use by a computer using a compiler). You can write your procedures anywhere
     you can edit a text file, and you can compile those procedures to run on anything
     from supercomputers to the tiniest of embedded controllers. It’s a fantastic,
     mature language—I’m glad you’re here learning about it!
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: C 是一种强大的语言。它是过程式的（意味着你大部分编码工作是通过过程完成的），并且是编译的（意味着你编写的代码必须通过编译器翻译才能被计算机使用）。你可以在任何能够编辑文本文件的地方编写你的过程，也可以将这些过程编译成可以运行在从超级计算机到最小的嵌入式控制器的任何设备上的代码。这是一门出色的、成熟的语言——我很高兴你正在学习它！
 - en: 'C has been around for quite some time: it was developed in the early 1970s
     by Dennis Ritchie at Bell Labs. You might have heard of him as one of the authors
     of the canonical C programming book, *The C Programming Language* with Brian Kernighan
@@ -19,27 +23,37 @@
     would run on, C caught on with both academic and industrial institutions outside
     Bell Labs to run a growing array of computers and remains a viable systems programming
     language.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: C 已经存在了相当长的时间：它是在20世纪70年代初由贝尔实验室的丹尼斯·里奇开发的。你可能听说过他，他是与布莱恩·克尼根（Pearson）合著的经典C编程书籍《C
+    程序设计语言》的作者之一。（如果在编程界看到或听到或阅读到“K&R”这个词组，那就是在提到这本书。）作为一种通用的过程式语言，C 旨在使程序员能够连接他们的程序将要运行的硬件，因此在贝尔实验室之外的学术和工业机构中流行起来，用于运行越来越多的计算机，并且仍然是一种可行的系统编程语言。
 - en: Like all languages, C is not static. And with nearly 50 years under its belt,
     C has undergone many changes and spawned a great number of other languages. You
     can see its influence in the syntax of languages as disparate as Java and Perl.
     Indeed, some of C’s elements are so universal that you see it show up in pseudocode
     examples meant to represent “any” language.
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 像所有语言一样，C 是不静态的。凭借将近50年的发展历程，C 经历了许多变化，并衍生出大量其他语言。你可以看到它在诸如 Java 和 Perl 等语言的语法中的影响。事实上，C
+    的一些元素如此普遍，以至于你会在旨在代表“任何”语言的伪代码示例中看到它的身影。
 - en: As C grew in popularity, it became necessary to organize and standardize its
     syntax and features. The first part of this book will focus on [Standard C](https://oreil.ly/9MDKn)
     as defined by the International Organization for Standardization (ISO) and the
     code we write will be portable to any C compiler on any platform. The latter part
     of this book will focus on using C with specific hardware such as the Arduino
     microcontroller.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 随着C 的流行，有必要组织和标准化其语法和特性。本书的第一部分将关注由国际标准化组织（ISO）定义的[标准C](https://oreil.ly/9MDKn)，我们编写的代码将可移植到任何平台上的任何C编译器。本书的后半部分将专注于将C与特定硬件（如Arduino微控制器）结合使用。
 - en: Strengths and Weaknesses
+  id: totrans-5
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 优缺点
 - en: When you think about solving actual problems with a computer these days, using
     a high-level language is a must. C provides a great balance between code you can
     think about and code that performs well when compiled for actual hardware. C has
@@ -48,61 +62,81 @@
     a good option for lean code on microcontrollers.) C also gives you room to break
     problems up into smaller subproblems. You can reason about the code (and its inevitable
     bugs) as a human—quite a handy thing.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 当今，要用计算机解决实际问题，使用高级语言是必须的。C 在编译为实际硬件时，能够在代码可读性和性能之间取得良好平衡。C 具有直观的代码结构和丰富的有用运算符。（这些特性已经传播到许多后续语言中，并使其成为微控制器上精简代码的良好选择。）C
+    还允许你将问题分解为较小的子问题。你可以像人类一样推理代码（及其不可避免的错误），这非常方便。
 - en: C does have its downsides, though. C does not have some of the fancier features
     available today in other languages such as Java’s automatic memory garbage collection.
     Many modern languages hide most of those details from the programmer at the expense
     of a little performance. C requires you to be more deliberate in how you allocate
     and manage resources like memory. Sometimes that requirement can feel tedious.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: C 也有其不足之处。例如，C 并不具备像 Java 那样的自动内存垃圾收集等一些现代语言中的花哨特性。许多现代语言为了降低程序员的编程负担，把大部分细节都隐藏起来，虽然会稍稍牺牲一些性能。C
+    要求你在分配和管理内存等资源时更加谨慎。有时这种要求会感觉很烦人。
 - en: C also lets you write some pretty impressive bugs. It has no type safety or
     really any safety checks at all. Again, as a programmer, this hands-off approach
     means you can write clever, efficient code that really hums on the hardware. It
     also means that if you get something wrong, it’s up to you to find and fix the
     problem. (Tools like linters and debuggers help; we’ll definitely be looking at
     those along the way.)
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: C语言还允许你编写一些相当引人注目的错误。它没有类型安全性，实际上没有任何安全检查。同样，作为程序员，这种无干扰的方法意味着你可以编写聪明高效的代码，非常适合硬件运行。但这也意味着，如果你出错了，你就需要找到并解决问题。（像linter和debugger这样的工具会有所帮助；我们在学习过程中一定会仔细研究它们。）
 - en: Getting Started
+  id: totrans-9
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 开始
 - en: So how do we get started? As with any compiled language, we’ll first need a
     file containing some valid C instructions. We’ll then need a compiler that can
     translate those instructions. With the right contents in the file and a compiler
     for your own computer’s hardware, you can have a C program running in just a few
     minutes.
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么我们如何开始呢？和任何编译语言一样，我们首先需要一个包含一些有效C指令的文件。然后，我们需要一个可以翻译这些指令的编译器。只要文件中有正确的内容，并且有适合你电脑硬件的编译器，你可以在几分钟内运行一个C程序。
 - en: 'If you have spent any time learning any computer language at all, you’re likely
     familiar with the idea of a “Hello, World” program. It’s an admirably simple idea:
     create a tiny program that proves several things in one go. It proves you can
     write valid code in the language. It proves your compiler or interpreter works.
     It also proves you can produce visible output, which comes in very handy for humans,
     as it turns out. Let’s get started!'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你花了一些时间学习任何计算机语言，你可能熟悉“Hello, World”程序的概念。这是一个令人钦佩的简单想法：创建一个小程序，一举证明几件事情。它证明你可以用该语言编写有效的代码。它证明你的编译器或解释器有效。它还证明你可以生成可见的输出，这对人类来说非常方便。让我们开始吧！
 - en: Tools Required
+  id: totrans-12
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 所需工具
 - en: Folks use computers today for a vast array of tasks. Entertainment such as games
     and streaming video takes up as many (if not more) CPU cycles as business productivity
     work or even application development. And because computers are used as much for
     consuming as they are for producing, very few systems come with the tools required
     to do stuff like application development. Happily, those tools are freely available,
     but you do have to go get them yourself and then set them up to work on your system.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 如今，人们使用计算机进行各种各样的任务。娱乐，比如游戏和流媒体视频，占用了与商业生产工作或甚至应用程序开发一样多（如果不是更多）的CPU周期。由于计算机用于消费和生产，几乎没有系统预装了用于应用程序开发等任务所需的工具。幸运的是，这些工具是免费提供的，但你必须亲自获取并设置它们以在你的系统上运行。
 - en: 'As I’ve noted before, this book focuses on writing clean, efficient C code.
     I take care in our examples to avoid overly clever patterns. I also work hard
     to ensure the examples do not rely on a particular compiler or a particular development
     platform. To that end, I’ll be working with the minimum setup required for any
     software development: a good editor and a good compiler.^([1](ch01.xhtml#idm45018747426616))'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 如我之前所提到的，本书专注于编写干净高效的C代码。在我们的示例中，我尽力避免使用过于巧妙的模式。我也努力确保示例不依赖于特定的编译器或特定的开发平台。为此，我将使用任何软件开发所需的最小配置：一个好的编辑器和一个好的编译器。^([1](ch01.xhtml#idm45018747426616))
 - en: If you’re comfortable hunting down software online and want to dive right in,
     we’ll be installing [Visual Studio Code](https://oreil.ly/kXf3h) (often just “VS
     Code”) from Microsoft as our editor and the [GNU developer tools](https://oreil.ly/xclHh)
@@ -110,12 +144,18 @@
     feel free to jump to [“Creating a C ‘Hello, World’”](#smallerc-CHP-1-SECT-2.2)
     after installing these tools on your own or if you already have an editor and
     a compiler you’re comfortable using.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你习惯在网上寻找软件并且想要立即开始，我们将安装[Visual Studio Code](https://oreil.ly/kXf3h)（通常简称为“VS
+    Code”）作为我们的编辑器，以及从GNU基金会获取的[GNU开发者工具](https://oreil.ly/xclHh)来处理编译。更多链接和详细信息请参考，但安装完这些工具后，随时可以跳转到[“创建一个C的‘Hello,
+    World’”](#smallerc-CHP-1-SECT-2.2)，无论是你自己安装还是已经有了自己喜欢使用的编辑器和编译器。
 - en: Windows
+  id: totrans-16
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: Windows
 - en: Microsoft Windows owns the lion’s share of the desktop market. If you only write
     programs for one system, Windows gets you the most bang for your buck. But that
     means that you’ll find a lot more competition in the software that helps you write
@@ -124,8 +164,10 @@
     version that will suffice for our purposes. (When we get to the Arduino focus
     in the second part of this book, we’ll be looking at some Arduino-specific tools
     that include compilers.)
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: Microsoft Windows占据了桌面市场的大部分份额。如果您只为一个系统编写程序，Windows能为您提供最大的效益。但这意味着您将在编写这些程序的软件中面临更多竞争。对于Windows，有比任何其他平台都多的商业开发应用程序。幸运的是，这些应用程序中的许多都有免费或“社区”版本，足以满足我们的需求。（当我们在本书的第二部分讨论Arduino重点时，我们将查看一些包括编译器的Arduino特定工具。）
 - en: You can’t talk about Windows and software development without mentioning the
     Visual Studio IDE (Integrated Development Environment) from Microsoft. If you
     want to build applications for Windows itself, it’s hard to beat Visual Studio.
@@ -134,43 +176,61 @@
     is a great IDE for Windows users and will easily handle our code. (I will, however,
     be using a close cousin called Visual Studio Code as our editor on all three of
     the major platforms.)
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 谈论Windows和软件开发时，不能不提微软的Visual Studio集成开发环境（IDE）。如果您想要为Windows本身构建应用程序，那么Visual
+    Studio几乎无可匹敌。他们甚至为学生和个人开发者提供社区版本。虽然在本书的示例中我不会讨论任何版本，但Visual Studio对于Windows用户来说是一个很棒的IDE，并且可以轻松处理我们的代码。（然而，在所有三个主要平台上，我将使用一个名为Visual
+    Studio Code的近亲作为我们的编辑器。）
 - en: Note
+  id: totrans-19
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: Another popular commerical IDE is [CLion](https://oreil.ly/E1Oxh) from Jetbrains.
     CLion is also cross-platform so you can easily move between different operating
     systems and still feel productive. If you have experience with any of the other
     quality applications from Jetbrains, CLion can be a familiar way to get started
     writing and debugging C code.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个流行的商业IDE是来自Jetbrains的[CLion](https://oreil.ly/E1Oxh)。CLion也是跨平台的，因此您可以轻松地在不同操作系统之间切换，并保持高效。如果您有使用Jetbrains其他优质应用程序的经验，CLion可以成为一个熟悉的开始编写和调试C代码的方式。
 - en: There are myriad other text editors, each with some pros and cons. You can even
     use tools like the built-in Notepad application, although programming-specific
     editors will have some handy features that can make reading and debugging your
     code easier.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 存在无数其他文本编辑器，每种都有其优缺点。甚至可以使用像内置的记事本应用这样的工具，尽管专门用于编程的编辑器将具有一些便捷功能，可以使阅读和调试代码变得更容易。
 - en: GNU tools on Windows
+  id: totrans-22
   prefs:
   - PREF_H4
   type: TYPE_NORMAL
+  zh: 在Windows上的GNU工具
 - en: On Windows, installing the GCC tool from GNU can be a bit tedious. There’s no
     quick, friendly installer.^([2](ch01.xhtml#idm45018747677048)) You can find a
     variety of [binary packages](https://oreil.ly/atDoI) that provide most of what
     we need, but you still have to take care to download the GNU compiler subpackages
     and then configure your Windows environment.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Windows上，安装GNU的GCC工具可能会有些繁琐。没有快捷友好的安装程序。^([2](ch01.xhtml#idm45018747677048))
+    您可以找到多种二进制包，提供我们所需的大部分内容，但仍需注意下载GNU编译器的子包，并配置您的Windows环境。
 - en: We will install the Cygwin environment to get our Windows version of GCC. Cygwin
     is a much larger collection of tools and utilities that provides Windows users
     with a nice Unix shell environment. But “nice” is pretty subjective, and if you
     don’t know Unix or its derivatives such as Linux or modern macOS, you probably
     won’t use much else of the collection.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将安装Cygwin环境来获取我们的Windows版本的GCC。Cygwin是一个更大的工具和实用程序集合，为Windows用户提供了一个不错的Unix
+    shell环境。但“不错”相当主观，如果您不了解Unix或其衍生产品，如Linux或现代macOS，那么您可能不会使用该集合的其他功能。
 - en: Grab the [Cygwin setup](https://oreil.ly/Loj7l) executable. Once it’s done downloading,
     go ahead and launch it. You may need to “allow this app from an unknown publisher
     to make changes to your device.” You can try the “Install from Internet” option,
@@ -179,127 +239,181 @@
     download completes, you can run this installer program a second time and choose
     the “Install from Local Directory” option and use the folder where you downloaded
     all of the packages.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 获取[Cygwin设置](https://oreil.ly/Loj7l)可执行文件。下载完成后，立即启动它。可能需要“允许此来自未知发布者的应用程序更改设备”。你可以尝试“从互联网安装”选项，但如果遇到问题，可以返回并使用“下载而不安装”选项。下载完成后，可以再次运行此安装程序，并选择“从本地目录安装”选项，并使用下载所有软件包的文件夹。
 - en: Go ahead and accept the defaults for any questions the installer asks. When
     you get to the mirror selection page, use one physically close to you if you can
     identify a university or business you know. Otherwise, any mirror should do—but
     it’s OK to come back and pick a different one if you have any troubles with the
     download.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 前往安装程序询问时接受任何默认选项。当到达镜像选择页面时，如果你能识别到你附近的大学或企业，请选择一个物理位置接近的镜像。否则，任何镜像都可以——但如果下载遇到问题，可以返回并选择另一个镜像。
 - en: On the “Select Package” screen, you do need to make an extra selection as `gcc`
     is not included by default. Switch the View dropdown to “Full” and then enter
     “gcc” as a search term. You want the “gcc-core” package as highlighted in [Figure 1-1](#smallerc-CHP-1-FIG-cygwin-pkg-select).
     Any of the versions available are sufficient for our needs. At the time of this
     writing, we selected the most recent gcc-core version, which was 10.2.0-1.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 在“选择包”屏幕上，你需要做一个额外的选择，因为`gcc`不是默认包含的。将视图下拉菜单切换到“完整”，然后输入“gcc”作为搜索词。你需要的是如[图1-1](#smallerc-CHP-1-FIG-cygwin-pkg-select)所示高亮显示的“gcc-core”包。在撰写本文时，我们选择了最新的gcc-core版本，即10.2.0-1。
 - en: '![smac 0101](Images/smac_0101.png)'
+  id: totrans-28
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0101](Images/smac_0101.png)'
 - en: Figure 1-1\. Selecting the Cygwin GCC package
+  id: totrans-29
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图1-1\. 选择Cygwin GCC包
 - en: Confirm your selections on the Review page and start the download! It may take
     a little time to download and install everything, but you should eventually hit
     the Finish screen. You can add the desktop icon if you want to play around with
     a Unix-like command prompt, but it is not required for the work we’ll be doing.
     What is required, though, is an extra step to add the Cygwin tools to Microsoft’s
     command prompt.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 在审核页面确认你的选择并开始下载！可能需要一些时间来下载和安装所有内容，但最终会出现完成屏幕。如果想玩一下类Unix命令提示符，可以添加桌面图标，但不是我们将要进行的工作所必需的。不过，必须执行的是额外的步骤，将Cygwin工具添加到Microsoft命令提示符中。
 - en: You may wish to search online for a guided tour of creating and editing Windows
     environment variables, but here are the basics. (If you’ve done this type of thing
     before, feel free to skip to the Cygwin folder selection and just put that in
     your path.)
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能希望在线搜索一个有关创建和编辑Windows环境变量的导览，但这里是基本内容。（如果你以前做过这种事情，可以直接跳到Cygwin文件夹选择并将其添加到你的路径中。）
 - en: From the Start menu, search for “env” and you should quickly see an option to
     edit the system environment variables at the top, as shown in [Figure 1-2](#smallerc-CHP-1-FIG-win-search-env).
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 从开始菜单搜索“env”，你应该很快看到一个选项，可以在顶部编辑系统环境变量，如[图1-2](#smallerc-CHP-1-FIG-win-search-env)所示。
 - en: The System Properties dialog should open, and you want to click the “Environment
     Variables…” button near the bottom right corner, as shown in [Figure 1-3](#smallerc-CHP-1-FIG-win-props-env).
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 应该打开系统属性对话框，然后点击右下角附近的“环境变量…”按钮，如[图1-3](#smallerc-CHP-1-FIG-win-props-env)所示。
 - en: '![smac 0102](Images/smac_0102.png)'
+  id: totrans-34
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0102](Images/smac_0102.png)'
 - en: Figure 1-2\. Finding the environment variable editor in Windows
+  id: totrans-35
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图1-2\. 在Windows中找到环境变量编辑器
 - en: '![smac 0103](Images/smac_0103.png)'
+  id: totrans-36
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0103](Images/smac_0103.png)'
 - en: Figure 1-3\. The System Properties dialog in Windows
+  id: totrans-37
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图1-3\. Windows中的系统属性对话框
 - en: You can set just your path or set it system wide. Highlight the PATH entry you
     want to update and then click Edit. Next, click the New button on the “Edit environment
     variables” dialog and then click the Browse button to navigate to the Cygwin *bin*
     folder, as shown in [Figure 1-4](#smallerc-CHP-1-FIG-win-cygwin-path). (If you
     recall the root folder you chose for the Cygwin installer to put everything in,
     you can also just type that in, of course.)
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以仅设置您的路径或设置系统范围。突出显示要更新的PATH条目，然后单击编辑。接下来，单击“编辑环境变量”对话框上的“新建”按钮，然后单击“浏览”按钮以导航到Cygwin的*bin*文件夹，如[图
+    1-4](#smallerc-CHP-1-FIG-win-cygwin-path)所示。（当然，如果您记得您选择的用于将所有内容放入的Cygwin安装程序的根文件夹，您也可以直接键入。）
 - en: '![smac 0104](Images/smac_0104.png)'
+  id: totrans-39
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0104](Images/smac_0104.png)'
 - en: Figure 1-4\. Adding the Cygwin *bin* folder to the Path environment variable
+  id: totrans-40
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-4\. 将Cygwin的*bin*文件夹添加到Path环境变量中
 - en: Select the OK button to close each of the dialogs and you should be set!
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 选择“确定”按钮以关闭每个对话框，然后您就可以开始了！
 - en: For the editor, you can find [VS Code](https://oreil.ly/27eCl) at the Visual
     Studio site. Depending on your system, you will most likely want either the 64-bit
     or 32-bit user installer version.^([3](ch01.xhtml#idm45018747396056))
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于编辑器，您可以在Visual Studio网站上找到[VS Code](https://oreil.ly/27eCl)。根据您的系统，您可能需要64位或32位用户安装程序版本。^([3](ch01.xhtml#idm45018747396056))
 - en: Use the Extensions view shown in [Figure 1-5](#smallerc-CHP-1-FIG-vs-c-ext-win)
     to grab the C/C++ extension. You can search for the simple letter “c,” but you
     might also see the extension right away on the “Popular” list. Go ahead and click
     the small green Install button for the extension.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用[图 1-5](#smallerc-CHP-1-FIG-vs-c-ext-win)中显示的扩展视图来获取C/C++扩展。您可以搜索简单的字母“c”，但您也可能立即在“热门”列表中看到该扩展。继续点击扩展的小绿色安装按钮。
 - en: '![smac 0105](Images/smac_0105.png)'
+  id: totrans-44
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0105](Images/smac_0105.png)'
 - en: Figure 1-5\. The C extension in VS Code
+  id: totrans-45
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-5\. VS Code中的C扩展
 - en: Let’s test the GCC tool from those Cygwin utilities. (You may need to restart
     Visual Studio Code for it to recognize your Cygwin tools.) From the View menu,
     select the Terminal option. The Terminal tab should open at the bottom. You may
     need to hit the Enter key to get a prompt. Run **`gcc --version`** at the prompt.
     Hopefully, you’ll see output similar to that in [Figure 1-6](#smallerc-CHP-1-FIG-vs-gcc-win).
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们从Cygwin工具中测试GCC。 （您可能需要重新启动Visual Studio Code才能识别您的Cygwin工具。）从视图菜单中，选择终端选项。终端选项卡应在底部打开。您可能需要按Enter键获取提示符。在提示符处运行**`gcc
+    --version`**。希望您能看到与[图 1-6](#smallerc-CHP-1-FIG-vs-gcc-win)类似的输出。
 - en: You should see the version number matching the package you selected as you were
     installing Cygwin. If you do, hooray! Jump down to [“Creating a C ‘Hello, World’”](#smallerc-CHP-1-SECT-2.2)
     and get started with your first C program. If you don’t see any output or get
     a “not recognized” error, review the steps to set up Windows environment variables.
     And as always, searching online for particular errors you see can help you solve
     most installation and setup issues.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 您应该看到与您安装Cygwin时选择的包版本匹配的版本号。如果是这样，太棒了！跳到[“创建C的‘Hello, World’”](#smallerc-CHP-1-SECT-2.2)并开始您的第一个C程序。如果您没有看到任何输出或出现“未识别”错误，请查看设置Windows环境变量的步骤。如常，在线搜索特定错误可以帮助您解决大多数安装和设置问题。
 - en: '![smac 0106](Images/smac_0106.png)'
+  id: totrans-48
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0106](Images/smac_0106.png)'
 - en: Figure 1-6\. Testing GCC in the Terminal tab
+  id: totrans-49
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-6\. 在终端选项卡中测试GCC
 - en: macOS
+  id: totrans-50
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: macOS
 - en: If you live mostly with graphical applications and tools, you might not be aware
     of the Unix underpinnings of macOS. While you can mostly remain blissfully ignorant
     of those underpinnings, it is useful to know a bit about navigating the world
@@ -307,85 +421,124 @@
     GCC, but as with Windows, it is worth noting that Apple’s official developer tool,
     Xcode, can be used to write and compile C code. Fortunately we don’t need all
     of Xcode to get going with C, so we’ll stick to the minimum.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您主要使用图形应用程序和工具，您可能不了解macOS的Unix基础知识。虽然您可以大部分时间忽略这些基础知识，但了解如何从命令提示符中浏览世界还是很有用的。我们将使用`Terminal`应用程序来下载和安装GCC，但与Windows一样，值得注意的是苹果的官方开发工具Xcode可以用来编写和编译C代码。幸运的是，我们不需要全部安装Xcode才能开始使用C，所以我们将坚持最少的安装。
 - en: The Terminal app is in the Application → Utilities folder. Go ahead and start
     it. You should see something like [Figure 1-7](#smallerc-CHP-1-FIG-mac-terminal).
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序→实用工具文件夹中有终端应用程序。继续启动它。你应该看到类似于[图 1-7](#smallerc-CHP-1-FIG-mac-terminal)的内容。
 - en: '![smac 0107](Images/smac_0107.png)'
+  id: totrans-53
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0107](Images/smac_0107.png)'
 - en: Figure 1-7\. A basic macOS Terminal window
+  id: totrans-54
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-7\. 基本的macOS终端窗口
 - en: 'If you already have the main Apple programming application, Xcode, you can
     quickly check to see if GCC is also available. Try running **`gcc -v`**:'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您已经安装了苹果的主要编程应用程序Xcode，您可以快速检查GCC是否也可用。尝试运行**`gcc -v`**：
 - en: '[PRE0]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: The exact versions aren’t that important; we just want to make sure GCC is in
     fact available. If not, you’ll need to install the `xcode-select` command-line
     tool, which will bring GCC along for the ride. Type in **`xcode-select --install`**
     and follow the prompts. A dialog will ask if you want to install the command-line
     tools; say yes and you’re on your way.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 具体版本并不那么重要；我们只想确保GCC确实可用。如果没有，您需要安装`xcode-select`命令行工具，它将带来GCC。键入**`xcode-select
+    --install`**并按照提示操作。将显示一个对话框询问是否要安装命令行工具；选择是，然后开始操作。
 - en: After the installation completes, go ahead and run that **`gcc -v`** command
     to make sure you have the compiler. If you don’t get a good response, you may
     need to visit [Apple’s Developer Support site](https://oreil.ly/JyXV8) and search
     on “command-line tools.”
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 安装完成后，请运行**`gcc -v`**命令以确保您已安装编译器。如果没有得到良好的响应，您可能需要访问[Apple的开发者支持站点](https://oreil.ly/JyXV8)，并搜索“命令行工具”。
 - en: Installing VS Code on macOS is much simpler. Visit the same [VS Code downloads](https://oreil.ly/kUgwI)
     page at the Visual Studio site. Select the macOS download. You should receive
     a ZIP file in your standard download folder. Double-click that file to unzip it,
     and then drag the resulting *Visual Studio Code.app* file to your *Applications*
     folder. If you are prompted for your password to move the app to *Applications*,
     go ahead and provide it now.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 在macOS上安装VS Code要简单得多。访问Visual Studio网站上的相同[VS Code下载](https://oreil.ly/kUgwI)页面。选择macOS下载。您应该会在标准下载文件夹中收到一个ZIP文件。双击该文件解压缩，然后将结果的*Visual
+    Studio Code.app*文件拖到*应用程序*文件夹中。如果提示输入密码以将应用程序移动到*应用程序*，请立即提供。
 - en: Once relocated, go ahead and open VS Code. We want to add the C/C++ extension
     and then check that we can access GCC from the Terminal tab.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 安装完成后，请打开VS Code。我们要添加C/C++扩展并检查是否可以从终端选项卡访问GCC。
 - en: Pull up the Extensions panel in VS Code by clicking the “boxes” icon shown in
     [Figure 1-8](#smallerc-CHP-1-FIG-vs-c-ext-mac). You can search for the simple
     letter “C” and likely find the correct extension at the top of the results.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过点击[图 1-8](#smallerc-CHP-1-FIG-vs-c-ext-mac)中显示的“方块”图标，在VS Code中拉出扩展面板。您可以搜索简单的字母“C”，很可能会在结果顶部找到正确的扩展。
 - en: '![smac 0108](Images/smac_0108.png)'
+  id: totrans-62
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0108](Images/smac_0108.png)'
 - en: Figure 1-8\. VS Code extensions
+  id: totrans-63
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-8\. VS Code扩展
 - en: To try out the Terminal tab, open it from the View → Terminal menu item. You
     should see a new section at the bottom of your editor space. Go ahead and try
     running our GCC check command (**`gcc -v`**) in that new area. You should see
     results similar to [Figure 1-9](#smallerc-CHP-1-FIG-vs-gcc-mac).
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 要尝试终端选项卡，请从查看 → 终端菜单项中打开它。您应该会在编辑器空间底部看到一个新的部分。继续尝试在那个新区域运行我们的GCC检查命令（**`gcc
+    -v`**）。您应该会看到类似于[图 1-9](#smallerc-CHP-1-FIG-vs-gcc-mac)的结果。
 - en: '![smac 0109](Images/smac_0109.png)'
+  id: totrans-65
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0109](Images/smac_0109.png)'
 - en: Figure 1-9\. Trying GCC in VS Code on macOS
+  id: totrans-66
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-9\. 在macOS上尝试GCC
 - en: Again, if you don’t get the expected results from running the `gcc` command,
     check Apple’s developer site. You can also find several video tutorials online
     that may help you with your particular setup.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果运行`gcc`命令未获得预期结果，请查看Apple的开发者网站。您也可以在网上找到几个视频教程，可能会帮助您完成特定设置。
 - en: Linux
+  id: totrans-68
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: Linux
 - en: Many Linux systems are geared toward folks who tinker. You might already have
     GCC available. You can check quickly by starting the `Terminal` app and running
     the same check used on other operating systems. If **`gcc -v`** returns an answer—other
@@ -394,42 +547,63 @@
     You might have a nifty graphical application for such things; look for “developer
     tools” or “software development” and then read the description to see if GCC or
     GNU utilities are included.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多Linux系统适合喜欢折腾的人。您可能已经有了GCC可用。您可以通过启动`终端`应用程序并运行其他操作系统上使用的相同检查来快速检查。如果**`gcc
+    -v`**返回一个答案——当然不是“命令未找到”——那么您可以安装VS Code了。如果需要安装GCC，可以使用平台上的软件包管理器。您可能已经有一个漂亮的图形应用程序来做这些事情；搜索“开发者工具”或“软件开发”，然后阅读描述以查看是否包含GCC或GNU实用工具。
 - en: 'For Debian/Ubuntu systems, you can grab the `build-essential` metapackage that
     will include GCC along with lots of other useful (or required) libraries and tools:'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 Debian/Ubuntu 系统，你可以获取包含 GCC 和许多其他有用（或必需）库和工具的`build-essential`元包：
 - en: '[PRE1]'
+  id: totrans-71
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'For Redhat/Fedora/CentOS systems, the Dandified Yum (`dnf`) tool can be used.
     We only need GCC for our work in this book:'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于 Redhat/Fedora/CentOS 系统，可以使用 Dandified Yum (`dnf`) 工具。我们在本书中只需要 GCC：
 - en: '[PRE2]'
+  id: totrans-73
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'Although if you’re curious about software development in general, you might
     want to grab the “Development Tools” group package, which includes GCC along with
     lots of other nifty things:'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然如果你对软件开发有兴趣的话，你可能想获取“开发工具”组包，其中包括 GCC 以及许多其他有用的东西：
 - en: '[PRE3]'
+  id: totrans-75
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'Manjaro is another popular Linux distribution based on Arch Linux. You can
     use the `pacman` tool here:'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: Manjaro 是另一个基于 Arch Linux 的流行 Linux 发行版。你可以在这里使用`pacman`工具：
 - en: '[PRE4]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: If you have some other flavor of Linux that doesn’t use `apt`, `dnf`, or `pacman`,
     you can easily search for “install gcc **my-linux**” or use the search option
     with your system’s package manager to look for “gcc” or “gnu.”
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你使用的是不使用`apt`、`dnf`或`pacman`的其他 Linux 版本，可以轻松搜索“install gcc **my-linux**”，或使用系统的软件包管理器的搜索选项查找“gcc”或“gnu”。
 - en: As a Linux user, you may already have some experience with text editors for
     writing shell scripts or other languages. If you’re already comfortable with your
     editor and the terminal, you can skip forward. But if you are new to coding or
@@ -438,89 +612,132 @@
     for the other operating systems. Get the appropriate bundle for your system. (If
     your flavor of Linux doesn’t use *.deb* or *.rpm* files, you can get the *.tar.gz*
     version.)
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为 Linux 用户，你可能已经对用于编写 shell 脚本或其他语言的文本编辑器有些经验。如果你已经熟悉你的编辑器和终端，你可以跳过这部分。但如果你是编程新手或者没有喜欢的编辑器，可以安装
+    VS Code。访问与其他操作系统相同的[VS Code 下载](https://oreil.ly/ptJFA)页面。获取适合你系统的正确捆绑包。（如果你的
+    Linux 版本不使用 *.deb* 或 *.rpm* 文件，可以获取 *.tar.gz* 版本。）
 - en: Double-click the downloaded file and you should be prompted to go through a
     standard installation. You may be asked for an administrative password if you
     are installing VS Code for all users. Different distributions will put VS Code
     in different spots, and different desktops have different app launchers. You can
     also launch VS Code from the command line using the `code` command.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 双击下载的文件，应提示你进行标准安装。如果你要为所有用户安装 VS Code，则可能会要求输入管理密码。不同的发行版会将 VS Code 安装在不同的位置，不同的桌面有不同的应用启动器。你也可以使用`code`命令从命令行启动
+    VS Code。
 - en: As with the other operating systems, we want to add the C/C++ extension and
     then check that we can access GCC from the Terminal tab.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 与其他操作系统一样，我们希望添加 C/C++ 扩展，然后检查我们是否可以从终端选项卡访问 GCC。
 - en: Pull up the Extensions panel in VS Code by clicking the “boxes” icon shown in
     [Figure 1-10](#smallerc-CHP-1-FIG-vs-c-ext-linux). You can search for the simple
     letter “C” and likely find the correct extension at the top of the results.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过点击 [图1-10](#smallerc-CHP-1-FIG-vs-c-ext-linux) 中显示的“boxes”图标，打开 VS Code 中的扩展面板。你可以搜索简单的字母“C”，很可能在搜索结果的顶部找到正确的扩展。
 - en: '![smac 0110](Images/smac_0110.png)'
+  id: totrans-83
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0110](Images/smac_0110.png)'
 - en: Figure 1-10\. VS Code extensions on Linux
+  id: totrans-84
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-10\. Linux 上的 VS Code 扩展
 - en: To try out the Terminal tab, open it from the View → Terminal menu item. You
     should see a new section at the bottom of your editor space. Go ahead and try
     running our GCC check command (**`gcc -v`**) in that new area. You should see
     (verbose and slightly messy) results similar to [Figure 1-11](#smallerc-CHP-1-FIG-vs-gcc-linux).
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 要尝试终端选项卡，请从“视图”→“终端”菜单项打开它。你应该在编辑器底部看到一个新的部分。尝试在那个新区域运行我们的 GCC 检查命令（**`gcc -v`**）。你应该看到类似
+    [图1-11](#smallerc-CHP-1-FIG-vs-gcc-linux) 的详细且稍显混乱的结果。
 - en: '![smac 0111](Images/smac_0111.png)'
+  id: totrans-86
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0111](Images/smac_0111.png)'
 - en: Figure 1-11\. Trying GCC in VS Code on Linux
+  id: totrans-87
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-11\. 在 Linux 上的 VS Code 中尝试 GCC
 - en: Hooray, hooray. Hopefully, you have a simple C development environment up and
     running. Let’s go write some code!
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 好极了，好极了。希望你已经有一个简单的 C 开发环境在运行中。让我们开始写一些代码吧！
 - en: Creating a C “Hello, World”
+  id: totrans-89
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 创建一个 C 的“Hello, World”
 - en: 'With your editor and compiler in place, we can try out the acclaimed first
     program many developers write in any new language: the “Hello, World” program.
     It is meant to show you can write valid code in the new language and that you
     can output information.'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 在你的编辑器和编译器就绪后，我们可以尝试编写许多开发人员在任何新语言中都写的著名的第一个程序：“Hello, World” 程序。它旨在展示你可以在新语言中编写有效的代码，并能够输出信息。
 - en: C, as a language, can be terse. We’ll be getting into all the nitty-gritty of
     semicolons, curly braces, backslashes, and other strange symbols in this first
     program, but for now, copy this small bit of code verbatim. You can create a new
     file in VS Code using a right-click in the Explorer on the left, or using the
     File → New File menu item, or by pressing Ctrl+N.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: C 作为一种语言，可以说是简洁的。我们将深入研究分号、花括号、反斜杠和其他奇怪的符号在这个第一个程序中的细节，但目前，完全复制这一小段代码即可。你可以在
+    VS Code 的资源管理器中右键点击创建新文件，或者使用文件 → 新建文件菜单项，或者按 Ctrl+N。
 - en: '[PRE5]'
+  id: totrans-92
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Go ahead and save the file and name it *hello.c*. We’ll also go ahead and open
     the Terminal in VS Code (View → Terminal menu item or Ctrl+`). You should see
     something similar to [Figure 1-12](#smallerc-CHP-1-FIG-vs-hw-1).
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在保存文件并命名为*hello.c*。接着在 VS Code 中打开终端（View → Terminal 菜单项或 Ctrl+`）。你应该会看到类似于[图 1-12](#smallerc-CHP-1-FIG-vs-hw-1)的内容。
 - en: '![smac 0112](Images/smac_0112.png)'
+  id: totrans-94
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0112](Images/smac_0112.png)'
 - en: Figure 1-12\. “Hello, World” and our Terminal tab
+  id: totrans-95
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-12\. “Hello, World” 和我们的终端选项卡
 - en: If you know other languages already then you can probably guess what’s happening.
     Either way, let’s take a quick moment to review each line. But don’t worry if
     some of these explanations feel opaque. Learning to program requires a lot of
     practice and a lot of patience. Later chapters will help you reinforce both skills.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你已经了解其他语言，你可能能猜到发生了什么。无论如何，让我们花一点时间来回顾每一行。但如果其中某些解释让你感到模糊，不要担心。学习编程需要大量的实践和耐心。后面的章节将帮助你巩固这两个技能。
 - en: '[PRE6]'
+  id: totrans-97
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: This line loads the *header file* for the “standard input/output” *library*.
     Libraries (roughly speaking) are external pieces of code that can be attached
     to your own code when you run `gcc`. Header files are succinct descriptions of
@@ -530,11 +747,16 @@
     you write will use it. This line is always at the top of the file, although as
     we’ll see in [Chapter 6](ch06.xhtml#smallerc-CHP-6) you will often use several
     libraries, each with their own header file `#include` line.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 这行代码加载了“标准输入/输出”*库*的*头文件*。库（大致而言）是可以在运行`gcc`时附加到你自己的代码中的外部代码片段。头文件是对这些外部实体的简明描述。这是一个非常常见的行，用于非常普遍的一个非常常见的库的一部分。除了其他功能，这个头文件还包括了我们用来输出实际信息的`printf()`函数的定义。几乎每一个你写的
+    C 程序都会使用它。尽管我们将在[第六章](ch06.xhtml#smallerc-CHP-6)中看到，你通常会使用多个库，每个库都有自己的头文件`#include`行。
 - en: '[PRE7]'
+  id: totrans-99
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Complex programs can have dozens (even hundreds or thousands) of separate C
     files. Separating big problems into tinier parts is a fundamental part of being
     a good programmer. These smaller “bites” are easier to debug and maintain. They
@@ -546,11 +768,17 @@
     and look more closely at functions in [Chapter 5](ch05.xhtml#smallerc-CHP-5).
     But pay attention to that `{` at the end of the line. That character opens a *block*
     of code.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 复杂的程序可能包含数十个（甚至数百或数千个）单独的 C 文件。将大问题分解为更小的部分是成为一名优秀程序员的基本技能之一。这些更小的“部分”更容易调试和维护。它们也有助于找到重复任务的时机，以便重复使用已编写的代码。但无论你有一个大型复杂的程序还是一个小而简单的程序，你都需要一个起点。这一行就是起点。`main()`
+    函数总是必需的，尽管它偶尔看起来有些不同。我们将在[第二章](ch02.xhtml#smallerc-CHP-2)详细讨论像在行首看到的`int`这样的*类型*，并且在[第五章](ch05.xhtml#smallerc-CHP-5)更仔细地查看函数。但请注意行尾的
+    `{` 符号。这个字符开启了一个*代码块*。
 - en: '[PRE8]'
+  id: totrans-101
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'This statement is the heart of our program. Less romantically speaking, it
     represents the *body* of our `main()` function block. Blocks contain one or more
     lines of code bounded (in C) by curly braces, and we often refer to the content
@@ -558,60 +786,86 @@
     function (again, defined in *stdio.h*) to produce a friendly, global greeting.
     We’ll be going through `printf()` and things like the `"Hello, world\n"` snippet
     in much more detail in [“printf() and scanf()”](ch02.xhtml#smallerc-CHP-2-SECT-3).'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个语句是我们程序的核心。不那么浪漫地说，它代表了我们 `main()` 函数块的 *主体*。块包含一个或多个代码行（在 C 中）由花括号界定，并且我们经常称任何块的内容为其主体。这个特定的主体只做一件事：使用
+    `printf()` 函数（再次在 *stdio.h* 中定义）生成一个友好的全局问候语。我们将在[“printf() 和 scanf()”](ch02.xhtml#smallerc-CHP-2-SECT-3)中详细讨论
+    `printf()` 和像 `"Hello, world\n"` 这样的片段。
 - en: I also want to quickly highlight the semicolon at the end of the line. That
     bit of punctuation tells the C compiler when you have finished a statement. That
     marker doesn’t mean much here with only one statement in our block, but it will
     help down the road when we have more statements and statements that are messy
     enough to span several lines.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 我还想快速强调一下行尾的分号。这个标点符号告诉 C 编译器您何时完成了一条语句。在我们的代码块中只有一条语句时，这个标记意义不大，但当我们有更多语句和跨越多行的混乱语句时，它将在未来有所帮助。
 - en: 'And last but certainly not least, here is the “closing” curly brace to match
     up with the “opening” curly brace two lines up:'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后但肯定不是最不重要的，这是“结束”花括号，与上面两行的“开始”花括号相匹配：
 - en: '[PRE9]'
+  id: totrans-105
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Every block will have these open/close braces. One of the most common mistakes
     in programming is having one too many open or close braces. Happily, most modern
     editors have fancy syntax highlighting that can help you match up any pair of
     braces (and thus identify any braces that don’t have a partner as well).
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 每个块都会有这些开放/关闭花括号。编程中最常见的错误之一是有太多的开放或关闭花括号。幸运的是，大多数现代编辑器都有复杂的语法高亮，可以帮助您匹配任何一对花括号（因此识别出没有伴侣的任何花括号）。
 - en: Compiling Your Code
+  id: totrans-107
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 编译您的代码
 - en: 'Now we finally get to put all that software installation headache to use! In
     the Terminal tab, run the following command:'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们终于可以利用所有这些软件安装头痛的工作了！在终端选项卡中，运行以下命令：
 - en: '[PRE10]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: If all goes well, you won’t see any output, just a new command prompt. If something
     *did* go wrong, you’ll get an error message (or many messages) that hopefully
     point you to what needs fixing. We’ll see debugging tricks as we encounter more
     examples, but for now, look back at your code and the example above to see if
     you can spot any differences.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一切顺利，您将看不到任何输出，只会出现一个新的命令提示符。如果出现了问题，您将收到一个错误消息（或多个消息），希望能指出需要修正的问题。在我们遇到更多示例时，我们将看到调试技巧，但现在，请回顾您的代码和上面的示例，看看是否能发现任何差异。
 - en: Tip
+  id: totrans-111
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: If you are still having trouble with this first file, don’t give up! Check out
     [Appendix A](app01.xhtml#smallerc-APP-A) on downloading the sample code for this
     book from GitHub. You can compile and run the code as is, or use our examples
     as a starting point for your own tweaks and modifications.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您在处理第一个文件时仍然遇到问题，请不要放弃！查看[附录 A](app01.xhtml#smallerc-APP-A)，从 GitHub 下载本书的示例代码。您可以按原样编译和运行代码，或者以我们的示例作为您自己调整和修改的起点。
 - en: Running Your Code
+  id: totrans-113
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 运行您的代码
 - en: After successfully compiling our first C program, how do we test it? If you
     list the files in your directory, you’ll notice a new file named *a.out* on Linux
     and macOS systems, and *a.exe* on Windows systems. To run it, just type its name.
@@ -619,61 +873,93 @@
     directory. In that case, use the local path prefix “./”. (The period means the
     current directory; the slash is just the standard path separator character.) [Figure 1-13](#smallerc-CHP-1-FIG-hello-mac-linux)
     shows the output.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 成功编译我们的第一个 C 程序后，我们如何测试它？如果列出目录中的文件，您会注意到在 Linux 和 macOS 系统上出现了名为 *a.out* 的新文件，在
+    Windows 系统上出现了 *a.exe*。要运行它，只需键入其名称。在许多 Linux 和 macOS 系统上，您的可执行路径可能不包括您的工作目录。在这种情况下，请使用本地路径前缀“./”。（句点表示当前目录；斜杠只是标准路径分隔符字符。）[图 1-13](#smallerc-CHP-1-FIG-hello-mac-linux)
+    显示了输出。
 - en: '![smac 0113](Images/smac_0113.png)'
+  id: totrans-115
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0113](Images/smac_0113.png)'
 - en: Figure 1-13\. Saying hello on macOS and Linux
+  id: totrans-116
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-13\. 在 macOS 和 Linux 上说“Hello”
 - en: '[Figure 1-14](#smallerc-CHP-1-FIG-hello-windows) shows the output on Windows.'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 1-14](#smallerc-CHP-1-FIG-hello-windows) 显示了在 Windows 上的输出。'
 - en: '![smac 0114](Images/smac_0114.png)'
+  id: totrans-118
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0114](Images/smac_0114.png)'
 - en: Figure 1-14\. Saying hello on Windows
+  id: totrans-119
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-14\. 在 Windows 上说“Hello”
 - en: Note
+  id: totrans-120
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: On Windows, the *.exe* suffix marks a file as executable. However, you do not
     need to include the suffix when you run the program. You can just type **`a`**.
     Depending on the command prompt application used (`cmd` or `PowerShell`, for example),
     you may also need to use the local directory prefix similar to macOS or Linux
     (`.\`).
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Windows上，*.exe*后缀表示文件可执行。但是在运行程序时不需要包含后缀。你只需输入**`a`**。根据使用的命令提示应用程序（例如`cmd`或`PowerShell`），你可能还需要使用类似于macOS或Linux的本地目录前缀（`.\`）。
 - en: As a name, though, “a” is pretty boring and definitely doesn’t tell us what
     the program does. You can use the `-o` (output) option to the `gcc` command to
     specify a better name for your program if you like.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 但作为名称，“a”实在是太无聊了，而且绝对不能告诉我们程序做了什么。如果你愿意，可以使用`gcc`命令的`-o`（输出）选项来指定程序更好的名称。
 - en: 'On Linux and macOS:'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Linux和macOS上：
 - en: '[PRE11]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'On Windows:'
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Windows上：
 - en: '[PRE12]'
+  id: totrans-126
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Try that command and then look at the files in your folder. You should have
     a newly minted *hello* (or *hello.exe*) file that you can run. Much nicer.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 尝试该命令，然后查看文件夹中的文件。你应该有一个新创建的*hello*（或*hello.exe*）文件，可以运行它。非常好。
 - en: Next Steps
+  id: totrans-128
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 下一步
 - en: Whew…that’s a lot of effort to get your computer to say hi! If it helps, it
     took humanity eons to get the first computer to do what you just did. :) But now
     that we have a working development environment, the next chapters will explore
@@ -682,19 +968,28 @@
     smaller computers typically used for dedicated tasks like reporting the current
     temperature or counting the number of boxes waiting on a conveyor belt, we’ll
     turn those interesting programs into interesting, physical creations!
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 哇……让你的计算机说“嗨”真是需要很多努力！如果能帮到你，人类花了无数年时间才让第一台计算机做到了你刚才的事情。 :) 不过现在我们有了一个工作的开发环境，接下来的章节将探讨C语言的细节，并向你展示如何编写、调试和维护更有趣的程序。有了我们的微控制器，这些受欢迎的小型计算机通常用于专用任务，比如报告当前温度或计数等待在传送带上的箱子数量，我们将把这些有趣的程序变成有趣的物理创作！
 - en: ^([1](ch01.xhtml#idm45018747426616-marker)) Well, “any” is awfully expansive;
     if your language is an interpreted language, then of course you would need a good
     interpreter rather than a good compiler!
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch01.xhtml#idm45018747426616-marker)) 嗯，“任何”确实太广泛了；如果你的语言是解释性语言，那么当然你需要一个好的解释器而不是一个好的编译器！
 - en: '^([2](ch01.xhtml#idm45018747677048-marker)) J. M. Eubank, however, has done
     the legwork on a single-file installer that you might want to check out if the
     general steps for a more complete setup look overwhelming: [tdm-gcc](https://oreil.ly/RWJcB).'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch01.xhtml#idm45018747677048-marker)) 然而，J. M. Eubank已经为单文件安装程序做了大量工作，如果一般的完整设置步骤看起来令人生畏，你可能想要查看一下：[tdm-gcc](https://oreil.ly/RWJcB)。
 - en: ^([3](ch01.xhtml#idm45018747396056-marker)) If you’re unsure whether you have
     a 64-bit or 32-bit version of Windows, check out the [Microsoft FAQ](https://oreil.ly/kyR5d).
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch01.xhtml#idm45018747396056-marker)) 如果你不确定你的Windows是64位还是32位版本，请查看[Microsoft
+    FAQ](https://oreil.ly/kyR5d)。

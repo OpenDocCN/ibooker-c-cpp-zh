@@ -1,7 +1,9 @@
 - en: Chapter 7\. The Bridge, Prototype, and External Polymorphism Design Patterns
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第7章 桥梁、原型和外部多态性设计模式
 - en: 'In this chapter, we will focus on two classic GoF design patterns: the Bridge
     design pattern and the Prototype design pattern. Additionally, we will study the
     *External Polymorphism* design pattern. At first glance, this selection may appear
@@ -10,38 +12,51 @@
     the most useful in the catalog of design patterns. For that reason, you should
     have a pretty good idea about their intent, advantages, and disadvantages. Second
     and equally important: they will all play a vital role in [Chapter 8](ch08.xhtml#type_erasure).'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们将重点研究两个经典的 GoF 设计模式：桥梁设计模式和原型设计模式。此外，我们还将研究*外部多态性*设计模式。乍一看，这个选择可能看起来是一个名声显赫、几乎随机选择的设计模式。然而，我选择这些模式有两个原因：首先，在我的经验中，这三种模式在设计模式目录中是最有用的。因此，您应该对它们的意图、优点和缺点有一个相当好的理解。其次，同样重要的是：它们都将在[第8章](ch08.xhtml#type_erasure)中发挥至关重要的作用。
 - en: 'In [“Guideline 28: Build Bridges to Remove Physical Dependencies”](#build_bridges_to_remove_physical_dependencies),
     I will acquaint you with the Bridge design pattern and its simplest form, the
     *Pimpl idiom*. Most importantly, I will demonstrate how you can use Bridges to
     reduce physical coupling by decoupling an interface from implementation details.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: '在[“Guideline 28: 构建桥梁以消除物理依赖”](#build_bridges_to_remove_physical_dependencies)中，我将向您介绍桥接设计模式及其最简形式，*Pimpl
+    idiom*。更重要的是，我将演示如何通过桥梁来减少物理耦合，将接口与实现细节解耦。'
 - en: 'In [“Guideline 29: Be Aware of Bridge Performance Gains and Losses”](#be_aware_of_the_performance_gains_and_losses_of_bridges),
     we will take an explicit look at the performance impact of Bridges. We will run
     benchmarks for an implementation without Bridge, a Bridge-based implementation,
     and a “partial” Bridge.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '在[“Guideline 29: 注意桥梁的性能优劣”](#be_aware_of_the_performance_gains_and_losses_of_bridges)中，我们将明确看一下桥梁的性能影响。我们将为没有桥梁的实现、基于桥梁的实现和“部分”桥梁运行基准测试。'
 - en: 'In [“Guideline 30: Apply Prototype for Abstract Copy Operations”](#apply_prototype_for_abstract_copy_operations),
     I will introduce you to the art of cloning. That is to say, that we will talk
     about copy operations and, in particular, abstract copy operations. The pattern
     of choice for this intent will be the Prototype design pattern.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: '在[“Guideline 30: 用于抽象复制操作的原型模式”](#apply_prototype_for_abstract_copy_operations)中，我将介绍克隆的艺术。换句话说，我们将讨论复制操作，特别是抽象复制操作。这个意图的模式选择将是原型设计模式。'
 - en: 'In [“Guideline 31: Use External Polymorphism for Nonintrusive Runtime Polymorphism”](#use_external_polymorphism_for_non_intrusive_runtime_polymorphism),
     we continue the journey of separating concerns by extracting the implementation
     details of a function from a class. To further reduce dependencies, however, we
     will take this separation of concerns to a whole new level: we will extract not
     only the implementation details of virtual functions but also the complete functions
     themselves, with the External Polymorphism design pattern.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: '在[“Guideline 31: 使用外部多态性进行非侵入式运行时多态性”](#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)中，我们继续通过将函数的实现细节从类中提取来分离关注点的旅程。为了进一步减少依赖，我们将把这种关注点分离提升到一个全新的层次：我们不仅将提取虚函数的实现细节，还将使用外部多态性设计模式提取完整的函数本身。'
 - en: 'Guideline 28: Build Bridges to Remove Physical Dependencies'
+  id: totrans-6
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 'Guideline 28: 构建桥梁以消除物理依赖'
 - en: 'According to dictionaries, the term *bridge* expresses a time, a place, or
     a means of connection or transition. If I were to ask what the term *bridge* means
     to you, I’m pretty certain you would have a similar definition. You might implicitly
@@ -56,18 +71,27 @@
     dependencies and helps to decouple, i.e., it keeps two pieces of functionality
     that need to work together but shouldn’t know too many details about each other,
     at arm’s length.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据词典的定义，术语 *bridge* 表示时间、地点或连接或过渡的手段。如果我问你 *bridge* 这个词对你意味着什么，我相信你会有类似的定义。你可能会心里想着连接两个东西，从而使它们更加接近。例如，你可能会想到一座被河流分隔的城市。一座桥将连接城市的两岸，使它们更加接近，并节省人们大量的时间。你也可能想到电子学中，桥连接电路的两个独立部分。在音乐中也有桥梁，还有许多来自现实世界的例子，桥梁帮助连接事物。是的，直观地看，*bridge*
+    这个词暗示着增加接近和亲近感。因此，桥梁设计模式恰恰相反：它支持你减少物理依赖关系，并帮助解耦，即保持需要共同工作但不应了解彼此太多细节的两个功能部件保持一定距离。
 - en: A Motivating Example
+  id: totrans-8
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 一个激励的例子
 - en: 'To explain what I have in mind, consider the following `ElectricCar` class:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了说明我的想法，请考虑以下 `ElectricCar` 类：
 - en: '[PRE0]'
+  id: totrans-10
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'As the name suggests, the `ElectricCar` class is equipped with an `ElectricEngine`
     ([![1](assets/1.png)](#code_g28_1)). However, while in reality such a car may
     be pretty attractive, the current implementation details are concerning: because
@@ -80,8 +104,14 @@
     Thus, whenever something in the header changes, the `ElectricCar` class and potentially
     many more classes are affected. They might have to be recompiled, retested, and,
     in the worst case, even redeployed…*sigh*.'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如其名称所示，`ElectricCar` 类配备了一个 `ElectricEngine` ([![1](assets/1.png)](#code_g28_1))。然而，尽管在现实中这样的汽车可能非常吸引人，当前的实现细节令人担忧：因为
+    `engine_` 数据成员的存在，`<ElectricCar.h>` 头文件需要包含 `<ElectricEngine.h>` 头文件。编译器需要看到 `ElectricEngine`
+    类的定义，否则将无法确定 `ElectricCar` 实例的大小。然而，包含 `<ElectricEngine.h>` 头文件很容易导致传递性的物理耦合：每个包含
+    `<ElectricCar.h>` 头文件的文件都将直接依赖 `<ElectricEngine.h>` 头文件。因此，每当头文件发生变化时，`ElectricCar`
+    类及可能还有其他许多类都会受到影响。它们可能需要重新编译、重新测试，甚至在最坏的情况下重新部署……*叹气*。
 - en: On top of that, this design reveals all implementation details to everyone.
     “What do you mean? Isn’t it the point of the `private` section of the class to
     hide and to encapsulate implementation details?” Yes, it may be `private`, but
@@ -91,15 +121,23 @@
     change the implementation details of this class without anyone noticing. In particular,
     this may be a problem if you need to provide ABI stability, i.e., if the in-memory
     representation of your class must not change.^([1](ch07.xhtml#idm45043091750016))
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 除此之外，这种设计向所有人揭示了所有的实现细节。“你是什么意思？`private` 部分不是用来隐藏和封装实现细节的吗？” 是的，它可能是 `private`
+    的，但 `private` 标签仅仅是一个访问标签。它不是一个可见性标签。因此，你类定义中的一切（我是说*一切*）对所有看到 `ElectricCar` 类定义的人都是可见的。这意味着你不能在没有任何人注意的情况下更改此类的实现细节。特别是在需要提供
+    ABI 稳定性时可能会有问题，即如果你的类的内存表示不能改变的话。^([1](ch07.xhtml#idm45043091750016))
 - en: A slightly better approach would be to only store a pointer to `ElectricEngine`
     ([![2](assets/2.png)](#code_g28_2)):^([2](ch07.xhtml#idm45043091745568))
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个稍微好一点的方法是仅存储到 `ElectricEngine` 的指针 ([![2](assets/2.png)](#code_g28_2))：^([2](ch07.xhtml#idm45043091745568))
 - en: '[PRE1]'
+  id: totrans-14
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'In this case, it is sufficient to provide only a forward declaration to the
     `ElectricEngine` class, since the compiler doesn’t need to know the class definition
     to be able to determine the size of an `ElectricCar` instance. Also, the physical
@@ -116,11 +154,15 @@
     the implementation details at any time without anyone noticing, we have to introduce
     an abstraction. The classic form of abstraction is the introduction of an abstract
     class:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，只需为`ElectricEngine`类提供前向声明即可，因为编译器不需要知道类定义就能确定`ElectricCar`实例的大小。此外，物理依赖已经消失，因为`<ElectricEngine.h>`头文件已经移动到源文件中（[![3](assets/3.png)](#code_g28_3)）。因此，从依赖性的角度来看，这种解决方案要好得多。仍然存在的是实现细节的可见性。每个人仍然能看到`ElectricCar`依赖于`ElectricEngine`，因此每个人仍然隐式依赖于这些实现细节。因此，对这些细节的任何更改，比如升级到新的`PowerEngine`，都会影响与`<ElectricCar.h>`头文件一起工作的任何类。“这不好，对吧？”确实如此，因为预计会发生变化（见[“指导原则2：为变化设计”](ch01.xhtml#design_for_change)）。为了摆脱这种依赖性并获得在任何时候轻松更改实现细节的便利性而不被任何人察觉，我们必须引入一个抽象层。抽象的经典形式是引入抽象类：
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: With the `Engine` base class in place ([![4](assets/4.png)](#code_g28_4)), we
     can implement our `ElectricCar` class using this abstraction ([![5](assets/5.png)](#code_g28_5)).
     No one needs to be aware of the actual type of engine that we use. And no one
@@ -130,37 +172,52 @@
     minimized dependencies on the `ElectricEngine` implementation. We have made the
     knowledge about this detail our own, secret implementation detail. And by doing
     that, we have built ourselves a Bridge.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了`Engine`基类的基础（[![4](assets/4.png)](#code_g28_4)），我们可以使用这个抽象来实现我们的`ElectricCar`类（[![5](assets/5.png)](#code_g28_5)）。没有人需要知道我们使用的引擎的实际类型。也没有人需要知道我们何时升级我们的引擎。通过这种实现，我们可以随时只通过修改源文件（[![6](assets/6.png)](#code_g28_6)）轻松更改实现细节。因此，采用这种方法，我们真正减少了对`ElectricEngine`实现的依赖。我们已经使得这个细节的知识成为我们自己的、秘密的实现细节。通过这样做，我们建立了一个桥梁。
 - en: Note
+  id: totrans-18
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: As stated in the introduction, counterintuitively, this Bridge isn’t about bringing
     the `ElectricCar` and `Engine` classes closer together. On the contrary, it’s
     about separating concerns and about loose coupling. Another example that shows
     that [naming is hard](https://oreil.ly/YfDpP) comes from Kate Gregory’s talk at
     CppCon.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如介绍中所述，与其说这个桥梁是为了让`ElectricCar`和`Engine`类更接近，不如说它是关于分离关注点和松耦合。另一个显示出[naming
+    is hard](https://oreil.ly/YfDpP)的例子来自Kate Gregory在CppCon的演讲。
 - en: The Bridge Design Pattern Explained
+  id: totrans-20
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解释桥梁设计模式
 - en: 'The Bridge design pattern is yet another one of the classic GoF design patterns
     introduced in 1994\. The purpose of a Bridge is to minimize physical dependencies
     by encapsulating some implementation details behind an abstraction. In C++, it
     acts as a compilation firewall, which enables easy change:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 桥接设计模式是1994年引入的另一个经典GoF设计模式。桥梁的目的是通过封装某些实现细节在抽象后最小化物理依赖。在C++中，它充当编译防火墙，便于变更：
 - en: The Bridge Design Pattern
+  id: totrans-22
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 桥梁设计模式
 - en: 'Intent: “Decouple an abstraction from its implementation so that the two can
     vary independently.”^([3](ch07.xhtml#idm45043091276160))'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“将抽象与其实现分离，使得它们可以独立变化。”^([3](ch07.xhtml#idm45043091276160))
 - en: 'In this formulation of the intent, the Gang of Four talks about an “abstraction”
     and an “implementation.” In our example, the `ElectricCar` class represents the
     “abstraction,” while the `Engine` class represents the “implementation” (see [Figure 7-1](#fig_bridge_car_1)).
@@ -174,15 +231,24 @@
     visible in the `ElectricCar` class. As a consequence, it is now easily possible
     to add new kinds of engines without the “abstraction” noticing. This adheres to
     the idea of the OCP (see [“Guideline 5: Design for Extension”](ch01.xhtml#design_for_extension)).'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个意图的表述中，四人组谈到了“抽象”和“实现”。在我们的例子中，`ElectricCar` 类表示“抽象”，而 `Engine` 类表示“实现”（见[图 7-1](#fig_bridge_car_1)）。这两者应该能够独立变化；即对任何一个的修改不应影响另一个。造成易于修改的障碍是
+    `ElectricCar` 类与其引擎之间的物理依赖。因此，理念是提取并隔离这些依赖关系。通过在 `Engine` 抽象中隔离它们，分离关注点，并满足 SRP，你获得了改变、调整或升级引擎的灵活性（见[“准则
+    2：设计用于变更”](ch01.xhtml#design_for_change)）。现在在 `ElectricCar` 类中不再显露这种改变。因此，现在很容易添加新类型的引擎而不被“抽象”察觉。这符合
+    OCP 的理念（见[“准则 5：设计用于扩展”](ch01.xhtml#design_for_extension)）。
 - en: '![The UML representation of the basic Bridge design pattern.](assets/cpsd_0701.png)'
+  id: totrans-25
   prefs: []
   type: TYPE_IMG
+  zh: '![基本桥接设计模式的 UML 表示。](assets/cpsd_0701.png)'
 - en: Figure 7-1\. The UML representation of the basic Bridge design pattern
+  id: totrans-26
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-1\. 基本桥接设计模式的 UML 表示
 - en: While this provides us the ability to easily apply changes, and implements the
     idea of a Bridge, there is one more step that we can take to further decouple
     and reduce duplication. Let’s assume that we are not just interested in electric
@@ -191,21 +257,32 @@
     from engine details, i.e., the same kind of Bridge. To reduce the duplication
     and follow the DRY principle, we can extract the Bridge-related implementation
     details into the `Car` base class (see [Figure 7-2](#fig_bridge_car_2)).
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然这使我们能够轻松应用更改，并实现桥接的概念，但我们还可以进一步解耦和减少重复。假设我们不仅对电动车感兴趣，还对燃烧引擎车感兴趣。因此，对于我们计划实现的每种车辆，我们都有兴趣引入与引擎详细信息的相同解耦，即相同类型的桥接。为了减少重复并遵循
+    DRY 原则，我们可以将与桥接相关的实现细节提取到 `Car` 基类中（见[图 7-2](#fig_bridge_car_2)）。
 - en: '![The UML representation of the full Bridge design pattern.](assets/cpsd_0702.png)'
+  id: totrans-28
   prefs: []
   type: TYPE_IMG
+  zh: '![完整桥接设计模式的 UML 表示。](assets/cpsd_0702.png)'
 - en: Figure 7-2\. The UML representation of the full Bridge design pattern
+  id: totrans-29
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-2\. 完整桥接设计模式的 UML 表示
 - en: 'The `Car` base class encapsulates the Bridge to the associated Engine:'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Car` 基类封装了与关联引擎的桥接。'
 - en: '[PRE3]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'With the addition of the `Car` class, both the “abstraction” and the “implementation”
     offer the opportunity for easy extension and can vary independently. While the
     `Engine` base class still represents the “implementation” in this Bridge relation,
@@ -220,46 +297,74 @@
     design pattern as a whole. For this reason, it’s a good idea to use the name *pimpl*
     in the code as an indication of your intentions (remember [“Guideline 14: Use
     a Design Pattern’s Name to Communicate Intent”](ch03.xhtml#use_a_design_patterns_name_to_communicate_intent)).'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: '加入 `Car` 类之后，“抽象”和“实现”都能轻松扩展并可以独立变化。虽然在这种桥接关系中，`Engine` 基类仍代表“实现”，但 `Car` 类现在扮演“抽象”的角色。`Car`
+    类的第一个值得注意的细节是其 `protected` 构造函数（[![7](assets/7.png)](#code_g28_7)）。这个选择确保只有派生类能够指定引擎的类型。构造函数接受
+    `std::unique_ptr` 到一个 `Engine`，并将其移动到其 `pimpl_` 数据成员中（[![8](assets/8.png)](#code_g28_8)）。这个指针数据成员是所有
+    `Car` 类型的 *p*ointer-to-*impl*ementation，并且通常称为 *pimpl*。这个 *opaque pointer* 代表了封装实现细节的桥接，并且本质上代表了整个桥接设计模式。因此，在代码中使用
+    *pimpl* 作为您意图的指示名称是个好主意（请参考 [“Guideline 14: Use a Design Pattern’s Name to Communicate
+    Intent”](ch03.xhtml#use_a_design_patterns_name_to_communicate_intent)）。'
 - en: 'Note that `pimpl_` is declared in the `private` section of the class, despite
     the fact that derived classes will have to use it. This choice is motivated by
     [Core Guideline C.133](https://oreil.ly/99sIG):'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，尽管派生类将会使用它，但 `pimpl_` 被声明在类的 `private` 部分。这个选择是由 [Core Guideline C.133](https://oreil.ly/99sIG)
+    驱使的：
 - en: Avoid `protected` data.
+  id: totrans-34
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 避免使用 `protected` 数据。
 - en: Indeed, experience shows that `protected` data members are barely better than
     `public` data members. Therefore, to grant access to the pimpl, the `Car` class
     instead provides the `protected` `getEngine()` member functions ([![9](assets/9.png)](#code_g28_9)).
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，经验表明，`protected` 数据成员几乎不比 `public` 数据成员更好。因此，为了授予对 *pimpl* 的访问权限，`Car` 类改为提供
+    `protected` 的 `getEngine()` 成员函数（[![9](assets/9.png)](#code_g28_9)）。
 - en: 'The `ElectricCar` class is adapted accordingly:'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ElectricCar` 类相应进行了调整：'
 - en: '[PRE4]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Rather than implementing the Bridge itself, the `ElectricCar` class now inherits
     from the `Car` base class ([![10](assets/10.png)](#code_g28_10)). This inheritance
     relationship introduces the requirement of initializing the `Car` base by specifying
     an `Engine`. This task is performed in the `ElectricCar` constructor ([![11](assets/11.png)](#code_g28_11)).
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 而非实现桥接本身，`ElectricCar` 类现在从 `Car` 基类继承（[![10](assets/10.png)](#code_g28_10)）。这种继承关系引入了通过指定引擎来初始化
+    `Car` 基类的要求。这个任务在 `ElectricCar` 构造函数中完成（[![11](assets/11.png)](#code_g28_11)）。
 - en: The Pimpl Idiom
+  id: totrans-39
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: Pimpl 惯用法
 - en: 'There is a much simpler form of the Bridge design pattern that has been very
     commonly and successfully used in both C and C++ for decades. To see an example,
     let’s consider the following `Person` class:'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 有一种更简单的桥接设计模式形式在 C 和 C++ 中已经被广泛使用成功数十年。为了看一个例子，让我们考虑以下 `Person` 类：
 - en: '[PRE5]'
+  id: totrans-41
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'A person consists of a lot of data members: `forename`, `surname`, the complete
     postal address, `year_of_birth`, and potentially many more. There may be the need
     to add further data members in the future: a mobile phone number, a Twitter account,
@@ -269,18 +374,27 @@
     this class: whenever `Person` changes, the users of `Person` have to recompile
     their code. Not to mention ABI stability: the size of a `Person` instance is going
     to change!'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个人由许多数据成员组成：`forename`、`surname`、完整的邮政地址、`year_of_birth`，可能还有更多。未来可能需要添加更多数据成员：一个手机号码、一个
+    Twitter 账号，或者下一个社交媒体热潮的账户信息。换句话说，`Person` 类很可能需要随时间推移而扩展或更改，甚至可能经常这样。对于这个类的用户来说，这可能会带来许多不便：每当
+    `Person` 更改时，`Person` 的用户都必须重新编译他们的代码。更不用说 ABI 的稳定性：`Person` 实例的大小将会变化！
 - en: 'To hide all changes to the implementation details of `Person` and gain ABI
     stability, you can use the Bridge design pattern. In this particular case, however,
     there is no need to provide an abstraction in the form of a base class: there
     is one, and exactly one, implementation for `Person`. Therefore, all we do is
     introduce a `private`, nested class called `Impl` ([![12](assets/12.png)](#code_g28_12)):'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了隐藏`Person`实现细节的所有更改并获得ABI稳定性，您可以使用桥接设计模式。然而，在这种特定情况下，并不需要提供一个基类的抽象：存在且仅存在一个`Person`的实现。因此，我们只需引入一个称为`Impl`的`private`嵌套类
+    ([![12](assets/12.png)](#code_g28_12))：
 - en: '[PRE6]'
+  id: totrans-44
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: The sole task of the nested `Impl` class is to encapsulate the implementation
     details of `Person`. Thus, the only data member remaining in the `Person` class
     is the `std::unique_ptr` to an `Impl` instance ([![13](assets/13.png)](#code_g28_13)).
@@ -291,26 +405,37 @@
     due to this, all details and all changes that you apply to the details, such as
     adding or removing data members, changing the type of data members, etc., are
     hidden from the users of `Person`.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 嵌套的`Impl`类的唯一任务是封装`Person`的实现细节。因此，`Person`类中仅剩的数据成员是指向`Impl`实例的`std::unique_ptr`
+    ([![13](assets/13.png)](#code_g28_13))。所有其他数据成员以及可能的一些非虚拟辅助函数都被移动到`Impl`类中。请注意，`Impl`类仅在`Person`类中声明但未定义。相反，它在相应的源文件中定义
+    ([![14](assets/14.png)](#code_g28_14))。仅仅因为这个原因，您对细节的所有更改，如添加或删除数据成员、更改数据成员类型等，都对`Person`的用户隐藏起来。
 - en: 'This implementation of `Person` uses the Bridge design pattern in its simplest
     form: this local, nonpolymorphic form of Bridge is called the [*Pimpl idiom*](https://oreil.ly/7QULb).
     It comes with all the decoupling advantages of the Bridge pattern but, despite
     its simplicity, it still results in a bit more complex implementation of the `Person`
     class:'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个`Person`的实现使用了桥接设计模式的最简形式：这种本地的、非多态的桥接形式称为[*Pimpl idiom*](https://oreil.ly/7QULb)。它具有桥接模式的所有解耦优势，但尽管简单，仍导致`Person`类的实现稍微复杂一些：
 - en: '[PRE7]'
+  id: totrans-47
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The `Person` constructor initializes the `pimpl_` data member by `std::make_unique()`
     ([![15](assets/15.png)](#code_g28_15)). This, of course, involves a dynamic memory
     allocation, which means that the dynamic memory needs to be cleaned up again.
     “And that is why we use `std::unique_ptr`,” you say. Correct. But perhaps surprisingly,
     although we use `std::unique_ptr` for that purpose, it’s still necessary to manually
     deal with the destructor ([![16](assets/16.png)](#code_g28_16)).
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Person`构造函数通过`std::make_unique()`初始化了`pimpl_`数据成员 ([![15](assets/15.png)](#code_g28_15))。当然，这涉及动态内存分配，这意味着需要再次清理动态内存。“这就是为什么我们使用`std::unique_ptr`”，你说道。正确。但或许令人惊讶的是，尽管我们为此目的使用了`std::unique_ptr`，仍然需要手动处理析构函数
+    ([![16](assets/16.png)](#code_g28_16))。'
 - en: '“Why on earth do we have to do this? Isn’t the point of `std::unique_ptr` that
     we don’t have to deal with cleanup?” Well, we still have to. Let me explain: if
     you don’t write the destructor, the compiler feels obliged to generate the destructor
@@ -325,8 +450,14 @@
     go of it). The problem is rather simple to solve. All you have to do is move the
     definition of the `Person` destructor to the source file: you declare the destructor
     in the class definition and define it via `=default` in the source file.'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: “我们到底为什么要这么做？`std::unique_ptr` 的目的不是避免处理清理吗？”事实上，我们还是需要处理清理工作。让我来解释一下：如果你不写析构函数，编译器会觉得有义务为你生成析构函数。不幸的是，它会在
+    `<Person.h>` 头文件中生成析构函数。`Person` 类的析构函数会触发 `std::unique_ptr` 数据成员的析构函数实例化，这又需要
+    `Impl` 类的析构函数定义。然而，`Impl` 的定义在头文件中是不可用的。相反，它需要在源文件中定义，否则会违背桥接的初衷。因此，编译器会报告关于不完整类型
+    `Impl` 的错误。幸运的是，你不必放弃 `std::unique_ptr` 来解决这个问题（事实上，你*不应该*放弃它）。问题解决起来相当简单。你只需将
+    `Person` 的析构函数定义移到源文件中：在类定义中声明析构函数，然后在源文件中通过 `=default` 进行定义。
 - en: 'Since `std::unique_ptr` cannot be copied, you will have to implement the copy
     constructor to preserve the copy semantics of the `Person` class ([![17](assets/17.png)](#code_g28_17)).
     The same is true for the copy assignment operator ([![18](assets/18.png)](#code_g28_18)).
@@ -338,8 +469,13 @@
     This assumption also explains why the `pimpl_` data member is declared as `const`.
     Once it’s initialized, the pointer will not be changed anymore, not even in the
     move operations, including the move assignment operator ([![20](assets/20.png)](#code_g28_20)).'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 `std::unique_ptr` 不能被复制，你需要实现复制构造函数以保持 `Person` 类的复制语义（[![17](assets/17.png)](#code_g28_17)）。对于复制赋值运算符也是如此（[![18](assets/18.png)](#code_g28_18)）。请注意，该运算符的实现基于这样一个假设：每个
+    `Person` 实例始终有一个有效的 `pimpl_`。这一假设解释了移动构造函数的实现方式：它不仅仅是移动 `std::unique_ptr`，而是使用
+    `std::make_unique()` 进行可能失败或抛出异常的动态内存分配。因此，它*不*声明为 `noexcept`（[![19](assets/19.png)](#code_g28_19)）。这一假设也解释了为什么
+    `pimpl_` 数据成员被声明为 `const`。一旦初始化，指针将不再更改，即使在移动赋值运算符中也是如此（[![20](assets/20.png)](#code_g28_20)）。
 - en: The last detail worth noting is that the definition of the `year_of_birth()`
     member function is located in the source file ([![21](assets/21.png)](#code_g28_21)).
     Despite the fact that this simple getter function is a great `inline` candidate,
@@ -348,12 +484,18 @@
     within the header file, you are not able to access any members (both data and
     functions). This is possible only in the source file, or generally speaking, as
     soon as the compiler knows the definition of `Impl`.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后值得注意的细节是，`year_of_birth()` 成员函数的定义位于源文件中（[![21](assets/21.png)](#code_g28_21)）。尽管这个简单的获取函数是一个很好的
+    `inline` 候选，但是定义必须移到源文件中。原因在于，在头文件中，`Impl` 是一个[不完整类型](https://oreil.ly/wg10k)。这意味着在头文件中，你无法访问任何成员（包括数据和函数）。这只能在源文件中实现，或者一般来说，只要编译器知道
+    `Impl` 的定义。
 - en: Comparison Between Bridge and Strategy
+  id: totrans-52
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 桥接与策略的比较
 - en: '“I have a question,” you say. “I see a strong resemblance between the Bridge
     and the Strategy design pattern. I know you said that design patterns are sometimes
     structurally very similar and that the only difference is their intent. But what
@@ -362,8 +504,11 @@
     confusing. However, there is something you can use to tell them apart: how the
     corresponding data member is initialized is a strong indicator about which one
     you’re using.'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: “我有一个问题，”你说，“我看到桥接（Bridge）和策略（Strategy）设计模式之间有很强的相似之处。我知道你说设计模式有时在结构上非常相似，唯一的区别在于它们的意图。但是这两者之间究竟有什么区别？”^([5](ch07.xhtml#idm45043090004848))
+    我理解你的问题。这两者之间的相似性确实有点令人困惑。然而，有一点可以帮助你区分它们：如何初始化相应的数据成员是区分它们的一个强有力的指标。
 - en: 'If a class does not want to know about some implementation detail, and if for
     that reason it provides the opportunity to configure the behavior by passing in
     details from the outside (for instance, via a constructor or via a setter function),
@@ -372,30 +517,45 @@
     is its primary focus, Strategy falls into the category of a *behavioral design
     pattern*. For instance, in the following code snippet, the constructor of the
     `Database` class is a telltale sign:'
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一个类不想知道某些实现细节，因此提供了通过外部传入细节来配置行为的机会（例如通过构造函数或设置函数），那么你很可能在处理策略设计模式。因为灵活配置行为，即减少*逻辑*依赖，是其主要关注点，策略模式属于*行为设计模式*的类别。例如，在下面的代码片段中，`Database`
+    类的构造函数就是一个显著的标志：
 - en: '[PRE8]'
+  id: totrans-55
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: The actual type of `DatabaseEngine` is passed in from the outside ([![22](assets/22.png)](#code_g28_22)),
     making this a good example of the Strategy design pattern.
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，`DatabaseEngine` 的实际类型是从外部传入的（[![22](assets/22.png)](#code_g28_22)），这使得这个示例成为策略设计模式的一个很好的例子。
 - en: '[Figure 7-3](#fig_strategy_dependency_graph_database) shows the dependency
     graph for this example. Most importantly, the `Database` class is on the same
     architectural level as the `DatabaseEngine` abstraction, thus providing others
     with the opportunity to implement the behavior (e.g., in the form of the `ConcreteDatabaseEngine`).
     Since `Database` is depending only on the abstraction, there is no dependency
     on any specific implementation.'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 7-3](#fig_strategy_dependency_graph_database) 展示了这个例子的依赖图。最重要的是，`Database`
+    类与 `DatabaseEngine` 抽象处于同一架构层次，从而为其他人提供了实现行为的机会（例如通过 `ConcreteDatabaseEngine`
+    的形式）。由于 `Database` 仅依赖于抽象，因此没有依赖于任何具体的实现。'
 - en: '![The dependency graph for the Strategy design pattern.](assets/cpsd_0703.png)'
+  id: totrans-58
   prefs: []
   type: TYPE_IMG
+  zh: '![策略设计模式的依赖图。](assets/cpsd_0703.png)'
 - en: Figure 7-3\. Dependency graph for the Strategy design pattern
+  id: totrans-59
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-3\. 策略设计模式的依赖图
 - en: 'If, however, a class knows about the implementation details but primarily wants
     to reduce the *physical* dependencies on these details, then you’re most likely
     dealing with the Bridge design pattern. In that case, the class does not provide
@@ -404,16 +564,23 @@
     the physical dependencies of the implementation details, not the logical dependencies,
     Bridge falls into the category of *structural design patterns*. As an example,
     consider the following code snippet:'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，如果一个类了解实现细节但主要希望减少对这些细节的*物理*依赖，那么你很可能在处理桥接设计模式。在这种情况下，类不提供任何从外部设置指针的机会，即指针是一个实现细节并在内部设置。由于桥接设计模式主要关注实现细节的物理依赖而不是逻辑依赖，桥接模式属于*结构设计模式*的类别。例如，考虑以下代码片段：
 - en: '[PRE9]'
+  id: totrans-61
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'Again, there is a telltale sign for the application of the Bridge design pattern:
     instead of accepting an engine from outside, the constructor of the `Database`
     class is aware of the `ConcreteDatabaseEngine` and sets it internally ([![23](assets/23.png)](#code_g28_23)).'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，应用桥接设计模式的一个显著标志是：而不是接受外部的引擎，`Database` 类的构造函数知道 `ConcreteDatabaseEngine`
+    并在内部设置它（[![23](assets/23.png)](#code_g28_23)）。
 - en: '[Figure 7-4](#fig_bridge_dependency_graph_database) shows the dependency graph
     for the Bridge implementation of the `Database` example. Most notably, the `Database`
     class is on the same architectural level as the `ConcreteDatabaseEngine` class
@@ -421,27 +588,40 @@
     This shows that in contrast to the Strategy design pattern, a Bridge is logically
     coupled to a specific implementation but only physically decoupled via the `DatabaseEngine`
     abstraction.'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 7-4](#fig_bridge_dependency_graph_database) 展示了 `Database` 示例的桥接实现的依赖图。尤其是，`Database`
+    类与 `ConcreteDatabaseEngine` 类处于相同的架构级别，并且不留下为其他提供不同实现的机会。这表明，与策略设计模式相比，桥接在逻辑上与特定实现耦合，但通过
+    `DatabaseEngine` 抽象在物理上是解耦的。'
 - en: '![The dependency graph for the Bridge design pattern.](assets/cpsd_0704.png)'
+  id: totrans-64
   prefs: []
   type: TYPE_IMG
+  zh: '![桥接设计模式的依赖图。](assets/cpsd_0704.png)'
 - en: Figure 7-4\. Dependency graph for the Bridge design pattern
+  id: totrans-65
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-4\. 桥接设计模式的依赖图
 - en: Analyzing the Shortcomings of the Bridge Design Pattern
+  id: totrans-66
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析桥接设计模式的缺点
 - en: “I can totally see why the Bridge design pattern is so popular in the community.
     The decoupling properties are really great!” you exclaim. “However, you keep telling
     me that every design has its pros and cons. I expect there is a performance penalty?”
     Good, you remember that there are always some disadvantages. And of course this
     includes the Bridge design pattern, although it proves to be very useful. And
     yes, you’re correct to assume that there is some performance overhead involved.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: “我完全理解为什么桥接设计模式在社区中如此流行。它的解耦属性确实非常棒！” 你欣喜地说道。“然而，你一直告诉我每种设计都有其优缺点。我想这里肯定存在性能损耗？”
+    很好，你记得总会有一些不足之处。当然，桥接设计模式也不例外，尽管它被证明非常有用。是的，你的想法是对的，使用它确实会带来一些性能开销。
 - en: 'The first of five types of overhead results from the fact that Bridge introduces
     an additional indirection: the pimpl pointer making all access to the implementation
     details more expensive. However, how much of the performance penalty this pointer
@@ -461,25 +641,35 @@
     expensive tasks, such as system calls, then this overhead might not be measurable
     at all. In other words, whether or not to use a Bridge should be decided on a
     case-by-case basis and backed up with performance benchmarks.'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 桥接模式的第一种开销类型源于桥接引入了额外的间接性：pimpl 指针增加了对实现细节的访问成本。然而，这个指针导致的性能损耗有多大，我将在单独讨论中详细说明，见
+    [“指南 29：注意桥接的性能收益和损失”](#be_aware_of_the_performance_gains_and_losses_of_bridges)。然而，这并非性能开销的唯一来源；还有更多。取决于您是否使用抽象层，您可能还需要为虚函数调用开销付出代价。此外，即使是访问数据成员的最简单函数也会因为无法进行内联而增加开销。当然，每次创建基于桥接实现的类的新实例时，还需支付额外的动态内存分配开销。^([6](ch07.xhtml#idm45043089719744))
+    最后但并非最不重要的是，您还应考虑引入 pimpl 指针所导致的内存开销。所以，是的，隔离物理依赖并隐藏实现细节并非免费，而是会导致相当大的开销。但这并不应该是通常丢弃桥接方案的理由：一切都是具体问题具体分析。例如，如果底层实现执行缓慢、昂贵的任务（例如系统调用），那么这种开销可能根本无法测量。换句话说，是否使用桥接模式应根据具体情况和性能基准来决定。
 - en: Furthermore, you have seen the implementation details and realized that the
     code complexity has increased. Since simplicity and readability of code are a
     virtue, this should be considered a downside. It’s true that this affects only
     the internals of a class, not the user code. But still, some of the details (e.g.,
     the need to define the destructor in the source file) might be confusing for less-experienced
     developers.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，您已经看到了实现细节并意识到代码复杂性增加了。由于代码的简洁性和可读性是一种美德，这应该被视为一个缺点。这确实只影响类的内部而不是用户代码。但是，某些细节（例如在源文件中定义析构函数的必要性）可能会让经验不足的开发人员感到困惑。
 - en: In summary, the Bridge design pattern is one of the most valuable and most commonly
     used solutions for reducing physical dependencies. Still, you should be aware
     of the overhead and the complexity that a Bridge introduces.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，桥接设计模式是减少物理依赖最有价值和最常用的解决方案之一。但是，您应该意识到桥接引入了开销和复杂性。
 - en: 'Guideline 29: Be Aware of Bridge Performance Gains and Losses'
+  id: totrans-71
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 29：了解桥接的性能优劣
 - en: 'In [“Guideline 28: Build Bridges to Remove Physical Dependencies”](#build_bridges_to_remove_physical_dependencies),
     we took a detailed look at the Bridge design pattern. While I imagine the design
     and decoupling aspect of Bridge left a positive impression on you, I must make
@@ -490,12 +680,16 @@
     you have to expect when using a Bridge. However, I should also demonstrate how
     to use Bridges wisely to improve the performance of your code. Sounds unbelievable?
     Well, let me show you how.'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 28：构建桥梁以消除物理依赖”](#build_bridges_to_remove_physical_dependencies)中，我们详细讨论了桥接设计模式。虽然我想桥接模式的设计和解耦方面给您留下了积极的印象，但我必须提醒您，使用这种模式可能会引入性能损耗。“是的，这让我担忧。性能对我很重要，听起来桥接会带来巨大的性能开销，”您说道。这是一个相当普遍的期待。由于性能至关重要，我确实应该让您了解在使用桥接时需要预期多大的开销。然而，我也应该展示如何明智地使用桥接来改善代码性能。听起来不可思议？好吧，让我向您展示一下。
 - en: The Performance Impact of Bridges
+  id: totrans-73
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 桥接的性能影响
 - en: 'As discussed in [“Guideline 28: Build Bridges to Remove Physical Dependencies”](#build_bridges_to_remove_physical_dependencies),
     the performance of a Bridge implementation is influenced by many factors: access
     through an indirection, virtual function calls, inlining, dynamic memory allocations,
@@ -505,45 +699,66 @@
     your own code and running them to evaluate a definitive answer. What I want to
     demonstrate, though, is that there is indeed a performance penalty of accessing
     through an indirection, but you can still use a Bridge to actually improve performance.'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如在[“指南 28：构建桥梁以消除物理依赖”](#build_bridges_to_remove_physical_dependencies)中所讨论的，桥接实现的性能受许多因素影响：通过间接访问、虚拟函数调用、内联、动态内存分配等。由于这些因素以及大量可能的组合，对于桥接会带来多少性能开销，没有确定的答案。简而言之，没有捷径，也没有替代方法，可以为您自己的代码组装一些基准测试并运行它们以评估一个确定的答案。不过，我想要证明的是，通过间接访问确实会有性能损耗，但您仍然可以使用桥接来实际提升性能。
 - en: 'Let’s get started with giving you an idea about the benchmark. To form an opinion
     on how costly the pointer indirection is, let’s compare the following two implementations
     of a `Person` class:'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在让我们开始讨论一下基准测试的概念。为了对指针间接访问的成本有所了解，让我们比较下面两个`Person`类的实现：
 - en: '[PRE10]'
+  id: totrans-76
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: The `Person1` struct represents a type that is *not* implemented in terms of
     a Bridge. All seven data members (six `std::string`s and one `int`) are directly
     part of the struct itself. Altogether, and assuming a 64-bit machine, the total
     size of one instance of `Person1` is 152 bytes with Clang 11.1 and 200 bytes with
     GCC 11.1.^([7](ch07.xhtml#idm45043089618368))
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Person1` 结构体表示一种*不*是以桥接方式实现的类型。所有七个数据成员（六个`std::string`和一个`int`）直接是结构体的一部分。总的来说，在64位机器上，假设使用Clang
+    11.1，则一个`Person1`实例的总大小为152字节，而使用GCC 11.1则为200字节。^([7](ch07.xhtml#idm45043089618368))'
 - en: 'The `Person2` struct, on the other hand, is implemented with the Pimpl idiom:'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一方面，`Person2` 结构体则采用了Pimpl惯用法：
 - en: '[PRE11]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: All seven data members have been moved into the nested `Impl` struct and can
     be accessed only via the `pimpl` pointer. While the total size of the nested `Impl`
     struct is identical to the size of `Person1`, the size of the `Person2` struct
     is only 8 bytes (again, assuming a 64-bit machine).
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有七个数据成员都已移至嵌套的 `Impl` 结构中，并且只能通过 `pimpl` 指针访问。虽然嵌套 `Impl` 结构的总大小与 `Person1`
+    的大小相同，但 `Person2` 结构的大小仅为 8 字节（假设是 64 位机器）。
 - en: Note
+  id: totrans-81
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: 'Via the Bridge design, you can reduce the size of a type, sometimes even significantly.
     This can prove to be very valuable, for instance, if you want to use the type
     as an alternative in `std::variant` (see [“Guideline 17: Consider std::variant
     for Implementing Visitor”](ch04.xhtml#consider_std_variant_for_implementing_visitors)).'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: '通过桥接设计，您可以减少一种类型的大小，有时甚至可以显著减少。例如，如果您想在 `std::variant` 中作为替代使用该类型，这可能非常有价值（参见
+    [“Guideline 17: Consider std::variant for Implementing Visitor”](ch04.xhtml#consider_std_variant_for_implementing_visitors)）。'
 - en: 'So let me outline the benchmark: I will create two `std::vector`s of 25,000
     persons, one for each of the two `Person` implementations. This number of elements
     will make certain that we work beyond the size of the inner caches of the underlying
@@ -558,24 +773,40 @@
     (`Person1`) or indirectly (`Person2`). [Table 7-1](#table_bridge_benchmark_results_1)
     shows the performance results, normalized to the performance of the `Person1`
     implementation.'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 所以让我来概述一下基准测试：我将创建两个包含 25,000 人的 `std::vector`，每个 `std::vector` 对应两种 `Person`
+    实现中的一种。这个元素数量确保我们超出了底层 CPU 内部缓存的大小（例如，使用 Clang 11.1 是 3.2 MB，使用 GCC 11.1 是 4.2
+    MB）。所有这些人都被赋予任意的姓名、地址和出生年份，年份范围在 1957 年至 2004 年之间（在写作时，这代表了一个组织中雇员年龄的合理范围）。然后，我们将遍历这两个人的向量各五千次，并每次使用
+    `std::min_element()` 确定最老的人。由于基准测试的重复性质，结果会显得相当无聊。经过一百次迭代，你会觉得太无聊而不想再看。唯一重要的是看到直接访问数据成员（`Person1`）和间接访问数据成员（`Person2`）之间的性能差异。[表 7-1](#table_bridge_benchmark_results_1)
+    展示了性能结果，以 `Person1` 实现的性能为标准化结果。
 - en: Table 7-1\. Performance results for different `Person` implementations (normalized
     performance)
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 7-1\. 不同 `Person` 实现的性能结果（标准化性能）
 - en: '| Person implementation | GCC 11.1 | Clang 11.1 |'
+  id: totrans-85
   prefs: []
   type: TYPE_TB
+  zh: '| Person 实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-86
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Person1 (no pimpl) | 1.0 | 1.0 |'
+  id: totrans-87
   prefs: []
   type: TYPE_TB
+  zh: '| Person1（无 pimpl） | 1.0 | 1.0 |'
 - en: '| Person2 (complete Pimpl idiom) | 1.1099 | 1.1312 |'
+  id: totrans-88
   prefs: []
   type: TYPE_TB
+  zh: '| Person2（完整的 Pimpl 习惯用法） | 1.1099 | 1.1312 |'
 - en: 'It’s fairly obvious that in this particular benchmark, the Bridge implementation
     incurs a pretty significant performance penalty: 11.0% for GCC and 13.1% for Clang.
     This sounds like a lot! However, don’t take these numbers too seriously: clearly,
@@ -584,12 +815,16 @@
     we perform in the benchmark. If you change any of these details, the numbers will
     change as well. Thus, these numbers only demonstrate that there is some, and potentially
     even some more, overhead due to the indirect access to data members.'
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个特定的基准测试中，桥接实现导致性能显著下降：对于 GCC 是 11.0%，对于 Clang 是 13.1%。听起来很多！然而，不要对这些数字过于认真：显然，结果严重依赖于实际元素数量、数据成员的实际数量和类型、我们运行的系统，以及基准测试中执行的实际计算。如果更改任何这些细节，数字也会相应更改。因此，这些数字仅表明，由于对数据成员的间接访问，存在一些甚至更多的额外开销。
 - en: Improving Performance with Partial Bridges
+  id: totrans-90
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 通过部分桥接改善性能
 - en: '“OK, but this is an expected result, right? What should I learn from that?”
     you ask. Well, I admit that this benchmark is fairly specific and does not answer
     all questions. However, it does provide us with the opportunity to actually use
@@ -606,8 +841,11 @@
     of all persons, which sounds like a compute-bound operation, we are in fact completely
     memory bound: the machine simply cannot deliver data fast enough, and the integer
     unit will idle most of the time.'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: “好吧，但这是一个预期的结果，对吧？我应该从中学到什么？”你问道。嗯，我承认这个基准测试相当具体，不能回答所有问题。但它确实为我们提供了使用桥接来提高性能的机会。如果你仔细看`Person1`的实现，你可能会意识到对于给定的基准测试，可达到的性能是非常有限的：尽管`Person1`的总大小为152字节（Clang
+    11.1）或200字节（GCC 11.1），我们只使用了4字节，即一个`int`。这被证明是相当浪费和低效的：因为在基于缓存的体系结构中，内存总是以缓存行加载，实际上我们加载的大部分数据根本没有被使用。事实上，几乎*所有*从内存加载的数据都没有被使用：假设缓存行长度为64字节，我们只使用了加载数据的约6%。因此，尽管我们根据所有人的出生年份确定最老的人，这听起来像一个计算密集型操作，实际上我们完全受限于内存：机器根本无法快速传送数据，整数单元大部分时间都会处于空闲状态。
 - en: 'This setting gives us the opportunity to improve the performance with a Bridge.
     Let’s assume that we can distinguish between data that is used often (such as
     `forename`, `surname`, and `year_of_birth`) and data that is used infrequently
@@ -615,11 +853,15 @@
     the data members accordingly: all data members that are used often are stored
     directly in the `Person` class. All data members that are used infrequently are
     stored inside the `Impl` struct. This leads to the `Person3` implementation:'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 此设置使我们有机会通过桥接来提高性能。假设我们可以区分经常使用的数据（如`forename`、`surname`和`year_of_birth`）和很少使用的数据（例如邮政地址）。基于这一区分，我们现在按照以下方式排列数据成员：所有经常使用的数据成员直接存储在`Person`类中。所有很少使用的数据成员存储在`Impl`结构体内。这导致了`Person3`的实现：
 - en: '[PRE12]'
+  id: totrans-93
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'The total size of a `Person3` instance is 64 bytes for Clang 11.1 (two 24-byte
     `std::string`s, one integer, one pointer, and four padding bytes due to alignment
     restrictions) and 80 bytes on GCC 11.1 (two 32-byte `std::string`s, one integer,
@@ -627,27 +869,42 @@
     half as big as a `Person1` instance. This difference in size is measurable: [Table 7-2](#table_bridge_benchmark_results_2)
     shows the performance result for all `Person` implementations, including `Person3`.
     Again, the results are normalized to the performance of the `Person1` implementation.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 在Clang 11.1下，一个`Person3`实例的总大小为64字节（两个24字节的`std::string`，一个整数，一个指针和由于对齐限制而产生的四个填充字节），在GCC
+    11.1下为80字节（两个32字节的`std::string`，一个整数，一个指针和一些填充）。因此，`Person3`实例的大小仅为`Person1`实例的约一半。这种大小差异是可测量的：[表 7-2](#table_bridge_benchmark_results_2)显示了包括`Person3`在内的所有`Person`实现的性能结果，再次对性能进行了标准化。
 - en: Table 7-2\. Performance results for different `Person` implementations (normalized
     performance)
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 7-2\. 不同`Person`实现的性能结果（性能标准化）
 - en: '| Person implementation | GCC 10.3 | Clang 12.0 |'
+  id: totrans-96
   prefs: []
   type: TYPE_TB
+  zh: '| 人员实现 | GCC 10.3 | Clang 12.0 |'
 - en: '| --- | --- | --- |'
+  id: totrans-97
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Person1 (no pimpl) | 1.0 | 1.0 |'
+  id: totrans-98
   prefs: []
   type: TYPE_TB
+  zh: '| Person1（无pimpl） | 1.0 | 1.0 |'
 - en: '| Person2 (complete Pimpl idiom) | 1.1099 | 1.1312 |'
+  id: totrans-99
   prefs: []
   type: TYPE_TB
+  zh: '| Person2（完全Pimpl习惯用法） | 1.1099 | 1.1312 |'
 - en: '| Person3 (partial Pimpl idiom) | 0.8597 | 0.9353 |'
+  id: totrans-100
   prefs: []
   type: TYPE_TB
+  zh: '| Person3（部分Pimpl习惯用法） | 0.8597 | 0.9353 |'
 - en: In comparison to the `Person1` implementation, the performance for `Person3`
     is improved by 14.0% for GCC 11.1 and 6.5% for Clang 11.1\. And, as stated before,
     this is only because we reduced the size of the `Person3` implementation. “Wow,
@@ -656,8 +913,10 @@
     distinguishing between data members that are used frequently and those that are
     used infrequently, and reducing the size of a data structure by implementing a
     “partial” Bridge may have a very positive impact on performance.^([8](ch07.xhtml#idm45043089228000))
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 与`Person1`实现相比，对于`Person3`来说，GCC 11.1的性能提高了14.0%，Clang 11.1提高了6.5%。而且，正如之前所述，这仅仅是因为我们减少了`Person3`的实现大小。“哇，这真是出乎意料。我明白了，桥梁并不一定对性能完全有害，”你说道。是的，确实如此。当然，这始终取决于具体的设置，但是区分频繁使用的数据成员和不经常使用的数据成员，并通过实现“部分”桥梁来减少数据结构的大小，可能会对性能产生非常积极的影响。^([8](ch07.xhtml#idm45043089228000))
 - en: '“The performance gain is huge, that’s great, but isn’t that running against
     the intention of a Bridge?” you ask. Indeed, you realize that there is a dichotomy
     between hiding implementation details and “inlining” data members for the sake
@@ -666,8 +925,10 @@
     of solutions in between the two extremes: it is not necessary to hide *all* data
     members behind a Bridge. In the end, you are the one to find the optimum for a
     given problem.'
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: “性能提升非常大，这太棒了，但这是否与桥梁的初衷相悖？”你问道。确实，你意识到隐藏实现细节与为了性能而“内联”数据成员之间存在着一种二元对立。一如既往，这取决于情况：你将不得不在每种情况下决定偏向哪一方面。你希望也意识到，存在两个极端之间的整个解决方案范围：没有必要将*所有*数据成员都隐藏在桥梁后面。最终，你将是为特定问题找到最佳解决方案的那个人。
 - en: In summary, while Bridges in general will very likely incur a performance penalty,
     given the right circumstances, implementing a partial Bridge may have a very positive
     effect on your performance. However, this is only one of many aspects that influence
@@ -675,12 +936,16 @@
     a performance bottleneck or if a partial Bridge is addressing a performance issue.
     The best way to confirm this is with a representative benchmark, based on the
     actual code and actual data as much as possible.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，虽然一般来说桥梁很可能会造成性能损失，但在适当的情况下，实现部分桥梁可能会对性能产生非常积极的影响。然而，这只是影响性能的许多方面之一。因此，你应该始终检查桥梁是否导致性能瓶颈，或者部分桥梁是否正在解决性能问题。确认这一点的最佳方式是通过代表性基准测试，尽可能基于实际代码和实际数据。
 - en: 'Guideline 30: Apply Prototype for Abstract Copy Operations'
+  id: totrans-104
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指导原则30：应用原型进行抽象复制操作
 - en: 'Imagine yourself sitting in a fancy Italian restaurant and studying the menu.
     Oh my, they offer so many great things; the lasagna sounds great. But the selection
     of pizza they offer is also amazing. So hard to choose…However, your thoughts
@@ -689,8 +954,10 @@
     the smell…At this moment, you know that you no longer have to think about what
     you want to eat: you want the same thing, no matter what it is. And so you order:
     “Ah, waiter, I’ll have whatever they are having.”'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 想象一下自己坐在一个高档意大利餐厅里研究菜单。哦，天啊，他们提供了这么多美味的东西；千层面听起来很不错。但是，他们提供的披萨选择也是令人惊叹的。真难选啊……然而，你的思绪被打断了，因为服务员走过来端着这道看起来令人难以置信的菜肴。不幸的是，这不是为你准备的，而是为另一张桌子上的人。哦哇，那个香味……在这一刻，你知道自己不再需要考虑要吃什么：不管是什么，你都想要一样。所以你点了：“啊，服务员，我要和他们一样的。”
 - en: 'The same problem may occur in your code. In C++ terms, what you are asking
     the waiter for is a copy of the other person’s dish. Copying an object, i.e.,
     creating an exact replica of an instance, is a fundamentally important operation
@@ -701,95 +968,145 @@
     And unfortunately, trying to copy via `Dish*` with the copy constructor or copy
     assignment operator usually doesn’t work. Still, you want an exact copy. The solution
     to this problem is another classic GoF design pattern: the Prototype design pattern.'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 在您的代码中可能会遇到相同的问题。从 C++ 的角度来看，您要求服务员复制另一个人的菜肴。复制对象，即创建一个实例的精确副本，在 C++ 中是一个非常重要的操作。如此重要，以至于类默认配备了复制构造函数和复制赋值运算符——这两个所谓的*特殊成员函数*。^([9](ch07.xhtml#idm45043089050320))
+    然而，当要求复制菜肴时，您不幸地不知道是什么菜肴。从 C++ 的角度来看，您只有一个指向基类的指针（比如 `Dish*`）。不幸的是，尝试通过 `Dish*`
+    使用复制构造函数或复制赋值运算符通常不起作用。但是，您确实希望获得一个精确的副本。这个问题的解决方案是另一个经典的《GoF》设计模式：原型设计模式。
 - en: 'A Sheep-ish Example: Copying Animals'
+  id: totrans-107
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 一个羊的例子：复制动物
 - en: 'As an example, let’s consider the following `Animal` base class:'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 举个例子，让我们考虑下面的 `Animal` 基类：
 - en: '[PRE13]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'Apart from the virtual destructor, which indicates that `Animal` is supposed
     to be a base class, the class provides only the `makeSound()` function, which
     deals with printing cute animal sounds. One example of such an animal is the `Sheep`
     class:'
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了虚析构函数表明 `Animal` 应该是一个基类外，该类仅提供了 `makeSound()` 函数，用于打印可爱的动物声音。其中一个动物的示例是 `Sheep`
+    类：
 - en: '[PRE14]'
+  id: totrans-111
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'In the `main()` function, we can now create a sheep and have it make sounds:'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 `main()` 函数中，我们现在可以创建一只羊，并让它发出声音：
 - en: '[PRE15]'
+  id: totrans-113
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: Dolly is great, right? And so cute! In fact, she’s so much fun that we want
     another Dolly. However, all we have is a pointer-to-base—an `Animal*`. We can’t
     copy via the `Sheep` copy constructor or the copy assignment operator, because
     we (technically) don’t even know that we are dealing with a `Sheep`. It could
     be any kind of animal (e.g., dog, cat, sheep, etc.). And we don’t want to copy
     just the `Animal` part of `Sheep`, as this is what we call *slicing*.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 多拉很棒，对吧？而且超级可爱！事实上，她太有趣了，我们想要另一个多拉。然而，我们只有一个指向基类的指针——`Animal*`。我们不能通过 `Sheep`
+    的复制构造函数或复制赋值运算符进行复制，因为（从技术上讲）我们甚至不知道我们正在处理的是 `Sheep`。它可能是任何类型的动物（例如狗、猫、羊等）。我们不想仅复制
+    `Sheep` 的 `Animal` 部分，因为这就是我们所说的*切片*。
 - en: Oh my, I just realized that this may be a particularly bad example for explaining
     the Prototype design pattern. Slicing animals. This sounds bad. So let’s swiftly
     move on. Where were we? Ah yes, we want a copy of Dolly, but we only have an `Animal*`.
     This is where the Prototype design pattern comes into play.
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 哦，我刚意识到这可能是一个特别糟糕的例子来解释原型设计模式。切片动物。听起来不好。所以让我们迅速过渡吧。我们在哪儿？啊，是的，我们想要多拉的一个副本，但我们只有一个
+    `Animal*`。这就是原型设计模式发挥作用的地方。
 - en: The Prototype Design Pattern Explained
+  id: totrans-116
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解释原型设计模式
 - en: The Prototype design pattern is one of the five creational design patterns collected
     by the Gang of Four. It is focused on providing an abstract way of creating copies
     of some abstract entity.
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 原型设计模式是《四人组》收集的五种创建型设计模式之一。它专注于提供创建某个抽象实体副本的抽象方式。
 - en: The Prototype Design Pattern
+  id: totrans-118
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 原型设计模式
 - en: 'Intent: “Specify the kind of objects to create using a prototypical instance,
     and create new objects by copying this prototype.”^([10](ch07.xhtml#idm45043088713040))'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“使用原型实例指定要创建的对象类型，并通过复制该原型创建新对象。”^([10](ch07.xhtml#idm45043088713040))
 - en: '[Figure 7-5](#fig_prototype_original) shows the original UML formulation, taken
     from the GoF book.'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 7-5](#fig_prototype_original) 显示了原始的 UML 表示，摘自《GoF》书籍。'
 - en: '![The UML representation of the Prototype design pattern.](assets/cpsd_0705.png)'
+  id: totrans-121
   prefs: []
   type: TYPE_IMG
+  zh: '![原型设计模式的 UML 表示。](assets/cpsd_0705.png)'
 - en: Figure 7-5\. The UML representation of the Prototype design pattern
+  id: totrans-122
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-5\. 原型设计模式的 UML 表示
 - en: 'The Prototype design pattern is commonly implemented by a virtual `clone()`
     function in the base class. Consider the updated `Animal` base class:'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 原型设计模式通常通过基类中的虚拟 `clone()` 函数来实现。考虑更新后的 `Animal` 基类：
 - en: '[PRE16]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: Via this `clone()` function, anyone can ask for an abstract copy of the given
     (prototype) animal, without having to know about any specific type of animal (`Dog`,
     `Cat`, or `Sheep`). When the `Animal` base class is properly assigned to the high
     level of your architecture, it follows the DIP (see [Figure 7-6](#fig_prototype_dependency_graph)).
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过这个`clone()`函数，任何人都可以请求给定（原型）动物的抽象副本，而不必知道任何特定类型的动物（`Dog`、`Cat`或`Sheep`）。当`Animal`基类被适当分配到您的架构的高层时，它遵循DIP（参见[图7-6](#fig_prototype_dependency_graph)）。
 - en: '![The dependency graph for the Prototype design pattern.](assets/cpsd_0706.png)'
+  id: totrans-126
   prefs: []
   type: TYPE_IMG
+  zh: '![原型设计模式的依赖图。](assets/cpsd_0706.png)'
 - en: Figure 7-6\. Dependency graph for the Prototype design pattern
+  id: totrans-127
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图7-6。原型设计模式的依赖图
 - en: 'The `clone()` function is declared as a pure virtual function, which means
     that deriving classes are required to implement it. However, deriving classes
     cannot simply implement the function any way they want, but are expected to return
@@ -799,61 +1116,87 @@
     This, of course, results not only in a pointer but also in the need to explicitly
     `delete` the copy again. Since manual cleanup is considered to be very bad practice
     in Modern C++, the pointer is returned as the `std::unique_ptr` to `Animal`.^([11](ch07.xhtml#idm45043088650448))'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '`clone()`函数声明为纯虚函数，这意味着派生类需要实现它。但是，派生类不能随意实现该函数，而是期望返回自己的精确副本（任何其他结果都将违反LSP；参见[“指南6：遵循抽象的预期行为”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）。此副本通常动态创建并通过指向基类的指针返回。当然，这不仅导致指针，还需要显式`delete`副本。由于在现代C++中，手动清理被认为是非常糟糕的做法，因此将指针返回为`std::unique_ptr`到`Animal`。^([11](ch07.xhtml#idm45043088650448))'
 - en: 'The `Sheep` class is updated accordingly:'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Sheep` 类据此进行更新：'
 - en: '[PRE17]'
+  id: totrans-130
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: 'The `Sheep` class is now required to implement the `clone()` function and return
     an exact copy of the `Sheep`: Inside its own `clone()` function, it makes use
     of the `std::make_unique()` function and its own copy constructor, which is always
     assumed to do the right thing, even if the `Sheep` class changes in the future.
     This approach helps avoid unnecessary duplication and thus follows the DRY principle
     (see [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change)).'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在要求`Sheep` 类实现`clone()`函数并返回`Sheep`的精确副本：在其自己的`clone()`函数内部，它利用了`std::make_unique()`函数和自己的复制构造函数，即使`Sheep`
+    类未来发生更改，也始终假定会执行正确的操作。这种方法有助于避免不必要的重复，因此遵循DRY原则（参见[“指南2：设计变更”](ch01.xhtml#design_for_change)）。
 - en: 'Note that the `Sheep` class neither deletes nor hides its copy constructor
     and copy assignment operator. Hence, if you have a sheep, you can still copy the
     sheep with the special member functions. That is perfectly OK: the `clone()` merely
     adds one more way to create a copy—a way to perform `virtual` copying.'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，`Sheep` 类既不删除也不隐藏其复制构造函数和复制赋值运算符。因此，如果你有一只羊，仍然可以使用特殊成员函数复制羊。这是完全可以的：`clone()`
+    仅仅添加了一种创建副本的方法——一种执行`virtual`复制的方法。
 - en: 'With the `clone()` function in place, we can now create an exact copy of Dolly.
     And we can do this so much easier than we could have back in 1996 when they cloned
     the first Dolly:'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了`clone()`函数，我们现在可以创建多莉的精确副本。我们可以比1996年克隆第一只多莉时更轻松地完成这个任务：
 - en: '[PRE18]'
+  id: totrans-134
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: Comparison Between Prototype and std::variant
+  id: totrans-135
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 比较原型模式和`std::variant`
 - en: The Prototype design pattern really is a classic, very OO-centric design pattern,
     and since its publication in 1994, it is *the* go-to solution for providing `virtual`
     copying. Because of this, the function name `clone()` can almost be considered
     a keyword for identifying the Prototype design pattern.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 原型设计模式确实是一个经典的、非常面向对象的设计模式，自1994年发布以来，它是提供`virtual`复制的首选解决方案。正因如此，函数名`clone()`几乎可以视为识别原型设计模式的关键字。
 - en: 'Because of the specific use case, there is no “modern” implementation (except
     perhaps for the slight update to use `std::unique_ptr` instead of a raw pointer).
     In comparison to other design patterns, there is also no value semantics solution:
     as soon as we have a value, the most natural and intuitive solution would be to
     build on the two copy operations (the copy constructor and the copy assignment
     operator).'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于特定的用例，没有“现代化”的实现（除非稍微更新，使用`std::unique_ptr`替代原始指针）。与其他设计模式相比，也没有值语义的解决方案：一旦我们有一个值，最自然和直观的解决方案将是基于两个复制操作（复制构造函数和复制赋值运算符）进行构建。
 - en: “Are you sure that there is no value semantics solution? Consider the following
     example using `std::variant`:”
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: “你确定没有值语义的解决方案吗？考虑以下使用`std::variant`的例子：”
 - en: '[PRE19]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: '“Aren’t we performing an abstract copy operation in this case? And isn’t this
     copy operation performed by the copy constructor? So isn’t this an example of
     the Prototype design pattern but without the `clone()` function?” No. Although
@@ -867,18 +1210,26 @@
     or a sheep, but it could also be an elephant, a zebra, or a sloth. Anything is
     possible. Therefore, I can’t build on the copy constructor but can only copy using
     a virtual `clone()` function.'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: “在这种情况下，我们难道不是执行抽象复制操作吗？这个复制操作难道不是由复制构造函数执行的吗？那么这不是原型设计模式的例子，而没有`clone()`函数？”
+    不，尽管听起来你有一个令人信服的论点，但这不是原型设计模式的例子。我们两个例子之间有一个非常重要的区别：在你的例子中，你有一个封闭的类型集合（典型的访问者设计模式）。`std::variant`
+    `animal1` 包含狗、猫或羊，但没有其他内容。因此，可以使用复制构造函数执行显式复制。在我的例子中，我有一个开放的类型集合。换句话说，我不知道我要复制什么样的动物。它可能是狗、猫或羊，但也可能是大象、斑马或树懒。一切皆有可能。因此，我不能依赖复制构造函数，而只能使用虚拟的`clone()`函数进行复制。
 - en: Analyzing the Shortcomings of the Prototype Design Pattern
+  id: totrans-141
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析原型设计模式的缺点
 - en: Yes, there is no value semantics solution for the Prototype design pattern,
     but it’s a domestic beast from the realm of reference semantics. Hence, whenever
     the need arises to apply the Prototype design pattern, we have to live with the
     few drawbacks that come with it.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 是的，原型设计模式没有值语义的解决方案，但它是引用语义领域的一种典型代表。因此，每当需要应用原型设计模式时，我们必须接受它所带来的一些缺点。
 - en: Arguably, the first disadvantage is the negative performance impact that comes
     with the indirection due to pointers. However, since we only require cloning if
     we have an inheritance hierarchy, it would be unfair to consider this a drawback
@@ -886,8 +1237,10 @@
     Since it’s also hard to imagine another implementation without pointers and the
     associated indirections, it seems to be an intrinsic property of the Prototype
     design pattern.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以说，第一个缺点是由于指针引起的间接性带来的负面性能影响。然而，由于我们只在存在继承层次结构时才需要克隆，认为这是原型模式本身的缺点是不公平的。这更是问题基本设置的结果。由于很难想象另一种没有指针和相关间接性的实现，这似乎是原型设计模式的固有属性。
 - en: 'The second potential disadvantage is that, very often, the pattern is implemented
     by dynamic memory. The allocation itself, and also the possible resulting fragmented
     memory, causes further performance deficiencies. Dynamic memory is not a requirement,
@@ -896,8 +1249,10 @@
     that in certain contexts, you can also build on in-class memory. Still, this optimization
     applies to only a few special situations, and in most cases, the pattern builds
     on dynamic memory.'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个潜在的缺点是，很多时候，该模式通过动态内存来实现。分配本身以及可能导致的内存碎片化会导致进一步的性能问题。然而，并非要求使用动态内存，您将在[“指导方针33：注意类型擦除的优化潜力”](ch08.xhtml#know_about_the_optimization_potential_of_type_erasure)中看到，在某些情况下，您也可以建立在类内存上。不过，这种优化仅适用于少数特殊情况，在大多数情况下，该模式仍然依赖于动态内存。
 - en: 'In comparison to the ability to perform an abstract copy operation, the few
     downsides are easily acceptable. However, as discussed in [“Guideline 22: Prefer
     Value Semantics over Reference Semantics”](ch05.xhtml#prefer_value_semantics_to_reference_semantics),
@@ -906,12 +1261,16 @@
     semantics–based Prototype design pattern. Still, whenever you encounter the need
     to create an abstract copy, the Prototype design pattern with a corresponding
     `clone()` function is the right choice.'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 与执行抽象复制操作的能力相比，少数缺点是很容易接受的。然而，正如在[“第22条指南：更倾向于值语义而非引用语义”](ch05.xhtml#prefer_value_semantics_to_reference_semantics)中讨论的那样，如果能用值语义方法替换我们的`Animal`层次结构，这将更简单且更易理解，因此可以避免应用基于引用语义的原型设计模式。但是，每当你遇到需要创建抽象副本的情况时，具有相应`clone()`函数的原型设计模式是正确的选择。
 - en: 'Guideline 31: Use External Polymorphism for Nonintrusive Runtime Polymorphism'
+  id: totrans-146
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南31：使用外部多态性进行非侵入式运行时多态性
 - en: 'In [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change), we saw
     the enormous benefits of the separation of concerns design principle. In [“Guideline
     19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done),
@@ -928,20 +1287,28 @@
     this journey and taking the separation of concerns principle to a completely new,
     potentially unfamiliar level: we are separating the polymorphic behavior as a
     whole. For that purpose, we will apply the External Polymorphism design pattern.'
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“第2条指南：面向变更的设计”](ch01.xhtml#design_for_change)中，我们看到了关注分离设计原则的巨大好处。在[“第19条指南：使用策略来隔离事务如何执行”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)中，我们利用了这一力量，从一组形状中提取了绘图实现细节，采用了策略设计模式。然而，尽管这显著减少了依赖性，并且我们在[“第23条指南：更倾向于基于值的策略和命令实现”](ch05.xhtml#prefer_a_value_based_implementation_of_strategy_and_command)中借助`std::function`现代化了解决方案，但仍然存在一些缺点。特别是，形状类仍然被迫处理`draw()`操作，尽管出于耦合原因，处理实现细节是不可取的。此外，更重要的是，策略方法在提取多个多态操作方面被证明有些不实际。为了进一步减少耦合并从形状中提取多态操作，我们现在继续这一旅程，并将关注分离原则推向一个全新、可能陌生的水平：我们将整体多态行为分离出来。为此，我们将应用外部多态设计模式。
 - en: The External Polymorphism Design Pattern Explained
+  id: totrans-148
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 外部多态设计模式解释
 - en: 'Let’s return to our example of drawing shapes and our latest version of our
     `Circle` class from [“Guideline 23: Prefer a Value-Based Implementation of Strategy
     and Command”](ch05.xhtml#prefer_a_value_based_implementation_of_strategy_and_command):'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们回到绘制形状的示例以及我们从[“第23条指南：更倾向于基于值的策略和命令实现”](ch05.xhtml#prefer_a_value_based_implementation_of_strategy_and_command)得到的`Circle`类的最新版本：
 - en: '[PRE20]'
+  id: totrans-150
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: 'With the Strategy design pattern, we have overcome the initial strong coupling
     to the implementation details of the `draw()` member function ([![1](assets/1.png)](#code_g31_1)).
     We’ve also found a value semantics solution based on `std::function` ([![2](assets/2.png)](#code_g31_2)).
@@ -952,8 +1319,11 @@
     shapes, and shapes in general should be oblivious to the fact that they can be
     drawn.^([12](ch07.xhtml#idm45043087922656)) The fact that we have already extracted
     the implementation details considerably strengthens this argument.'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过策略设计模式，我们已经克服了对`draw()`成员函数实现细节的初始强耦合（[![1](assets/1.png)](#code_g31_1)）。我们还基于`std::function`找到了值语义的解决方案（[![2](assets/2.png)](#code_g31_2)）。然而，`draw()`成员函数仍然是所有从`Shape`基类派生的类的公共接口的一部分，并且所有形状都继承了实现它的义务（[![3](assets/3.png)](#code_g31_3)）。这是一个明显的不完美：可以说，绘图功能应该是独立的，形状通常不应该知道它们可以被绘制。^([12](ch07.xhtml#idm45043087922656))
+    事实上，我们已经提取了实现细节，这一论点已经得到了相当的加强。
 - en: '“Well, then, let’s just extract the `draw()` member function, right?” you argue.
     And you’re right. Unfortunately, this appears to be a hard thing to do at first
     sight. I hope you remember [“Guideline 15: Design for the Addition of Types or
@@ -962,25 +1332,34 @@
     you primarily want to add types. From this perspective, it appears as if we are
     stuck with the virtual `draw()` function and the `Shape` base class, which represents
     the set of available operations of all shapes, i.e., the list of requirements.'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: “好吧，那么，我们就提取`draw()`成员函数，对吗？”你争辩道。你是对的。不过，这乍一看似乎是一件困难的事情。希望你还记得[“指南 15：为类型或操作的添加设计”](ch04.xhtml#design_for_the_addition_of_types_or_operations)，在那里我们得出结论，当你主要想要添加类型时，应该首选面向对象的解决方案。从这个角度来看，似乎我们被虚拟的`draw()`函数和`Shape`基类所束缚，后者代表所有形状可用操作的集合，即需求列表。
 - en: 'There is a solution, though. A pretty astonishing one: we can extract the complete
     polymorphic behavior with the External Polymorphism design pattern. The pattern
     was introduced in a paper by Chris Cleeland, Douglas C. Schmidt, and Timothy H.
     Harrison in 1996.^([13](ch07.xhtml#idm45043087918336)) Its intent is to enable
     the polymorphic treatment of nonpolymorphic types (types without a single virtual
     function).'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 不过，问题有解决方案。一个相当惊人的解决方案：我们可以使用外部多态设计模式提取完整的多态行为。该模式在1996年由Chris Cleeland、Douglas
+    C. Schmidt和Timothy H. Harrison的论文中首次提出。^([13](ch07.xhtml#idm45043087918336)) 它的目的是使非多态类型（没有单一虚函数的类型）能够进行多态处理。
 - en: The External Polymorphism Design Pattern
+  id: totrans-154
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 外部多态设计模式
 - en: 'Intent: “Allow C++ classes unrelated by inheritance and/or having no virtual
     methods to be treated polymorphically. These unrelated classes can be treated
     in a common manner by software that uses them.”'
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“允许C++中不通过继承关系和/或没有虚方法的类以多态方式对待。这些无关的类可以被使用它们的软件以一种常见的方式处理。”
 - en: '[Figure 7-7](#fig_external_polymorphism_shape) gives a first impression of
     how the design pattern achieves this goal. One of the first striking details is
     that there is no `Shape` base class anymore. In the External Polymorphism design
@@ -991,15 +1370,21 @@
     of the `ShapeConcept` and `ShapeModel` classes. This external hierarchy introduces
     the polymorphic behavior for the shapes by introducing all the operations and
     requirements that are expected for shapes.'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 7-7](#fig_external_polymorphism_shape)首次展示了设计模式如何实现这一目标的第一印象。最引人注目的细节之一是不再有`Shape`基类。在外部多态设计模式中，不同类型的形状（`Circle`、`Square`等）被假定为简单的非多态类型。此外，形状不需要了解绘图的任何信息。设计模式并未要求形状继承自`Shape`基类，而是引入了`ShapeConcept`和`ShapeModel`类的独立继承层次结构。该外部层次结构通过引入所有预期形状的操作和要求，引入了形状的多态行为。'
 - en: '![The UML representation of the _External Polymorphism_ design pattern.](assets/cpsd_0707.png)'
+  id: totrans-157
   prefs: []
   type: TYPE_IMG
+  zh: '![外部多态设计模式的 UML 表示。](assets/cpsd_0707.png)'
 - en: Figure 7-7\. The UML representation of the *External Polymorphism* design pattern
+  id: totrans-158
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-7\. 外部多态设计模式的 UML 表示
 - en: In our simple example, the polymorphic behavior consists of only the `draw()`
     function. However, the set of requirements could, of course, be larger (e.g.,
     `rotate()`, `serialize()`, etc.). This set of virtual functions has been moved
@@ -1011,8 +1396,10 @@
     This class is instantiated for a specific kind of shape (`Circle`, `Square`, etc.)
     and acts as a wrapper for it. However, `ShapeModel` does not implement the logic
     of the virtual functions itself but delegates the request to the desired implementation.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们简单的示例中，多态行为仅由`draw()`函数组成。当然，要求集合可能更大（例如`rotate()`、`serialize()`等）。这组虚函数已移至抽象的`ShapeConcept`类中，现在取代了以前的`Shape`基类。主要区别在于具体形状不需要了解`ShapeConcept`，特别是不需要继承它。因此，形状与虚函数集完全解耦。唯一从`ShapeConcept`继承的类是`ShapeModel`类模板。此类为特定类型的形状（如`Circle`、`Square`等）实例化，并充当其包装器。但是，`ShapeModel`本身不实现虚函数的逻辑，而是将请求委托给所需的实现。
 - en: '“Wow, that’s amazing! I get the point: this external hierarchy extracts the
     whole set of virtual functions and, by that, the entire polymorphic behavior of
     the shapes.” Yes, exactly. Again, this is an example of separation of concerns
@@ -1021,39 +1408,55 @@
     for the OCP: with the `ShapeModel` class template, you can easily add any new,
     nonpolymorphic shape type into the `ShapeConcept` hierarchy. This works as long
     as the new type fulfills all of the required operations.'
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，太棒了！我明白了：这个外部层次结构提取了形状的整套虚函数行为。” 是的，完全正确。再次强调，这是关注点分离和SRP的一个示例。在这种情况下，完整的多态行为被识别为一个*变化点*，并从形状中提取出来。再次强调，SRP作为OCP的一种促进因素：通过`ShapeModel`类模板，您可以轻松地将任何新的非多态形状类型添加到`ShapeConcept`层次结构中。只要新类型满足所有必需操作即可。
 - en: “I’m really impressed. However, I’m not certain what you mean by fulfilling
     all of the required operations. Could you please elaborate?” Absolutely! I think
     the benefits will become clear when I show you a concrete code example. So let’s
     refactor the complete drawing of the shapes example with the External Polymorphism
     design pattern.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: “我真的很印象深刻。不过，我不确定您所说的满足所有必需操作的含义。您能详细说明一下吗？” 当然！我认为当我展示一个具体的代码示例时，其好处将变得清晰起来。因此，让我们使用外部多态设计模式重构形状示例的完整绘制。
 - en: Drawing of Shapes Revisited
+  id: totrans-162
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 重新审视形状的绘制
 - en: 'Let’s start with the `Circle` and `Square` classes:'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们从`Circle`和`Square`类开始：
 - en: '[PRE21]'
+  id: totrans-164
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: Both classes have been reduced to basic geometric entities. Both are completely
     nonpolymorphic, i.e., there is no base class anymore and not a single virtual
     function. Most importantly, however, the two classes are completely oblivious
     to any kind of operation, like drawing, rotating, serialization, etc., that could
     introduce an artificial dependency.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个类都被简化为基本几何实体。它们完全不具有多态性，即不再有基类，也没有一个虚函数。然而，最重要的是，这两个类完全不知道任何可能引入人为依赖的操作，如绘制、旋转、序列化等。
 - en: Instead, all of this functionality is introduced in the `ShapeConcept` base
     class and implemented by the `ShapeModel` class template:^([14](ch07.xhtml#idm45043087693424))
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 反而，所有这些功能都是通过`ShapeConcept`基类引入并由`ShapeModel`类模板实现的：^([14](ch07.xhtml#idm45043087693424))
 - en: '[PRE22]'
+  id: totrans-167
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: 'The `ShapeConcept` class introduces a pure virtual `draw()` member function
     ([![4](assets/4.png)](#code_g31_4)). In our example, this one virtual function
     represents the entire set of requirements for shapes. Despite the small size of
@@ -1069,8 +1472,12 @@
     [“Guideline 20: Favor Composition over Inheritance”](ch05.xhtml#favor_composition_over_inheritance)).
     It acts as a wrapper that augments the specific shape type with the required polymorphic
     behavior (in our case, the `draw()` function).'
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ShapeConcept`类引入了一个纯虚拟的`draw()`成员函数（参见[#code_g31_4](assets/4.png)）。在我们的示例中，这个虚拟函数代表了形状的整套要求。尽管要求集合很小，但`ShapeConcept`类代表了LSP中的经典抽象概念（见[“Guideline
+    6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）。这种抽象在`ShapeModel`类模板内部实现（参见[#code_g31_5](assets/5.png)）。值得注意的是，只有`ShapeModel`的实例化类可以继承自`ShapeConcept`；不会有其他类进入这种关系。`ShapeModel`类模板将为每种所需形状实例化，即`ShapeT`模板参数是像`Circle`、`Square`等类型的占位符。请注意，`ShapeModel`存储了相应形状的一个实例（参见[#code_g31_6](assets/6.png))（组合而非继承；请记住[“Guideline
+    20: Favor Composition over Inheritance”](ch05.xhtml#favor_composition_over_inheritance)）。它作为一个包装器，为特定形状类型增加了所需的多态行为（在我们的情况下，即`draw()`函数）。'
 - en: Since `ShapeModel` implements the `ShapeConcept` abstraction, it needs to provide
     an implementation for the `draw()` function. However, it is not the responsibility
     of the `ShapeModel` to implement the `draw()` details itself. Instead, it should
@@ -1081,8 +1488,10 @@
     etc.), which can be stored inside the callable. Hence, `ShapeModel` stores an
     instance of `DrawStrategy` ([![8](assets/8.png)](#code_g31_8)) and uses that strategy
     whenever the `draw()` function is triggered ([![9](assets/9.png)](#code_g31_9)).
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于`ShapeModel`实现了`ShapeConcept`抽象，它需要为`draw()`函数提供实现。但是，`ShapeModel`本身不需要实现`draw()`的详细内容。相反，它应将绘制请求转发给实际的实现。为此，我们可以再次使用策略设计模式和`std::function`的抽象能力（参见[#code_g31_7](assets/7.png)）。这种选择很好地解耦了绘制的实现细节以及所有必要的绘制数据（颜色、纹理、透明度等），这些数据可以存储在可调用对象内部。因此，`ShapeModel`存储了`DrawStrategy`的一个实例（参见[#code_g31_8](assets/8.png)），并在触发`draw()`函数时使用该策略（参见[#code_g31_9](assets/9.png)）。
 - en: The Strategy design pattern and the `std::function` are not your only choices,
     though. Within the `ShapeModel` class template, you have complete flexibility
     to implement drawing as you see fit. In other words, within the `ShapeModel::draw()`
@@ -1093,12 +1502,16 @@
     requirements on either the `ShapeModel` or the `ShapeConcept` abstraction. Either
     way, any type used to instantiate `ShapeModel` must fulfill these requirements
     to make the code compile.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 策略设计模式和`std::function`并非你唯一的选择。在`ShapeModel`类模板中，你完全可以根据自己的需求实现绘制功能。换句话说，在`ShapeModel::draw()`函数内，你定义了特定形状类型的实际需求。例如，你可以选择转发到`ShapeT`形状的成员函数（不一定要命名为`draw()`！），或者转发到形状的自由函数。你只需确保不对`ShapeModel`或`ShapeConcept`抽象施加人为的要求。无论如何，用于实例化`ShapeModel`的任何类型都必须满足这些要求，以使代码编译通过。
 - en: Note
+  id: totrans-171
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: 'From a design perspective, building on a member function would introduce a
     more restrictive requirement on the given type, and therefore introduce stronger
     coupling. Building on a free function, however, would enable you to invert dependencies,
@@ -1106,8 +1519,12 @@
     to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)).
     If you prefer the free function approach, just remember [“Guideline 8: Understand
     the Semantic Requirements of Overload Sets”](ch02.xhtml#understand_the_semantic_requirements_of_overload_sets).'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 从设计角度来看，基于成员函数构建会对给定类型引入更严格的要求，因此会引入更强的耦合。然而，基于自由函数构建将使您能够反转依赖关系，类似于使用策略设计模式（参见[“指南
+    9：注意抽象拥有权”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)）。如果您更喜欢自由函数的方法，只需记住[“指南
+    8：理解重载集的语义要求”](ch02.xhtml#understand_the_semantic_requirements_of_overload_sets)。
 - en: '“Isn’t `ShapeModel` some kind of generalization of the initial `Circle` and
     `Square` classes? The ones that were also holding the `std::function` instance?”
     Yes, this is an excellent realization. Indeed, you could say that `ShapeModel`
@@ -1119,20 +1536,30 @@
     switch from the current runtime Strategy implementation to a compile-time Strategy
     implementation (i.e., policy-based design; see [“Guideline 19: Use Strategy to
     Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)):'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: “`ShapeModel`不是初始`Circle`和`Square`类的泛化形式吗？这些类也持有`std::function`实例？”是的，这是一个很好的认识。确实，您可以说`ShapeModel`在某种程度上是初始形状类的模板化版本。因此，它有助于减少引入策略行为所需的样板代码，并且在设计变更方面改善了实现（参见[“指南
+    2：面向变更设计”](ch01.xhtml#design_for_change)）。然而，您获得的远不止这些：例如，由于`ShapeModel`已经是一个类模板，您可以轻松地从当前的运行时策略实现切换到编译时策略实现（即基于策略的设计；参见[“指南
+    19：使用策略隔离事物如何完成”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)）。
 - en: '[PRE23]'
+  id: totrans-174
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'Instead of building on `std::function`, you can pass an additional template
     parameter to the `ShapeModel` class template, which represents the drawing Strategy
     ([![10](assets/10.png)](#code_g31_10)). This template parameter could even have
     a default:'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 而不是依赖于`std::function`，您可以向`ShapeModel`类模板传递一个额外的模板参数，该参数表示绘图策略（参见[![10](assets/10.png)](#code_g31_10)））。这个模板参数甚至可以有一个默认值：
 - en: '[PRE24]'
+  id: totrans-176
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: In comparison to applying policy-based design to the `Circle` and `Square` classes
     directly, the compile-time approach in this context holds only benefits and comes
     with no disadvantages. First, you gain performance due to fewer runtime indirections
@@ -1144,8 +1571,10 @@
     force additional code into a header file by turning a regular class into a class
     template. Only the slim `ShapeModel` class, which is already a class template,
     needs to reside in a header file. Therefore, you avoid creating additional dependencies.
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 与直接应用策略设计模式到`Circle`和`Square`类相比，在这种情况下的编译时方法只有好处，没有任何不利之处。首先，由于减少了运行时间接性（`std::function`的预期性能劣势），您可以获得更好的性能。其次，您不会通过为每个形状类人工增加模板参数来配置绘图行为。现在，您只需为包装器增加绘图行为，并且只需在一个地方完成此操作（这非常好地遵循了DRY原则）。第三，您不会通过将常规类转换为类模板来强制额外的代码进入头文件。只有已经是类模板的精简的`ShapeModel`类需要存放在头文件中。因此，您避免了创建额外的依赖关系。
 - en: '“Wow, this design pattern is getting better and better. This seriously is a
     very compelling combination of inheritance and templates!” Yes, I completely agree.
     This is an exemplar for combining runtime and compile-time polymorphism: the `ShapeConcept`
@@ -1153,8 +1582,11 @@
     `ShapeModel` class template provides the code generation for shape-specific code.
     Most impressively, however, this combination comes with huge benefits for the
     reduction of dependencies.'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这个设计模式越来越棒了。这确实是继承和模板的非常引人注目的结合！” 是的，我完全同意。这是结合运行时和编译时多态的典范：`ShapeConcept`
+    基类提供了所有可能类型的抽象，而派生的 `ShapeModel` 类模板则为特定形状的代码生成提供支持。然而，最令人印象深刻的是，这种组合对于减少依赖关系有着巨大的好处。
 - en: 'Take a look at [Figure 7-8](#fig_external_polymorphism_dependency_graph), which
     shows the dependency graph for our implementation of the External Polymorphism
     design pattern. On the highest level of our architecture are the `ShapeConcept`
@@ -1168,51 +1600,79 @@
     are known and “injected” into the right level of our architecture. Thus, we truly
     have a proper architecture: all dependency connections run toward the higher levels
     with an almost automatic adherence to the DIP.'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 查看 [图 7-8](#fig_external_polymorphism_dependency_graph)，显示了我们对外部多态设计模式实现的依赖图。在我们架构的最高级别上是
+    `ShapeConcept` 和 `ShapeModel` 类，它们共同表示形状的抽象。`Circle` 和 `Square` 是这一抽象的可能实现，但它们完全独立：没有继承关系，没有组合，什么都没有。只有针对特定类型的形状和特定
+    `DrawStrategy` 实现的 `ShapeModel` 类模板的实例化将所有方面整合在一起。但特别注意，所有这些都发生在我们架构的最低级别上：模板代码在所有依赖关系已知并且“注入”到我们架构的正确级别的点上生成。因此，我们真正拥有合适的架构：所有依赖连接向更高级别运行，几乎自动遵守
+    DIP 原则。
 - en: '![The dependency graph for the _External Polymorphism_ design pattern.](assets/cpsd_0708.png)'
+  id: totrans-180
   prefs: []
   type: TYPE_IMG
+  zh: '![外部多态设计模式的依赖图。](assets/cpsd_0708.png)'
 - en: Figure 7-8\. Dependency graph for the *External Polymorphism* design pattern
+  id: totrans-181
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-8\. *外部多态* 设计模式的依赖图
 - en: 'With this functionality in place, we are now free to implement any desired
     drawing behavior. For instance, we are free to use OpenGL again:'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个功能，我们现在可以自由实现任何所需的绘图行为。例如，我们可以再次使用 OpenGL：
 - en: '[PRE25]'
+  id: totrans-183
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: 'Since `OpenGLDrawStrategy` does not have to inherit from any base class, you
     are free to implement it as you see fit. If you want to, you can combine the implementation
     of drawing circles and drawing squares into one class. This does not create any
     artificial dependencies, similar to what we experienced in [“Guideline 19: Use
     Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done),
     where we combined these functionalities into the base class.'
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于 `OpenGLDrawStrategy` 不必继承任何基类，您可以根据需要自由实现它。如果愿意，可以将画圆和画正方形的实现合并到一个类中。这不会创建任何人为的依赖，类似于我们在
+    [“第 19 条指导原则：使用策略隔离操作的执行方式”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)
+    中遇到的情况，我们将这些功能合并到了基类中。
 - en: Note
+  id: totrans-185
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: Note that combining drawing circles and squares in one class represents the
     same thing as inheriting the class from two Strategy base classes. On that level
     of the architecture, it does not create any artificial dependencies and is merely
     an implementation detail.
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，将画圆和画正方形结合在一个类中代表与从两个策略基类继承的同一事物。在架构的这个级别上，它不会创建任何人为的依赖，仅仅是一个实现细节。
 - en: The only convention you need to follow is to provide a function call operator
     for `Circle` ([![11](assets/11.png)](#code_g31_11)) and `Square` ([![12](assets/12.png)](#code_g31_12)),
     as this is the defined calling convention in the `ShapeModel` class template.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 您唯一需要遵循的约定是为 `Circle`（[![11](assets/11.png)](#code_g31_11)）和 `Square`（[![12](assets/12.png)](#code_g31_12)）提供函数调用运算符，因为这是
+    `ShapeModel` 类模板中定义的调用约定。
 - en: 'In the `main()` function, we put all of the details together:'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 `main()` 函数中，我们将所有细节整合在一起：
 - en: '[PRE26]'
+  id: totrans-189
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: Again, we first create an empty vector of shapes (this time a vector of `std::unique_ptr`s
     of `ShapeConcept`) ([![13](assets/13.png)](#code_g31_13)) before we add three
     shapes. Within the calls to `std::make_unique()`, we instantiate the `ShapeModel`
@@ -1220,71 +1680,105 @@
     and `SquareModel` ([![15](assets/15.png)](#code_g31_15)) to improve readability)
     and pass the necessary details (the concrete shape and the corresponding `OpenGLDrawStrategy`).
     After that, we are able to draw all shapes in the desired way.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，我们首先创建一个空的形状向量（这次是 `std::unique_ptr` 的形状向量，类型为 `ShapeConcept`）（[![13](assets/13.png)](#code_g31_13)），然后添加三种形状。在调用
+    `std::make_unique()` 时，我们为 `Circle` 和 `Square` 实例化 `ShapeModel` 类（称为 `CircleModel`（[![14](assets/14.png)](#code_g31_14)）和
+    `SquareModel`（[![15](assets/15.png)](#code_g31_15)），以提高可读性），并传递必要的细节（具体形状和相应的
+    `OpenGLDrawStrategy`）。之后，我们可以以所需的方式绘制所有形状。
 - en: 'Altogether, this approach gives you a lot of awesome advantages:'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，这种方法给您带来了许多令人惊叹的优势：
 - en: Due to separating concerns and extracting the polymorphic behavior from the
     shape types, you remove all dependencies on graphics libraries, etc. This creates
     a very loose coupling and beautifully adheres to the *SRP*.
+  id: totrans-192
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 通过分离关注点并从形状类型中提取多态行为，您消除了对图形库等的所有依赖。这样做会创建非常松散的耦合，并且非常符合 *SRP* 原则。
 - en: The shape types become simpler and nonpolymorphic.
+  id: totrans-193
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 形状类型变得更简单且非多态。
 - en: 'You’re able to easily add new kinds of shapes. These might even be third-party
     types, as you are no longer required to intrusively inherit from a `Shape` base
     class or create an Adapter (see [“Guideline 24: Use Adapters to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces)).
     Thus, you perfectly adhere to the OCP.'
+  id: totrans-194
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 您可以轻松地添加新的形状种类。这些甚至可能是第三方类型，因为您不再需要侵入性地从 `Shape` 基类继承或创建适配器（参见 [“指南 24：使用适配器标准化接口”](ch06.xhtml#use_adapters_to_standardize_interfaces)）。因此，您完全符合
+    OCP 原则。
 - en: You significantly reduce the usual inheritance-related boilerplate code and
     implement it in exactly one place, which very nicely follows the DRY principle.
+  id: totrans-195
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 您显著减少了通常与继承相关的样板代码，并且在一个地方实现它，非常好地遵循了 DRY 原则。
 - en: Since the `ShapeConcept` and `ShapeModel` class belong together and together
     form the abstraction, it’s much easier to adhere to the DIP.
+  id: totrans-196
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由于 `ShapeConcept` 和 `ShapeModel` 类彼此关联，并且共同形成抽象概念，因此更容易遵循 DIP 原则。
 - en: By reducing the number of indirections by exploiting the available class template,
     you can improve performance.
+  id: totrans-197
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 通过利用可用的类模板，减少间接引用的数量，可以提高性能。
 - en: 'There is one more advantage, which I consider to be the most impressive benefit
     of the External Polymorphism design pattern: you can, nonintrusively, equip any
     type with polymorphic behavior. Really, *any* type, even something as simple as
     an `int`. To demonstrate this, let’s take a look at the following code snippet,
     which assumes that `ShapeModel` is equipped with a `DefaultDrawer`, which expects
     the wrapped type to provide a free `draw()` function:'
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有一个优点，我认为是外部多态设计模式最令人印象深刻的好处：您可以非侵入地为任何类型赋予多态行为。真的，*任何* 类型，甚至是像 `int` 这样简单的类型。为了演示这一点，让我们看一下以下代码片段，假设
+    `ShapeModel` 装配了一个 `DefaultDrawer`，期望包装类型提供一个自由的 `draw()` 函数：
 - en: '[PRE27]'
+  id: totrans-199
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: 'We first provide a free `draw()` function for an `int` ([![16](assets/16.png)](#code_g31_16)).
     In the `main()` function, we now instantiate a `ShapeModel` for `int` ([![17](assets/17.png)](#code_g31_17)).
     This line will compile, as the `int` satisfies all the requirements: it provides
     a free `draw()` function. Therefore, in the next line we can “draw” the integer
     ([![18](assets/18.png)](#code_g31_18)).'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们首先为 `int` 提供一个自由的 `draw()` 函数（[![16](assets/16.png)](#code_g31_16)）。在 `main()`
+    函数中，我们现在为 `int` 实例化一个 `ShapeModel`（[![17](assets/17.png)](#code_g31_17)）。这一行将编译通过，因为
+    `int` 满足所有要求：它提供了一个自由的 `draw()` 函数。因此，在下一行我们可以“绘制”这个整数（[![18](assets/18.png)](#code_g31_18)）。
 - en: '“Do you really want me to do something like this?” you ask, frowning. No, I
     do not want you to do this at home. Please consider this a technical demonstration,
     not a recommendation. But nonetheless, this is impressive: we have just nonintrusively
     equipped an `int` with polymorphic behavior. Really impressive indeed!'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: “你真的希望我做这样的事情吗？”你皱着眉头问道。不，我不希望你在家里这样做。请把这看作是技术演示，而不是建议。但尽管如此，这仍然令人印象深刻：我们刚刚非侵入地赋予了一个
+    `int` 多态行为。确实令人印象深刻！
 - en: Comparison Between External Polymorphism and Adapter
+  id: totrans-202
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 外部多态与适配器之间的比较
 - en: '“Since you just mentioned the Adapter design pattern, I feel like it’s very
     similar to the External Polymorphism design pattern. What is the difference between
     the two?” Excellent point! You address an issue that the original paper by Cleeland,
@@ -1297,12 +1791,16 @@
     Adapter design pattern. If, however, you create a new abstraction for the purpose
     of treating a set of existing types polymorphically, then you (most likely) apply
     the External Polymorphism design pattern.'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: “你刚才提到了适配器设计模式，我觉得它与外部多态设计模式非常相似。它们两者有什么区别？” 很好的观点！你提出了克利兰、施密特和哈里森原始论文中也涉及的问题。是的，这两种设计模式确实非常相似，但它们有一个非常明显的区别：适配器设计模式侧重于标准化接口，并将类型或函数适配到现有接口，而外部多态设计模式则创建一个新的外部层次结构，以抽象出一组相关的非多态类型。因此，如果你将某物件适配到现有接口，你（很可能）应用的是适配器设计模式。然而，如果你为了将一组现有类型多态地对待而创建新的抽象，则（很可能）应用的是外部多态设计模式。
 - en: Analyzing the Shortcomings of the External Polymorphism Design Pattern
+  id: totrans-204
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析外部多态设计模式的缺点
 - en: “I get the feeling that you like the External Polymorphism design pattern a
     lot, am I right?” you wonder. Oh yes, indeed, I’m amazed by this design pattern.
     From my point of view, this design pattern is key to loose coupling, and it’s
@@ -1312,8 +1810,10 @@
     the impression that everything about External Polymorphism is perfect. No, as
     stated many times before, every design has its advantages and its disadvantages.
     The same is true for the External Polymorphism design pattern.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: “我感觉你非常喜欢外部多态设计模式，我猜对了吗？” 你想知道。哦是的，确实如此，我对这种设计模式非常着迷。从我的角度来看，这种设计模式对于松耦合非常关键，令人惋惜的是它并不被更广泛地知晓。也许这是因为许多开发者没有完全接受关注点分离，倾向于将所有东西都放在几个类中。尽管我对此兴奋，但我并不希望给人留下外部多态设计模式完美无缺的印象。不，正如之前多次声明的那样，每种设计都有其优点和缺点。对于外部多态设计模式也是如此。
 - en: 'There is only one major disadvantage, though: the External Polymorphism design
     pattern does not really fulfill the expectations of a clean and simple solution,
     and definitely not the expectations of a value semantics–based solution. It does
@@ -1326,43 +1826,65 @@
     in [“Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure”](ch08.xhtml#consider_replacing_inheritance_hierarchies_with_type_erasure),
     we will take a look at the modern C++ solution that will elegantly resolve this
     issue.'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，只有一个主要的缺点：外部多态设计模式确实无法实现一个清晰简单的解决方案，绝对不能满足基于值语义的期望。它无法帮助减少指针，无法减少手动分配的数量，也无法降低继承层次的数量，更无法简化用户代码。相反，由于需要显式实例化`ShapeModel`类，用户代码可能会稍微复杂一些。然而，如果你认为这是一个严重的缺点，或者如果你在考虑“这应该以某种方式自动化”，那么我有一个非常好的消息：在[“指南32：考虑用类型擦除替代继承层次”](ch08.xhtml#consider_replacing_inheritance_hierarchies_with_type_erasure)中，我们将看一看现代C++解决方案，它会优雅地解决这个问题。
 - en: 'Apart from that, I have only two reminders that you should consider as words
     of caution. The first point to keep in mind is that the application of External
     Polymorphism does not save you from thinking about a proper abstraction. The `ShapeConcept`
     base class is just as much subject to the ISP as any other base class. For instance,
     we could easily apply External Polymorphism to the `Document` example from[“Guideline
     3: Separate Interfaces to Avoid Artificial Coupling”](ch01.xhtml#separate_interfaces_to_avoid_artificial_coupling):'
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 除此之外，我只有两个提醒，作为警告的话语。首先要记住的是，外部多态的应用并不能免除你思考适当抽象的必要性。`ShapeConcept` 基类与任何其他基类一样受到接口隔离原则的影响。例如，我们可以轻松地将外部多态应用到来自[“指导原则
+    3：分离接口以避免人为耦合”](ch01.xhtml#separate_interfaces_to_avoid_artificial_coupling)的
+    `Document` 示例中：
 - en: '[PRE28]'
+  id: totrans-208
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: 'The `DocumentConcept` class takes the role of the `ShapeConcept` base class,
     while the `DocumentModel` class template takes the role of the `ShapeModel` class
     template. However, this externalized hierarchy exhibits the same problem as the
     original hierarchy: for all code requiring only the `exportToJSON()` functionality,
     it introduces the artificial dependency on `ByteStream`:'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: '`DocumentConcept` 类扮演 `ShapeConcept` 基类的角色，而 `DocumentModel` 类模板则扮演 `ShapeModel`
+    类模板的角色。然而，这种外部化的层次结构展示了与原始层次结构相同的问题：对于仅需要 `exportToJSON()` 功能的所有代码，它引入了对 `ByteStream`
+    的人为依赖：'
 - en: '[PRE29]'
+  id: totrans-210
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: 'The correct approach would be to separate concerns by segregating the interface
     into the two orthogonal aspects of JSON export and serialization:'
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 正确的方法应该通过将接口分离为 JSON 导出和序列化的两个正交方面来分离关注点：
 - en: '[PRE30]'
+  id: totrans-212
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: 'Any function exclusively interested in JSON export can now specifically ask
     for that functionality:'
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 任何仅对 JSON 导出感兴趣的函数现在可以专门要求该功能：
 - en: '[PRE31]'
+  id: totrans-214
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: 'Second, be aware that External Polymorphism, just as the Adapter design pattern,
     makes it very easy to wrap types that do not fulfill the semantic expectations.
     Similar to the duck typing example in [“Guideline 24: Use Adapters to Standardize
@@ -1378,8 +1900,13 @@
     Any failure to completely fulfill the expectations may lead to (potentially subtle)
     misbehavior. Unfortunately, because these requirements have been externalized,
     it is a little harder to communicate the expected behavior.'
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二点要注意的是，外部多态和适配器设计模式一样，使得包装不符合语义期望的类型变得非常容易。类似于在[“指导原则 24：使用适配器标准化接口”](ch06.xhtml#use_adapters_to_standardize_interfaces)中的鸭子类型示例，我们假装一只火鸡是一只鸭子，同样假装一个
+    `int` 是一个形状。我们只需要提供一个自由的 `draw()` 函数来满足需求。简单。也许太简单了。因此，请记住，用于实例化 `ShapeModel`
+    类模板（例如 `Circle`、`Square` 等）的类 *必须* 遵循 LSP。毕竟，`ShapeModel` 类只是一个包装器，将 `ShapeConcept`
+    类定义的要求传递给具体的形状。因此，具体的形状负责正确实现预期的行为（参见[“指导原则 6：遵循抽象的预期行为”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）。任何未能完全满足期望的行为可能会导致（潜在的微妙）不正确行为。不幸的是，由于这些要求已被外部化，因此更难传达预期的行为。
 - en: 'However, in the `int` example it was maybe our own fault to be honest. Perhaps
     the `ShapeConcept` base class doesn’t really represent an abstraction of a shape.
     It is reasonable to argue that shapes are more than just drawing. Perhaps we should
@@ -1389,8 +1916,10 @@
     “The Art of Building Abstractions.” No, it isn’t easy, but perhaps these examples
     demonstrate that it is important. Very important. It may be the essence of software
     design.'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在`int`示例中，说实话，也许是我们自己的错。也许`ShapeConcept`基类并不真正代表形状的抽象。可以合理地争论说形状不仅仅是绘制。也许我们应该将这种抽象命名为`Drawable`，这样LSP就会得到满足。也许不会。因此，最终一切都取决于抽象的选择。这又让我们回到了[第2章](ch02.xhtml#the_art_of_building_abstractions)的标题：“构建抽象的艺术”。不，这并不容易，但也许这些例子表明这是重要的。非常重要。这可能是软件设计的本质。
 - en: 'In summary, although the External Polymorphism design pattern may not satisfy
     your expectation in a simple or value-based solution, it must be considered a
     very important step toward decoupling software entities. From the perspective
@@ -1401,45 +1930,62 @@
     can behave polymorphically, even a simple value type such as `int`. This realization
     opens up a completely new, exciting design space, which we will continue to explore
     in the next chapter.'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，尽管外部多态设计模式可能无法满足你对简单或基于值的解决方案的期望，但必须考虑它作为解耦软件实体的重要一步。从减少依赖性的角度来看，这种设计模式似乎是松耦合的关键组成部分，并且是分离关注点能力的一个奇妙例子。它还给我们一个关键的洞察力：使用这种设计模式，你可以非侵入式地为任何类型提供多态行为，例如虚函数，因此*任何*类型都可以表现出多态性，即使是简单的值类型如`int`。这种认识打开了一个全新而激动人心的设计空间，我们将在下一章继续探索。
 - en: ^([1](ch07.xhtml#idm45043091750016-marker)) ABI stability is an important and
     often debated topic in the C++ community, in particular just before the release
     of C++20\. If this sounds interesting to you, I recommend the CppCast interviews
     with [Titus Winters](https://oreil.ly/8rgkm) and [Marshall Clow](https://oreil.ly/R1XYJ)
     to get an impression of both sides.
+  id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch07.xhtml#idm45043091750016-marker)) ABI稳定性是C++社区中一个重要且经常争论的话题，特别是在C++20发布前。如果你对此感兴趣，我推荐听一下CppCast采访[Titus
+    Winters](https://oreil.ly/8rgkm)和[Marshall Clow](https://oreil.ly/R1XYJ)，以了解双方的看法。
 - en: ^([2](ch07.xhtml#idm45043091745568-marker)) Remember that `std::unique_ptr`
     cannot be copied. Thus, switching from `ElectricEngine` to `std::unique_ptr<ElectricEngine>`
     renders your class noncopyable. To preserve copy semantics, you have to implement
     the copy operations manually. When doing this, please keep in mind that the copy
     operations disable the move operations. In other words, prefer to stick to the
     [Rule of 5](https://oreil.ly/fzS3f).
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch07.xhtml#idm45043091745568-marker)) 请记住，`std::unique_ptr`不能被复制。因此，从`ElectricEngine`切换到`std::unique_ptr<ElectricEngine>`会使你的类成为不可复制的。为了保持复制语义，你必须手动实现复制操作。在这样做时，请记住复制操作会禁用移动操作。换句话说，请坚持遵循[五法则](https://oreil.ly/fzS3f)。
 - en: '^([3](ch07.xhtml#idm45043091276160-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
+  id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch07.xhtml#idm45043091276160-marker)) Erich Gamma等人，《设计模式：可复用面向对象软件的元素》。
 - en: ^([4](ch07.xhtml#idm45043090164320-marker)) Usually, the move operations are
     expected to be `noexcept`. This is explained by [Core Guideline C.66](https://oreil.ly/luKRb).
     However, sometimes this might not be possible, for instance, under the assumption
     that some `std::unique_ptr` data member is never `nullptr`.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch07.xhtml#idm45043090164320-marker)) 通常，移动操作预期是`noexcept`的。这由[核心指导方针C.66](https://oreil.ly/luKRb)解释。然而，有时这可能不可能，例如，假设某些`std::unique_ptr`数据成员从不是`nullptr`。
 - en: '^([5](ch07.xhtml#idm45043090004848-marker)) See [“Guideline 11: Understand
     the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns)
     for my statement about the structural similarity of design patterns.'
+  id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch07.xhtml#idm45043090004848-marker)) 请参阅[“指导方针11：理解设计模式的目的”](ch03.xhtml#understand_the_purpose_of_design_patterns)，了解我关于设计模式结构相似性的看法。
 - en: '^([6](ch07.xhtml#idm45043089719744-marker)) If this dynamic allocation turns
     out to be a severe impediment or a reason not to use a Bridge, you might look
     into the Fast-Pimpl idiom, which is based on in-class memory. For that, you might
     refer to Herb Sutter’s first book: *Exceptional C++: 47 Engineering Puzzles, Programming
     Problems, and Exception-Safety Solutions* (Pearson).'
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([6](ch07.xhtml#idm45043089719744-marker)) 如果动态分配证明是一个严重的障碍或不使用桥梁的原因，您可以考虑快速Pimpl模式，它基于类内存。为此，您可以参考Herb
+    Sutter的第一本书：《Exceptional C++: 47 Engineering Puzzles, Programming Problems, and
+    Exception-Safety Solutions》（Pearson）。'
 - en: ^([7](ch07.xhtml#idm45043089618368-marker)) The difference in size of `Person1`
     is easily explained by the different sizes of `std::string` implementations for
     different compilers. Since compiler vendors optimize `std::string` for different
@@ -1448,8 +1994,14 @@
     is 152 bytes with Clang 11.1 (six 24-byte `std::string`s, plus one 4-byte `int`,
     plus 4 bytes of padding) or 200 bytes with GCC 11.1 (six 32-byte `std::string`s,
     plus one 4-byte `int`, plus 4 bytes of padding).
+  id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch07.xhtml#idm45043089618368-marker)) `Person1` 的大小差异可以轻松地解释为不同编译器中 `std::string`
+    实现的大小不同。因为编译器供应商针对不同的用例优化 `std::string`，在 Clang 11.1 上，单个 `std::string` 占用 24
+    字节，在 GCC 11.1 上则占用 32 字节。因此，在 Clang 11.1 下，一个 `Person1` 实例的总大小为 152 字节（六个 24 字节的
+    `std::string`，加上一个 4 字节的 `int`，再加上 4 字节的填充），而在 GCC 11.1 下为 200 字节（六个 32 字节的 `std::string`，加上一个
+    4 字节的 `int`，再加上 4 字节的填充）。
 - en: '^([8](ch07.xhtml#idm45043089228000-marker)) You may be aware that we are still
     *far* away from optimal performance. To move in the direction of optimal performance,
     we could arrange the data based on how it is used. For this benchmark, this would
@@ -1458,8 +2010,12 @@
     design*. For more information on this paradigm, see for instance Richard Fabian’s
     book on the subject, *Data-Oriented Design: Software Engineering for Limited Resources
     and Short Schedules*.'
+  id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([8](ch07.xhtml#idm45043089228000-marker)) 您可能已经意识到我们仍然 *远* 未达到最佳性能。为了朝着最佳性能的方向发展，我们可以根据数据使用情况来安排数据。对于此基准测试，这意味着将所有人的`year_of_birth`值存储在一个大的静态整数向量中。这种数据排列方式将使我们朝向
+    *面向数据的设计* 的方向前进。有关此范式的更多信息，请参阅Richard Fabian关于此主题的书籍，《Data-Oriented Design: Software
+    Engineering for Limited Resources and Short Schedules》。'
 - en: '^([9](ch07.xhtml#idm45043089050320-marker)) The rules when a compiler will
     generate these two copy operations are beyond the scope of this book, but here
     is a short summary: *every* class has these two operations, meaning they always
@@ -1469,12 +2025,17 @@
     does not mean that they’re gone, but `=delete` serves as a definition. As these
     two functions are *always* part of a class, they will *always* participate in
     overload resolution.'
+  id: totrans-226
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch07.xhtml#idm45043089050320-marker)) 当编译器生成这两个复制操作的规则超出了本书的范围，但是这里有一个简短的总结：*每个*类都有这两个操作，这意味着它们总是存在。它们由编译器生成，或者您已经显式声明或甚至定义了它们（可能位于类的`private`部分或通过`=delete`），或者它们被隐式删除。请注意，删除这些函数并不意味着它们不存在，但`=delete`作为一种定义。由于这两个函数
+    *总是* 是类的一部分，它们将 *始终* 参与重载决议。
 - en: '^([10](ch07.xhtml#idm45043088713040-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
+  id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch07.xhtml#idm45043088713040-marker)) Erich Gamma 等人，《设计模式：可复用面向对象软件的基本元素》。
 - en: ^([11](ch07.xhtml#idm45043088650448-marker)) [Core Guideline R.3](https://oreil.ly/YeCHE)
     clearly states that a raw pointer (a `T*`) is nonowning. From this perspective,
     it would even be incorrect to return a raw pointer-to-base. However, this means
@@ -1483,21 +2044,35 @@
     the Template Method design pattern and split the `clone()` function into a `private`
     `virtual` function returning a raw pointer, and a `public` non-`virtual` function
     calling the `private` function and returning `std::unique_ptr`.
+  id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch07.xhtml#idm45043088650448-marker)) [核心指南 R.3](https://oreil.ly/YeCHE)
+    明确指出，原始指针（`T*`）是非拥有的。从这个角度来看，甚至返回一个指向基类的原始指针都是不正确的。然而，这意味着你不能再直接利用协变返回类型的语言特性了。如果这是可取或必需的，一个常见的解决方案是遵循模板方法设计模式，将
+    `clone()` 函数拆分为一个返回原始指针的 `private virtual` 函数，以及一个调用私有函数并返回 `std::unique_ptr`
+    的 `public` 非 `virtual` 函数。
 - en: '^([12](ch07.xhtml#idm45043087922656-marker)) See [“Guideline 2: Design for
     Change”](ch01.xhtml#design_for_change) for a similar example with different kinds
     of documents.'
+  id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch07.xhtml#idm45043087922656-marker)) 参见[“指南 2：面向变化的设计”](ch01.xhtml#design_for_change)，其中包含一个不同类型文档的类似示例。
 - en: ^([13](ch07.xhtml#idm45043087918336-marker)) Chris Cleeland, Douglas C. Schmidt,
     and Timothy H. Harrison, “External Polymorphism—An Object Structural Pattern for
     Transparently Extending C++ Concrete Data Types,” Proceedings of the 3rd Pattern
     Languages of Programming Conference, Allerton Park, Illinois, September 4–6, 1996.
+  id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch07.xhtml#idm45043087918336-marker)) Chris Cleeland, Douglas C. Schmidt
+    和 Timothy H. Harrison，《外部多态性——一种透明扩展 C++ 具体数据类型的对象结构模式》，第三届编程语言模式会议论文集，伊利诺伊州奥勒顿公园，1996
+    年 9 月 4-6 日。
 - en: ^([14](ch07.xhtml#idm45043087693424-marker)) The names `Concept` and `Model`
     are chosen based on the common terminology in the Type Erasure design pattern,
     where External Polymorphism plays a major role; see [Chapter 8](ch08.xhtml#type_erasure).
+  id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([14](ch07.xhtml#idm45043087693424-marker)) 名称 `Concept` 和 `Model` 是基于类型擦除设计模式中的常见术语选择的，外部多态性在其中起到重要作用；详见[第
+    8 章](ch08.xhtml#type_erasure)。

@@ -1,7 +1,9 @@
 - en: Part II. Pattern Stories
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第二部分. 模式故事
 - en: Telling stories is an inherent and natural way to convey information. In the
     world of patterns, it is sometimes difficult to see how the described patterns
     can be applied in a real-world context. To show an example of such pattern application,
@@ -9,5 +11,7 @@
     from the first part of the book to implement larger programs. You’ll learn how
     to build such programs bit by bit, and you’ll see how the patterns make your life
     easier by providing you with guidance on good design decisions.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 讲故事是一种固有和自然的信息传递方式。在模式的世界里，有时很难看到描述的模式如何在现实世界中应用。为了展示这种模式应用的示例，本书的第二部分讲述了应用第一部分中的C编程模式来实现更大程序的故事。您将学习如何逐步构建这些程序，看到这些模式如何通过提供设计决策的指导使您的生活更加轻松。

@@ -1,7 +1,9 @@
 - en: Chapter 4\. Bits and (Many) Bytes
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第 4 章\. 位与（大量的）字节
 - en: 'Before we start building more complex programs with things like functions in
     [Chapter 5](ch05.xhtml#smallerc-CHP-5), we should cover two more useful storage
     categories in C: arrays and individual bits. These aren’t really distinct types
@@ -9,8 +11,10 @@
     lots of things. Indeed, the notion of an *array*, a sequential list of items,
     is so useful we had to cheat back in [“Getting User Input”](ch02.xhtml#smallerc-CHP-2-SECT-2.1)
     and use it without much explanation to store user input in the form of a string.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们开始使用像函数这样的更复杂程序之前，例如[第 5 章](ch05.xhtml#smallerc-CHP-5)，我们应该涵盖 C 语言中另外两种有用的存储类型：数组和单个位。这些不像`int`或`double`那样是真正的独立类型，但在处理微小事物或大量事物时非常有用。事实上，*数组*的概念，即项目的顺序列表，非常有用，我们在[“获取用户输入”](ch02.xhtml#smallerc-CHP-2-SECT-2.1)时不得不有所作弊，没有进行详细解释即使用它来存储字符串形式的用户输入。
 - en: We have also discussed the idea of Boolean values that are either yes or no,
     true or false, 1 or 0\. When dealing with microcontrollers in particular, you
     will regularly have a small collection of sensors or switches that are providing
@@ -21,12 +25,18 @@
     the big stuff by declaring arrays and then accessing and manipulating their contents,
     as well as how to work with the smallest bits (ahem). (And I promise not to make
     more bit puns. Mostly.)
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还讨论了布尔值的概念，即是或否，真或假，1 或 0。特别是在处理微控制器时，您将定期使用一小组传感器或开关提供的开/关值。使用 C 的正常存储选项意味着将整个`char`（8
+    位）或`int`（16 位）用于跟踪这些微小值。这感觉有点浪费，确实如此。C 有一些技巧可以更有效地存储这类信息。在本章中，我们将通过声明数组来处理大事物，并访问和操作其内容，以及如何处理最小的位（咳咳）。
+    （我保证不再开更多位字谐音笑话。大部分时间。）
 - en: Storing Multiple Things with Arrays
+  id: totrans-3
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用数组存储多个项
 - en: It is almost impossible to find a C program tackling real-world problems that
     does not use arrays. If you have to work with any collection of values of any
     type at all, those values will almost certainly wind up in an array. A list of
@@ -34,52 +44,76 @@
     Even our tiny machines can use arrays to track the colors on a strip of LEDs.
     It is not an exaggeration to say arrays are ubiquitous in C, so let’s take a closer
     look at how to use them.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 几乎不可能找到一个不使用数组解决真实世界问题的 C 程序。如果您必须处理任何类型的任何值的集合，这些值几乎肯定会最终进入数组中。成绩列表，学生列表，美国州缩写列表等等。即使是我们的微小机器也可以使用数组来跟踪
+    LED 条上的颜色。可以毫不夸张地说，数组在 C 中是无处不在的，因此让我们更仔细地看看如何使用它们。
 - en: Creating and Manipulating Arrays
+  id: totrans-5
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 创建和操作数组
 - en: 'As I mentioned, we used an array back in [Chapter 2](ch02.xhtml#smallerc-CHP-2)
     (in [“Getting User Input”](ch02.xhtml#smallerc-CHP-2-SECT-2.1)) to allow for some
     user input. Let’s revisit that code ([*ch04/hello2.c*](https://oreil.ly/HnAfB))
     and pay more attention to the array of characters:'
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我之前提到的，我们在[第 2 章](ch02.xhtml#smallerc-CHP-2)（在[“获取用户输入”](ch02.xhtml#smallerc-CHP-2-SECT-2.1)中）使用了数组以允许用户输入。让我们重新审视那段代码（[*ch04/hello2.c*](https://oreil.ly/HnAfB)）并更加关注字符数组：
 - en: '[PRE0]'
+  id: totrans-7
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: So what exactly does that `char name[20]` declaration do? It creates a variable
     named “name” with a base type of `char`, but it is an array, so you get space
     to store multiple `char`s. In this case, we asked for 20 bytes, as illustrated
     in [Figure 4-1](#smallerc-CHP-4-FIG-char-array).
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么，`char name[20]`声明究竟做了什么呢？它创建了一个名为“name”的变量，基本类型为`char`，但它是一个数组，因此您可以获得存储多个`char`的空间。在这种情况下，我们请求了
+    20 个字节，如图[4-1](#smallerc-CHP-4-FIG-char-array)所示。
 - en: '![smac 0401](Images/smac_0401.png)'
+  id: totrans-9
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0401](Images/smac_0401.png)'
 - en: Figure 4-1\. An empty array of type `char` called `name`
+  id: totrans-10
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-1\. 名为`name`的`char`类型空数组
 - en: And what happens with this array variable when we run the program? When you
     type in a name and hit Return on your keyboard, the characters you typed get placed
     in the array. Since we used `scanf()` and its string (`%s`) format field, we will
     automatically get a trailing null character (`'\0'` or sometimes `'\000'`) that
     marks the end of the string. In memory, the `name` variable now looks like [Figure 4-2](#smallerc-CHP-4-FIG-grace-array).
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们运行程序时，这个数组变量会发生什么情况？当你在键盘上输入一个名称并按回车键时，你输入的字符会被放置在数组中。由于我们使用了`scanf()`及其字符串(`%s`)格式字段，我们将自动获得一个标记字符串结尾的尾随空字符(`'\0'`或有时`'\000'`)。在内存中，`name`变量现在看起来像[图 4-2](#smallerc-CHP-4-FIG-grace-array)。
 - en: '![smac 0402](Images/smac_0402.png)'
+  id: totrans-12
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0402](Images/smac_0402.png)'
 - en: Figure 4-2\. A char array with a string
+  id: totrans-13
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-2\. 带有字符串的char数组
 - en: Note
+  id: totrans-14
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: The null character at the end of the array is a peculiarity of strings; it is
     not how other types of arrays are managed. Strings are often stored in arrays
     that are set up before the length of the string is known, and use this `'\0'`
@@ -87,50 +121,71 @@
     to mark the end of useful input. All string-processing functions in C expect to
     see this terminating character, and you can count on its existence in your own
     work with strings.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 数组末尾的空字符是字符串的一个特殊之处；这并不是其他类型数组的管理方式。字符串通常存储在在字符串长度之前未知的数组中，并使用这个`'\0'`哨兵，就像我们在[“while语句”](ch03.xhtml#smallerc-CHP-3-SECT-3.2)中标记有用输入的结尾一样。C中的所有字符串处理函数都希望看到这个终止字符，并且在你自己处理字符串时可以依赖它的存在。
 - en: Now when we use the `name` variable again in the subsequent `printf()` call,
     we can echo back all of the letters that were stored and the null character tells
     `printf()` when to stop, even if the name doesn’t occupy the entire array. Conversely,
     printing a string that does *not* have the terminating character will cause `printf()`
     to keep going after the end of the array and likely cause a crash.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在当我们在后续的`printf()`调用中再次使用`name`变量时，我们可以回显存储的所有字母，空字符告诉`printf()`何时停止，即使名称没有占据整个数组。相反，打印没有终止字符的字符串将导致`printf()`在数组结束后继续进行，并可能导致崩溃。
 - en: Length versus capacity
+  id: totrans-17
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 长度与容量
 - en: Didn’t we allocate 20 character slots? What are they doing if our name (such
     as “Grace”) doesn’t occupy all of the slots? Happily, that final, null character
     solves this quandary rather neatly. We do indeed have room for longer names like
     “Alexander” or even “Grace Hopper”; the null character always marks the end, no
     matter how big the array is.
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们难道不是分配了20个字符的空间吗？如果我们的名称（如“Grace”）没有占据所有空间，它们会做什么？幸运的是，最后的空字符相当巧妙地解决了这个问题。确实，我们确实有足够的空间来存储更长的名称，如“Alexander”或者甚至“Grace
+    Hopper”；无论数组有多大，空字符始终标志着字符串的结尾。
 - en: Warning
+  id: totrans-19
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 警告
 - en: If you haven’t worked with characters before in C or another language, the notion
     of a null character can be confusing. It is the character with the numeric value
     of 0 (zero). That is not the same thing as a space character (ASCII 32) or the
     digit 0 (ASCII 48) or a newline (`'\n'` ASCII 10). You usually don’t have to worry
     about adding or placing these nulls by hand, but it is important to remember they
     occur at the end of strings, even though they are never printed.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你之前没有在C或其他语言中使用过字符，那么空字符的概念可能会让人感到困惑。它是具有数字值0（零）的字符。这与空格字符（ASCII 32）或数字0（ASCII
+    48）或换行(`'\n'` ASCII 10)不同。通常情况下，你不必担心手动添加或放置这些空字符，但重要的是要记住它们出现在字符串的末尾，即使它们从不被打印。
 - en: 'But what if the name was too long for the allocated array? Let’s find out!
     Run the program again and type in a longer name:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是如果名称对分配的数组来说太长怎么办？让我们找出来！再次运行程序并输入一个较长的名称：
 - en: '[PRE1]'
+  id: totrans-22
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Interesting. So the capacity we declared is a fairly hard limit—things go wrong
     if we overflow an array.^([1](ch04.xhtml#idm45018730558248)) Good to know! We
     always need to reserve sufficent space before we use it.^([2](ch04.xhtml#idm45018730557384))
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 有趣。因此，我们声明的容量是一个相当严格的限制——如果我们溢出数组，事情就会出错。^([1](ch04.xhtml#idm45018730558248))
+    好好知道！在使用之前，我们总是需要保留足够的空间。^([2](ch04.xhtml#idm45018730557384))
 - en: 'What if we didn’t know ahead of time how many slots were in an array? The C
     `sizeof` operator can help. It can tell you (in bytes) the size of variables or
     types. For simple types, that is the length of an `int` or `char` or `double`.
@@ -139,53 +194,78 @@
     array of `double` values, say, for an accounting ledger. We’ll pretend we don’t
     know how many values we can store and use `sizeof` to find out. Take a look at
     [*ch04/capacity.c*](https://oreil.ly/O3DfB):'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们不知道数组中有多少个槽位会怎样？C 的 `sizeof` 运算符可以帮助解决这个问题。它可以告诉你（以字节为单位）变量或类型的大小。对于简单类型，这是
+    `int`、`char` 或 `double` 的长度。对于数组，它是分配的总内存。这意味着只要知道其基本类型，我们就可以知道数组中有多少个槽位。让我们尝试创建一个
+    `double` 值数组，比如说，用于会计分类账。我们假装不知道能存储多少个值，并使用 `sizeof` 找出来。看一下 [*ch04/capacity.c*](https://oreil.ly/O3DfB)：
 - en: '[PRE2]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'Notice that when asking about the size of a type, you need parentheses. The
     compiler needs this extra bit of context to treat the keyword as an expression.
     For variables like `ledger` that already fit the expression definition, we can
     leave them off. Let’s run our tiny program. Here’s the output:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，在询问类型的大小时，需要括号。编译器需要这额外的上下文来将关键字视为表达式。对于像 `ledger` 这样已经符合表达式定义的变量，我们可以省略它们。让我们运行我们的小程序。这是输出：
 - en: '[PRE3]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Nice. Since we actually do know how big we made our array, we can just compare
     that chosen size to our calculated results. They match. (Whew!) But there are
     situations where you are given information from an independent source and won’t
     always know the size of the array. Remember that tools like `sizeof` exist and
     can help you understand that information.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 不错。因为我们确实知道我们的数组有多大，所以我们可以直接将选择的大小与我们计算的结果进行比较。它们匹配。（哎呀！）但是有些情况下，你从独立的源获取信息，不会总是知道数组的大小。请记住像
+    `sizeof` 这样的工具存在并且可以帮助你理解这些信息。
 - en: Initializing arrays
+  id: totrans-29
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 初始化数组
 - en: So far, we’ve created empty arrays or loaded `char` arrays with input from the
     user at runtime. Just like simpler variable types, C allows you to initialize
     arrays when you define them.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，我们已经创建了空数组或在运行时从用户输入中加载了 `char` 数组。与更简单的变量类型一样，C 允许在定义它们时初始化数组。
 - en: 'For any array, you can supply a list of values inside a pair of curly braces,
     separated by commas. Here are a few examples:'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于任何数组，你可以在一对花括号内提供一个由逗号分隔的值列表。以下是一些例子：
 - en: '[PRE4]'
+  id: totrans-32
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'Notice that the declared size of the array matches the number of values supplied
     to initialize the array. In this situation, C allows a nice shorthand: you can
     omit the explicit size in between the square brackets. The compiler will allocate
     the correct amount of memory to fit the initialization list exactly. This means
     we could rewrite our previous snippet like this:'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意声明的数组大小与初始化数组时提供的值的数量匹配。在这种情况下，C 允许一个好用的简写：你可以在方括号之间省略显式大小。编译器将分配正确数量的内存以完全适应初始化列表。这意味着我们可以像这样重新编写我们之前的片段：
 - en: '[PRE5]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Strings, however, are a special case. C supports the notion of *string literals*.
     This means you can use a sequence of characters between double quotes as a value.
     You can use a string literal to initialize a `char[]` variable. You can also use
@@ -193,37 +273,55 @@
     Operator and Conditional Assignment”](ch03.xhtml#smallerc-CHP-3-SECT-2.3) where
     we used the terneray operator (`?:`) to print true and false values as words instead
     of as 1 or 0.)
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 字符串是一个特殊情况。C 支持 *字符串字面量* 的概念。这意味着你可以将双引号之间的字符序列作为值使用。你可以使用字符串字面量来初始化一个 `char[]`
+    变量。你几乎可以在任何允许使用字符串变量的地方使用它。（我们在 [“三元操作符和条件赋值”](ch03.xhtml#smallerc-CHP-3-SECT-2.3)
+    中看到了这一点，我们使用了三元操作符 (`?:`) 将 true 和 false 值打印为单词，而不是作为 1 或 0。）
 - en: '[PRE6]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: You can also initialize a string by supplying individual characters inside curly
     braces, but that is generally harder to read. You have to remember to include
     the terminating null character, and this verbose option doesn’t provide any other
     real advantage over the use of a string literal.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 你也可以通过在花括号内提供单个字符来初始化字符串，但这通常更难阅读。你必须记得包括终止的空字符，而这种冗长的选项并没有提供其他真正的优势，超过了使用字符串字面量。
 - en: Accessing array elements
+  id: totrans-38
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 访问数组元素
 - en: 'Once you have an array created, you can access individual elements inside the
     array using square brackets. You give an index number inside the square brackets,
     where the first element has an index value of 0\. To print the second vowel or
     the days in July from our earlier arrays, for example:'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦您创建了一个数组，您可以使用方括号访问数组内部的单个元素。在方括号内给出一个索引数字，其中第一个元素的索引值为0。例如，要打印出先前数组中的第二个元音字母或七月份的天数：
 - en: '[PRE7]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'These statements would produce the following output if bundled into a complete
     program:'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果将这些语句捆绑到一个完整的程序中，它们将产生以下输出：
 - en: '[PRE8]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'But the value we supply inside the square brackets does not need to be a fixed
     number. It can be any expression that results in an integer. (If you have enough
     memory, it could be a `long` or other, larger integer type.) This means you can
@@ -231,19 +329,27 @@
     month” in a variable and use the typical values for months—January is 1, February
     is 2, and so on—then we could print the number of days in July using the following
     code:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 但我们在方括号内提供的值不需要是一个固定的数字。它可以是任何导致整数的表达式（如果内存足够，它可以是一个`long`或其他更大的整数类型）。这意味着您可以将计算或变量用作您的索引。例如，如果我们将“当前月份”存储在一个变量中，并使用月份的典型值——1表示一月，2表示二月，依此类推——那么我们可以使用以下代码打印出七月的天数：
 - en: '[PRE9]'
+  id: totrans-44
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: The ease and flexibility of accessing these members is part of what makes arrays
     so popular. After a bit of practice, you’ll find them indispensible!
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 访问这些成员的便利性和灵活性是数组如此受欢迎的一部分。经过一些实践，您会发现它们是不可或缺的！
 - en: Warning
+  id: totrans-46
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 警告
 - en: The value inside the square brackets needs to be “in bounds” or you’ll get a
     an error at runtime. For example if you tried printing the days in the 15th month
     like we tried for July, you’d see something like “Invalid (month 15) has -1574633234
@@ -254,95 +360,133 @@
     it exactly by assigning values to the array outside the actual array. If you get
     lucky (or are very devious), you can write executable code and trick the computer
     into running your commands instead of the intended program.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 方括号内的值需要“在边界内”，否则您将在运行时收到错误消息。例如，如果您尝试打印第15个月的天数，就像我们尝试七月那样，您会看到类似“无效（第15个月）有-1574633234天”的消息。C不会阻止您——请注意我们没有导致崩溃——但我们也没有得到可用的值。而*赋值*无效数组中的值（接下来我们将讨论的内容）是如何导致*缓冲区溢出*的。这种经典的安全漏洞因数组作为存储缓冲区的概念而得名。您“溢出”它正是通过给数组分配超出实际数组范围之外的值。如果您运气好（或非常狡猾），您可以编写可执行代码，并欺骗计算机运行您的命令而不是预期的程序。
 - en: Changing array elements
+  id: totrans-48
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 更改数组元素
 - en: 'You can also change the value of a given array position using the square bracket
     notation. For example, we could alter the number of days in February to accommodate
     a leap year:'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 您还可以使用方括号表示法更改给定数组位置的值。例如，我们可以改变二月的天数以适应闰年：
 - en: '[PRE10]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'This type of post-declaration assignment is handy (or often even necessary)
     when you have more dynamic data. With the Arduino projects we’ll cover later,
     for example, you might want to keep the 10 most recent sensor readings. You won’t
     have those readings when you declare your array. So you can set aside 10 slots,
     and just fill them in later:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 当您有更加动态的数据时，这种后声明的赋值非常方便（甚至经常是必需的）。例如，对于稍后要讨论的Arduino项目，您可能希望保留最近的10次传感器读数。当您声明数组时，并没有这些读数。因此，您可以设置10个槽位，并稍后填入：
 - en: '[PRE11]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: Just make sure you supply a value of the same type as (or at least compatible
     with) the array. Our `readings` array, for example, is expecting floating point
     numbers. If we were to assign a character to one of the slots, it would “fit”
     in that slot, but it would produce a strange answer. Assigning the letter `*x*`
     to `readings[8]` would end up putting the ASCII value of lowercase x (120) in
     the slot as a `float` value of 120.0.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 只需确保您提供与数组相同类型的值（或至少是兼容的）。例如，我们的`readings`数组期望浮点数。如果我们将字符分配给其中一个槽位，它将“适合”在该槽位中，但会产生一个奇怪的答案。例如，将字母`*x*`分配给`readings[8]`将会将小写x的ASCII值（120）作为120.0的`float`值放入槽位中。
 - en: Iterating through arrays
+  id: totrans-54
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 通过数组迭代
 - en: 'The ability to use a variable as an index makes working with an entire array
     a simple loop task. We could print out all the `days_in_month` counts using a
     `for` loop, for example:'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用变量作为索引的能力使得处理整个数组成为一个简单的循环任务。例如，我们可以使用`for`循环打印出所有`days_in_month`的计数：
 - en: '[PRE12]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'This snippet produces the following output. We can get a sense of just how
     powerful the combination of arrays and loops could be. With just a tiny bit of
     code, we get some fairly interesting output:'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个代码片段产生了以下输出。我们可以感受到数组和循环组合的强大潜力。仅仅几行代码，我们就得到了一些相当有趣的输出：
 - en: '[PRE13]'
+  id: totrans-58
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'You’re free to use the elements of your array however you need to. You aren’t
     limited to printing them out. As another example, we could calculate the average
     reading from our `readings` array like so:'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以自由地使用数组的元素，以任何你需要的方式。你并不仅仅局限于打印它们出来。例如，我们可以计算我们的`readings`数组的平均阅读值，如下所示：
 - en: '[PRE14]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: This example highlights just how much C you have learned in only a few chapters!
     If you want some more practice, build this snippet into a complete program. Compile
     and run it to make sure you have it working. (The average should be 8.70, by the
     way.) Then add some more variables to capture the highest and lowest readings.
     You’ll need some `if` statements to help there. You can see one possible solution
     in *arrays.c* in the examples for this chapter.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 此示例突显了你在几章中学到的C语言有多少！如果你想要更多的练习，将这个代码片段构建成一个完整的程序。编译并运行它以确保它能正常工作。（顺便说一句，平均值应为8.70。）然后添加更多的变量来捕获最高和最低的读数。你将需要一些`if`语句来帮助你。你可以在本章的示例*arrays.c*中看到一个可能的解决方案。
 - en: Review of Strings
+  id: totrans-62
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 字符串回顾
 - en: I have noted that strings are really just arrays of type `char` with some extra
     features supported by the language itself, such as literals. But since strings
     represent the easiest way to communicate with users, I want to highlight more
     of what you can do with strings in C.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 我已经指出字符串实际上只是一些由语言本身支持的额外特性组成的`char`类型的数组，例如字面量。但由于字符串代表了与用户交流的最简单方式，我想更强调在C语言中你可以用字符串做些什么。
 - en: Initializing strings
+  id: totrans-64
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 初始化字符串
 - en: We have already seen how to declare and initialize a string. If you know the
     value of the string ahead of time, you can use a literal. If you don’t know the
     value, you can still declare the variable and then use `scanf()` to ask the user
     what text to store. But what if you wanted to do both? Assign an initial default
     and then let the user supply an optional new value that overrides the default?
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经看到如何声明和初始化字符串。如果你事先知道字符串的值，你可以使用字面量。如果你不知道值，你仍然可以声明变量，然后使用`scanf()`询问用户要存储的文本是什么。但如果你两者都想做怎么办？分配一个初始默认值，然后让用户提供一个可选的新值来覆盖默认值？
 - en: Happily, you can get there, but you do have to plan ahead a little. It might
     be tempting to use the default value when you first declare your variable, and
     then let the user provide a different value at runtime if they want. This works,
@@ -351,38 +495,52 @@
     alternative. Such assumptions are often safe as you are likely the only user while
     you’re learning a new language. But in programs you share with others, it’s better
     not to assume what the user will do.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 幸运的是，你可以做到，但你确实需要提前计划一下。当你首次声明变量时，可能会诱人地使用默认值，然后在运行时让用户提供不同的值。这样做是有效的，但它需要向用户提出额外的问题（“您想更改背景颜色吗，是或否？”），并且还假设用户将提供一个有效的替代值。在学习新语言时，这种假设通常是安全的，因为在那时你可能是唯一的用户。但在与他人共享的程序中，最好不要假设用户会做什么。
 - en: String literals also make it tempting to think you can simply overwrite an existing
     string just like you can with `int` or `float` variables. But a string really
     is just a `char[]`, and arrays are not assignable beyond the optional initialization
     when you declare them.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 字符串字面量也让人很容易认为你可以像对`int`或`float`变量那样简单地覆盖现有的字符串。但字符串实际上只是一个`char[]`，而数组在声明时以外的情况下是不可分配的。
 - en: These limitations can all be overcome with the use of things like functions,
     which we’ll explore in [Chapter 5](ch05.xhtml#smallerc-CHP-5). In fact, the need
     for the functions that make it possible to manipulate strings at runtime are so
     useful, they have been bundled up into their own library, which I cover in [“stdlib.h”](ch07.xhtml#smallerc-CHP-7-SECT-1.2).
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些限制都可以通过使用诸如函数之类的东西来克服，我们将在[第5章](ch05.xhtml#smallerc-CHP-5)中探讨这些内容。事实上，使运行时操作字符串成为可能的函数的需求如此之大，它们已经被打包成了它们自己的库，我在[“stdlib.h”](ch07.xhtml#smallerc-CHP-7-SECT-1.2)中介绍了这一点。
 - en: For now, I want you to remember that string literals can make the initialization
     of character arrays simple and readable, but that at their heart, strings in C
     are not like numbers and individual characters.
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，我希望你记住，字符串文字可以使字符数组的初始化简单和易读，但在其核心，C中的字符串与数字和个别字符不同。
 - en: Accessing individual characters
+  id: totrans-70
   prefs:
   - PREF_H3
   type: TYPE_NORMAL
+  zh: 访问个别字符
 - en: 'But I do want to reiterate that strings are just arrays. You can access individual
     characters in your string using the same syntax you use to access the members
     of any other array. For example, we could find out if a given phrase contains
     a comma by looking at each character in the phrase. Here’s [*ch04/comma.c*](https://oreil.ly/UWgY6):'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 但我确实想再次强调，字符串只是数组。你可以使用与访问任何其他数组成员相同的语法访问字符串中的个别字符。例如，我们可以通过查看短语中的每个字符来找出给定短语是否包含逗号。这里是[*ch04/comma.c*](https://oreil.ly/UWgY6)：
 - en: '[PRE15]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: This program actually uses the array nature of the string a few times. Our loop
     condition depends on accessing a single character of the string just like the
     `if` condition that helps answer our original question. And we test an individual
@@ -391,109 +549,157 @@
     you see how you could accomplish things like copying or comparing strings using
     a good loop and the square brackets to march one character at a time through your
     array.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 该程序实际上多次使用了字符串的数组性质。我们的循环条件取决于访问字符串中的单个字符，就像帮助回答我们最初问题的`if`条件一样。最后，我们测试单个字符以查看是否找到了某些内容。在[第7章](ch07.xhtml#smallerc-CHP-7)中，我们将查看几个与字符串相关的函数，但希望您能看到如何使用循环和方括号一次处理一个字符来完成诸如复制或比较字符串之类的任务。
 - en: Multidimensional Arrays
+  id: totrans-74
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 多维数组
 - en: 'It may not be obvious since strings are already an array, but you can store
     an array of strings in C. But because there is no “string type” that you can use
     when declaring such an array, how do you do it? Turns out C supports the idea
     of a *multidimensional array* so you can create an array of `char[]` just like
     other arrays:'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于字符串已经是数组，可能并不明显，但你可以在C中存储字符串数组。但是因为在声明这种数组时没有“字符串类型”可供使用，你该如何做呢？事实证明，C支持*多维数组*的概念，因此你可以创建一个`char[]`数组，就像创建其他数组一样：
 - en: '[PRE16]'
+  id: totrans-76
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: Seems fair. But what is not obvious in that declaration is what the pair of
     square bracket pairs refer to. When declaring a two-dimensional array like this,
     the first square bracket pair can be thought of as the row index, and the second
     is the column. Another way to think about it is the first index tells you *how
     many* character arrays we’ll be storing and the second index tells you *how long*
     each of those arrays can be.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 看起来很公平。但在声明中不明显的是方括号对是指什么。在声明这样一个二维数组时，第一个方括号对可以被理解为行索引，第二个是列。另一种思考方式是，第一个索引告诉你*有多少*个字符数组我们将存储，第二个索引告诉你每个数组*可以有多长*。
 - en: 'We know how many months there are and a little research tells us the longest
     name is September, with nine letters. Add on one more for our terminating null
     character, and we could precisely define our `month_names` array like this:'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们知道有多少个月份，并且一些研究告诉我们，最长的名称是九个字母的“九月”。再加上一个终止的空字符，我们可以像这样精确地定义我们的`month_names`数组：
 - en: '[PRE17]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: 'You could also initialize this two-dimensional array since we know the names
     of the months and don’t require user input:'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于我们知道月份的名称并且不需要用户输入，您也可以初始化这个二维数组：
 - en: '[PRE18]'
+  id: totrans-81
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: 'But here I cheated a little with the initialization by using string literals,
     so the second dimension of the `month_names` array isn’t readily apparent. The
     first dimension is the months, and the second (hidden) dimension is the individual
     characters that make up the month names. If you are working with other data types
     that don’t have this string literal shortcut, you can use nested curly brace lists
     like this:'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 但在初始化时，我使用了字符串文字，所以`month_names`数组的第二维度不太明显。第一维是月份，第二个（隐藏的）维度是构成月份名称的个别字符。如果你使用其他没有这种字符串文字快捷方式的数据类型，可以像这样使用嵌套的花括号列表：
 - en: '[PRE19]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'It might be tempting to assume the compiler can determine the size of the multi-dimensional
     structure, but sadly, you must supply the capacity for each dimension beyond the
     first. For our month names, for example, we could start off without the “12” for
     how many names, but not without the “11” indicating the maximum length of any
     individual name:'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 或许你会认为编译器可以确定多维结构的大小，但遗憾的是，你必须为除第一维以外的每个维度提供容量。例如，对于我们的月份名称，我们可以开始时没有“12”表示名称数量，但不能没有“11”表示任何单个名称的最大长度：
 - en: '[PRE20]'
+  id: totrans-85
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: You’ll eventually internalize these rules, but the compiler (and many editors)
     will always be there to catch you if you make a small mistake.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 你最终会内化这些规则，但编译器（以及许多编辑器）将始终在那里捕捉你如果你犯了一个小错误。
 - en: Accessing Elements in Multidimensional Arrays
+  id: totrans-87
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 访问多维数组中的元素
 - en: 'With our array of month names, it is straightforward getting access to any
     particular month. It looks just like accessing the element of any other one-dimensional
     array:'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于我们的月份名称数组，获取任何特定月份的访问是直接的。它看起来就像访问任何其他一维数组的元素一样：
 - en: '[PRE21]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: 'But how would we access an element in the `multiplication` two-dimensional
     array? We use two indices:'
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是我们如何访问`multiplication`二维数组中的元素呢？我们使用两个索引：
 - en: '[PRE22]'
+  id: totrans-91
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: Notice that in this multiplication table, the potentially strange use of zero
     as the first index value turns out to be a useful element. Index “0” gives us
     a row—or column—of valid multiplication answers.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，在这个乘法表中，将零作为第一个索引值的潜在奇怪用法实际上是一个有用的元素。索引“0”给我们一个有效的乘法答案行或列。
 - en: 'And with two indices, you’ll need two loops if you want to print out all of
     the data. We can take the work we did in [“Nested Loops and Tables”](ch03.xhtml#smallerc-CHP-3-SECT-4.1)
     and use it to access our stored values rather than generating the numbers directly.
     Here’s the printing snippet from [*ch04/print2d.c*](https://oreil.ly/3gr8L):'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 而使用两个索引，如果你想打印出所有数据，你将需要两个循环。我们可以利用我们在[“嵌套循环和表格”](ch03.xhtml#smallerc-CHP-3-SECT-4.1)中所做的工作，用它来访问我们存储的值，而不是直接生成数字。这是来自[*ch04/print2d.c*](https://oreil.ly/3gr8L)的打印片段：
 - en: '[PRE23]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'And here is our nicely formatted table:'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是我们精美格式化的表格：
 - en: '[PRE24]'
+  id: totrans-96
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: We’ll see some other options in [Chapter 6](ch06.xhtml#smallerc-CHP-6) for more
     tailored multidimensional storage. In the near term, just remember that you can
     create more dimensions with more pairs of square brackets. While you’ll likely
@@ -501,18 +707,24 @@
     data often fits in three-dimensional “cubes.” Few programmers will ever need it,
     especially those of us concentrating on microcontrollers, but C does support higher
     orders of arrays.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们将在[第6章](ch06.xhtml#smallerc-CHP-6)中看到一些其他选项，用于更加定制的多维存储。在短期内，只需记住你可以用更多的方括号对创建更多维度。虽然你大部分时间可能会使用一维数组，但表格是足够常见的，空间数据通常适合三维“立方体”。很少有程序员会需要它，尤其是那些专注于微控制器的人，但C语言支持更高阶的数组。
 - en: Storing Bits
+  id: totrans-98
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 存储位
 - en: 'Arrays allow us to store truly vast quantities of data with relative ease.
     At the other end of the spectrum, C has several operators that you can use to
     manipulate very small amounts of data. Indeed, you can work with the absolute
     smallest pieces of data: individual bits.'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 数组使我们能够相对轻松地存储大量数据。在另一端，C语言有几个运算符可以用来操作非常少量的数据。事实上，你可以处理绝对最小的数据单元：个别位。
 - en: When C was developed in the 1970s, every byte of memory was expensive, and therefore
     precious. As I noted at the beginning of the chapter, if you had a particular
     variable that stored Boolean answers, using 16 bits for an `int` or even just
@@ -520,12 +732,16 @@
     it could become very wasteful. Desktop computers these days can manage that type
     of waste without blinking an eye (or an LED), but our microcontrollers often need
     all the storage help they can get.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 当C语言在20世纪70年代开发时，每个字节的内存都很昂贵，因此宝贵。正如我在本章开头提到的，如果你有一个特定的变量存储布尔答案，使用16位的`int`或甚至只有8位的`char`会有点浪费。如果你有一个这样的变量数组，那就会变得非常浪费。现在的台式电脑可以轻松处理这种浪费，但我们的微控制器通常需要尽可能节约存储空间。
 - en: Binary, Octal, Hexadecimal
+  id: totrans-101
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 二进制、八进制、十六进制
 - en: Before we tackle the operators in C that access and manipulate bits, let’s review
     some notation for discussing binary values. If we have a single bit, a 0 or a
     1 are sufficient and that’s easy enough. However, if we want to store a dozen
@@ -535,8 +751,10 @@
     is much clearer. (Binary, or base 2, notation would obviously be clearest, but
     large numbers get very long in binary. Octal and hexadecimal—often just “hex”—are
     a good compromise.)
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们讨论C语言中访问和操作位的操作符之前，让我们回顾一些讨论二进制值的符号。如果我们有一个单独的位，0或1足以，这很简单。然而，如果我们想在一个`int`变量中存储十二个位，我们需要一种描述该`int`值的方法。技术上，`int`将具有十进制（十进制）表示，但十进制不能清晰地映射到单独的位。为此，八进制和十六进制表示法要清晰得多。（二进制，或者二进制2进制，表示法显然最清晰，但是大数在二进制中变得非常长。八进制和十六进制——通常只是“hex”——是一个很好的折衷方案。）
 - en: When we talk about numbers, we often implicitly use base 10, thanks to the digits
     (ooh, get it?) on our hands. Computers don’t have hands (discounting robots, of
     course) and don’t count in base 10\. They use binary. Two digits, 0 and 1, make
@@ -545,50 +763,82 @@
     8, or octal. Add a fourth bit and you can represent 0 through 15, which covers
     the individual “digits” in hexadecimal. [Table 4-1](#smallerc-CHP-4-TAB-binary-octal-hex)
     shows these first 16 values in all four bases.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们谈论数字时，我们经常隐含地使用十进制，这要归功于我们手上的数字（哦，明白了吗？）。计算机没有手（当然不包括机器人），不使用十进制计数。它们使用二进制。两个数字，0和1，构成了它们整个世界的基础。如果将三个二进制数字分组，可以表示从0到7的十进制数，总共八个数字，因此这是八进制，或八进制。添加第四位，可以表示0到15，这覆盖了十六进制中的单个“数字”。[表 4-1](#smallerc-CHP-4-TAB-binary-octal-hex)显示了这些四个基数中的前16个值。
 - en: Table 4-1\. Numbers in decimal, binary, octal, and hexadecimal
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 4-1\. 十进制、二进制、八进制和十六进制的数字
 - en: '| Decimal | Binary | Octal | Hexadecimal |  | Decimal | Binary | Octal | Hexadecimal
     |'
+  id: totrans-105
   prefs: []
   type: TYPE_TB
+  zh: '| 十进制 | 二进制 | 八进制 | 十六进制 |  | 十进制 | 二进制 | 八进制 | 十六进制 |'
 - en: '| --- | --- | --- | --- | --- | --- | --- | --- | --- |'
+  id: totrans-106
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- | --- | --- | --- | --- |'
 - en: '| ` 0` | `0000 0000` | `000` | `0x00` |  | ` 8` | `0000 1000` | `010` | `0x08`
     |'
+  id: totrans-107
   prefs: []
   type: TYPE_TB
+  zh: '| ` 0` | `0000 0000` | `000` | `0x00` |  | ` 8` | `0000 1000` | `010` | `0x08`
+    |'
 - en: '| ` 1` | `0000 0001` | `001` | `0x01` |  | ` 9` | `0000 1001` | `011` | `0x09`
     |'
+  id: totrans-108
   prefs: []
   type: TYPE_TB
+  zh: '| ` 1` | `0000 0001` | `001` | `0x01` |  | ` 9` | `0000 1001` | `011` | `0x09`
+    |'
 - en: '| ` 2` | `0000 0010` | `002` | `0x02` |  | `10` | `0000 1010` | `012` | `0x0A
     / 0x0a` |'
+  id: totrans-109
   prefs: []
   type: TYPE_TB
+  zh: '| ` 2` | `0000 0010` | `002` | `0x02` |  | `10` | `0000 1010` | `012` | `0x0A
+    / 0x0a` |'
 - en: '| ` 3` | `0000 0011` | `003` | `0x03` |  | `11` | `0000 1011` | `013` | `0x0B
     / 0x0b` |'
+  id: totrans-110
   prefs: []
   type: TYPE_TB
+  zh: '| ` 3` | `0000 0011` | `003` | `0x03` |  | `11` | `0000 1011` | `013` | `0x0B
+    / 0x0b` |'
 - en: '| ` 4` | `0000 0100` | `004` | `0x04` |  | `12` | `0000 1100` | `014` | `0x0C
     / 0x0c` |'
+  id: totrans-111
   prefs: []
   type: TYPE_TB
+  zh: '| ` 4` | `0000 0100` | `004` | `0x04` |  | `12` | `0000 1100` | `014` | `0x0C
+    / 0x0c` |'
 - en: '| ` 5` | `0000 0101` | `005` | `0x05` |  | `13` | `0000 1101` | `015` | `0x0D
     / 0x0d` |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| ` 5` | `0000 0101` | `005` | `0x05` |  | `13` | `0000 1101` | `015` | `0x0D
+    / 0x0d` |'
 - en: '| ` 6` | `0000 0110` | `006` | `0x06` |  | `14` | `0000 1110` | `016` | `0x0E
     / 0x0e` |'
+  id: totrans-113
   prefs: []
   type: TYPE_TB
+  zh: '| ` 6` | `0000 0110` | `006` | `0x06` |  | `14` | `0000 1110` | `016` | `0x0E
+    / 0x0e` |'
 - en: '| ` 7` | `0000 0111` | `007` | `0x07` |  | `15` | `0000 1111` | `017` | `0x0F
     / 0x0f` |'
+  id: totrans-114
   prefs: []
   type: TYPE_TB
+  zh: '| ` 7` | `0000 0111` | `007` | `0x07` |  | `15` | `0000 1111` | `017` | `0x0F
+    / 0x0f` |'
 - en: You might notice that I always showed eight numbers for the binary column, three
     for octal, and two for hex. The byte (8 bits) is a very common unit to work with
     in C. Binary numbers often get shown in groups of four, with as many groups as
@@ -598,8 +848,10 @@
     digits can display any byte’s value, and hexadecimal numbers need two digits.
     Note also that hexadecimal literals are not case sensitive. (Neither is the “x”
     in the hexadecimal prefix, but an uppercase “X” can be harder to distinguish.)
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能注意到，我总是在二进制列中显示八个数字，八进制列中显示三个数字，十六进制列中显示两个数字。字节（8位）是在C语言中常用的单位。二进制数字通常以四个一组显示，组数取决于所讨论的最大数。因此，对于完整的8位字节，可以存储0到255的任何值，例如，您会看到一个二进制值，其中包含两组四位数字。同样，三位数的八进制值可以显示任何字节的值，十六进制数需要两位数。还要注意，十六进制文字不区分大小写。（十六进制前缀中的“x”也不区分大小写，但大写的“X”可能较难辨认。）
 - en: We’ll be using binary notation from time to time when working with microcontrollers
     in the latter half of this book, but you may have already run into hexadecimal
     numbers if you have written any styled text in HTML or CSS or similar markup languages.
@@ -607,81 +859,121 @@
     of red, a byte of green, a byte of blue, and occasionally a byte of alpha (transparency).
     So a full red that ignores the alpha channel would be `FF0000`. Now that you know
     two hex digits can represent one byte, it may be easier to read such color values.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本书后半部分与微控制器一起工作时，我们会偶尔使用二进制表示法，但如果你写过任何HTML、CSS或类似的标记语言中的样式文本，你可能已经遇到过十六进制数。这些文档中的颜色通常用十六进制的字节值表示红色、绿色、蓝色以及偶尔的alpha通道（透明度）。因此，一个忽略alpha通道的全红色将是`FF0000`。现在你知道两个十六进制数字可以表示一个字节，读取这样的颜色值可能会更容易。
 - en: To help you get accustomed to these different bases, try filling out the missing
     values in [Table 4-2](#smallerc-CHP-4-TAB-conversion-homework). (You can check
     your answers with the [Table 4-4](#smallerc-CHP-4-TAB-conversion-answers) table
     at the end of the chapter.) The numbers are not in any particular order, by the
     way. I want to keep you on your toes!
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了帮助你适应这些不同的进制，试着填写[表 4-2](#smallerc-CHP-4-TAB-conversion-homework)中缺失的数值。（你可以通过章节末的[表 4-4](#smallerc-CHP-4-TAB-conversion-answers)表来检查你的答案。顺便说一句，这些数字并没有特定的顺序，我想让你保持警觉！）
 - en: Table 4-2\. Converting between bases
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 4-2\. 各进制间的转换
 - en: '| Decimal | Binary | Octal | Hexadecimal |'
+  id: totrans-119
   prefs: []
   type: TYPE_TB
+  zh: '| 十进制 | 二进制 | 八进制 | 十六进制 |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| `14` |  | `016` |  |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '| `14` |  | `016` |  |'
 - en: '|  | `0010` `0000` |  |  |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '|  | `0010` `0000` |  |  |'
 - en: '|  |  | `021` | `11` |'
+  id: totrans-123
   prefs: []
   type: TYPE_TB
+  zh: '|  |  | `021` | `11` |'
 - en: '| `50` |  |  | `32` |'
+  id: totrans-124
   prefs: []
   type: TYPE_TB
+  zh: '| `50` |  |  | `32` |'
 - en: '|  |  | `052` |  |'
+  id: totrans-125
   prefs: []
   type: TYPE_TB
+  zh: '|  |  | `052` |  |'
 - en: '|  |  |  | `13` |'
+  id: totrans-126
   prefs: []
   type: TYPE_TB
+  zh: '|  |  |  | `13` |'
 - en: '| `167` |  |  |  |'
+  id: totrans-127
   prefs: []
   type: TYPE_TB
+  zh: '| `167` |  |  |  |'
 - en: '|  | `1111 1001` |  |  |'
+  id: totrans-128
   prefs: []
   type: TYPE_TB
+  zh: '|  | `1111 1001` |  |  |'
 - en: Modern browsers can convert bases for you right in the search bar, so you probably
     won’t need to memorize the full 256 values possible in a byte. But it will still
     be useful if you can estimate the size of a hex value or determine if an octal
     ASCII code is probably a letter or a number.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 现代浏览器可以在搜索栏中为您转换进制，因此您可能不需要记住字节中可能的256个值的全部内容。但是，如果您可以估算十六进制值的大小或确定八进制ASCII码可能是字母还是数字，这仍然会很有用。
 - en: Octal and Hexadecimal Literals in C
+  id: totrans-130
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: C语言中的八进制和十六进制文字
 - en: The C language has special options for expressing numeric literals in octal
     and hex. Octal literals start with a simple 0 as a prefix, although you can have
     multiple zeroes if you are keeping all of your values the same width, like we
     did in our base tables. For hex values, you use the prefix `0x` or `0X`. You typically
     match the case of the ‘X’ character to the case of any of the `A-F` digits in
     your hex value, but this is just a convention.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: C语言有特殊选项用于表示八进制和十六进制的数值文字。八进制文字以简单的0作为前缀开始，尽管如果你保持所有值的宽度相同，你可以有多个零，就像我们在基础表中所做的那样。对于十六进制值，你使用前缀`0x`或`0X`。通常情况下，你匹配‘X’字符的大小写与十六进制值中的任何`A-F`数字的大小写相匹配，但这只是一种约定。
 - en: 'Here’s a snippet showing how to use some of these prefixes:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一个演示如何使用一些这些前缀的片段：
 - en: '[PRE25]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: Some compilers support nonstandard prefixes or suffixes for representing binary
     literals, but as the “nonstandard” qualifier suggests, they are not part of the
     official C language.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些编译器支持用于表示二进制文字的非标准前缀或后缀，但正如“非标准”修饰符所示，它们不是官方C语言的一部分。
 - en: Input and Output of Octal and Hex Values
+  id: totrans-135
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 八进制和十六进制值的输入输出
 - en: 'The `printf()` function has built-in format specifiers to help you produce
     octal or hexadecimal output. Octal value can be printed with the `%o` specifier
     and hex can be shown with either `%x` or `%X`, depending on whether you want lower-
@@ -692,20 +984,28 @@
     using a loop and a single `printf()`. We can take advantage of the width and padding
     options of the format specifier to get our desired three octal digits and two
     hex digits. Take a look at [*ch04/dec_oct_hex.c*](https://oreil.ly/59f56):'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '`printf()`函数具有内置的格式说明符，帮助你生成八进制或十六进制输出。八进制值可以用`%o`说明符打印，十六进制可以用`%x`或`%X`显示，取决于你想要小写还是大写输出。这些说明符可以与任何整数类型的变量或表达式一起使用，在任何基数中，这使得`printf()`成为从十进制到八进制或十六进制的一种相当简单的转换方式。我们可以很容易地通过循环和单个`printf()`生成类似于[表 4-1](#smallerc-CHP-4-TAB-binary-octal-hex)（没有二进制列）的表格。我们可以利用格式说明符的宽度和填充选项来获取我们想要的三个八进制数字和两个十六进制数字。看看[*ch04/dec_oct_hex.c*](https://oreil.ly/59f56)：'
 - en: '[PRE26]'
+  id: totrans-137
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: 'Notice that we just reuse the exact same variable for each of the three columns.
     Also notice that when printing the hexadecimal version, I manually added the “0x”
     prefix—it is not included in the `%x` or `%X` formats. Here are a few of the first
     and last lines:'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，我们在每个三列中都重复使用了完全相同的变量。还请注意，在打印十六进制版本时，我手动添加了“0x”前缀——它不包括在`%x`或`%X`格式中。这里有几行的第一行和最后一行：
 - en: '[PRE27]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: Neat. Just the output we wanted. On the input side using `scanf()`, the format
     specifiers work in an interesting way. They are all still used to get numeric
     input from the user. The different specifiers now perform base conversion on the
@@ -713,34 +1013,49 @@
     Conversely, if you specify hex input (`%x` or `%X`) and only enter numbers (i.e.,
     you don’t use any of the `A-F` digits), the number will still be converted from
     base 16.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 不错。正是我们想要的输出。在输入方面，使用`scanf()`，格式说明符以有趣的方式工作。它们仍然用于从用户那里获取数字输入。现在不同的说明符将在你输入的数字上执行基数转换。如果指定了十进制输入（`%d`），则不能使用十六进制值。相反，如果指定了十六进制输入（`%x`或`%X`），并且只输入数字（即，不使用任何`A-F`数字），该数字仍将从十六进制转换。
 - en: Note
+  id: totrans-141
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: The specifiers `%d` and `%i` are normally interchangeable. In a `printf()` call,
     they will result in identical output. In a `scanf()` call, however, the `%d` option
     requires you to enter a simple base 10 number. The `%i` specifier allows you to
     use the various C literal perfixes to enter a value in a different base such as
     `0x` to enter a hexadecimal number.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 说明符`%d`和`%i`通常是可以互换的。在`printf()`调用中，它们将产生相同的输出。但是，在`scanf()`调用中，`%d`选项要求你输入一个简单的十进制数。`%i`说明符允许你使用各种C文字前缀来输入不同基数的值，例如`0x`来输入十六进制数。
 - en: We can illustrate this with a simple converter program, [*ch04/rosetta.c*](https://oreil.ly/NU9Wc),
     that will translate different inputs to all three bases on output. We can set
     which type of input we expect in the program but use an `if/else if/else` block
     to make it easy to adjust. (Although recompiling will still be required.)
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们可以通过一个简单的转换程序来说明这一点，[*ch04/rosetta.c*](https://oreil.ly/NU9Wc)，它将不同的输入转换为所有三个输出基。我们可以在程序中设置我们期望的输入类型，但是使用`if/else
+    if/else`块使其易于调整。（尽管仍然需要重新编译。）
 - en: '[PRE28]'
+  id: totrans-144
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: 'Here are a few example runs:'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 这里有几个示例运行：
 - en: '[PRE29]'
+  id: totrans-146
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: Interesting. The first two runs went according to plan. The third run didn’t
     create an error but didn’t really work, either. What happened here is a sort of
     “feature” of `scanf()`. It tried very hard to bring in a decimal number. It found
@@ -748,68 +1063,102 @@
     parsing that character. But it next encountered the *x* character which is *not*
     valid for a base 10 number. So that was the end of the parsing and our program
     converted the value 0 into each of the three bases.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 有趣。前两次运行按计划进行了。第三次运行没有出现错误，但实际上也没有真正工作。这里发生的是`scanf()`的一种“特性”。它非常努力地尝试引入一个十进制数。它在我们的输入中找到了字符*0*，这是一个有效的十进制数字，因此它开始解析该字符。但接下来它遇到了*x*字符，这对于十进制数不是有效的。所以这就是解析的结束，我们的程序将值0转换为这三个基数。
 - en: Try running this program yourself and switch the mode a few times. Do you get
     the behavior you expect? Can you cause any errors?
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 尝试自己运行这个程序，然后几次切换模式。你得到了你期望的行为吗？你能引发任何错误吗？
 - en: Knowing what we do about the difference between `%i` and other numeric specifiers
     in `scanf()`, can you see how to make this program a little simpler? It should
     be possible to accept any of the three bases for input without the big `if` statement.
     I’ll leave this problem to you as an exercise, but you can see one possible solution
     in the *rosetta2.c* file in the code examples for this chapter.
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: 知道了 `%i` 与 `scanf()` 中其他数值规范之间的差异，你能看到如何简化这个程序吗？可以接受任何三种输入基数而不需要大量的 `if` 语句。我把这个问题留给你做为练习，但是你可以在本章的代码示例中的
+    *rosetta2.c* 文件中找到一个可能的解决方案。
 - en: Bitwise Operators
+  id: totrans-150
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 位操作符
 - en: Starting out on limited hardware like C did means occasionally working with
     data at the bit level quite apart from printing or reading in binary data. C supports
     this work with *bitwise operators*. These operators allow you to tweak individual
     bits inside `int` variables (or `char` or `long`, of course). We’ll see some fun
     uses of these features with the Arduino microcontroller in [Chapter 10](ch10.xhtml#smallerc-CHP-10).
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 在像C语言这样的有限硬件上开始工作意味着偶尔需要在位级别上处理数据，与打印或读取二进制数据完全不同。C语言通过*位操作符*支持此类工作。这些操作符允许你在
+    `int` 变量（当然也包括 `char` 或 `long`）内部调整单个位。我们将在[第10章](ch10.xhtml#smallerc-CHP-10)中看到这些特性在Arduino微控制器中的一些有趣用途。
 - en: '[Table 4-3](#smallerc-CHP-4-TAB-bitwise-operators) describes these operators
     and shows some examples that make use of the following two variables:'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '[表格 4-3](#smallerc-CHP-4-TAB-bitwise-operators) 描述了这些操作符，并展示了使用以下两个变量的一些示例：'
 - en: '[PRE30]'
+  id: totrans-153
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: Table 4-3\. Bitwise operators in C
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 表格 4-3\. C语言中的位操作符
 - en: '| Operator | Name | Description | Example |'
+  id: totrans-155
   prefs: []
   type: TYPE_TB
+  zh: '| 操作符 | 名称 | 描述 | 示例 |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-156
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| & | bitwise and | Both bits must be 1 to yield a 1 | a & b == 0101 |'
+  id: totrans-157
   prefs: []
   type: TYPE_TB
+  zh: '| & | 按位与 | 两个位都必须为1才能返回1 | a & b == 0101 |'
 - en: '| &#124; | bitwise or | Either bit can be 1 to yield a 1 | a &#124; b == 1111
     |'
+  id: totrans-158
   prefs: []
   type: TYPE_TB
+  zh: '| &#124; | 按位或 | 任一位可以为1以返回1 | a &#124; b == 1111 |'
 - en: '| ! | bitwise not | Yields the opposite of the input bit | ~a == 0010 |'
+  id: totrans-159
   prefs: []
   type: TYPE_TB
+  zh: '| ! | 按位非 | 返回输入位的相反值 | ~a == 0010 |'
 - en: '| ^ | bitwise xor | eXclusive OR, bits that don’t match yield a 1 | a ^ b ==
     1010 |'
+  id: totrans-160
   prefs: []
   type: TYPE_TB
+  zh: '| ^ | 按位异或 | 异或，不匹配的位返回1 | a ^ b == 1010 |'
 - en: '| << | left shift | Move bits to the left by a number of places | a << 3 ==
     0110 1000 |'
+  id: totrans-161
   prefs: []
   type: TYPE_TB
+  zh: '| << | 左移 | 将位向左移动若干位 | a << 3 == 0110 1000 |'
 - en: '| >> | right shift | Move bits to the right by a number of places | b >> 2
     == 0001 |'
+  id: totrans-162
   prefs: []
   type: TYPE_TB
+  zh: '| >> | 右移 | 将位向右移动若干位 | b >> 2 == 0001 |'
 - en: 'You can technically apply bitwise operators to any variable type to tweak particular
     bits. They are rarely used on floating point types, though. You usually pick an
     integral type that is big enough to hold however many individual bits you need.
@@ -817,11 +1166,16 @@
     with compound assignment operators (`op=`). If you have five LEDs, for example,
     you could keep track of their on/off state with a single `char` type variable,
     as in this snippet:'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 技术上，你可以对任何变量类型应用位操作符以调整特定位。尽管如此，它们很少用于浮点类型。通常选择一个足够大的整数类型来保存所需的每个单独位。因为它们在给定变量的位上“编辑”，所以你经常会看到它们与复合赋值操作符
+    (`op=`) 一起使用。例如，如果你有五个LED灯，你可以用单个 `char` 类型变量来跟踪它们的开关状态，就像这个片段中一样：
 - en: '[PRE31]'
+  id: totrans-164
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE31]'
 - en: Five `int` or `char` values likely won’t make the difference in whether you
     can store or run a program on a microcontroller, even ones with only one or two
     kilobytes of memory, but those small storage needs do add up. If you’re tracking
@@ -829,12 +1183,16 @@
     tightly you can store their state. One size rarely fits all, so remember your
     options and pick one that balances between ease of use and any resource constraints
     you have.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使在只有一两千字节内存的微控制器上运行或存储程序时，五个 `int` 或 `char` 值可能不会影响到你，但是这些小的存储需求确实会累积起来。如果你正在跟踪拥有数百或数千个灯的面板的状态，那么你存储它们的状态有多紧密就很重要了。一个尺寸很少适合所有情况，所以请记住你的选择，并选择一个在使用便捷性和任何资源限制之间取得平衡的选项。
 - en: Mixing Bits and Bytes
+  id: totrans-166
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 混合位和字节
 - en: We now have enough elements of C under our belts to start writing some really
     interesting code. We can combine all of our previous discussions on bits, arrays,
     types, looping, and branching to tackle a popular way of encoding binary data
@@ -845,91 +1203,135 @@
     2 to the 6th power is 64\. We use numbers, lowercase letters, uppercase letters,
     and other characters more or less arbitrarily chosen, typically the plus (`+`)
     and the forward slash (`/`).^([3](ch04.xhtml#idm45018728687848))
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在我们已经掌握了足够多的 C 语言元素，可以开始编写一些非常有趣的代码了。我们可以结合之前讨论过的位、数组、类型、循环和分支来处理一种流行的将二进制数据编码为文本的方式。一种通过设备网络传输二进制数据并且资源可能有限的格式是将其转换为简单的文本行。这被称为“base64”编码，仍然被用于诸如内联电子邮件附件中的图像等情况。64
+    表示此编码使用 6 位块，2 的 6 次方等于 64。我们使用了数字、小写字母、大写字母和其他字符，通常是加号（`+`）和正斜杠（`/`）。^([3](ch04.xhtml#idm45018728687848))
 - en: For this encoding, values 0 through 25 are the uppercase letters A through Z.
     Values 26 through 51 are the lowercase letters a through z. Values 52 through
     61 are the digits 0 through 9, and finally, value 62 is the plus sign, and 63
     is the forward slash.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于这种编码，值从 0 到 25 是大写字母 A 到 Z。值从 26 到 51 是小写字母 a 到 z。值从 52 到 61 是数字 0 到 9，最后，值
+    62 是加号，值 63 是正斜杠。
 - en: But aren’t bytes 8 bits long? Yes, they are. That’s exactly where all of our
     recent topics come into play! We can use this new knowledge to change those 8-bit
     chunks into 6-bit chunks.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是字节不是 8 位长吗？是的，它们是。这正是我们最近所有主题的应用之处！我们可以利用这些新知识将这些 8 位块转换为 6 位块。
 - en: '[Figure 4-3](#smallerc-CHP-4-FIG-base64-text) shows a small example of converting
     three bytes into a string of base64 text. These happen to be the first few bytes
     of a valid JPEG file, but you could work on any source you like. This is a fairly
     trivial bit of binary data, of course, but it will validate our algorithm.'
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 图 4-3 展示了将三个字节转换为 base64 文本字符串的简单示例。这些恰好是有效 JPEG 文件的前几个字节，但你可以使用任何源来进行工作。当然，这只是一个相对简单的二进制数据示例，但它将验证我们的算法。
 - en: '![smac 0403](Images/smac_0403.png)'
+  id: totrans-171
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 0403](Images/smac_0403.png)'
 - en: Figure 4-3\. Going from 8-bit to 6-bit chunks with encoding
+  id: totrans-172
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-3\. 将 8 位转换为 6 位块进行编码
 - en: We have nine bytes total to encode in our example, but really we just want to
     take things three bytes at a time, like the illustration, and repeat. Sounds like
     a job for a loop! We could use any of our loops, but we’ll go with a `for` loop
     since we know where to start and end, and we can count up by threes. We’ll pull
     out three bytes from the source array into three variables, just for convenience
     of discussion.
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的示例中，总共有九个字节需要编码，但实际上我们只需每次处理三个字节，就像插图中所示，并重复此过程。听起来像是循环的工作！我们可以使用任何循环结构，但我们将使用
+    `for` 循环，因为我们知道从哪里开始和结束，并且可以每次增加三个字节。我们将从源数组中取出三个字节到三个变量中，这只是为了讨论方便。
 - en: '[PRE32]'
+  id: totrans-174
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE32]'
 - en: 'The next big step is getting the four 6-bit chunks into our `buffer`. We can
     use our bitwise operators to grab what we need. Look back at [Table 4-3](#smallerc-CHP-4-TAB-bitwise-operators).
     The leftmost six bits of `byte1` make up our first 6-bit chunk. In this case,
     we can just shift those six bits to the right two slots:'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一个重要步骤是将四个 6 位块放入我们的 `buffer` 中。我们可以使用位操作符来获取我们需要的内容。回顾一下 [表 4-3](#smallerc-CHP-4-TAB-bitwise-operators)。`byte1`
+    的最左边的六位组成了我们的第一个 6 位块。在这种情况下，我们可以将这六位向右移动两个空位：
 - en: '[PRE33]'
+  id: totrans-176
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE33]'
 - en: 'Neat! One down, three to go. The second 6-bit chunk, though, is a little messy
     because it uses the two remaining bits from `byte1` and four bits from `byte2`.
     There are several ways to do this, but we’ll process the bits in order and just
     break up the assignment to the next slot in `buffer` into two steps:'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 不错！一个完成，还剩三个。然而，第二个 6 位块有点混乱，因为它使用了 `byte1` 的剩余两位和 `byte2` 的四位。有几种方法可以解决这个问题，但我们将按顺序处理位，并将分配到`buffer`的下一个插槽分为两个步骤：
 - en: '[PRE34]'
+  id: totrans-178
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE34]'
 - en: '[![1](Images/1.png)](#co_bits_and__many__bytes_CO1-1)'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_bits_and__many__bytes_CO1-1)'
 - en: First, take the right two bits from `byte1` and scoot them to the left four
     spaces to make room for the rest of our 6-bit chunk.
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，从 `byte1` 中取出右两位，并向左移动四个空位，为我们的 6 位块腾出空间。
 - en: '[![2](Images/2.png)](#co_bits_and__many__bytes_CO1-2)'
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_bits_and__many__bytes_CO1-2)'
 - en: Now, take the left four bits from `byte2`, scoot them to the right four spaces,
     and put them into `buffer[1]` without disturbing the upper half of that variable.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，从`byte2`的左四位取出，将其右移四个空间，并将其放入`buffer[1]`中，而不干扰该变量的上半部分。
 - en: 'Halfway there! We can do something very similar for the third 6-bit chunk:'
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 过半啦！我们可以对第三个6位块做类似的事情：
 - en: '[PRE35]'
+  id: totrans-184
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE35]'
 - en: 'In this case, we take and scoot the right four bits of `byte2` and scoot them
     over two slots to make room for the left two bits of `byte3`. But like before,
     we have to scoot those two bits all the way to the right first. Our last 6-bit
     chunk is another easy one. We just want the right six bits of `byte4`, no scooting
     required:'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，我们取出并将`byte2`的右四位向右移动两个槽位，以为`byte3`的左两位空出空间。但与之前一样，我们首先必须将这两位向右移动到最右边。我们的最后一个6位块又是一个简单的情况。我们只需要`byte4`的右六位，无需移动：
 - en: '[PRE36]'
+  id: totrans-186
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE36]'
 - en: 'Hooray! We have successfully done the 3x8-bit to 4x6-bit conversion! Now we
     just need to print out each of the values in our `buffer` array. Sounds like another
     loop. And if you recall that we have five ranges for our base 64 “digits,” that
@@ -938,11 +1340,16 @@
     if` chain should do nicely. Inside any particular branch, we’ll do a little character
     math to get the correct value. As you read this next snippet, see if you can figure
     out how that character math is working its magic:'
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 欢呼！我们成功完成了3x8位到4x6位的转换！现在我们只需要打印出我们`buffer`数组中的每个值。听起来又像是一个循环。如果你还记得我们有五个基于64进制的“数字”范围，那就需要某种条件判断。我们可以在`switch`语句中列出所有64种情况，但那感觉很乏味。（至少它会很自我说明。）一个`if/else
+    if`链应该很好用。在任何特定分支内部，我们将进行一些字符数学运算以获得正确的值。在阅读下面的片段时，看看你能否弄清楚这些字符数学是如何发挥魔力的：
 - en: '[PRE37]'
+  id: totrans-188
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE37]'
 - en: Does the character math make sense? Since `char` is an integer type, you can
     “add” to characters. If we add one to the character *A*, we get *B*. Add two to
     *A* and we get *C*, etc. For the lowercase letters and the digits, we first have
@@ -950,81 +1357,123 @@
     cases are easy, since we have one value that maps directly to one character. Hopefully,
     we never hit our `else` clause, but that is exactly what those clauses are for.
     If we got something wrong, print out a warning!
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 字符数学有意义吗？由于`char`是一种整数类型，你可以对字符“加法”。如果我们对字符*A*加一，我们得到*B*。对*A*加二，我们得到*C*，依此类推。对于小写字母和数字，我们首先必须重新调整我们缓冲的值，使其处于从零开始的范围内。最后两种情况很简单，因为我们有一个值直接映射到一个字符。希望我们永远不会触发我们的`else`子句，但这些子句确实是为了处理这种情况的。如果我们做错了什么，打印一个警告！
 - en: Whew! Those are some impressive moving parts. And if you want to build tiny
     devices that communicate with other tiny devices or the cloud, like a tiny security
     camera sending a picture to your phone, these are exactly the kind of moving parts
     you’ll bump into.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 哇！这些都是一些令人印象深刻的动作部件。如果你想要制造与其他微小设备或云端通信的微小设备，比如一台小型安全摄像头将图片发送到你的手机，这些正是你将会遇到的动作部件。
 - en: 'Let’s assemble them in one listing ([*ch04/encode64.c*](https://oreil.ly/Ibp52))
     with the other bits we need for a valid C program:'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们把它们汇集在一个列表中（[*ch04/encode64.c*](https://oreil.ly/Ibp52)），与我们需要的其他C程序位一起：
 - en: '[PRE38]'
+  id: totrans-192
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE38]'
 - en: 'As always, I encourage you to type in the program yourself, making any adjustments
     you want or adding any comments to help you remember what you learned. You can
     also compile the *encode64.c* file and then run it. Here’s the output:'
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如我一直鼓励的那样，你可以自己输入程序，做任何你想要的调整或添加任何注释以帮助你记住你学到的东西。你也可以编译*encode64.c*文件，然后运行它。这里是输出：
 - en: '[PRE39]'
+  id: totrans-194
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE39]'
 - en: 'Very, very cool. Congratulations, by the way! That is a nontrivial bit of code
     there. You should be proud. But if you want to really test your skills, try writing
     your own decoder to reverse this process. If you start with the output above,
     do you get the original nine bytes? (You can check your answer against mine: [*ch04/decode64.c*](https://oreil.ly/exGqM).)'
+  id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 非常、非常酷。顺便说一句，恭喜！那是一小段不平凡的代码。你应该感到自豪。但是如果你想真正测试一下自己的技能，请尝试编写自己的解码器来反转这个过程。如果你从上面的输出开始，你能得到原始的九个字节吗？（你可以将你的答案与我的对比：[*ch04/decode64.c*](https://oreil.ly/exGqM)。）
 - en: Conversion Answers
+  id: totrans-196
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 转换答案
 - en: Whether or not you tackle decoding the base64 encoded string, hopefully you
     tried converting the values in [Table 4-2](#smallerc-CHP-4-TAB-conversion-homework)
     yourself. You can compare your answers here. Or use the *rosetta.c* program!
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论你是否尝试解码base64编码的字符串，希望你尝试自己转换[Table 4-2](#smallerc-CHP-4-TAB-conversion-homework)中的值。你可以在这里比较你的答案。或者使用*rosetta.c*程序！
 - en: Table 4-4\. Base conversion answers
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 表4-4\. 基数转换答案
 - en: '| Decimal | Binary | Octal | Hexadecimal |'
+  id: totrans-199
   prefs: []
   type: TYPE_TB
+  zh: '| Decimal | Binary | Octal | Hexadecimal |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-200
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| 14 | 0000 1110 | 016 | 0E |'
+  id: totrans-201
   prefs: []
   type: TYPE_TB
+  zh: '| 14 | 0000 1110 | 016 | 0E |'
 - en: '| 32 | 0010 0000 | 040 | 20 |'
+  id: totrans-202
   prefs: []
   type: TYPE_TB
+  zh: '| 32 | 0010 0000 | 040 | 20 |'
 - en: '| 17 | 0001 0001 | 021 | 11 |'
+  id: totrans-203
   prefs: []
   type: TYPE_TB
+  zh: '| 17 | 0001 0001 | 021 | 11 |'
 - en: '| 50 | 0011 0010 | 062 | 32 |'
+  id: totrans-204
   prefs: []
   type: TYPE_TB
+  zh: '| 50 | 0011 0010 | 062 | 32 |'
 - en: '| 42 | 0010 1010 | 052 | 2A |'
+  id: totrans-205
   prefs: []
   type: TYPE_TB
+  zh: '| 42 | 0010 1010 | 052 | 2A |'
 - en: '| 35 | 0001 0011 | 023 | 13 |'
+  id: totrans-206
   prefs: []
   type: TYPE_TB
+  zh: '| 35 | 0001 0011 | 023 | 13 |'
 - en: '| 167 | 1010 0111 | 247 | A7 |'
+  id: totrans-207
   prefs: []
   type: TYPE_TB
+  zh: '| 167 | 1010 0111 | 247 | A7 |'
 - en: '| 249 | 1111 1001 | 371 | F9 |'
+  id: totrans-208
   prefs: []
   type: TYPE_TB
+  zh: '| 249 | 1111 1001 | 371 | F9 |'
 - en: Next Steps
+  id: totrans-209
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 下一步
 - en: C’s support of simple arrays opens up a wide world of storage and retrieval
     options for just about any type of data. You do have to pay attention to the number
     of elements that you expect to use, but within those bounds, C’s arrays are quite
@@ -1033,8 +1482,10 @@
     individual bits of a larger data type like an `int`. Modern desktops rarely require
     that much attention to detail, but some of our Arduino options in the latter half
     of this book care very much!
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: C语言对简单数组的支持为几乎任何类型的数据提供了广泛的存储和检索选项。但是你必须注意你希望使用的元素数量，但在这些边界内，C语言的数组非常高效。如果你只存储小的、是或否、开或关类型的值，C语言有几个操作符使得可能将这些值挤入像`int`这样的大数据类型的各个位中。现代桌面计算机很少需要那么详细的关注，但我们在本书后半部分的一些Arduino选项非常重视这些细节！
 - en: So what’s next? Well, our programs are getting interesting enough that we’ll
     want to start breaking the logic up into manageable slices. Think about this book,
     for example. It is not made up of one, excessive run-on sentence. It is broken
@@ -1044,21 +1495,29 @@
     your own logic. And once you have the logic in digestible blocks, you can use
     those blocks just like we have been doing with the `printf()` and `scanf()` functions.
     Let’s dive in!
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 那接下来呢？嗯，我们的程序变得足够有趣，我们将希望开始将逻辑分解成可管理的片段。举个例子，想想这本书。它不是由一个过长的跑题句组成的。它被分成章节。这些章节又分成小节。小节被分成段落。通常来说，讨论一个单独的段落比讨论整本书更容易。C语言允许你对自己的逻辑进行这种类型的分解。一旦你把逻辑分解成易消化的块，你就可以像我们一直在用`printf()`和`scanf()`函数一样使用这些块。让我们深入吧！
 - en: ^([1](ch04.xhtml#idm45018730558248-marker)) Exactly how things go wrong may
     vary. Your operating system or version, compiler version, or even the conditions
     on your system at runtime can all affect the output. The point is to be careful
     not to overflow your arrays.
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch04.xhtml#idm45018730558248-marker)) 究竟如何出错可能各不相同。你的操作系统或版本、编译器版本，甚至是运行时系统的条件都会影响输出。关键是要小心不要溢出你的数组。
 - en: ^([2](ch04.xhtml#idm45018730557384-marker)) The `gcc` `stack-protector` option
     can be used to detect some buffer overflows and abort the program before the overflow
     can be used maliciously. This is a compile-time flag that is off by default.
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch04.xhtml#idm45018730557384-marker)) `gcc`的`stack-protector`选项可以用于检测一些缓冲区溢出，并在溢出被恶意使用之前终止程序。这是一个默认关闭的编译时标志。
 - en: ^([3](ch04.xhtml#idm45018728687848-marker)) As an example of an alternative
     pair of extra characters, the *base64url* variation uses a minus (“-”) and underscore
     (“_”).
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch04.xhtml#idm45018728687848-marker)) 作为额外字符对的一个示例，*base64url* 变体使用减号（“-”）和下划线（“_”）。

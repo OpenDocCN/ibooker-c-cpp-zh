@@ -1,14 +1,19 @@
 - en: Chapter 1\. Error Handling
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第 1 章 错误处理
 - en: Error handling is a big part of writing software, and when it’s done poorly,
     the software becomes difficult to extend and to maintain. Programming languages
     like C++ or Java provide “Exceptions” and “Destructors” that make error handling
     easier. Such mechanisms are not natively available for C, and literature on good
     error handling in C is widely scattered over the internet.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 错误处理是编写软件的重要部分，如果处理不当，软件将变得难以扩展和维护。像 C++ 或 Java 这样的编程语言提供了“异常”和“析构函数”，使错误处理变得更加容易。这些机制在
+    C 语言中并非原生支持，而关于在 C 中良好错误处理的文献则广泛分布在互联网上。
 - en: This chapter provides collected knowledge on good error handling in the form
     of C error-handling patterns and a running example that applies the patterns.
     The patterns provide good practice design decisions and elaborate on when to apply
@@ -16,164 +21,236 @@
     the burden of making many fine-grained decisions. Instead, a programmer can rely
     on the knowledge presented in these patterns and use them as a starting point
     to write good code.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章提供了关于良好错误处理的汇总知识，以 C 错误处理模式的形式和一个运行示例来应用这些模式。这些模式提供了良好的实践设计决策，并详细说明了何时应用它们及其带来的后果。对于程序员来说，这些模式消除了做出许多细粒度决策的负担。相反，程序员可以依赖这些模式中呈现的知识，并将它们作为编写良好代码的起点。
 - en: '[Figure 1-1](#fig_error_handling) shows an overview of the patterns covered
     in this chapter and their relationships, and [Table 1-1](#tab_error_handling)
     provides a summary of the patterns.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 1-1](#fig_error_handling)展示了本章涵盖的模式概述及其关系，而[表 1-1](#tab_error_handling)提供了模式的摘要。'
 - en: '![pattern-maps/error-handling.png](assets/fluc_0101.png)'
+  id: totrans-4
   prefs: []
   type: TYPE_IMG
+  zh: '![模式图示/error-handling.png](assets/fluc_0101.png)'
 - en: Figure 1-1\. Overview of patterns for error handling
+  id: totrans-5
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-1\. 错误处理模式概述
 - en: Table 1-1\. Patterns for error handling
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 1-1\. 错误处理模式
 - en: '|  | Pattern name | Summary |'
+  id: totrans-7
   prefs: []
   type: TYPE_TB
+  zh: '|  | 模式名称 | 摘要 |'
 - en: '| --- | --- | --- |'
+  id: totrans-8
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '|  | Function Split | The function has several responsibilities, which makes
     the function hard to read and maintain. Therefore, split it up. Take a part of
     a function that seems useful on its own, create a new function with that, and
     call that function. |'
+  id: totrans-9
   prefs: []
   type: TYPE_TB
+  zh: '|  | 分割函数 | 函数具有多个责任，这使得函数难以阅读和维护。因此，将其拆分。从函数中找出一个看似独立有用的部分，创建一个新函数，并调用该函数。
+    |'
 - en: '|  | Guard Clause | The function is hard to read and maintain because it mixes
     pre-condition checks with the main program logic of the function. Therefore, check
     whether you have mandatory pre-conditions and immediately return from the function
     if these pre-conditions are not met. |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '|  | 卫语句 | 如果函数将前置条件检查与函数的主要程序逻辑混合在一起，那么这个函数将变得难以阅读和维护。因此，检查是否存在强制前置条件，并在不满足这些前置条件时立即返回函数。
+    |'
 - en: '|  | Samurai Principle | When returning error information, you assume that
     the caller checks for this information. However, the caller can simply omit this
     check and the error might go unnoticed. Therefore, return from a function victorious
     or not at all. If there is a situation for which you know that an error cannot
     be handled, then abort the program. |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '|  | 武士道原则 | 在返回错误信息时，你假设调用者会检查这些信息。然而，调用者可以简单地忽略此检查，错误可能会被忽略。因此，要么成功返回，要么一败涂地。如果存在无法处理错误的情况，则终止程序。
+    |'
 - en: '|  | Goto Error Handling | Code gets difficult to read and maintain if it acquires
     and cleans up multiple resources at different places within a function. Therefore,
     have all resource cleanup and error handling at the end of the function. If a
     resource cannot be acquired, use the `goto` statement to jump to the resource
     cleanup code. |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '|  | Goto 错误处理 | 如果在函数内部获取并清理多个资源，代码会变得难以阅读和维护。因此，将所有资源清理和错误处理放在函数末尾。如果无法获取资源，则使用`goto`语句跳转到资源清理代码。
+    |'
 - en: '|  | Cleanup Record | It is difficult to make a piece of code easy to read
     and maintain if this code acquires and cleans up multiple resources, particularly
     if those resources depend on one another. Therefore, call resource acquisition
     functions as long as they succeed, and store which functions require cleanup.
     Call the cleanup functions depending on these stored values. |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '|  | 清理记录 | 如果代码获取并清理多个资源，特别是这些资源彼此依赖，那么很难使代码易于阅读和维护。因此，调用资源获取函数，只要它们成功，存储需要清理的函数。根据这些存储的值调用清理函数。
+    |'
 - en: '|  | Object-Based Error Handling | Having multiple responsibilities in one
     function, such as resource acquisition, resource cleanup, and usage of that resource,
     makes that code difficult to implement, read, maintain, and test. Therefore, put
     initialization and cleanup into separate functions, similar to the concept of
     constructors and destructors in object-oriented programming. |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '|  | 基于对象的错误处理 | 在一个函数中具有多个责任，如资源获取、资源清理和使用该资源，使得该代码难以实现、阅读、维护和测试。因此，将初始化和清理分别放入不同的函数中，类似于面向对象编程中构造函数和析构函数的概念。
+    |'
 - en: Running Example
+  id: totrans-15
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 运行示例
 - en: You want to implement a function that parses a file for certain keywords and
     that returns information on which of the keywords was found.
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 你想实现一个函数，它能解析文件以查找特定关键词，并返回关键词被找到的信息。
 - en: The standard way to indicate an error situation in C is to provide this information
     via the return value of a function. To provide additional error information, legacy
     C functions often set the `errno` variable (see *errno.h*) to a specific error
     code. The caller can then check `errno` to get information about the error.
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C语言中，指示错误情况的标准方法是通过函数的返回值提供这些信息。为了提供额外的错误信息，传统的C函数通常会设置`errno`变量（见*errno.h*）为特定的错误代码。调用者可以检查`errno`以获取有关错误的信息。
 - en: 'However, in the following code, you simply use return values instead of `errno`
     because you don’t need very detailed error information. You come up with the following
     initial piece of code:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在下面的代码中，你只需使用返回值而不是`errno`，因为你不需要非常详细的错误信息。你提出了以下初始代码片段：
 - en: '[PRE0]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'In the code, you have to check the return values of the function calls to know
     whether an error occurred, so you end up with deeply nested `if` statements in
     your code. That presents the following problems:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 在代码中，你必须检查函数调用的返回值以了解是否发生错误，因此你的代码最终会出现深层嵌套的`if`语句。这导致以下问题：
 - en: The function is long and mixes error-handling, initialization, cleanup, and
     functional code. This makes it difficult to maintain the code.
+  id: totrans-21
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 函数过长且混合了错误处理、初始化、清理和功能性代码。这使得维护代码变得困难。
 - en: The main code that reads and interprets the file data is deeply nested inside
     the `if` clauses, which makes it difficult to follow the program logic.
+  id: totrans-22
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 主要读取和解释文件数据的代码深层嵌套在`if`子句中，这使得跟踪程序逻辑变得困难。
 - en: The cleanup functions are far separated from their initialization functions,
     which makes it easy to forget some cleanup. This is particularly true if the function
     contains multiple return statements.
+  id: totrans-23
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 清理函数与其初始化函数相隔甚远，这使得容易忘记某些清理工作。特别是如果函数包含多个返回语句。
 - en: To make things better, you first perform a Function Split.
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 要改进事情，你首先执行一个功能分割。
 - en: Function Split
+  id: totrans-25
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 功能分割
 - en: Context
+  id: totrans-26
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a function that performs multiple actions. For example, it allocates
     a resource (like dynamic memory or some file handle), uses this resource, and
     cleans it up.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有一个执行多个操作的函数。例如，它分配资源（如动态内存或某个文件句柄），使用这些资源，并清理它们。
 - en: Problem
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**The function has several responsibilities, which makes the function hard
     to read and maintain.**'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '**该函数具有多个责任，这使得函数难以阅读和维护。**'
 - en: Such a function could be responsible for allocating resources, operating on
     these resources, and cleaning up these resources. Maybe the cleanup is even scattered
     over the function and duplicated in some places. In particular, error handling
     of failed resource allocation makes such a function hard to read, because quite
     often that ends up in nested `if` statements.
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样的函数可能负责分配资源、对这些资源进行操作并清理这些资源。也许清理甚至散布在函数中，并在某些地方重复。特别是在处理资源分配失败的错误处理时，这种函数很难阅读，因为很多情况下会导致嵌套的`if`语句。
 - en: Coping with allocation, cleanup, and usage of multiple resources in one function
     makes it easy to forget cleanup of a resource, particularly if the code is changed
     later on. For example, if a return statement is added in the middle of the code,
     then it is easy to forget cleaning up the resources that were already allocated
     at that point in the function.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 在一个函数中处理多个资源的分配、清理和使用会容易忘记清理资源，特别是如果稍后更改代码。例如，如果在代码中间添加了返回语句，则很容易忘记清理在函数的那一点上已经分配的资源。
 - en: Solution
+  id: totrans-32
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Split it up. Take a part of a function that seems useful on its own, create
     a new function with that, and call that function.**'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '**将其拆分开来。拿出似乎可以独立使用的函数部分，创建一个新函数，并调用该函数。**'
 - en: To find out which part of the function to isolate, simply check whether you
     can give it its own meaningful name and whether the split isolates responsibilities.
     That could, for example, result in one function containing just functional code
     and one containing just error-handling code.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 要找出函数中要隔离的部分，只需检查是否可以给它一个有意义的名称，并且是否将责任分离。例如，这可能导致一个函数仅包含功能代码，另一个函数仅包含错误处理代码。
 - en: 'A good indicator for a function to be split is if it contains cleanup of the
     same resource at multiple places in the function. In such a case, it is a lot
     better to split the code into one function that allocates and cleans up the resources
@@ -181,155 +258,217 @@
     resources can then easily have multiple return statements without the need to
     clean up the resources before each return statement, because that is done in the
     other function. This is shown in the following code:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数是否应该分割的一个很好的指标是，如果它包含对同一资源的清理多次出现在函数中。在这种情况下，最好将代码拆分为一个函数来分配和清理资源，以及一个函数来使用这些资源。使用资源的被调函数可以轻松地具有多个返回语句，而无需在每个返回语句之前清理资源，因为这在另一个函数中已经完成了。以下是示例代码：
 - en: '[PRE1]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Now, you have two functions instead of one. That means, of course, that the
     calling function is not self-contained anymore and depends on the other function.
     You have to define where to put that other function. The first step is to put
     it right in the same file as the calling function, but if the two functions are
     not closely coupled, you can consider putting the called function into a separate
     implementation file and including a Header File declaration of that function.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，你有两个函数而不是一个。当然，调用函数不再是自包含的，而是依赖于另一个函数。你必须确定将另一个函数放在哪里。第一步是将它放在与调用函数相同的文件中，但如果这两个函数没有紧密耦合，可以考虑将被调函数放入单独的实现文件，并包含该函数的头文件声明。
 - en: Consequences
+  id: totrans-38
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: You improved the code because two short functions are easier to read and maintain
     compared to one long function. For example, the code is easier to read because
     the cleanup functions are closer to the functions that need cleanup and because
     the resource allocation and cleanup do not mix with the main program logic. That
     makes the main program logic easier to maintain and to extend its functionality
     later on.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 你改进了代码，因为两个短函数比一个长函数更容易阅读和维护。例如，代码更易于阅读，因为清理函数与需要清理的函数更接近，并且资源分配和清理不会与主程序逻辑混合。这使得主程序逻辑更易于维护，并在以后扩展其功能时更易于扩展。
 - en: The called function can now easily contain several return statements because
     it does not have to care about cleanup of the resources before each return statement.
     That cleanup is done at a single point by the calling function.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，由于调用函数在单个点上进行了清理，因此被调函数现在可以轻松包含多个返回语句。
 - en: If many resources are used by the called function, all these resources also
     have to be passed to that function. Having a lot of function parameters makes
     the code hard to read, and accidentally switching the order of the parameters
     when calling the function might result in programming errors. To avoid that, you
     can have an Aggregate Instance in such a case.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果被调函数使用了许多资源，则还必须将所有这些资源传递给该函数。有很多函数参数会使代码难以阅读，并且在调用函数时意外更改参数的顺序可能导致编程错误。为了避免这种情况，你可以在这种情况下使用聚合实例。
 - en: Known Uses
+  id: totrans-42
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的示例展示了这种模式的应用：
 - en: 'Pretty much all C code contains parts that apply this pattern and parts that
     do not apply this pattern and that are thus difficult to maintain. According to
     the book *Clean Code: A Handbook of Agile Software Craftsmanship* by Robert C.
     Martin (Prentice Hall, 2008), each function should have exactly one responsibility
     (single-responsibility principle), and thus resource handling and other program
     logic should always be split into different functions.'
+  id: totrans-44
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '几乎所有的C代码都包含应用这种模式的部分和不适用这种模式的部分，因此很难维护。根据Robert C. Martin（Prentice Hall，2008）的书籍《Clean
+    Code: A Handbook of Agile Software Craftsmanship》，每个函数应该只有一个责任（单一责任原则），因此资源处理和其他程序逻辑应始终拆分为不同的函数。'
 - en: This pattern is called Function Wrapper in the Portland Pattern Repository.
+  id: totrans-45
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 这种模式在Portland Pattern Repository中称为函数包装器。
 - en: For object-oriented programming, the Template Method pattern also describes
     a way to structure the code by splitting it up.
+  id: totrans-46
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于面向对象编程，模板方法模式还描述了一种通过拆分代码来结构化代码的方式。
 - en: 'The criteria for when and where to split the function are described in *Refactoring:
     Improving the Design of Existing Code* by Martin Fowler (Addison-Wesley, 1999)
     as the Extract Method pattern.'
+  id: totrans-47
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 函数何时以及何地拆分的标准在马丁·福勒（Martin Fowler）的《重构：改善既有代码的设计》（Addison-Wesley, 1999）中有详细描述，被称为提取方法模式。
 - en: The game NetHack applies this pattern in its function `read_config_file`, in
     which resources are handled and in which the function `parse_conf_file` is called,
     which then works on the resources.
+  id: totrans-48
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 游戏 NetHack 在其函数 `read_config_file` 中应用了这种模式，该函数处理资源，并调用函数 `parse_conf_file`，后者再对这些资源进行操作。
 - en: The OpenWrt code uses this pattern at several places for buffer handling. For
     example, the code responsible for MD5 calculation allocates a buffer, passes this
     buffer to another function that works on that buffer, and then cleans that buffer
     up.
+  id: totrans-49
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenWrt 代码在多个地方使用此模式进行缓冲区处理。例如，负责 MD5 计算的代码分配了一个缓冲区，将此缓冲区传递给另一个函数，该函数对该缓冲区进行操作，然后清理该缓冲区。
 - en: Applied to Running Example
+  id: totrans-50
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Your code already looks a lot better. Instead of one huge function you now
     have two large functions with distinct responsibilities. One function is responsible
     for retrieving and releasing resources, and the other is responsible for searching
     for the keywords as shown in the following code:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的代码看起来已经好多了。现在不再是一个巨大的函数，而是拥有两个具有明确职责的大型函数。一个函数负责获取和释放资源，另一个函数负责搜索关键字，如下面的代码所示：
 - en: '[PRE2]'
+  id: totrans-52
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The depth of the `if` cascade decreased, but the function `parseFile` still
     contains three `if` statements that check for resource allocation errors, which
     is way too many. You can make that function cleaner by implementing a Guard Clause.
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '`if` 嵌套的深度减少了，但函数 `parseFile` 仍包含三个检查资源分配错误的 `if` 语句，这实在太多了。您可以通过实现守卫条款来使该函数更加清晰。'
 - en: Guard Clause
+  id: totrans-54
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 守卫条款
 - en: Context
+  id: totrans-55
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a function that performs a task that can only be successfully completed
     under certain conditions (like valid input parameters).
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 您有一个函数执行一个仅在某些条件（如有效输入参数）下才能成功完成的任务。
 - en: Problem
+  id: totrans-57
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**The function is hard to read and maintain because it mixes pre-condition
     checks with the main program logic of the function.**'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: '**由于将前置条件检查与函数的主程序逻辑混合在一起，使得函数难以阅读和维护。**'
 - en: Allocating resources always requires their cleanup. If you allocate a resource
     and then later on realize that another pre-condition of the function was not met,
     then that resource also has to be cleaned up.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 分配资源总是需要进行清理。如果分配了一个资源，然后后来发现函数的另一个前置条件未满足，那么这个资源也必须清理掉。
 - en: It is difficult to follow the program flow if there are several pre-condition
     checks scattered across the function, particularly if these checks are implemented
     in nested `if` statements. When there are many such checks, the function becomes
     very long, which by itself is a code smell.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果函数中分散存在多个前置条件检查（特别是这些检查实现在嵌套的 `if` 语句中），那么很难跟踪程序流程。当存在许多此类检查时，函数本身会变得非常长，这本身就是一个代码发臭的迹象。
 - en: Code Smell
+  id: totrans-61
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 代码发臭
 - en: 'A code “smells” if it is badly structured or programmed in a way that makes
     the code hard to maintain. Examples of code smells are very long functions or
     duplicated code. More code smell examples and countermeasures are covered in the
     book *Refactoring: Improving the Design of Existing Code* by Martin Fowler (Addison-Wesley,
     1999).'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果代码结构混乱或以难以维护的方式编程，那么代码就会“发臭”。代码发臭的例子包括非常长的函数或重复的代码。更多代码发臭的例子和对策可以在马丁·福勒的《重构：改善既有代码的设计》（Addison-Wesley,
+    1999）中找到。
 - en: Solution
+  id: totrans-63
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Check if you have mandatory pre-conditions and immediately return from the
     function if these pre-conditions are not met.**'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: '**检查是否具有强制性前置条件，如果不满足这些前置条件，则立即从函数返回。**'
 - en: 'For example, check for the validity of input parameters or check if the program
     is in a state that allows execution of the rest of the function. Carefully think
     about which kind of pre-conditions for calling your function you want to set.
@@ -338,107 +477,153 @@
     of your function if you are more liberal regarding possible inputs (as described
     by Postel’s law: “Be conservative in what you do, be liberal in what you accept
     from others”).'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，检查输入参数的有效性，或者检查程序是否处于允许执行函数其余部分的状态。仔细考虑您希望设置的调用函数前置条件的类型。一方面，对于允许作为函数输入的内容非常严格会让您的生活更加轻松，但另一方面，如果对可能的输入更加宽容（如Postel法则所述：“在你的行为上要保守，在你接受他人的输入时要宽容”），这会让调用者的生活更轻松。
 - en: If you have many pre-condition checks, you can call a separate function for
     performing these checks. In any case, perform the checks before any resource allocation
     has been done because then it is very easy to return from a function as no cleanup
     of resources has to be done.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果有很多前置条件检查，可以调用一个单独的函数来执行这些检查。无论如何，在分配任何资源之前执行这些检查非常重要，因为这样在函数中返回时不需要清理资源。
 - en: Clearly describe the pre-conditions for your function in the function’s interface.
     The best place to document that behavior is in the header file where the function
     is declared.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 在函数接口中清楚地描述函数的前置条件。最好的文档位置是在声明函数的头文件中描述这种行为。
 - en: 'If it is important for the caller to know which pre-condition was not met,
     you can provide the caller with error information. For example, you can Return
     Status Codes, but make sure to only Return Relevant Errors. The following code
     shows an example without returning error information:'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果调用者重视未满足的前置条件，您可以向调用者提供错误信息。例如，您可以返回状态码，但请确保仅返回相关错误。以下代码显示了一个不返回错误信息的示例：
 - en: '*someFile.h*'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFile.h*'
 - en: '[PRE3]'
+  id: totrans-70
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '*someFile.c*'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '*someFile.c*'
 - en: '[PRE4]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Consequences
+  id: totrans-73
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 影响
 - en: Immediately returning when the pre-conditions are not met makes the code easier
     to read compared to nested `if` constructs. It is made very clear in the code
     that the function execution is not continued if the pre-conditions are not met.
     That makes the pre-conditions very well separated from the rest of the code.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 当未满足前置条件时立即返回，使代码比嵌套的`if`结构更易读。在代码中非常清楚地表明，如果未满足前置条件，则函数执行不会继续。这使得前置条件非常清晰地与代码的其余部分分离开来。
 - en: However, some coding guidelines forbid returning in the middle of a function.
     For example, for code that has to be formally proved, return statements are usually
     only allowed at the very end of the function. In such a case, a Cleanup Record
     can be kept, which also is a better choice if you want to have a central place
     for error handling.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，某些编码指南禁止在函数中间返回。例如，对于必须正式证明的代码，通常只允许在函数的最末尾使用返回语句。在这种情况下，可以保留一个清理记录，这也是如果希望有一个集中的错误处理位置的更好选择。
 - en: Known Uses
+  id: totrans-76
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知使用情况
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了这种模式的应用：
 - en: The Guard Clause is described in the Portland Pattern Repository.
+  id: totrans-78
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 《Portland Pattern Repository》中描述了守卫条款。
 - en: The article “Error Detection” by Klaus Renzel (Proceedings of the 2nd EuroPLoP
     conference, 1997) describes the very similar Error Detection pattern that suggests
     introducing pre-condition and post-condition checks.
+  id: totrans-79
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Klaus Renzel的文章“Error Detection”（1997年第二届EuroPLoP会议论文集）描述了非常相似的错误检测模式，建议引入前置条件和后置条件检查。
 - en: The NetHack game uses this pattern at several places in its code, for example,
     in the `placebc` function. That function puts a chain on the NetHack hero that
     reduces the hero’s movement speed as punishment. The function immediately returns
     if no chain objects are available.
+  id: totrans-80
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 游戏NetHack在其代码中的多处使用了这种模式，例如在`placebc`函数中。该函数给NetHack英雄戴上一条链，作为惩罚，减慢英雄的移动速度。如果没有链条对象可用，函数将立即返回。
 - en: The OpenSSL code uses this pattern. For example, the `SSL_new` function immediately
     returns in case of invalid input parameters.
+  id: totrans-81
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL代码也采用了这种模式。例如，在`SSL_new`函数中，如果输入参数无效，函数将立即返回。
 - en: The Wireshark code `capture_stats`, which is responsible for gathering statistics
     when sniffing network packets, first checks its input parameters for validity
     and immediately returns in case of invalid parameters.
+  id: totrans-82
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark代码中的`capture_stats`负责在侦听网络数据包时收集统计信息，首先检查其输入参数的有效性，如果参数无效，则立即返回。
 - en: Applied to Running Example
+  id: totrans-83
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用到运行示例
 - en: 'The following code shows how the `parseFile` function applies a Guard Clause
     to check pre-conditions of the function:'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码展示了 `parseFile` 函数如何应用守卫条款来检查函数的前置条件：
 - en: '[PRE5]'
+  id: totrans-85
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '[![1](assets/1.png)](#co_error_handling_CO1-1)'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_error_handling_CO1-1)'
 - en: If invalid parameters are provided, we immediately return and no cleanup is
     required because no resources were acquired yet.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果提供了无效的参数，我们立即返回，因为尚未获取任何资源，所以不需要清理工作。
 - en: The code Returns Status Codes to implement the Guard Clause. It returns the
     constant `ERROR` in the specific case of a `NULL` parameter. The caller could
     now check the Return Value to know whether an invalid `NULL` parameter was provided
@@ -446,116 +631,157 @@
     error, and checking for programming errors and propagating this information within
     the code is not a good idea. In such a case, it is easier to simply apply the
     Samurai Principle.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 该代码使用返回状态码来实现守卫条款。在特定情况下，比如空参数，它返回常量 `ERROR`。调用者现在可以检查返回值，以知道是否提供了无效的 `NULL`
+    参数。但这样的无效参数通常表示编程错误，检查编程错误并在代码内传播此信息并不是一个好主意。在这种情况下，简单地应用武士道原则更为简单。
 - en: Samurai Principle
+  id: totrans-89
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 武士道原则
 - en: Context
+  id: totrans-90
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have some code with complicated error handling, and some errors are very
     severe. Your system does not perform safety-critical actions, and high availability
     is not very important.
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的代码中有一些复杂的错误处理，而且有些错误非常严重。你的系统不执行安全关键的操作，高可用性并不十分重要。
 - en: Problem
+  id: totrans-92
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**When returning error information, you assume that the caller checks for this
     information. However, the caller can simply omit this check and the error might
     go unnoticed.**'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: '**当返回错误信息时，你假设调用者会检查这些信息。然而，调用者可以简单地省略此检查，错误可能会被忽略。**'
 - en: In C it is not mandatory to check return values of the called functions, and
     your caller can simply ignore the return value of a function. If the error that
     occurs in your function is severe and cannot be gracefully handled by the caller,
     you don’t want your caller to decide whether and how the error should be handled.
     Instead, you’d want to make sure that an action is definitely taken.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C 语言中，不强制检查调用函数的返回值，你的调用者可以简单地忽略函数的返回值。如果在你的函数中发生的错误非常严重，而且调用者无法优雅地处理，你不希望调用者决定是否以及如何处理错误。相反，你希望确保一定会采取某种行动。
 - en: Even if the caller handles an error situation, quite often the program will
     still crash or some error will still occur. The error might simply show up somewhere
     else—maybe somewhere in the caller’s caller code that might not handle error situations
     properly. In such a case, handling the error disguises the error, which makes
     it much harder to debug the error in order to find out the root cause.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使调用者处理了错误情况，程序往往仍然会崩溃或出现一些错误。错误可能会简单地显示在其他地方——也许是调用者的调用者代码中，可能不正确地处理错误情况。在这种情况下，处理错误会掩盖错误，这使得调试错误以找出根本原因变得更加困难。
 - en: Some errors in your code might only occur very rarely. To Return Status Codes
     for such situations and handle them in the caller’s code makes that code less
     readable, because it distracts from the main program logic and the actual purpose
     of the caller’s code. The caller might have to write many lines of code to handle
     very rarely occurring situations.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 你的代码中可能会很少发生一些错误。为了这些情况返回状态码并在调用者的代码中处理它们，会使代码变得不够清晰，因为它会分散注意力，远离主程序逻辑和调用者代码的实际目的。调用者可能需要编写许多行代码来处理很少发生的情况。
 - en: Returning such error information also poses the problem of how to actually return
     the information. Using the Return Value or Out-Parameters of the function to return
     error information makes the function’s signature more complicated and makes the
     code more difficult to understand. Because of this, you don’t want to have additional
     parameters for your function that only return error information.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 返回这种错误信息还带来了如何实际返回信息的问题。使用返回值或输出参数来返回错误信息会使函数的签名变得更复杂，使代码更难理解。因此，你不希望为函数添加仅用于返回错误信息的额外参数。
 - en: Solution
+  id: totrans-98
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Return from a function victorious or not at all (samurai principle). If there
     is a situation for which you know that an error cannot be handled, then abort
     the program.**'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '**要么函数成功返回，要么不返回（武士道原则）。如果有一种情况，你知道错误无法处理，那么就中止程序。**'
 - en: 'Don’t use Out-Parameters or the Return Value to return error information. You
     have all the error information at hand, so handle the error right away. If an
     error occurs, simply let the program crash. Abort the program in a structured
     way by using the `assert` statement. Additionally, you can provide debug information
     with the `assert` statement as shown in the following code:'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 不要使用输出参数或返回值返回错误信息。您已经掌握了所有的错误信息，所以立即处理错误。如果发生错误，只需让程序崩溃。通过使用`assert`语句以结构化的方式中止程序。此外，您可以像下面的代码中所示使用`assert`语句提供调试信息：
 - en: '[PRE6]'
+  id: totrans-101
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: This piece of code checks for the condition in the `assert` statement and if
     it is not true, the `assert` statement including the string on the right will
     be printed to `stderr` and the program will be aborted. It would be OK to abort
     the program in a less structured way by not checking for `NULL` pointers and accessing
     such pointers. Simply make sure that the program crashes at the point where the
     error occurs.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 这段代码检查`assert`语句中的条件，如果条件不为真，则会打印`assert`语句及右侧的字符串到`stderr`，并且程序会中止。在不检查`NULL`指针并访问这类指针的情况下，以较少结构的方式中止程序也是可以的。确保程序在发生错误的地方崩溃即可。
 - en: Quite often, the Guard Clauses are good candidates for aborting the program
     in case of errors. For example, if you know that a coding error occurred (if the
     caller provided you a `NULL` pointer), abort the program and log debug information
     instead of returning error information to the caller. However, don’t abort the
     program for every kind of error. For example, runtime errors like invalid user
     input should definitely not lead to a program abort.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常情况下，守卫条款是在发生错误时中止程序的良好选择。例如，如果您知道发生了编码错误（如果调用者提供了`NULL`指针），则应中止程序并记录调试信息，而不是向调用者返回错误信息。但是，并不是每种错误都应该中止程序。例如，像无效的用户输入这样的运行时错误绝对不应导致程序中止。
 - en: The caller has to be well aware of the behavior of your function, so you have
     to document in the function’s API the cases in which the function aborts the program.
     For example, the function documentation has to state whether the program crashes
     if the function is provided a `NULL` pointer as parameter.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用者必须充分了解函数的行为，因此您必须在函数的API文档中记录函数在哪些情况下会导致程序崩溃。例如，函数文档必须说明如果函数的参数是`NULL`指针时程序是否会崩溃。
 - en: Of course, the Samurai Principle is not appropriate for all errors or all application
     domains. You wouldn’t want to let the program crash in case of some unexpected
     user input. However, in case of a programming error, it can be appropriate to
     fail fast and let the program crash. That makes it as simple as possible for the
     programmers to find the error.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，并非所有错误或所有应用程序领域都适合采用武士原则。在某些意外用户输入的情况下，您不希望让程序崩溃。但是，在编程错误的情况下，迅速失败并让程序崩溃是合适的。这使得程序员更容易找到错误。
 - en: Still, such a crash need not necessarily be shown to the user. If your program
     is just some noncritical part of a larger application, then you might still want
     your program to crash. But in the context of the overall application, your program
     might fail silently so as not not disturb the rest of the application or the user.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这种崩溃并不一定要显示给用户。如果您的程序只是较大应用程序的一部分而且不是关键部分，则您可能仍希望程序崩溃。但是在整个应用程序的上下文中，您的程序可能会悄悄地失败，以免干扰其余的应用程序或用户。
 - en: Asserts in Release Executables
+  id: totrans-107
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 发行版可执行文件中的断言
 - en: When using `assert` statements, the discussion comes up of whether to only have
     them active in debug executables or whether to also have them active in release
     executables. `Assert` statements can be deactivated by defining the macro `NDEBUG`
@@ -567,18 +793,24 @@
     statements active in release executables is that you use them anyway for critical
     errors that cannot be handled gracefully, and such errors should never go unnoticed,
     not even in release executables used by your customers.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用`assert`语句时，会讨论是否仅在调试可执行文件中激活它们，或者是否还应在发布可执行文件中激活它们。可以通过在包含*assert.h*之前在您的代码中定义宏`NDEBUG`或直接在工具链中定义宏来停用`assert`语句。停用发布可执行文件中的`assert`语句的主要论据是，当测试调试可执行文件时，您已经捕获了使用`assert`的编程错误，因此在发布可执行文件中不需要因为`assert`而导致程序中止的风险。在发布可执行文件中也激活`assert`语句的主要论据是，您无论如何都会为不能优雅处理的关键错误使用它们，这些错误甚至在由您的客户使用的发布可执行文件中也不应被忽视。
 - en: Consequences
+  id: totrans-109
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: The error cannot go unnoticed because it is handled right at the point where
     it shows up. The caller is not burdened with having to check for this error, so
     the caller code becomes simpler. However, now the caller cannot choose how to
     react to the error.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 错误因为它在出现的地方被处理了，所以不能被忽视。调用者不必担心必须检查此错误，因此调用者代码变得更简单。然而，现在调用者无法选择如何对错误做出反应。
 - en: In some cases aborting the application is OK because a fast crash is better
     than unpredictable behavior later on. Still, you have to consider how such an
     error should be presented to the user. Maybe the user will see it as an abort
@@ -587,529 +819,741 @@
     the influence an aborting program has on the environment and whether this is acceptable.
     In many such cases, the application might have to be more robust and simply aborting
     the application will not be acceptable.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 在某些情况下，中止应用程序是可以接受的，因为快速崩溃比后续的不可预测行为更好。但是，您必须考虑如何向用户呈现此类错误。也许用户会在屏幕上看到中止语句。然而，对于使用传感器和执行器与环境进行交互的嵌入式应用程序，您必须更加小心，并考虑中止程序对环境的影响以及这是否可以接受。在许多这种情况下，应用程序可能需要更强大，简单地中止应用程序将是不可接受的。
 - en: To abort the program and to Log Errors right at the point where the error shows
     up makes it easier to find and fix the error because the error is not disguised.
     Thus, in the long term, by applying this pattern you end up with more robust and
     bug-free software.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 在程序中止并在错误显示的地方记录错误可以更容易地找到和修复错误，因为错误没有伪装。因此，长期以来，通过应用这种模式，您最终会得到更强大和无缺陷的软件。
 - en: Known Uses
+  id: totrans-113
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知的用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例显示了此模式的应用：
 - en: A similar pattern that suggests adding a debug information string to an `assert`
     statement is called Assertion Context and is described in the book *Patterns in
     C* by Adam Tornhill (Leanpub, 2014).
+  id: totrans-115
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 建议将调试信息字符串添加到`assert`语句的类似模式称为断言上下文，并在《C语言模式》（Adam Tornhill 著，Leanpub，2014）中进行了描述。
 - en: The Wireshark network sniffer applies this pattern all over its code. For example,
     the function `register_capture_dissector` uses `assert` to check that the registration
     of a dissector is unique.
+  id: totrans-116
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark 网络嗅探器在其代码中应用了这种模式。例如，函数`register_capture_dissector`使用`assert`来检查解析器的注册是否唯一。
 - en: The source code of the Git project uses `assert` statements. For example, the
     functions for storing SHA1 hash values use `assert` to check whether the path
     to the file where the hash value should be stored is correct.
+  id: totrans-117
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Git 项目的源代码使用`assert`语句。例如，用于存储 SHA1 哈希值的函数使用`assert`来检查文件路径是否正确。
 - en: The OpenWrt code responsible for handling large numbers uses `assert` statements
     to check pre-conditions in its functions.
+  id: totrans-118
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenWrt 代码负责处理大数字，在其函数中使用`assert`语句来检查前置条件。
 - en: A similar pattern with the name Let It Crash is presented by Pekka Alho and
     Jari Rauhamäki in the article [“Patterns for Light-Weight Fault Tolerance and
     Decoupled Design in Distributed Control Systems”](https://oreil.ly/x0tQW). The
     pattern targets distributed control systems and suggests letting single fail-safe
     processes crash and then restart quickly.
+  id: totrans-119
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Pekka Alho和Jari Rauhamäki在文章[“分布式控制系统中的轻量级容错和解耦设计模式”](https://oreil.ly/x0tQW)中提出了名为“让它崩溃”的类似模式。该模式针对分布式控制系统，建议让单个故障安全进程崩溃，然后快速重启。
 - en: The C standard library function `strcpy` does not check for valid user input.
     If you provide the function with a `NULL` pointer, it crashes.
+  id: totrans-120
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: C标准库函数`strcpy`不会检查有效的用户输入。如果向函数提供`NULL`指针，它会崩溃。
 - en: Applied to Running Example
+  id: totrans-121
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'The `parseFile` function now looks a lot better. Instead of returning an Error
     Code, you now have a simple `assert` statement. That makes the following code
     shorter, and the caller of the code does not have the burden of checking against
     the Return Value:'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: '`parseFile`函数现在看起来好多了。现在不再返回错误代码，而是使用了简单的`assert`语句。这使得以下代码更简洁，调用代码的调用者不必再检查返回值：'
 - en: '[PRE7]'
+  id: totrans-123
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: While the `if` statements that don’t require resource cleanup are eliminated,
     the code still contains nested `if` statements for everything that requires cleanup.
     Also, you don’t yet handle the error situation if the `malloc` call fails. All
     of this can be improved by using Goto Error Handling.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然消除了不需要资源清理的`if`语句，但代码仍然包含需要清理的嵌套`if`语句。此外，如果`malloc`调用失败，您尚未处理错误情况。通过使用Goto错误处理可以改善所有这些情况。
 - en: Goto Error Handling
+  id: totrans-125
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 使用Goto错误处理
 - en: Context
+  id: totrans-126
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a function that acquires and cleans up multiple resources. Maybe you
     already tried to reduce the complexity by applying Guard Clause, Function Split,
     or Samurai Principle, but you still have a deeply nested `if` construct in the
     code, particularly because of resource acquisition. You might even have duplicated
     code for resource cleanup.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 您有一个获取和清理多个资源的函数。也许您已经尝试通过应用守护条款、函数拆分或武士原则来减少复杂性，但由于资源获取，代码中仍然存在深度嵌套的`if`结构。您甚至可能为资源清理编写了重复的代码。
 - en: Problem
+  id: totrans-128
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**Code gets difficult to read and maintain if it acquires and cleans up multiple
     resources at different places within a function.**'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '**如果在函数内的不同位置获取并清理多个资源，则代码变得难以阅读和维护。**'
 - en: Such code becomes difficult because usually each resource acquisition can fail,
     and each resource cleanup can just be called if the resource was successfully
     acquired. To implement this, a lot of `if` statements are required, and when implemented
     poorly, nested `if` statements in a single function make the code hard to read
     and maintain.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样的代码变得困难，因为通常每个资源获取都可能失败，并且每个资源清理只有在成功获取资源时才能调用。要实现这一点，需要大量的`if`语句，当实现不良时，在单个函数中嵌套的`if`语句使代码难以阅读和维护。
 - en: Because you have to clean up the resources, returning in the middle of the function
     when something goes wrong is not a good option. This is because all resources
     already acquired have to be cleaned up before each return statement. So you end
     up with multiple points in the code where the same resource is being cleaned up,
     but you don’t want to have duplicated error handling and cleanup code.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于必须清理资源，所以当出现问题时在函数中间返回并不是一个好选择。这是因为必须在每个返回语句之前清理已获取的所有资源。因此，您将在代码中多个点上清理同一资源，但不希望有重复的错误处理和清理代码。
 - en: Solution
+  id: totrans-132
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Have all resource cleanup and error handling at the end of the function.
     If a resource cannot be acquired, use the `goto` statement to jump to the resource
     cleanup code.**'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: '**请在函数末尾进行所有资源清理和错误处理。如果无法获取资源，请使用`goto`语句跳转到资源清理代码。**'
 - en: 'Acquire the resources in the order you need them, and at the end of your function
     clean the resources up in the reverse order. For the resource cleanup, have a
     separate label to which you can jump for each cleanup function. Simply jump to
     the label if an error occurs or if a resource cannot be acquired, but don’t jump
     multiple times and only jump forward as is done in the following code:'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 按照需要的顺序获取资源，并在函数末尾按相反顺序清理资源。对于资源清理，为每个清理函数设置单独的标签，可以在发生错误或无法获取资源时跳转到该标签，但不要多次跳转，并且只像以下代码中所示那样向前跳转：
 - en: '[PRE8]'
+  id: totrans-135
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: If your coding standard forbids the usage of `goto` statements, you can emulate
     it with a `do{ ... }while(0);` loop around your code. On error use `break` to
     jump to the end of the loop where you put your error handling. However, that workaround
     is usually a bad idea because if `goto` is not allowed by your coding standard,
     then you should also not be emulating it just to continue programming in your
     own style. You could use a Cleanup Record as an alternative to `goto`.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您的编码标准禁止使用 `goto` 语句，则可以在您的代码周围使用 `do{ ... }while(0);` 循环来模拟它。发生错误时，使用 `break`
+    跳转到循环的末尾，在那里放置您的错误处理。然而，通常这种解决方法是一个坏主意，因为如果您的编码标准不允许使用 `goto`，那么您也不应该模拟它，以便继续按照自己的风格编程。您可以使用清理记录作为
+    `goto` 的替代方案。
 - en: In any case, the usage of `goto` might simply be an indicator that your function
     is already too complex, and splitting the function, for example with Object-Based
     Error Handling, might be a better idea.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论如何，使用 `goto` 的情况可能仅仅是您的函数已经太复杂的一个指标，例如使用基于对象的错误处理分割函数可能是一个更好的想法。
 - en: 'goto: Good or Evil?'
+  id: totrans-138
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: goto：好还是坏？
 - en: There are many discussions about whether the usage of `goto` is good or bad.
     The most famous article against the use of `goto` is by [Edsger W. Dijkstra](https://oreil.ly/yXkyq),
     who argues that it obscures the program flow. That is true if `goto` is being
     used to jump back and forth in a program, but `goto` in C cannot be as badly abused
     as in the programming languages Dijkstra wrote about. (In C you can only use `goto`
     to jump within a function.)
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于使用 `goto` 是否好还是坏有很多讨论。最著名的反对使用 `goto` 的文章是由 [Edsger W. Dijkstra](https://oreil.ly/yXkyq)
+    撰写的，他认为它会模糊程序流程。如果 `goto` 用于在程序中来回跳转，那么这是正确的，但在 C 语言中，`goto` 不能像 Dijkstra 所写的编程语言那样被滥用。（在
+    C 语言中，您只能在函数内部使用 `goto`。）
 - en: Consequences
+  id: totrans-140
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: The function is a single point of return, and the main program flow is well
     separated from the error handling and resource cleanup. No nested `if` statements
     are required anymore to achieve this, but not everybody is used to and likes reading
     `goto` statements.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数是单一返回点，主程序流程与错误处理和资源清理分离良好。不再需要嵌套的 `if` 语句来实现此功能，但并非所有人都习惯和喜欢阅读 `goto` 语句。
 - en: If you use `goto` statements, you have to be careful, because it is tempting
     to use them for things other than error handling and cleanup, and that definitely
     makes the code unreadable. Also, you have to be extra careful to have the correct
     cleanup functions at the correct labels. It is a common pitfall to accidentally
     put cleanup functions at the wrong label.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果使用 `goto` 语句，必须小心，因为很容易用于除错误处理和清理之外的其他事情，这肯定会使代码难以阅读。此外，必须特别小心确保在正确的标签上有正确的清理函数。将清理函数放错标签是一个常见的陷阱。
 - en: Known Uses
+  id: totrans-143
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的示例展示了这种模式的应用：
 - en: The Linux kernel code uses mostly `goto`-based error handling. For example,
     the book [*Linux Device Drivers*](https://oreil.ly/linux-device-drivers) by Alessandro
     Rubini and Jonathan Corbet (O’Reilly, 2001) describes `goto`-based error handling
     for programming Linux device drivers.
+  id: totrans-145
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Linux 内核代码主要使用基于 `goto` 的错误处理。例如，[*Linux 设备驱动程序*](https://oreil.ly/linux-device-drivers)
+    由 Alessandro Rubini 和 Jonathan Corbet（O’Reilly，2001）描述了用于编程 Linux 设备驱动程序的基于 `goto`
+    的错误处理。
 - en: '*The CERT C Coding Standard* by Robert C. Seacord (Addison-Wesley Professional,
     2014) suggests the use of `goto` for error handling.'
+  id: totrans-146
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*The CERT C 编码标准* 由 Robert C. Seacord（Addison-Wesley Professional，2014）建议在错误处理中使用
+    `goto`。'
 - en: The `goto` emulation using a `do-while` loop is described in the Portland Pattern
     Repository as the Trivial Do-While-Loop pattern.
+  id: totrans-147
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用 `do-while` 循环来模拟 `goto` 的方法在 Portland Pattern Repository 中描述为 Trivial Do-While-Loop
+    模式。
 - en: The OpenSSL code uses the `goto` statement. For example, the functions that
     handle X509 certificates use `goto` to jump forward to a central error handler.
+  id: totrans-148
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL 代码使用 `goto` 语句。例如，处理 X509 证书的函数使用 `goto` 跳转到中央错误处理器。
 - en: The Wireshark code uses `goto` statements to jump from its `main` function to
     a central error handler at the end of that function.
+  id: totrans-149
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark 代码使用 `goto` 语句从其 `main` 函数跳转到该函数末尾的中央错误处理器。
 - en: Applied to Running Example
+  id: totrans-150
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Even though quite a few people highly disapprove of the use of `goto` statements,
     the error handling is better compared to the previous code example. In the following
     code there are no nested `if` statements, and the cleanup code is well separated
     from the main program flow:'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管很多人强烈反对使用 `goto` 语句，但与之前的代码示例相比，错误处理要好得多。在下面的代码中，没有嵌套的 `if` 语句，并且清理代码与主程序流程分离良好：
 - en: '[PRE9]'
+  id: totrans-152
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: Now, let’s say you don’t like `goto` statements or your coding guidelines forbid
     them, but you still have to clean up your resources. There are alternatives. You
     can, for example, simply have a Cleanup Record instead.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，假设您不喜欢`goto`语句，或者您的编码指南禁止使用它们，但仍然需要清理您的资源。还有其他替代方案。例如，您可以简单地使用清理记录。
 - en: Cleanup Record
+  id: totrans-154
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 清理记录
 - en: Context
+  id: totrans-155
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a function that acquires and cleans up multiple resources. Maybe you
     already tried to reduce the complexity by applying Guard Clause, Function Split,
     or Samurai Principle, but you still have a deeply nested `if` construct in the
     code, because of resource acquisition. You might even have duplicated code for
     resource cleanup. Your coding standards don’t allow you to implement Goto Error
     Handling, or you don’t want to use `goto`.
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 您有一个函数用于获取和清理多个资源。也许您已经尝试通过应用守护条款、函数分割或武士原则来减少复杂性，但由于资源获取，您的代码仍然具有深度嵌套的`if`结构。您甚至可能为资源清理使用了重复的代码。您的编码标准不允许您实现Goto错误处理，或者您不想使用`goto`。
 - en: Problem
+  id: totrans-157
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**It is difficult to make a piece of code easy to read and maintain if this
     code acquires and cleans up multiple resources, particularly if those resources
     depend on one another.**'
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: '**如果该代码获取和清理多个资源（特别是这些资源彼此依赖），那么要使代码易于阅读和维护就很困难。**'
 - en: This is difficult because usually each resource acquisition can fail, and each
     resource cleanup can just be called if the resource was successfully acquired.
     To implement this, a lot of `if` statements are required, and when implemented
     poorly, nested `if` statements in a single function make the code hard to read
     and maintain.
+  id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 这很困难，因为通常每个资源获取都可能失败，并且只有在成功获取资源时才能调用每个资源清理。要实现这一点，需要大量的`if`语句，而且如果实现不当，在单个函数中嵌套`if`语句会使代码难以阅读和维护。
 - en: Because you have to clean up the resources, returning in the middle of the function
     when something goes wrong is not a good option. This is because all resources
     already acquired have to be cleaned up before each return statement. So you end
     up with multiple points in the code where the same resource is being cleaned up,
     but you don’t want to have duplicated error handling and cleanup code.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为您必须清理资源，所以在函数执行过程中出现问题时立即返回并不是一个好选择。这是因为在每个返回语句之前都必须清理已获取的所有资源。因此，代码中会出现多个地方需要清理相同的资源，但您不希望重复处理错误和清理代码。
 - en: Solution
+  id: totrans-161
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Call resource acquisition functions as long as they succeed, and store which
     functions require cleanup. Call the cleanup functions depending on these stored
     values.**'
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: '**只要成功调用资源获取函数，并存储需要清理的函数。根据这些存储的值调用清理函数。**'
 - en: 'In C, lazy evaluation of `if` statements can be used to achieve this. Simply
     call a sequence of functions inside a single `if` statement as long as these functions
     succeed. For each function call, store the acquired resource in a variable. Have
     the code operating on the resources in the body of the `if` statement, and have
     all resource cleanup after the `if` statement only if the resource was successfully
     acquired. The following code shows an example of this:'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C语言中，可以使用`if`语句的惰性求值来实现这一点。只需在单个`if`语句内调用一系列函数，只要这些函数成功执行即可。对于每个函数调用，将获取的资源存储在变量中。在`if`语句的主体中对资源进行操作，并且仅当成功获取资源时，才在`if`语句后进行所有资源清理。以下代码展示了这样的一个例子：
 - en: '[PRE10]'
+  id: totrans-164
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '[![1](assets/1.png)](#co_error_handling_CO2-1)'
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_error_handling_CO2-1)'
 - en: To make the code easier to read, you can alternatively put these checks inside
     the cleanup functions. This is a good approach if you have to provide the resource
     variable to the cleanup function anyway.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了使代码更易于阅读，您可以选择将这些检查放在清理函数内部。如果您必须向清理函数提供资源变量，这是一个不错的方法。
 - en: Consequences
+  id: totrans-167
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: You now have no nested `if` statements anymore, and you still have one central
     point at the end of the function for resource cleanup. That makes the code a lot
     easier to read because the main program flow is no longer obscured by error handling.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，您不再有嵌套的`if`语句，但仍然在函数末尾有一个中心点进行资源清理。这使得代码更易于阅读，因为主程序流不再被错误处理所遮蔽。
 - en: Also, the function is easy to read because it has a single exit point. However,
     the fact that you have to have many variables for keeping track of which resources
     were successfully allocated makes the code more complicated. Maybe an Aggregate
     Instance can help to structure the resource variables.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，该函数易于阅读，因为它具有单一的退出点。然而，需要许多变量来跟踪哪些资源成功分配，使得代码变得更加复杂。也许聚合实例可以帮助结构化资源变量。
 - en: If many resources are being acquired, then many functions are being called in
     the single `if` statement. That makes the `if` statement very hard to read and
     even harder to debug. Therefore, if many resources are being acquired, it is a
     much better solution to have Object-Based Error Handling.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果正在获取许多资源，则在单个`if`语句中调用许多函数。这使得`if`语句非常难以阅读，甚至更难调试。因此，如果正在获取许多资源，则基于对象的错误处理是一个更好的解决方案。
 - en: Another reason for having Object-Based Error Handling instead is that the preceding
     code is still complicated because it has a single function that contains the main
     functionality as well as resource allocation and cleanup. So one function has
     multiple responsibilities.
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: 采用基于对象的错误处理的另一个原因是，先前的代码仍然很复杂，因为它包含了主功能以及资源分配和清理的单个函数。因此，一个函数具有多个责任。
 - en: Known Uses
+  id: totrans-172
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了该模式的应用：
 - en: In the Portland Pattern Repository, a similar solution where each of the called
     functions registers a cleanup handler to a callback list is presented. For cleanup,
     all functions from the callback list are called.
+  id: totrans-174
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在波特兰模式库中，介绍了一个类似的解决方案，其中每个被调用的函数向回调列表注册一个清理处理程序。在清理时，调用回调列表中的所有函数。
 - en: The OpenSSL function `dh_key2buf` uses lazy evaluation in an `if` statement
     to keep track of allocated bytes that are then cleaned up later on.
+  id: totrans-175
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL函数`dh_key2buf`使用延迟评估的`if`语句来跟踪分配的字节，然后稍后进行清理。
 - en: The function `cap_open_socket` of the Wireshark network sniffer uses lazy evaluation
     of an `if` statement and stores the resources allocated in this `if` statement
     in variables. At cleanup, these variables are then checked, and if the resource
     allocation was successful, the resource is cleaned up.
+  id: totrans-176
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark网络嗅探器的函数`cap_open_socket`使用延迟评估`if`语句并将在此`if`语句中分配的资源存储在变量中。在清理时，这些变量会被检查，如果资源分配成功，则清理资源。
 - en: The `nvram_commit` function of the OpenWrt source code allocates its resources
     inside an `if` statement and stores these resources to a variable right inside
     that `if` statement.
+  id: totrans-177
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenWrt源代码的`nvram_commit`函数在`if`语句中分配其资源，并将这些资源存储在该`if`语句的变量中。
 - en: Applied to Running Example
+  id: totrans-178
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now, instead of `goto` statements and nested `if` statements, you have a single
     `if` statement. The advantage of not using `goto` statements in the following
     code is that the error handling is well separated from the main program flow:'
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，不再使用`goto`语句和嵌套的`if`语句，而是使用单个`if`语句。不使用`goto`语句的优势在于，错误处理与主程序流程很好地分离：
 - en: '[PRE11]'
+  id: totrans-180
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'Still, the code does not look nice. This one function has a lot of responsibilities:
     resource allocation, resource deallocation, file handling, and error handling.
     These responsibilities should be split into different functions with Object-Based
     Error Handling.'
+  id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管如此，代码看起来仍然不太好。这个函数具有太多的责任：资源分配、资源释放、文件处理和错误处理。这些责任应该分为不同的函数，并采用基于对象的错误处理。
 - en: Object-Based Error Handling
+  id: totrans-182
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 基于对象的错误处理
 - en: Context
+  id: totrans-183
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a function that acquires and cleans up multiple resources. Maybe you
     already tried to reduce the complexity by applying Guard Clause, Function Split,
     or Samurai Principle, but you still have a deeply nested `if` construct in the
     code, because of resource acquisition. You might even have duplicated code for
     resource cleanup. But maybe you already got rid of nested `if` statements by using
     Goto Error Handling or a Cleanup Record.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 您有一个函数负责获取和清理多个资源。也许您已经尝试通过应用守护条款、函数拆分或武士原则来减少复杂性，但由于资源获取而仍然存在深层嵌套的`if`结构。您甚至可能因资源清理而重复使用代码。但是，也许您已经通过使用Goto错误处理或清理记录摆脱了嵌套的`if`语句。
 - en: Problem
+  id: totrans-185
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**Having multiple responsibilities in one function, such as resource acquisition,
     resource cleanup, and usage of that resource, makes that code difficult to implement,
     read, maintain, and test.**'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: '**在一个函数中具有多个责任，如资源获取、资源清理和资源使用，使得该代码难以实现、阅读、维护和测试。**'
 - en: All of that becomes difficult because usually each resource acquisition can
     fail, and each resource cleanup can just be called if the resource was successfully
     acquired. To implement this, a lot of `if` statements are required, and when implemented
     poorly, nested `if` statements in a single function make the code hard to read
     and maintain.
+  id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些变得困难是因为通常每个资源获取都可能失败，并且每个资源清理只能在成功获取资源时调用。为了实现这一点，需要大量的`if`语句，而且实现不当时，在单个函数中嵌套的`if`语句使得代码难以阅读和维护。
 - en: Because you have to clean up the resources, returning in the middle of the function
     when something goes wrong is not a good option. This is because all resources
     already acquired have to be cleaned up before each return statement. So you end
     up with multiple points in the code where the same resource is being cleaned up,
     but you don’t want to have duplicated error handling and cleanup code.
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为您必须清理资源，所以在函数中间发生错误时返回并不是一个好选择。这是因为在每个返回语句之前都必须清理已经获取的所有资源。因此，您会在代码中的多个点上清理相同的资源，但是您不希望有重复的错误处理和清理代码。
 - en: Even if you already have a Cleanup Record or Goto Error Handling, the function
     is still hard to read because it mixes different responsibilities. The function
     is responsible for acquisition of multiple resources, error handling, and cleanup
     of multiple resources. However, a function should only have one responsibility.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使您已经有了清理记录或跳转到错误处理，该函数仍然很难阅读，因为它混合了不同的责任。该函数负责获取多个资源、错误处理和清理多个资源。然而，一个函数应该只有一个责任。
 - en: Solution
+  id: totrans-190
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Put initialization and cleanup into separate functions, similar to the concept
     of constructors and destructors in object-oriented programming.**'
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: '**将初始化和清理分开成单独的函数，类似于面向对象编程中构造函数和析构函数的概念。**'
 - en: In your main function, simply call one function that acquires all resources,
     one function that operates in these resources, and one function that cleans up
     the resources.
+  id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 在您的主函数中，只需调用一个函数来获取所有资源，一个函数来对这些资源进行操作，以及一个函数来清理这些资源。
 - en: If the acquired resources are not global, then you have to pass the resources
     along the functions. When you have multiple resources, you can pass an Aggregate
     Instance containing all resources along the functions. If you want to instead
     hide the actual resources from the caller, you can use a Handle for passing the
     resource information between the functions.
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果获取的资源不是全局的，那么您必须将资源沿函数传递。当您拥有多个资源时，可以通过传递一个包含所有资源的聚合实例来进行传递。如果您想要隐藏来自调用者的实际资源，则可以使用句柄来在函数之间传递资源信息。
 - en: 'If resource allocation fails, store this information in a variable (for example,
     a `NULL` pointer if memory allocation fails). When using or cleaning up the resources,
     first check whether the resource is valid. Perform that check not in your main
     function, but rather in the called functions, because that makes your main function
     a lot more readable:'
+  id: totrans-194
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果资源分配失败，将此信息存储在一个变量中（例如，如果内存分配失败，则为`NULL`指针）。在使用或清理资源时，首先检查资源是否有效。将此检查放在被调用的函数中，而不是在您的主函数中，因为这样可以使您的主函数更易读：
 - en: '[PRE12]'
+  id: totrans-195
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: Consequences
+  id: totrans-196
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: The function is now easy to read. While it requires allocation and cleanup of
     multiple resources, as well as the operations on these resources, these different
     tasks are still well separated into different functions.
+  id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在该函数很容易阅读。虽然它需要分配和清理多个资源以及对这些资源的操作，但这些不同的任务仍然被很好地分离到不同的函数中。
 - en: Having object-like instances that you pass along functions is known as an “object-based”
     programming style. This style makes procedural programming more similar to object-oriented
     programming, and thus code written in such a style is also more familiar to programmers
     who are used to object-orientation.
+  id: totrans-198
   prefs: []
   type: TYPE_NORMAL
+  zh: 拥有像对象一样的实例，将它们沿函数传递被称为“基于对象”的编程风格。这种风格使得过程式编程更类似于面向对象编程，因此用这种风格编写的代码对于习惯于面向对象的程序员来说也更加熟悉。
 - en: In the main function, there is no reason for having multiple return statements
     anymore, because there are no more nested `if` statements for the logic of resource
     allocation and cleanup. However, you did not eliminate the logic regarding resource
     allocation and cleanup, of course. All this logic is still present in the separated
     functions, but it is not mixed with the operation on the resources anymore.
+  id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 在主函数中，不再有多个返回语句的理由，因为不再有嵌套的`if`语句来处理资源分配和清理的逻辑。当然，你并没有消除关于资源分配和清理的逻辑。所有这些逻辑仍然存在于分离的函数中，但不再与资源操作混合在一起。
 - en: Instead of having a single function, you now have multiple functions. While
     that could have a negative impact on performance, it usually does not matter a
     lot. The performance impact is minor, and for most applications it is not relevant.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在不再有单一的函数，而是多个函数。虽然这可能对性能产生负面影响，但通常影响不大。性能影响很小，对大多数应用程序来说并不重要。
 - en: Known Uses
+  id: totrans-201
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了这种模式的应用：
 - en: This form of cleanup is used in object-oriented programming where constructors
     and destructors are implicitly called.
+  id: totrans-203
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 这种清理形式被应用于面向对象编程中，其中构造函数和析构函数被隐式调用。
 - en: The OpenSSL code uses this pattern. For example, the allocation and cleanup
     of buffers is realized with the functions `BUF_MEM_new` and `BUF_MEM_free` that
     are called across the code to cover buffer handling.
+  id: totrans-204
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL代码使用了这种模式。例如，使用函数`BUF_MEM_new`和`BUF_MEM_free`来实现缓冲区的分配和清理，在整个代码中调用这些函数来处理缓冲区。
 - en: The `show_help` function of the OpenWrt source code shows help information in
     a context menu. The function calls an initialization function to create a `struct`,
     then operates on that `struct` and calls a function to clean up that `struct`.
+  id: totrans-205
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenWrt源代码的`show_help`函数在上下文菜单中显示帮助信息。该函数调用一个初始化函数来创建一个`struct`，然后操作该`struct`并调用一个函数来清理该`struct`。
 - en: The function `cmd__windows_named_pipe` of the Git project uses a Handle to create
     a pipe, then operates on that pipe and calls a separate function to clean up the
     pipe.
+  id: totrans-206
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Git项目的`cmd__windows_named_pipe`函数使用句柄创建管道，然后操作该管道，并调用一个单独的函数清理管道。
 - en: Applied to Running Example
+  id: totrans-207
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'You finally end up with the following code, in which the `parseFile` function
     calls other functions to create and clean up a parser instance:'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: 最终你得到以下代码，其中`parseFile`函数调用其他函数来创建和清理解析器实例：
 - en: '[PRE13]'
+  id: totrans-209
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: In the code, there is no more `if` cascade in the main program flow. This makes
     the `parseFile` function a lot easier to read, debug, and maintain. The main function
     does not cope with resource allocation, resource deallocation, or error handling
     details anymore. Instead, those details are all put into separate functions, so
     each function has one responsibility.
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 在代码中，主程序流程中不再有`if`级联。这使得`parseFile`函数更易于阅读、调试和维护。主函数不再处理资源分配、资源释放或错误处理的细节。相反，这些细节都放在单独的函数中，使得每个函数只负责一项职责。
 - en: Have a look at the beauty of this final code example compared to the first code
     example. The applied patterns helped step-by-step to make the code easier to read
     and maintain. In each step, the nested `if` cascade was removed and the method
     of how to handle errors was improved.
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: 比较最终代码示例与第一个代码示例的美观之处。逐步应用的模式有助于使代码更易于阅读和维护。在每一步中，嵌套的`if`级联被移除，错误处理方法也得到了改进。
 - en: Summary
+  id: totrans-212
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 概要
 - en: This chapter showed you how to perform error handling in C. Function Split tells
     you to split your functions into smaller parts to make error handling of these
     parts easier. A Guard Clause for your functions checks pre-conditions of your
@@ -1124,28 +1568,38 @@
     to object-oriented programming is Object-Based Error Handling, which uses separate
     initialization and cleanup functions similar to the concept of constructors and
     destructors.
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章向您展示了如何在C中执行错误处理。函数分割建议您将函数分割为更小的部分，以便更轻松地处理这些部分的错误。函数的守卫条款检查函数的前置条件，如果不满足则立即返回。这样做可以减少函数其余部分的错误处理义务。除了从函数返回之外，您还可以中止程序，遵循武士原则。在处理更复杂的错误处理时，特别是与获取和释放资源结合时，您有几个选择。使用Goto错误处理可以在函数中向前跳转到错误处理部分。而不是跳转，清理记录存储信息，哪些资源需要清理，并在函数结束时执行它。一种更接近面向对象编程的资源获取方法是基于对象的错误处理，它使用类似构造函数和析构函数的独立初始化和清理函数的概念。
 - en: With these error-handling patterns in your repertoire, you now have the skill
     to write small programs that handle error situations in a way that ensures the
     code stays maintainable.
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这些错误处理模式，您现在具备了编写处理错误情况的小程序的技能，确保代码易于维护。
 - en: Further Reading
+  id: totrans-215
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 进一步阅读
 - en: If you’re ready for more, here are some resources that can help you further
     your knowledge of error handling.
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您已经准备好进一步了解，以下是一些资源，可以帮助您深入了解错误处理的知识。
 - en: The [Portland Pattern Repository](https://oreil.ly/qFLdA) provides many patterns
     and discussions on error handling as well as other topics. Most of the error-handling
     patterns target exception handling or how to use assertions, but some C patterns
     are also presented.
+  id: totrans-217
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[波特兰模式库](https://oreil.ly/qFLdA)提供了许多关于错误处理以及其他主题的模式和讨论。大多数错误处理模式针对异常处理或如何使用断言，但也介绍了一些C模式。'
 - en: A comprehensive overview of error handling in general is provided in the master’s
     thesis “Error Handling in Structured and Object-Oriented Programming Languages”
     by Thomas Aglassinger (University of Oulu, 1999). This thesis describes how different
@@ -1155,38 +1609,51 @@
     to the order of their allocation. The thesis also mentions several third-party
     solutions in the form of C libraries providing enhanced error handling features
     for C, like exception handling by using the commands `setjmp` and `longjmp`.
+  id: totrans-218
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 总结了错误处理的全面概述，在Thomas Aglassinger（1999年，奥卢大学）的硕士论文“结构化和面向对象编程语言中的错误处理”中有详细描述。该论文阐述了不同类型的错误如何产生；讨论了C、Basic、Java和Eiffel编程语言的错误处理机制；并提供了这些语言中的错误处理最佳实践，例如资源清理顺序与其分配顺序相反。论文还提到了几个第三方解决方案，例如使用`setjmp`和`longjmp`命令进行异常处理的C库。
 - en: Fifteen object-oriented patterns on error handling tailored for business information
     systems are presented in the article [“Error Handling for Business Information
     Systems”](https://oreil.ly/bQnfx) by Klaus Renzel, and most of the patterns can
     be applied for non-object-oriented domains as well. The presented patterns cover
     error detection, error logging, and error handling.
+  id: totrans-219
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 展示了针对商业信息系统定制的15种面向对象的错误处理模式，文章名为[“面向商业信息系统的错误处理”](https://oreil.ly/bQnfx)，由Klaus
+    Renzel撰写，大多数模式也可以应用于非面向对象的领域。介绍的模式涵盖了错误检测、错误日志记录和错误处理。
 - en: Implementations including C code snippets for some Gang of Four design patterns
     are presented in the book *Patterns in C* by Adam Tornhill (Leanpub, 2014). The
     book further provides best practices in the form of C patterns, some of them covering
     error handling.
+  id: totrans-220
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 在Adam Tornhill的书《C中的模式》（Leanpub，2014）中，展示了一些Gang of Four设计模式的实现，包括C代码片段。该书进一步以C模式的形式提供了最佳实践，其中一些涵盖了错误处理。
 - en: A collection of patterns for error logging and error handling is presented in
     the articles “Patterns for Generation, Handling and Management of Errors” and
     “More Patterns for the Generation, Handling and Management of Errors” by [Andy
     Longshaw and Eoin Woods](https://oreil.ly/7Yj8h). Most of the patterns target
     exception-based error handling.
+  id: totrans-221
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '[Andy Longshaw和Eoin Woods](https://oreil.ly/7Yj8h)的文章《错误生成、处理和管理的模式》和《更多关于错误生成、处理和管理的模式》中呈现了一系列用于错误日志记录和错误处理的模式。大多数模式针对基于异常的错误处理。'
 - en: Outlook
+  id: totrans-222
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Outlook
 - en: The next chapter shows you how to handle errors when looking at larger programs
     that return error information across interfaces to other functions. The patterns
     tell you which kind of error information to return and how to return it.
+  id: totrans-223
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一章将向您展示如何处理查看返回错误信息的较大程序，这些错误信息跨接口返回给其他函数。这些模式告诉您应该返回哪种类型的错误信息以及如何返回它。

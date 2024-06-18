@@ -1,7 +1,9 @@
 - en: Chapter 10\. The Singleton Pattern
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第10章 单例模式
 - en: In this chapter, we take a look at the (in-)famous *Singleton* pattern. I know,
     you may already be acquainted with Singleton, and you may already have a strong
     opinion about it. It is even possible that you consider Singleton an antipattern
@@ -13,16 +15,22 @@
     And, honestly, they work fantastically! Therefore, we should seriously talk about
     *what* a Singleton is, *when* Singleton works, and *how* to deal with Singleton
     properly.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们将看一下臭名昭著的*Singleton*模式。我知道，你可能已经对Singleton有所了解，并且可能已经对它有很强的看法。甚至可能认为Singleton是反模式，因此你可能会想我是如何鼓起勇气将它包含在这本书中的。嗯，我知道Singleton并不特别受欢迎，在许多圈子里它的声誉相当不好，特别是因为Singleton的全局特性。然而，从这个角度来看，了解到C++标准库中有几个类似“Singleton”的实例可能会令人非常惊讶。真的！而且，老实说，它们的工作效果非常好！因此，我们应该认真讨论*什么是*Singleton，*什么时候*Singleton适用，以及*如何*正确处理Singleton。
 - en: 'In [“Guideline 37: Treat Singleton as an Implementation Pattern, Not a Design
     Pattern”](#treat_singleton_as_an_implementation_pattern_not_a_design_pattern),
     I will explain the Singleton pattern and demonstrate how it works by a very commonly
     used implementation, the so-called *Meyers’ Singleton*. I will, however, also
     make a strong argument to *not* treat Singleton as a design pattern but as an
     *implementation pattern*.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: '在[“Guideline 37: Treat Singleton as an Implementation Pattern, Not a Design
+    Pattern”](#treat_singleton_as_an_implementation_pattern_not_a_design_pattern)中，我将解释Singleton模式，并通过一个非常常用的实现方式，即所谓的*Meyers''
+    Singleton*，来演示它的工作原理。然而，我也会强烈主张*不*将Singleton视为设计模式，而是作为*实现模式*。'
 - en: 'In [“Guideline 38: Design Singletons for Change and Testability”](#design_singletons_for_change_and_testability),
     we accept the fact that sometimes we need a solution to represent the few global
     aspects in our code. This is what the Singleton pattern is often used for. This
@@ -31,19 +39,27 @@
     testability. While these sound like excellent reasons to avoid Singleton after
     all, I will show you that by proper software design, you can combine the Singleton
     benefits with excellent changeability and testability.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: '在[“Guideline 38: Design Singletons for Change and Testability”](#design_singletons_for_change_and_testability)中，我们接受事实，有时我们需要一个解决方案来表示代码中的少数全局方面。这正是Singleton模式经常用于的地方。这也意味着我们面对Singleton的常见问题：全局状态；许多强的人为依赖关系；以及受到限制的可变性和可测试性。虽然这些听起来都是避免Singleton的极好理由，但我将向你展示，通过合理的软件设计，你可以将Singleton的好处与出色的可变性和可测试性结合起来。'
 - en: 'Guideline 37: Treat Singleton as an Implementation Pattern, Not a Design Pattern'
+  id: totrans-4
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 'Guideline 37: 将Singleton视为实现模式，而不是设计模式'
 - en: 'Let me start by addressing the elephant in the room:'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我首先解决问题的关键点：
 - en: Singleton is *not* a design pattern.
+  id: totrans-6
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: Singleton并*不*是一个设计模式。
 - en: 'If you haven’t heard about Singleton before, then this might not make any sense
     at all, but bear with me. I promise to explain Singleton shortly. If you *have*
     heard about Singleton before, then I assume you’re either nodding in agreement
@@ -56,12 +72,16 @@
     *Code Complete*.^([1](ch10.xhtml#idm45043072392832)) Nevertheless, it still isn’t
     a design pattern, because it doesn’t have the properties of a design pattern.
     Let me explain.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你之前没有听说过Singleton，那么这可能完全没有任何意义，但请跟着我。我承诺很快会解释Singleton。如果你之前*听说过*Singleton，那么我假设你要么在赞同中点头，脸上露出同情的表情，“我知道”的样子，要么是完全震惊，一开始不知道该说什么。“但为什么不是呢？”你最终敢于问。“它不是《设计模式》一书中的原始设计模式之一吗？”是的，你是对的：Singleton是《设计模式》一书中记录的23种原始模式之一。截至撰写本文时，[维基百科](https://oreil.ly/jzuFw)将其称为设计模式，甚至在史蒂夫·麦康奈尔的畅销书*《代码大全》*中也列为设计模式。^([1](ch10.xhtml#idm45043072392832))尽管如此，它仍然不是设计模式，因为它没有设计模式的特性。让我解释一下。
 - en: The Singleton Pattern Explained
+  id: totrans-8
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解释了单例模式
 - en: 'Sometimes you may want to guarantee that there is only one, and *exactly* one,
     instance of a particular class. In other words, you have a Highlander situation:
     “There can be only one.”^([2](ch10.xhtml#idm45043072387744)) This might make sense
@@ -69,45 +89,67 @@
     configuration, or, in short, any class that should not be instantiated multiple
     times, since it represents something that exists only once. That is the intent
     of the Singleton pattern.'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时候，您可能希望确保某个特定类只有一个，*确切地*只有一个实例。换句话说，您面临的是一种高地兰德（Highlander）情况：“只能有一个。”^([2](ch10.xhtml#idm45043072387744))
+    这在系统范围的数据库、唯一的记录器、系统时钟、系统配置或者简而言之任何不应该多次实例化的类中都是合理的，因为它们代表的是仅存在一次的东西。这就是单例模式的意图。
 - en: The Singleton Pattern
+  id: totrans-10
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 单例模式
 - en: 'Intent: “Ensure a class has only one instance, and provide a global point of
     access to it.”^([3](ch10.xhtml#idm45043072383840))'
+  id: totrans-11
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“确保一个类只有一个实例，并提供一个全局访问点。”^([3](ch10.xhtml#idm45043072383840))
 - en: This intent is visualized by the Gang of Four with the UML diagram in [Figure 10-1](#fig_singleton_original),
     which introduces the `instance()` function as the global point of access to the
     unique instance.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: Gang of Four通过图 10-1 中的 UML 图表现了这一意图，其中引入了 `instance()` 函数作为访问唯一实例的全局访问点。
 - en: '![The UML representation of the _Singleton_ pattern.](assets/cpsd_1001.png)'
+  id: totrans-13
   prefs: []
   type: TYPE_IMG
+  zh: '![单例模式的_UML_表示。](assets/cpsd_1001.png)'
 - en: Figure 10-1\. The UML representation of the *Singleton* pattern
+  id: totrans-14
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 10-1\. *单例* 模式的 UML 表示
 - en: 'There are multiple ways to restrict the number of instantiations to exactly
     one. Definitely one of the most useful and therefore most commonly used forms
     of Singleton is the Meyers’ Singleton.^([4](ch10.xhtml#idm45043072376432)) The
     following `Database` class is implemented as a Meyers’ Singleton:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 有多种方法可以将实例化的数量限制为恰好一个。其中最有用且因此最常用的单例形式之一是梅耶斯单例。^([4](ch10.xhtml#idm45043072376432))
+    下面的 `Database` 类是作为梅耶斯单例实现的：
 - en: '[PRE0]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'The Meyers’ Singleton evolves around the fact that it’s possible to access
     the single instance of the `Database` class onlhy via the `public`, `static` `instance()`
     function ([![1](assets/1.png)](#code_g37_1)):'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 梅耶斯单例围绕着只能通过 `public`、`static` 的 `instance()` 函数来访问 `Database` 类的单个实例这一事实进行。
 - en: '[PRE1]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'Indeed, this function is the only way to get a `Database`: all functionality
     that could possibly be used to create, copy, or move an instance is either declared
     in the `private` section or is explicitly `delete`d.^([5](ch10.xhtml#idm45043072064080))
@@ -116,11 +158,18 @@
     and not `default`ed ([![2](assets/2.png)](#code_g37_2)). The reason is if it were
     `default`ed, up to C++17, it would be possible to create a `Database` with an
     empty set of braces, i.e., via [*value initialization*](https://oreil.ly/9h4IB):'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，这个函数是获取 `Database` 的唯一方法：所有可能用于创建、复制或移动实例的功能都要么在 `private` 部分声明，要么显式地 `delete`
+    掉。^([5](ch10.xhtml#idm45043072064080)) 尽管这看起来相当直接，但一个实现细节特别有趣：注意默认构造函数是显式定义的，而不是
+    `default`ed ([![2](assets/2.png)](#code_g37_2))。原因在于，如果它是 `default`ed，在 C++17
+    之前，可以通过空大括号创建一个空的 `Database` 实例，即通过[*值初始化*](https://oreil.ly/9h4IB)：
 - en: '[PRE2]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Up to C++17, the `Database` class counts as an *aggregate type*, which means
     that *value initialization* would be performed via [*aggregate initialization*](https://oreil.ly/HSuYl).
     *Aggregate initialization*, in turn, ignores the default constructor, including
@@ -128,51 +177,72 @@
     the object. Thus, value initialization enables you to still create an instance.
     If, however, you provide the default constructor, then the class does not count
     as an aggregate type, which prevents aggregate initialization.^([6](ch10.xhtml#idm45043071990224))
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 到 C++17，`Database` 类被视为一种*聚合类型*，这意味着可以通过[*聚合初始化*](https://oreil.ly/HSuYl)来执行*值初始化*。*聚合初始化*忽略了默认构造函数，包括它是`private`的事实，并简单地执行对象的*零初始化*。因此，值初始化使您仍然可以创建一个实例。然而，如果您提供了默认构造函数，则该类不再被视为聚合类型，这会阻止聚合初始化。^([6](ch10.xhtml#idm45043071990224))
 - en: The `instance()` function is implemented in terms of a [*static local variable*](https://oreil.ly/mqUoK).
     This means that the first time control passes through the declaration, the variable
     is initialized in a thread-safe way, and on all further calls the initialization
     is skipped.^([7](ch10.xhtml#idm45043071987280)) On every call, the first and all
     subsequent calls, the function returns a reference to the static local variable.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '`instance()`函数是基于[*静态局部变量*](https://oreil.ly/mqUoK)实现的。这意味着第一次控制通过声明时，变量以线程安全的方式初始化，并且在所有后续调用中跳过初始化。^([7](ch10.xhtml#idm45043071987280))
+    在每次调用时，第一次和所有后续调用中，函数都会返回静态局部变量的引用。'
 - en: 'The rest of the `Database` class is pretty much what you would expect from
     a class representing a database: there are some `public`, database-related functions
     (e.g., `write()` and `read()`) and there could be some data members, including
     access functions. In other words, except for the `instance()` member function
     and the special members, `Database` is just a normal class.'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 已被证明
 - en: Singleton Does Not Manage or Reduce Dependencies
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 单例模式不管理或减少依赖关系
 - en: 'Now, with one possible implementation of a Singleton in mind, let’s go back
     to my claim that Singleton is not a design pattern. First, let’s remind ourselves
     of the properties of a design pattern, which I defined in [“Guideline 11: Understand
     the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns):'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，想象一种可能的单例模式实现，让我们回到我声称单例模式不是设计模式的论断上。首先，让我们回顾一下设计模式的属性，我在[“指南11：理解设计模式的目的”](ch03.xhtml#understand_the_purpose_of_design_patterns)中定义过：
 - en: 'A design pattern:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 引入一个抽象
 - en: Has a name
+  id: totrans-27
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 有一个名称
 - en: Carries an intent
+  id: totrans-28
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Database` 类的其余部分基本上就是你从代表数据库的类所期望的：有一些与数据库相关的`public`函数（例如`write()`和`read()`），可能会有一些数据成员，包括访问函数。换句话说，除了`instance()`成员函数和特殊成员之外，`Database`只是一个普通的类。'
 - en: Introduces an abstraction
+  id: totrans-29
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 具有一个意图
 - en: Has been proven
+  id: totrans-30
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 一个设计模式：
 - en: 'The Singleton pattern definitely has a name, and it definitely has an intent.
     No question there. I would also claim that it has been proven over the years (although
     there may be skeptical voices that point out that Singleton is rather infamous).
@@ -184,16 +254,21 @@
     is what I defined to be an integral part of software design. Instead, Singleton
     is focused on restricting the number of instantiations to exactly one. Thus, Singleton
     is not a design pattern but merely an implementation pattern.'
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 单例模式绝对有一个名称，并且它确实有一个意图。毫无疑问。我还会声称多年来已经证明了它的有效性（尽管可能会有怀疑的声音指出单例模式相当臭名昭著）。但是，单例模式没有任何形式的抽象：没有基类，没有模板参数，什么都没有。单例模式本身不代表抽象，也不引入抽象。事实上，它不关心代码的结构或实体之间的互动和依赖关系，因此它不旨在管理或减少依赖关系。^([8](ch10.xhtml#idm45043071938896))
+    然而，这正是我定义的软件设计的一个组成部分。相反，单例模式专注于将实例化次数限制为一次。因此，单例模式不是设计模式，而仅仅是一种实现模式。
 - en: “Then why is it listed as a design pattern in so many important sources?” you
     ask. This is a fair and good question. There may be three answers to that. First,
     in other programming languages, in particular languages where every class can
     automatically represent an abstraction, the situation may be different. While
     I acknowledge this, I still believe that the intent of the Singleton pattern is
     primarily targeted for implementation details and not for dependencies and decoupling.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: “那么为什么它在许多重要来源中被列为设计模式呢？”你问道。这是一个公平而好的问题。可能有三个答案。首先，在其他编程语言中，特别是在每个类都可以自动表示抽象的语言中，情况可能会有所不同。虽然我承认这一点，但我仍然相信单例模式的意图主要针对实现细节，而不是依赖关系和解耦。
 - en: 'Second, Singleton is very commonly used (although often also *mis*used), so
     it is definitely a pattern. Since there are Singletons in many different programming
     languages, it does not appear to be just an idiom of the C++ programming language.
@@ -203,8 +278,11 @@
     11: Understand the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns),
     I introduced the term *implementation pattern* to distinguish between different
     kinds of language-agnostic patterns such as Singleton.^([9](ch10.xhtml#idm45043071934080))'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: '其次，单例模式是非常常见的（尽管经常被*误*用），因此它绝对算得上是一种模式。由于单例模式存在于许多不同的编程语言中，看起来它并不只是C++编程语言的一种习语。因此，把它称为设计模式似乎是合理的。这一系列论据可能对你来说听起来有道理，但我觉得它没有区分软件设计和实现细节的能力。这就是为什么在[“Guideline
+    11: Understand the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns)中，我引入了术语*实现模式*，以区分不同种类的与语言无关的模式，如单例模式。^([9](ch10.xhtml#idm45043071934080))'
 - en: 'And third, I believe that we are still in the process of understanding software
     design and design patterns. There is no common definition of software design.
     For that reason, I came up with one in [“Guideline 1: Understand the Importance
@@ -214,29 +292,42 @@
     I strongly believe that we must talk more about software design and more about
     patterns to come to a common understanding of the necessary terminology, especially
     in C++.'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: '而且第三，我相信我们仍在理解软件设计和设计模式的过程中。对软件设计没有共同的定义。因此，我在[“Guideline 1: Understand the
+    Importance of Software Design”](ch01.xhtml#understand_the_importance_of_software_design)中提出了一个定义。设计模式也没有共同的定义。这就是为什么我在[“Guideline
+    11: Understand the Purpose of Design Patterns”](ch03.xhtml#understand_the_purpose_of_design_patterns)中提出了一个定义。我坚信我们必须更多地讨论软件设计和模式，以达成对必要术语的共识，尤其是在C++中。'
 - en: In summary, you do not use a Singleton to decouple software entities. So despite
     the fact that it is described in the famous GoF book, or in *Code Complete*, or
     even listed as a design pattern on [Wikipedia](https://oreil.ly/i8lyX), it does
     not serve the purpose of a design pattern. Singleton is merely dealing with implementation
     details, and as such you should treat it as an implementation pattern.
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，你不应该使用单例模式来解耦软件实体。因此，尽管它在著名的GoF书籍中有描述，或者在*Code Complete*中，甚至在[Wikipedia](https://oreil.ly/i8lyX)上列为设计模式，但它并不起到设计模式的作用。单例模式仅仅处理实现细节，因此你应该将其视为一种实现模式。
 - en: 'Guideline 38: Design Singletons for Change and Testability'
+  id: totrans-36
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 'Guideline 38: 设计单例模式以便于变更和可测试性'
 - en: 'Singleton is indeed a rather infamous pattern: there are many voices out there
     that describe Singleton as a general problem in code, as an antipattern, as dangerous,
     or even as evil. Therefore, there is a lot of advice out there to avoid the pattern,
     among others, [Core Guideline I.3](https://oreil.ly/Mai2n):^([10](ch10.xhtml#idm45043071911616))'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 单例模式确实是一个相当臭名昭著的模式：有很多声音认为单例模式是代码中的一般问题，是一种反模式，是危险的，甚至是邪恶的。因此，有很多建议避免使用这种模式，其中包括[Core
+    Guideline I.3](https://oreil.ly/Mai2n):^([10](ch10.xhtml#idm45043071911616))
 - en: Avoid singletons.
+  id: totrans-38
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 避免使用单例模式。
 - en: 'One of the primary reasons why people dislike Singleton is that it often causes
     artificial dependencies and obstructs testability. As such, it runs contrary to
     two of the most important and most general guidelines in this book: [“Guideline
@@ -249,18 +340,25 @@
     that something exists only once and should be available for many entities in the
     code. Second, sometimes Singleton appears to be the proper solution, as there
     *are* global aspects to represent.'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 人们对单例模式不喜欢的一个主要原因是，它经常导致人为的依赖性并阻碍可测试性。因此，它与本书中两条最重要且最一般的指导原则相抵触：“[指导原则 2：为变更设计](ch01.xhtml#design_for_change)”和“[指导原则
+    4：为可测试性设计](ch01.xhtml#design_for_testability)”。从这个角度来看，单例确实在代码中表现为一个问题，应该避免使用。然而，尽管有各种各样的善意警告，该模式仍然被许多开发人员坚持使用。这其中的原因是多方面的，但主要与两个事实有关：首先，有时候（我们可以认同*有时候*），表达某些东西只存在一次并且应该在代码中为许多实体提供服务是可取的。其次，有时候单例似乎是正确的解决方案，因为确实存在全局性方面需要表示。
 - en: 'So, let’s do the following: instead of arguing that Singleton is always bad
     and evil, let’s focus on those few situations where we need to represent a global
     aspect in our program and discuss how to represent this aspect properly, but still
     design for change and testability.'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，让我们做以下事情：与其争论单例模式总是不好和邪恶的，不如专注于那些我们需要在程序中表示全局方面的少数情况，并讨论如何正确表示这一方面，同时设计以支持变更和可测试性。
 - en: Singletons Represent Global State
+  id: totrans-41
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 单例表示全局状态
 - en: 'Singletons are mostly used to represent entities in a program that logically
     and/or physically exist only once and that should be used by many other classes
     and functions.^([11](ch10.xhtml#idm45043071900224)) Common examples are the system-wide
@@ -271,18 +369,25 @@
     from creating new instances, and by forcing everyone to use *the one* instance,
     you can guarantee uniform and consistent access to this global state across all
     using entities.'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 单例通常用于表示程序中逻辑上和/或物理上仅存在一次且应该被许多其他类和函数使用的实体。^([11](ch10.xhtml#idm45043071900224))
+    常见的例子包括系统范围的数据库、日志记录器、时钟或配置。这些例子，包括术语*系统范围*，说明了这些实体的性质：它们通常代表全局可用的功能或数据，即全局状态。从这个角度来看，单例模式似乎是有道理的：通过防止所有人创建新实例，并强制所有人使用*唯一的*实例，您可以保证在所有使用实体中对这个全局状态的统一和一致访问。
 - en: This representation and introduction of global state, however, explains why
     Singleton is commonly considered a problem. As Michael Feathers expressed it:^([12](ch10.xhtml#idm45043071898096))
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这种对全局状态的表述和引入解释了为什么单例通常被认为是一个问题。正如迈克尔·费瑟斯所表达的：^([12](ch10.xhtml#idm45043071898096))
 - en: The singleton pattern is one of the mechanisms people use to make global variables.
     In general, global variables are a bad idea for a couple of reasons. One of them
     is opacity.
+  id: totrans-44
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 单例模式是人们用来创建全局变量的机制之一。总的来说，全局变量是一个坏主意，原因有几个。其中一个原因是不透明性。
 - en: 'Global variables are indeed a bad idea, particularly for one important reason:
     the term *variable* suggests that we are talking about *mutable* global state.
     And that kind of state can indeed cause a lot of headaches. To be explicit, mutable
@@ -295,8 +400,11 @@
     one another and that are distributed over several compilation units, you might
     be facing the *static initialization order fiasco* (*SIOF*).^([13](ch10.xhtml#idm45043071891216))
     Obviously, it is beneficial to avoid global state as much as possible.^([14](ch10.xhtml#idm45043071889696))'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 全局变量确实是一个坏主意，尤其是因为一个重要原因：术语*变量*表明我们正在讨论*可变*的全局状态。这种类型的状态确实可能会导致很多麻烦。明确地说，可变的全局状态是不被赞同的（总体上，特别是在多线程环境中），因为它难以控制访问，成本高昂，且可能难以保证正确性。此外，全局（可变）状态的阅读和写入访问通常在某些函数内部发生，这些函数根据其接口不会透露它使用全局状态的事实。最后但同样重要的是，如果您有几个全局变量，它们的生命周期彼此依赖，并且分布在几个编译单元中，您可能会面临*静态初始化顺序混乱*（*SIOF*）的问题。^([13](ch10.xhtml#idm45043071891216))
+    显然，尽可能避免全局状态是有益的。^([14](ch10.xhtml#idm45043071889696))
 - en: The problem of global state, however, is a problem that we can’t resolve by
     avoiding Singletons. It’s a general problem, unrelated to any particular pattern.
     The same problem, for instance, also exists for the Monostate pattern, which enforces
@@ -309,17 +417,26 @@
     you to read the data but not write it, thus representing a global *constant*.
     The restriction to unidirectional data flow helps avoid many of the usual problems
     with global state. Or in the words of Miško Hevery (the emphasis being mine):^([17](ch10.xhtml#idm45043071881136))
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，全局状态的问题是一个我们不能通过避免单例模式来解决的问题。这是一个普遍存在的问题，与任何特定的模式无关。例如，单例模式的相同问题也存在于单态模式，它强制执行单一的全局状态，但允许任意数量的实例化。^([15](ch10.xhtml#idm45043071887072))
+    因此，相反地，单例模式可以通过限制对全局状态的访问来帮助处理全局状态。例如，正如Miško Hevery在他2008年的文章中解释的那样，提供单向数据流到或从某个全局状态的单例是可接受的：^([16](ch10.xhtml#idm45043071883440))
+    实现记录器的单例只允许您写入数据，而不允许读取。代表系统范围配置或时钟的单例只允许您读取数据，而不允许写入，从而表示全局的常量。限制为单向数据流有助于避免许多与全局状态相关的常见问题。或者用Miško
+    Hevery的话来说（我强调）：^([17](ch10.xhtml#idm45043071881136))
 - en: '*Appropriate* use of “Global” or semi-Global states can greatly simplify the
     design of applications […].'
+  id: totrans-47
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '*适当*使用“全局”或半全局状态可以极大地简化应用程序的设计[...]。'
 - en: Singletons Impede Changeability and Testability
+  id: totrans-48
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 单例阻碍了可变性和可测试性
 - en: 'Global state is an intrinsic problem of Singletons. However, even if we feel
     comfortable with representing global state with a Singleton, there are serious
     consequences: functions that use Singletons depend on the represented global data
@@ -328,51 +445,71 @@
     an Implementation Pattern, Not a Design Pattern”](#treat_singleton_as_an_implementation_pattern_not_a_design_pattern),
     which is now actively used by a couple of arbitrary classes, namely `Widget` and
     `Gadget`:'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 全局状态是单例的固有问题。然而，即使我们感到用单例来表示全局状态是合理的，也会有严重的后果：使用单例的函数依赖于表示的全局数据，因此变得更难更改和测试。为了更好地理解这一点，让我们重新审视来自[“指南37：将单例视为实现模式而非设计模式”](#treat_singleton_as_an_implementation_pattern_not_a_design_pattern)的`Database`单例，它现在被一些任意类，即`Widget`和`Gadget`，积极使用：
 - en: '[PRE3]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '`Widget` and `Gadget` both require access to the system-wide `Database`. For
     that reason, they call the `Database::instance()` function and subsequently the
     `read()` and `write()` functions.'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Widget`和`Gadget`都需要访问系统范围的`Database`。因此，它们调用`Database::instance()`函数，随后调用`read()`和`write()`函数。'
 - en: 'Since they use the `Database` and thus depend on it, we would like them to
     reside in architecture levels *below* the level of the `Database` Singleton. That
     is because, as you remember from [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change),
     we can call it a proper architecture only if all dependency arrows run toward
     the high levels (see [Figure 10-2](#fig_singleton_database_1)).'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于它们使用`Database`并且依赖它，我们希望它们位于`Database`单例的下层架构水平*以下*。这是因为，正如你从[“准则 2：为变更而设计”](ch01.xhtml#design_for_change)中记得的那样，只有当所有的依赖箭头都指向高层次时，我们才能称之为一个适当的架构（参见[图 10-2](#fig_singleton_database_1)）。
 - en: '![The _desired_ dependency graph for a +Database+ implemented as _Singleton_.](assets/cpsd_1002.png)'
+  id: totrans-53
   prefs: []
   type: TYPE_IMG
+  zh: '![作为_Singleton_实现的+Database+的_期望_依赖图](assets/cpsd_1002.png)'
 - en: Figure 10-2\. The *desired* dependency graph for a `Database` implemented as
     a *Singleton*
+  id: totrans-54
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 10-2\. 作为*Singleton*实现的`Database`的*期望*依赖图
 - en: 'Although this dependency structure may be desirable, unfortunately it is only
     an illusion: the `Database` class is not an abstraction but a concrete implementation,
     representing the dependency on a very specific database! Therefore, the *real*
     dependency structure is inverted and looks something like [Figure 10-3](#fig_singleton_database_2).'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管这种依赖结构可能是可取的，不幸的是，它只是一个幻觉：`Database`类并不是一个抽象，而是一个具体的实现，代表着对一个非常具体数据库的依赖！因此，*真实*的依赖结构是倒置的，类似于[图 10-3](#fig_singleton_database_2)。
 - en: 'The *actual* dependency structure utterly fails the Dependency Inversion Principle
     (DIP) (see [“Guideline 9: Pay Attention to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)):
     all dependency arrows point toward the lower level. In other words, right now
     there is no software architecture!'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际的依赖结构完全不符合依赖倒置原则（DIP）（参见[“准则 9：注意抽象物的所有权”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)）：所有的依赖箭头都指向了更低层次。换句话说，当前没有软件架构！
 - en: '![The _real_ dependency graph for a +Database+ implemented as _Singleton_.](assets/cpsd_1003.png)'
+  id: totrans-57
   prefs: []
   type: TYPE_IMG
+  zh: '![作为_Singleton_实现的+Database+的_实际_依赖图](assets/cpsd_1003.png)'
 - en: Figure 10-3\. The *actual* dependency graph for a `Database` implemented as
     a *Singleton*
+  id: totrans-58
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 10-3\. 作为*Singleton*实现的`Database`的*实际*依赖图
 - en: Since the `Database` is a concrete class and not an abstraction, there are strong
     and unfortunately even invisible dependencies from all over the code to the specific
     implementation details and design choices of the `Database` class. This may—in
@@ -380,8 +517,10 @@
     throughout the code, manifest in many different places, and later make changes
     excruciatingly hard or even impossible. Due to that, the code becomes much more
     difficult to change.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于`Database`是一个具体类而不是抽象，从所有代码到`Database`类的具体实现细节和设计选择都存在强烈甚至是不可见的依赖。这可能——在最坏的情况下——包括对供应商特定细节的依赖，在整个代码中都变得可见，并且后续的更改变得极其困难甚至不可能。由于这个原因，代码变得更加难以改变。
 - en: 'Also consider how badly tests are affected by this dependency. All tests that
     use one of the functions depending on the `Database` Singleton become themselves
     dependent on the Singleton. This means, for instance, that for every test using
@@ -392,8 +531,11 @@
     all treat the `Database` Singleton as their shiny, precious secret. Testability
     is therefore severely impeded, and writing tests becomes so much harder that you
     might be tempted to not write them at all.^([19](ch10.xhtml#idm45043071708112))'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 同样要考虑这种依赖性对测试的严重影响。所有使用依赖于`Database`单例的函数的测试都会依赖于这个单例。这意味着，例如，对于每一个使用`Widget::doSomething()`函数的测试，你都必须提供唯一的`Database`类。不幸的是，但也很简单的原因是，这些函数都没有提供替换`Database`为其他内容的方法：无论是存根、模拟还是伪造都不行。^([18](ch10.xhtml#idm45043071710704))
+    它们都把`Database`单例当成了它们的闪亮宝贝。因此，可测试性受到严重影响，编写测试变得如此之难，以至于你可能会干脆不写测试。^([19](ch10.xhtml#idm45043071708112))
 - en: This example indeed demonstrates the usual problems with Singletons and the
     unfortunate artificial dependencies they introduce. These dependencies make the
     system more inflexible and more rigid, and thus harder to change and test. That,
@@ -401,8 +543,10 @@
     implementation with another one, and it should be easy to test functionality that
     uses a database. For these exact reasons, we must make sure that the `Database`
     becomes a true implementation detail on the low level of a proper architecture.^([20](ch10.xhtml#idm45043071706768))
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个例子确实展示了单例模式的常见问题，以及它们引入的不幸人工依赖。这些依赖使系统更加僵化和刻板，从而更难以更改和测试。当然，这是不应该的。相反，应该轻松地用另一个数据库实现替换数据库实现，并且应该轻松地测试使用数据库的功能。正因为这些原因，我们必须确保`Database`成为真正的实现细节，在适当架构的低级别上。^([20](ch10.xhtml#idm45043071706768))
 - en: '“But wait a second, you just said that if the `Database` is an implementation
     detail, there is no architecture, right?” Yes, I said that. And there is nothing
     we can do as it is: the `Database` Singleton does not represent any abstraction
@@ -412,19 +556,27 @@
     by introducing an abstraction and using a real design pattern. To achieve that,
     let’s take a look at an example with a good way to deal with global aspects, using
     Singletons from the C++ Standard Library.'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: “但请稍等一下，您刚才说如果`Database`只是一个实现细节，那就没有架构了，对吗？”是的，我说过。但现在我们无能为力：`Database`单例并不代表任何抽象，也不能让我们完全处理依赖关系。单例模式并不是一个设计模式。因此，为了消除对`Database`类的依赖并使架构正常工作，我们必须通过引入抽象并使用真正的设计模式来设计以便于变更和可测试性。为了实现这一点，让我们看一个例子，展示一个处理全局方面的良好方式，使用C++标准库中的单例。
 - en: Inverting the Dependencies on a Singleton
+  id: totrans-63
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 反转单例上的依赖关系
 - en: 'I’m returning to a true El Dorado of design patterns, which I have used several
     times to demonstrate different design patterns: the C++17 polymorphic memory resources:'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 我回到了设计模式的真正埃尔多拉多，我曾多次用它来展示不同的设计模式：C++17多态内存资源。
 - en: '[PRE4]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: In this example, we configure the [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/uVQoS),
     called `buffer`, to work only with the static memory contained in the given `std::array`
     `raw` ([![1](assets/1.png)](#code_g38_1)). If this memory is depleted, `buffer`
@@ -432,8 +584,11 @@
     be [`std::pmr::null​_memory_resource()`](https://oreil.ly/p0V3c). Allocating via
     this allocator will never return any memory but will always fail with the `std::bad_alloc()`
     exception. Thus, `buffer` is restricted to the 1,000 bytes provided by `raw`.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个例子中，我们配置了[`std::pmr::monotonic_buffer_resource`](https://oreil.ly/uVQoS)，称为`buffer`，只能使用给定的`std::array`
+    `raw`中包含的静态内存（[![1](assets/1.png)](#code_g38_1)）。如果这段内存用完，`buffer`将尝试通过其上游分配器获取新的内存，我们指定的是[`std::pmr::null​_memory_resource()`](https://oreil.ly/p0V3c)。通过这个分配器分配将永远不会返回任何内存，而总是失败并抛出`std::bad_alloc()`异常。因此，`buffer`被限制在`raw`提供的1,000字节内。
 - en: 'While you should immediately remember and recognize this as an example of the
     Decorator design pattern, this also serves as an example of the Singleton pattern:
     the `std::pmr::null_memory_resource()` function returns a pointer to the same
@@ -443,8 +598,10 @@
     a unidirectional flow of data (after all, we can both allocate memory and give
     it back), Singleton still feels like a reasonable choice, as it represents one
     kind of global state: memory.'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 当你应该立即记住并认识到这是装饰器设计模式的一个例子时，它也充当了单例模式的一个例子：`std::pmr::null_memory_resource()`函数每次调用时返回指向相同分配器的指针，因此作为`std::pmr::null_memory_resource`的唯一实例的单一访问点。因此，返回的分配器充当单例。尽管这个单例不提供单向数据流（毕竟，我们既可以分配内存，也可以将其归还），但单例仍然感觉像一个合理的选择，因为它代表了一种全局状态：内存。
 - en: 'It is particularly interesting and important to note that this Singleton does
     not make you depend on the specific implementation details of the allocator. Quite
     the opposite: the `std::pmr::null_memory_resource()` function returns a pointer
@@ -455,39 +612,55 @@
     is in the Standard Library, we tend to not recognize it as a dependency, but generally
     speaking it is: we are not provided with an opportunity to replace the standard-specific
     implementation.'
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 特别重要的是要注意，这个单例模式并不使您依赖于分配器的具体实现细节。恰恰相反：`std::pmr::null_memory_resource()`函数返回一个指向[`std::pmr::memory_resource`](https://oreil.ly/9wYhs)的指针。这个类代表了所有种类分配器的基类（至少在C++17领域内），因此它充当了一个抽象。然而，`std::pmr::null_memory_resource()`代表了一个具体的分配器选择，这是我们现在依赖的。虽然这个功能在标准库中，我们倾向于不认为它是一个依赖，但一般来说，它确实是：我们没有提供一个替换特定实现的机会。
 - en: 'This changes if we replace the call to `std::pmr::null_memory_resource()` with
     a call to [`std::pmr::get_default_resource()`](https://oreil.ly/chMJ7) ([![2](assets/2.png)](#code_g38_2)):'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们将对`std::pmr::null_memory_resource()`的调用替换为对[`std::pmr::get_default_resource()`](https://oreil.ly/chMJ7)的调用（[![2](assets/2.png)](#code_g38_2)），情况就会改变：
 - en: '[PRE5]'
+  id: totrans-70
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'The `std::pmr::get_default_resource()` function also returns a pointer to `std::pmr::memory_resource`,
     which represents an abstraction for the system-wide default allocator. By default,
     the returned allocator is returned by the [`std::new_delete_resource()`](https://oreil.ly/w4lHB)
     function. However, amazingly, this default can be customized by the [`std::pmr::set_default_resource()`](https://oreil.ly/wQBy6)
     function:'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::pmr::get_default_resource()`函数同样返回指向`std::pmr::memory_resource`的指针，它代表了系统默认分配器的抽象。默认情况下，返回的分配器由[`std::new_delete_resource()`](https://oreil.ly/w4lHB)函数返回。但令人惊讶的是，可以通过[`std::pmr::set_default_resource()`](https://oreil.ly/wQBy6)函数自定义此默认行为：'
 - en: '[PRE6]'
+  id: totrans-72
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'With this function, we can define the `std::pmr::null_memory_resource()` as
     the new system-wide default allocator ([![3](assets/3.png)](#code_g38_3)):'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 利用此函数，我们可以将`std::pmr::null_memory_resource()`定义为新的系统默认分配器（[![3](assets/3.png)](#code_g38_3)）：
 - en: '[PRE7]'
+  id: totrans-74
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: 'With `std::pmr::set_default_resource()`, you are able to customize the system-wide
     allocator. In other words, this function provides you with the ability to inject
     the dependency on this allocator. Does this ring a bell? Does this sound familiar?
     I very much hope this makes you think about another, essential design pattern…*drum
     roll*…yes, correct: the Strategy design pattern.^([21](ch10.xhtml#idm45043071262592))'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用`std::pmr::set_default_resource()`，您可以定制系统范围的分配器。换句话说，此函数使您能够注入对这个分配器的依赖。这让您想起了什么吗？这听起来很熟悉吗？我非常希望这让您思考到另一个重要的设计模式……*鼓声*……没错：策略设计模式。^([21](ch10.xhtml#idm45043071262592))
 - en: 'Indeed, this is a Strategy. Using this design pattern is a fantastic choice,
     because it has an amazing effect on the architecture. While `std::pmr::memory_resource`
     represents an abstraction from all possible allocators and thus can reside on
@@ -495,20 +668,28 @@
     including all (vendor-)specific implementation details, can reside on the lowest
     level of the architecture. As a demonstration, consider this sketch of the `CustomAllocator`
     class:'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，这是一种策略。使用这种设计模式是一个很好的选择，因为它对架构有着惊人的影响。虽然`std::pmr::memory_resource`代表了所有可能的分配器的抽象，因此可以位于架构的高层，但任何具体的分配器实现，包括所有（供应商）特定的实现细节，可以位于架构的最低层。作为演示，考虑`CustomAllocator`类的草图：
 - en: '[PRE8]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'Note that `CustomAllocator` `public`ly inherits from `std::pmr::memory_resource`
     in order to qualify as a C++17 allocator. Due to that, you can establish an instance
     of `CustomAllocator` as the new system-wide default allocator with the `std::pmr::set_default_resource()`
     function ([![4](assets/4.png)](#code_g38_4)):'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，`CustomAllocator`是公开继承自`std::pmr::memory_resource`，以符合C++17的分配器要求。因此，您可以使用`std::pmr::set_default_resource()`函数将`CustomAllocator`实例设为新的系统默认分配器（[![4](assets/4.png)](#code_g38_4)）：
 - en: '[PRE9]'
+  id: totrans-79
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'While the `std::pmr::memory_resource` base class resides on the highest level
     of the architecture, `CustomAllocator` is logically introduced on the lowest architectural
     level (see [Figure 10-4](#fig_singleton_memory_resource)). Thus, the Strategy
@@ -516,29 +697,41 @@
     to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)):
     despite the Singleton-ness of the allocators, despite representing global state,
     you depend on an abstraction instead of the concrete implementation details.'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然`std::pmr::memory_resource`基类位于架构的最高级别，但`CustomAllocator`在最低级别逻辑引入（见[Figure 10-4](#fig_singleton_memory_resource)）。因此，策略模式导致依赖反转（参见[“指南9：注意抽象所有权”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)）：尽管分配器是单例，尽管表示全局状态，但你依赖的是抽象而不是具体实现细节。
 - en: '![The dependency inversion achieved via the +std::pmr::memory_resource+ abstraction.](assets/cpsd_1004.png)'
+  id: totrans-81
   prefs: []
   type: TYPE_IMG
+  zh: '![通过+std::pmr::memory_resource+抽象实现的依赖反转。](assets/cpsd_1004.png)'
 - en: Figure 10-4\. The dependency inversion achieved via the `std::pmr::memory_resource`
     abstraction
+  id: totrans-82
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图10-4\. 通过`std::pmr::memory_resource`抽象实现的依赖反转
 - en: 'As a side note, it’s worth pointing out that with this approach you can trivially
     avoid any dependency on the order of initialization of globals (i.e., SIOF), since
     you can explicitly manage the initialization order by creating all Singletons
     on the stack and in a single compilation unit:'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 顺便说一句，值得一提的是，通过这种方法，你可以轻松地避免对全局初始化顺序的任何依赖（即SIOF），因为你可以通过在单个编译单元中在堆栈上创建所有单例来明确管理初始化顺序：
 - en: '[PRE10]'
+  id: totrans-84
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Applying the Strategy Design Pattern
+  id: totrans-85
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用策略设计模式
 - en: 'Based on this previous example, you should now have an idea how to fix our
     `Database` example. As a reminder, the goal is to keep the `Database` class as
     the default database implementation but to make it an implementation detail, i.e.,
@@ -550,14 +743,20 @@
     for Extension”](ch01.xhtml#design_for_extension)) to introduce a custom database
     implementation (both concrete implementations as well as test stubs, mocks, or
     fakes) on the lowest level.'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据之前的例子，你现在应该有一个修复我们`Database`示例的想法了。作为提醒，目标是保持`Database`类作为默认的数据库实现，但将其作为实现细节，即删除对具体实现的所有依赖。你所需要做的就是应用策略设计模式，引入一个抽象，以及一个全局访问点和*依赖注入*的高级架构。这将使任何人（我真的是指任何人，因为你还要遵循开闭原则（OCP）；参见[“指南5：设计以便扩展”](ch01.xhtml#design_for_extension)）能够在最低级别引入自定义数据库实现（包括具体实现以及测试桩、模拟或伪造）。
 - en: 'So let’s introduce the following `PersistenceInterface` abstraction ([![5](assets/5.png)](#code_g38_5)):'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 因此，让我们引入以下`PersistenceInterface`抽象（[![5](assets/5.png)](#code_g38_5)）：
 - en: '[PRE11]'
+  id: totrans-88
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: The `PersistenceInterface` base class provides the interface for all possible
     database implementations. For instance, it introduces a `read()` and a `write()`
     function, split into the `public` interface part and the `private` implementation
@@ -565,23 +764,33 @@
     and [![7](assets/7.png)](#code_g38_7)).^([22](ch10.xhtml#idm45043070746416)) Of
     course, in reality it would introduce a few more database-specific functions,
     but let `read()` and `write()` be sufficient for this example.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: '`PersistenceInterface`基类为所有可能的数据库实现提供接口。例如，它引入了`read()`和`write()`函数，根据`std::pmr::memory_resource`类的示例分为`public`接口部分和`private`实现部分（[![6](assets/6.png)](#code_g38_6)和[![7](assets/7.png)](#code_g38_7))。^([22](ch10.xhtml#idm45043070746416))
+    当然，实际情况下，它可能会引入几个更多的特定于数据库的函数，但让`read()`和`write()`在本示例中足够了。'
 - en: In addition to the `PersistenceInterface`, you would also introduce a global
     point of access called `get_persistence_interface()` ([![8](assets/8.png)](#code_g38_8))
     and a function to enable *dependency injection* called `set_persistence_interface()`
     ([![9](assets/9.png)](#code_g38_9)). These two functions allow you to access and
     set the global persistence system ([![10](assets/10.png)](#code_g38_10)).
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了`PersistenceInterface`，还将引入一个名为`get_persistence_interface()`的全局访问点（[![8](assets/8.png)](#code_g38_8)），以及一个用于*依赖注入*的函数`set_persistence_interface()`（[![9](assets/9.png)](#code_g38_9)）。这两个函数允许访问和设置全局持久性系统（[![10](assets/10.png)](#code_g38_10)）。
 - en: 'The `Database` class now inherits from the `PersistenceInterface` base class
     and implements the required interface (hopefully adhering to the Liskov Substitution
     Principle (LSP); see [“Guideline 6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)):'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Database`类现在从`PersistenceInterface`基类继承，并实现了所需的接口（希望遵守里斯科夫替换原则（LSP）；见[“Guideline
+    6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）：'
 - en: '[PRE12]'
+  id: totrans-92
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'In our special setting, the `Database` class represents the default database
     implementation. We need to create a default instance of the database, in case
     no other persistence system is specified via the `set_persistence_interface()`
@@ -590,35 +799,49 @@
     would cause unnecessary and unfortunate overhead. This behavior is achieved by
     implementing the `get​_persistence_interface()` function with two *static local
     variables* and an *Immediately Invoked Lambda Expression (IILE)* ([![11](assets/11.png)](#code_g38_11)):'
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的特定设置中，`Database`类代表默认的数据库实现。我们需要在未通过`set_persistence_interface()`函数指定其他持久性系统时创建数据库的默认实例。然而，若在创建`Database`之前已将任何其他持久性系统建立为全系统数据库，则不得创建实例，因为这会导致不必要和不幸的开销。通过实现具有两个*静态局部变量*和*立即调用的Lambda表达式（IILE）*的`get_persistence_interface()`函数，实现了此行为（[![11](assets/11.png)](#code_g38_11)）：
 - en: '[PRE13]'
+  id: totrans-94
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'The first time the execution flow enters the `get_persistence_interface()`
     function, the `init` static local variable is initialized. If, at this point in
     time, the `instance` is already set, no `Database` is created. However, if it
     is not, the `Database` instance is created as another static local variable inside
     the lambda and bound to the `instance` variable:'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 当执行流程第一次进入`get_persistence_interface()`函数时，静态局部变量`init`被初始化。若此时`instance`已被设置，则不会创建`Database`。然而，若未设置，`Database`实例将作为另一个静态局部变量在lambda内创建，并绑定到`instance`变量：
 - en: '[PRE14]'
+  id: totrans-96
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'This implementation achieves the desired effect: `Database` becomes an implementation
     detail, which no other code depends on and which can be replaced at any time by
     a custom database implementation (see [Figure 10-5](#fig_singleton_database_3)).
     Thus, despite the Singleton-ness of `Database`, it does not introduce dependencies,
     and it can be easily changed and easily replaced for testing purposes.'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 此实现实现了期望的效果：`Database`成为实现细节，其他代码不依赖它，可以随时通过自定义数据库实现进行更改（参见[图10-5](#fig_singleton_database_3)）。因此，尽管`Database`是单例，但它不引入依赖关系，并且可以轻松更改和替换以进行测试目的。
 - en: '![The dependency graph for the refactored, non-_Singleton_ +Database+.](assets/cpsd_1005.png)'
+  id: totrans-98
   prefs: []
   type: TYPE_IMG
+  zh: '![重构后的非_Singleton_ +Database+的依赖图](assets/cpsd_1005.png)'
 - en: Figure 10-5\. The dependency graph for the refactored, non-*Singleton* `Database`
+  id: totrans-99
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图10-5. 重构后的非*Singleton* `Database`的依赖图
 - en: '“Wow, this is a great solution. I bet I can use that in a few places in my
     own codebase!” you say, with an impressed and appreciative look on your face.
     “But I see a potential problem: since I have to inherit from an interface class,
@@ -630,8 +853,10 @@
     or you don’t have an inheritance hierarchy in place yet, in which case you can
     put the External Polymorphism design pattern to good use (see [“Guideline 31:
     Use External Polymorphism for Nonintrusive Runtime Polymorphism”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)).'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这是一个很棒的解决方案。我打赌我可以在自己的代码库中的几个地方使用它！”你说道，面带印象深刻和感激的表情。“但我看到一个潜在的问题：由于我必须从一个接口类继承，这是一个侵入性的解决方案。如果我不能更改给定的单例类，我该怎么办？”嗯，在这种情况下，你有两个非侵入式的设计模式可供选择。要么你已经有一个继承层次结构，那么你可以引入一个适配器来包装给定的单例（参见[“指导原则24：使用适配器标准化接口”](ch06.xhtml#use_adapters_to_standardize_interfaces)），要么你还没有现成的继承层次结构，那么你可以将外部多态设计模式充分利用（参见[“指导原则31：使用外部多态实现非侵入式运行时多态”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)）。
 - en: '“OK, but I see another, more serious problem: is this code truly thread-safe?”
     Honestly, no, it is not. To give one example for a possible problem: it could
     happen that during the first call to `get_persistence_interface()`, which may
@@ -645,35 +870,49 @@
     would return the set value. Hence, calling the `set_persistence_interface()` function
     from anywhere in the code is like pulling the rug from under somebody’s feet.
     This is comparable to calling `std::move()` on any lvalue:'
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，但我看到另一个更严重的问题：这段代码真的是线程安全的吗？”老实说，不，它不是。举个可能出现问题的例子：可能会发生在第一次调用`get_persistence_interface()`时（由于设置`Database`实例而可能需要一些时间），此时调用了`set_persistence_interface()`。在这种情况下，要么`Database`被徒劳地创建，要么`set_persistence_interface()`的调用被丢失。然而，或许令人惊讶的是，我们不需要解决这个问题。原因在于：记住`instance`代表全局状态。如果我们假设`set_persistence_interface()`可以从代码的任何地方随时调用，通常我们不能期望在调用`set_persistence_interface()`之后，调用`get_persistence_interface()`会返回已设置的值。因此，在代码的任何地方调用`set_persistence_interface()`函数就像是在某人脚下掀地毯一样。这可以与对任何lvalue调用`std::move()`相比较：
 - en: '[PRE15]'
+  id: totrans-102
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: From this perspective, the `set_persistence_interface()` function should be
     used at the very beginning of the program or at the beginning of a single test,
     not arbitrarily.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 从这个角度来看，`set_persistence_interface()`函数应该在程序的最开始或单个测试的开始时使用，而不是任意使用。
 - en: '“Shouldn’t we make sure that the `set_persistence_interface()` function can
     be called only once?” you ask. We most certainly could do that, but this would
     artificially limit its use for testing purposes: we would not be able to reset
     the persistence system at the beginning of every single test.'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: “我们不应该确保`set_persistence_interface()`函数只能调用一次吗？”你问道。我们当然可以这样做，但这会人为地限制其用于测试目的：我们将无法在每次测试的开始重置持久化系统。
 - en: Moving Toward Local Dependency Injection
+  id: totrans-105
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 向本地依赖注入迈进
 - en: '“OK, I see. One last question: since this solution involves global state that
     can be changed, wouldn’t it be better to use a more direct and more local dependency
     injection to the lower-level classes? Consider the following modification of the
     `Widget` class, which is given its dependency upon construction:”'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，我明白了。最后一个问题：由于这个解决方案涉及可以更改的全局状态，是否使用更直接和更本地的依赖注入到低级类会更好呢？考虑一下对`Widget`类的以下修改，它在构造时就获得了其依赖项：”
 - en: '[PRE16]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: 'I completely agree with you. This may be the next step to address the problem
     of global state. However, before we analyze this approach, keep in mind that this
     idea is only an option since we have already inverted the dependencies. Thanks
@@ -684,20 +923,28 @@
     and clearly displays all of its dependencies. And since the dependency is passed
     via the constructor argument, the dependency injection becomes more intuitive
     and more natural.'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 我完全同意你的观点。这可能是解决全局状态问题的下一步。然而，在分析这种方法之前，请记住，这个想法只是一个选择，因为我们已经反转了依赖关系。通过在我们架构的高层引入抽象，我们突然有了选择，并且可以讨论替代方案。因此，第一步，也是最重要的一步，是正确管理依赖关系。但回到你的建议：我真的很喜欢这种方法。`Widget`类的接口变得更加“诚实”，清楚地显示出其所有依赖项。由于依赖关系通过构造函数参数传递，依赖注入变得更加直观和自然。
 - en: 'Alternatively, you could pass the dependency on the `Widget::doSomething()`
     function directly:'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 或者，你可以直接将依赖项传递给`Widget::doSomething()`函数：
 - en: '[PRE17]'
+  id: totrans-110
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: While this approach may not be the best for a member function, this may be your
     only option for free functions. And again, the function becomes a little more
     “honest” by explicitly stating its dependencies.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然这种方法对于成员函数可能不是最佳选择，但对于自由函数而言，这可能是唯一的选择。此外，通过明确声明其依赖项，函数变得更加“诚实”。
 - en: 'However, there is a flip side to this direct dependency injection: this approach
     may quickly become unwieldy in large call stacks. Passing a dependency through
     several levels of your software stack to make them available at the point they
@@ -708,11 +955,15 @@
     level truly is not the most elegant approach. For that reason, you may want to
     combine the ideas of providing a global access point and a local dependency injection,
     for instance, by introducing a wrapper function:'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，直接依赖注入也有其缺点：在大型调用堆栈中，这种方法可能很快变得笨拙。通过多层软件堆栈传递依赖项，以便在需要它们的地方使用它们，既不方便也不直观。此外，特别是在存在多个单例模式的情况下，这种解决方案很快变得复杂：通过多层函数调用传递`PersistenceInterface`、`Allocator`和系统级`Configuration`，只是为了能够在最低级别上使用它们，确实不是最优雅的方法。因此，您可能希望结合提供全局访问点和局部依赖注入的思想，例如通过引入包装器函数：
 - en: '[PRE18]'
+  id: totrans-113
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: While we still provide the previous `doSomething()` function ([![12](assets/12.png)](#code_g38_12)),
     we now additionally provide an overload that accepts a `PersistenceInterface`
     as a function argument ([![13](assets/13.png)](#code_g38_13)). The second function
@@ -721,8 +972,10 @@
     to make local decisions and to locally inject the desired dependency, but at the
     same time it is not necessary to pass the dependency through many layers of function
     calls.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然我们仍然提供之前的`doSomething()`函数（[![12](assets/12.png)](#code_g38_12)），但现在我们额外提供了一个重载版本，它接受一个`PersistenceInterface`作为函数参数（[![13](assets/13.png)](#code_g38_13)）。第二个函数完成所有工作，而第一个函数现在仅充当一个包装器，注入了全局设置的`PersistenceInterface`。在这种组合中，可以进行本地决策并局部注入所需的依赖，但同时不必通过多层函数调用传递依赖项。
 - en: 'However, truth be told, while these solutions may work very well in this database
     example and also in the context of managing memory, it might not be the right
     approach for every single Singleton problem. So don’t believe that this is the
@@ -732,8 +985,10 @@
     Depending on your intent, you will just have applied a design pattern. So consider
     naming your solution accordingly, and by that leave traces of your reasoning for
     others to pick up on.'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，说实话，虽然这些解决方案在这个数据库示例以及内存管理的上下文中可能非常有效，但它可能并不是每一个单例问题的正确方法。因此，不要认为这是唯一可能的解决方案。毕竟，这取决于具体情况。然而，它是软件设计的一般过程的一个很好的例子：识别引起变化或依赖关系的方面，然后通过提取合适的抽象来分离关注点。根据您的意图，您只需应用一个设计模式。因此，请考虑相应地命名您的解决方案，并留下您的推理痕迹供其他人参考。
 - en: In summary, the Singleton pattern certainly is not one of the glamorous patterns.
     It simply comes with too many disadvantages, most importantly the usual flaws
     of global state. But still, despite the many negative aspects, if used judiciously,
@@ -741,46 +996,66 @@
     your code in some situations. If it is, prefer Singletons with unidirectional
     data flow, and design your Singletons for change and testability by inverting
     the dependencies and enabling dependency injection with the Strategy design pattern.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，单例模式确实不是那些光彩夺目的设计模式之一。它带来了太多的缺点，尤其是全局状态的通常缺陷。但是，尽管有许多负面因素，如果明智使用，单例模式在某些情况下仍然可以成为代表代码中少数全局方面的正确解决方案。如果确实如此，请优先选择具有单向数据流的单例，并通过反转依赖关系和使用策略设计模式实现依赖注入，设计您的单例以实现可更改性和可测试性。
 - en: '^([1](ch10.xhtml#idm45043072392832-marker)) Steve McConnell, *Code Complete:
     A Practical Handbook of Software Construction*, 2nd ed. (Microsoft Press, 2004).'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch10.xhtml#idm45043072392832-marker)) Steve McConnell，《代码大全：软件构建实用手册》，第2版（Microsoft
+    Press，2004）。
 - en: ^([2](ch10.xhtml#idm45043072387744-marker)) “There can be only one” is the tagline
     of the 1986 movie [*Highlander*](https://oreil.ly/XT6uF) featuring Christopher
     Lambert.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch10.xhtml#idm45043072387744-marker)) “There can be only one” 是1986年电影《高地人》（[链接](https://oreil.ly/XT6uF)），由克里斯托弗·兰伯特主演的标语。
 - en: '^([3](ch10.xhtml#idm45043072383840-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch10.xhtml#idm45043072383840-marker)) Erich Gamma 等人，《设计模式：可复用面向对象软件的基础》。
 - en: ^([4](ch10.xhtml#idm45043072376432-marker)) The Meyers’ Singleton is explained
     in Item 4 of Scott Meyers’s *Effective C++*.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch10.xhtml#idm45043072376432-marker)) Meyers 的单例模式详见 Scott Meyers 的《Effective
+    C++》第4条。
 - en: ^([5](ch10.xhtml#idm45043072064080-marker)) I know that the explicit handling
     of the copy and move assignment operators appears to be overkill, but this gives
     me the opportunity to remind you about the [Rule of 5](https://oreil.ly/fzS3f).
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch10.xhtml#idm45043072064080-marker)) 我知道显式处理复制和移动赋值运算符似乎有些过度，但这让我有机会提醒您关于[五则法则](https://oreil.ly/fzS3f)。
 - en: ^([6](ch10.xhtml#idm45043071990224-marker)) This behavior has changed in C++20,
     since the declaration of any constructor by the user is now enough to make a type
     nonaggregate.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch10.xhtml#idm45043071990224-marker)) 在 C++20 中，此行为已更改，因为任何用户声明的构造函数现在足以使类型非聚合。
 - en: ^([7](ch10.xhtml#idm45043071987280-marker)) To be precise and to avoid complaints,
     if the static local variable is zero or constant initialized, the initialization
     can happen before the function is entered. In our example, the variable is indeed
     created in the first pass.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch10.xhtml#idm45043071987280-marker)) 精确地说，为了避免投诉，如果静态局部变量是零或常量初始化的，则可以在进入函数之前进行初始化。在我们的示例中，该变量确实是在第一次通过时创建的。
 - en: '^([8](ch10.xhtml#idm45043071938896-marker)) In fact, a naive implementation
     of Singleton is creating lots of artificial dependencies itself; see [“Guideline
     38: Design Singletons for Change and Testability”](#design_singletons_for_change_and_testability).'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch10.xhtml#idm45043071938896-marker)) 实际上，单例的天真实现本身就创建了大量的人为依赖关系；参见[“指导方针38：为变更和可测试性设计单例”](#design_singletons_for_change_and_testability)。
 - en: ^([9](ch10.xhtml#idm45043071934080-marker)) Without going into detail, I argue
     that there are several more so-called “design patterns” that fall in the category
     of implementation patterns, such as the *Monostate* pattern, the *Memento* pattern,
@@ -788,32 +1063,47 @@
     patterns. While this might make sense in languages other than C++, the intent
     of RAII is most certainly not to reduce dependencies but to automate cleanup and
     encapsulate responsibility.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch10.xhtml#idm45043071934080-marker)) 不详细展开，我认为还有几个所谓的“设计模式”属于实现模式类别，例如*Monostate*模式、*Memento*模式和*RAII
+    idiom*，维基百科将其列为设计模式。虽然在C++之外的语言中可能有意义，但RAII的目的绝对不是减少依赖关系，而是自动化清理并封装责任。
 - en: '^([10](ch10.xhtml#idm45043071911616-marker)) Another such piece of advice is
     the CppCon 2020 talk by Peter Muldoon’s [“Retiring the Singleton Pattern: Concrete
     Suggestions for What to Use Instead”](https://oreil.ly/su4Xb), which provides
     many useful techniques for how to deal with Singletons in your codebase.'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch10.xhtml#idm45043071911616-marker)) Peter Muldoon的CppCon 2020演讲[“退休单例模式：替代方案具体建议”](https://oreil.ly/su4Xb)也给出了许多在代码库中处理单例模式的有用技术。
 - en: ^([11](ch10.xhtml#idm45043071900224-marker)) If a Singleton is used for anything
     else, you should be very suspicious and consider it a misuse of the Singleton
     pattern.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch10.xhtml#idm45043071900224-marker)) 如果单例模式用于其他任何目的，你应该非常怀疑，并认为这是对单例模式的误用。
 - en: ^([12](ch10.xhtml#idm45043071898096-marker)) Michael Feathers, *Working Effectively
     with Legacy Code*.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch10.xhtml#idm45043071898096-marker)) Michael Feathers，《与遗留代码的有效工作》。
 - en: ^([13](ch10.xhtml#idm45043071891216-marker)) The best summary of SIOF I’m aware
     of is given by Jonathan Müller in his accordingly named talk [“Meeting C++ 2020”](https://oreil.ly/nvkHT).
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch10.xhtml#idm45043071891216-marker)) 我知道的SIOF的最佳总结由Jonathan Müller在他名为[“Meeting
+    C++ 2020”](https://oreil.ly/nvkHT)的演讲中给出。
 - en: '^([14](ch10.xhtml#idm45043071889696-marker)) “Globals are bad, m’kay?” as stated
     by Guy Davidson and Kate Gregory in *Beautiful C++: 30 Core Guidelines for Writing
     Clean, Safe, and Fast Code* (Addison-Wesley).'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([14](ch10.xhtml#idm45043071889696-marker)) “全局变量是坏事，明白了吗？”如Guy Davidson和Kate
+    Gregory在*Beautiful C++: 30 Core Guidelines for Writing Clean, Safe, and Fast Code*（Addison-Wesley）中所述。'
 - en: '^([15](ch10.xhtml#idm45043071887072-marker)) The Monostate pattern, to my best
     knowledge, was first mentioned in the September issue of the 1996 *C++ Report*
     in the article “Monostate Classes: The Power of One” by Steve Ball and John Crawford
@@ -823,38 +1113,60 @@
     but makes sure that there is only a single state for all instances. As such, the
     pattern should not be confused with `std::monostate`, which is used as a well-behaved
     empty alternative in `std::variant`.'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([15](ch10.xhtml#idm45043071887072-marker)) 至我所知，单态模式首次出现在1996年9月号的*C++ Report*的文章“单态类：一个的力量”中，由Steve
+    Ball和John Crawford提到（参见Stanley B. Lippmann编辑的*More C++ Gems*（Cambridge University
+    Press））。Martin Reddy的*API Design for C++*（Morgan Kaufmann）中也有描述。与Singleton不同，Monostate允许类型的任意数量实例，但确保所有实例只有一个状态。因此，该模式不应与`std::monostate`混淆，后者用作`std::variant`中的行为良好的空替代品。
 - en: ^([16](ch10.xhtml#idm45043071883440-marker)) Miško Hevery, [“Root Cause of Singletons”](https://oreil.ly/wQgJC),
     *The Testability Explorer* (blog), August 2008.
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([16](ch10.xhtml#idm45043071883440-marker)) Miško Hevery在2008年8月的博客[“单例模式的根本原因”](https://oreil.ly/wQgJC)，*The
+    Testability Explorer*中提到。
 - en: ^([17](ch10.xhtml#idm45043071881136-marker)) Ibid.
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([17](ch10.xhtml#idm45043071881136-marker)) 同上。
 - en: ^([18](ch10.xhtml#idm45043071710704-marker)) For an explanation about the different
     kinds of test doubles, see Martin Fowler’s article [“Mocks Aren’t Stubs”](https://oreil.ly/K4vR3).
     For examples of how to use these in C++, refer to Jeff Langr’s *Modern C++ Programming
     with Test-Driven Development*.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([18](ch10.xhtml#idm45043071710704-marker)) 关于不同类型的测试替身的解释，请参阅Martin Fowler的文章[“Mocks
+    Aren’t Stubs”](https://oreil.ly/K4vR3)。如何在C++中使用这些示例，请参阅Jeff Langr的*Modern C++
+    Programming with Test-Driven Development*。
 - en: ^([19](ch10.xhtml#idm45043071708112-marker)) But I am sure you won’t be deterred
     from writing the tests anyway, despite it being difficult.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([19](ch10.xhtml#idm45043071708112-marker)) 但我确信，即使很难，你也不会被阻止写测试。
 - en: ^([20](ch10.xhtml#idm45043071706768-marker)) This is also one of the strong
     arguments in Robert C. Martin’s *Clean Architecture*.
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([20](ch10.xhtml#idm45043071706768-marker)) 这也是Robert C. Martin在*Clean Architecture*中的一个强有力论据。
 - en: '^([21](ch10.xhtml#idm45043071262592-marker)) For the design pattern experts,
     I should explicitly point out that the `std::pmr::get_default_resource()` function
     itself fulfills the intent of another design pattern: the *Facade* design pattern.
     Unfortunately, I do not go into detail about Facade in this book.'
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([21](ch10.xhtml#idm45043071262592-marker)) 对于设计模式专家，我应明确指出，`std::pmr::get_default_resource()`
+    函数本身实现了另一种设计模式的意图：*Facade* 设计模式。不幸的是，在本书中我未详细讨论 Facade。
 - en: ^([22](ch10.xhtml#idm45043070746416-marker)) The separation into a `public`
     interface and a `private` implementation is an example of the Template Method
     design pattern. Unfortunately, in this book I can’t go into detail about the many
     benefits of this design pattern.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([22](ch10.xhtml#idm45043070746416-marker)) 将公共接口和私有实现分离是模板方法设计模式的一个例子。不幸的是，在本书中我无法详细介绍这种设计模式的许多好处。

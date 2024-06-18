@@ -1,23 +1,31 @@
 - en: Chapter 7\. Flexible Iterator Interfaces
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第7章. 灵活的迭代器接口
 - en: Iterating over a set of elements is a common operation in any program. Some
     programming languages provide native constructs to iterate over elements, and
     object-oriented programming languages have guidance in the form of design patterns
     on how to implement generic iteration functionality. However, there is very little
     guidance of this kind for procedural programming languages like C.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在任何程序中，对一组元素进行迭代是一个常见操作。一些编程语言提供原生构造来迭代元素，而面向对象的编程语言则通过设计模式的形式提供有关如何实现通用迭代功能的指导。然而，对于像C这样的过程式编程语言，很少有这种类型的指导。
 - en: 'The verb “iterate” means to do the same thing multiple times. In programming,
     it usually means to run the same program code on multiple data elements. Such
     an operation is often required, which is why it is natively supported in C for
     arrays, as shown in the following code:'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 动词“迭代”意味着多次执行相同的操作。在编程中，它通常表示在多个数据元素上运行相同的程序代码。这种操作经常是必需的，这就是为什么在C语言中对数组进行迭代得到原生支持的原因，如下面的代码所示：
 - en: '[PRE0]'
+  id: totrans-3
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: If you want to iterate over a different data structure, like a red-black tree,
     for example, then you have to implement your own iteration function. You might
     equip this function with data structure–specific iteration options, like whether
@@ -29,8 +37,10 @@
     this is just fine, and even required, because you want to perform some special
     kind of iteration specific to the underlying data structure—perhaps to optimize
     the performance of your code.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您想要迭代不同的数据结构，例如红黑树，那么您必须实现自己的迭代函数。您可以为这个函数配备数据结构特定的迭代选项，例如遍历树的深度优先或广度优先。关于如何实现这些特定数据结构以及这些数据结构的迭代接口的文献是可用的。如果您使用这样一个特定于数据结构的接口进行迭代，并且您的底层数据结构发生变化，那么您必须调整您的迭代函数以及调用此函数的所有代码。在某些情况下，这样做是可以接受的，甚至是必需的，因为您希望执行特定于底层数据结构的某种特殊迭代，也许是为了优化代码的性能。
 - en: In other cases, if you have to provide an iteration interface across component
     boundaries, having such an abstraction that leaks implementation details isn’t
     an option because it might require interface changes in the future. For example,
@@ -41,8 +51,10 @@
     put some extra effort into your implementation to make sure that the interface
     to the customers stays compatible so that they do not have to change (or maybe
     not even recompile) their code.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在其他情况下，如果您必须在组件边界之间提供迭代接口，那么泄露实现细节的抽象不是一个选择，因为这可能需要将来更改接口。例如，如果您向客户出售提供迭代功能的组件，并且客户使用这些功能编写代码，那么他们很可能期望，如果您为他们提供使用不同数据结构的新版本组件，他们的代码可以不经修改地正常工作。在这种情况下，您甚至会在实现中投入额外的工作，以确保与客户的接口保持兼容，使他们无需更改（甚至可能无需重新编译）其代码。
 - en: That is where we start in this chapter. I’ll show you three patterns on how
     you, the iterator implementer, can provide stable iterator interfaces to the user
     (the customer). The patterns do not describe the specific kinds of iterators for
@@ -50,37 +62,54 @@
     implementation you already have functions to retrieve the elements from your underlying
     data structure. The patterns show the options you have to abstract these functions
     in order to provide a stable iteration interface.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 这就是我们在本章开始的地方。我将向您展示三种模式，说明您作为迭代器实现者如何向用户（客户）提供稳定的迭代接口。这些模式不描述特定类型数据结构的特定迭代器。相反，这些模式假定在您的实现中，您已经有从底层数据结构检索元素的函数。这些模式展示了您可以如何抽象这些函数，以提供稳定的迭代接口的选项。
 - en: '[Figure 7-1](#fig_iterator) shows an overview of the patterns covered in this
     chapter and their relationships, and [Table 7-1](#tab_iterator) provides a summary
     of the patterns.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: '[Figure 7-1](#fig_iterator) 展示了本章涵盖的模式概述及其关系，[Table 7-1](#tab_iterator) 提供了这些模式的摘要。'
 - en: '![Overview of the Iterator Patterns](assets/fluc_0701.png)'
+  id: totrans-8
   prefs: []
   type: TYPE_IMG
+  zh: '![迭代器模式概述](assets/fluc_0701.png)'
 - en: Figure 7-1\. Overview of patterns for iterator interfaces
+  id: totrans-9
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: Figure 7-1\. 迭代器接口模式概述
 - en: Table 7-1\. Patterns for iterator interfaces
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: Table 7-1\. 迭代器接口模式
 - en: '|  | Pattern name | Summary |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '|  | 模式名称 | 摘要 |'
 - en: '| --- | --- | --- |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '|  | Index Access | You want to make it possible for the user to iterate elements
     in your data structure in a convenient way, and it should be possible to change
     internals of the data structure without resulting in changes to the user’s code.
     Therefore, provide a function that takes an index to address the element in your
     underlying data structure and return the content of this element. The user calls
     this function in a loop to iterate over all elements. |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '|  | 索引访问 | 您希望使用户能够以便捷的方式迭代您数据结构中的元素，并且可以更改数据结构的内部而不导致用户代码的变化。因此，提供一个函数，该函数接受一个索引来访问底层数据结构中的元素，并返回此元素的内容。用户在循环中调用此函数以迭代所有元素。
+    |'
 - en: '|  | Cursor Iterator | You want to provide an iteration interface to your user
     that is robust in case the elements change during the iteration and that enables
     you to change the underlying data structure at a later point without requiring
@@ -89,8 +118,11 @@
     iterator instance as argument, retrieves the element the iterator currently points
     to, and modifies the iteration instance to point to the next element. The user
     then iteratively calls this function to retrieve one element at a time. |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '|  | 游标迭代器 | 您希望为用户提供一个迭代接口，即使在迭代过程中元素发生变化，也能保持稳健，并且允许您稍后更改底层数据结构而无需更改用户的代码。因此，创建一个迭代器实例，该实例指向底层数据结构中的一个元素。迭代函数以此迭代器实例作为参数，检索迭代器当前指向的元素，并修改迭代器实例以指向下一个元素。然后用户通过迭代调用此函数以逐个检索元素。
+    |'
 - en: '|  | Callback Iterator | You want to provide a robust iteration interface that
     does not require the user to implement a loop in the code for iterating over all
     elements and and that enables you to change the underlying data structure at a
@@ -101,28 +133,41 @@
     and can then perform its operations on this element. The user calls just one function
     to trigger the iteration, and the whole iteration takes place inside your implementation.
     |'
+  id: totrans-15
   prefs: []
   type: TYPE_TB
+  zh: '|  | 回调迭代器 | 您希望提供一个稳健的迭代接口，不需要用户在代码中实现循环来迭代所有元素，并且允许您稍后更改底层数据结构而无需更改用户的代码。因此，使用您现有的数据结构特定操作在您的实现中迭代所有元素，并在此迭代期间调用一些提供的用户函数来处理每个元素。这个用户函数以元素内容作为参数，可以对此元素执行其操作。用户只需调用一个函数来触发迭代，整个迭代过程在您的实现内部完成。
+    |'
 - en: Running Example
+  id: totrans-16
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 运行示例
 - en: 'You implemented an access control component for your application with an underlying
     data structure in which you have a function to randomly access any of the elements.
     More specifically, in the following code you have a `struct` array that holds
     account information like login names and passwords:'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 您实现了应用程序的访问控制组件，具有一个可以随机访问任何元素的底层数据结构。具体而言，在以下代码中，您有一个包含帐户信息（如登录名和密码）的结构体数组：
 - en: '[PRE1]'
+  id: totrans-18
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'The next code shows how users can access this struct to read specific information
     like the login names:'
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一个代码示例展示了用户如何访问此结构体以读取特定信息，例如登录名：
 - en: '[PRE2]'
+  id: totrans-20
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: Of course, you could simply not worry about abstracting access to your data
     structure and let other programmers directly retrieve a pointer to this `struct`
     to loop over the `struct` elements and access any information in the `struct`.
@@ -131,102 +176,145 @@
     to the client stable over time, you won’t be able to remove information you once
     revealed to the client, because your client might use that information and you
     don’t want to break the client’s code.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，您可以简单地不担心抽象访问您的数据结构，并允许其他程序员直接检索指向此`struct`的指针以循环遍历`struct`元素并访问`struct`中的任何信息。但是，这是一个坏主意，因为您的数据结构中可能存在您不希望向客户提供的信息。如果您必须随时间保持与客户的接口稳定，那么您将无法删除一旦向客户透露的信息，因为您的客户可能使用该信息，而您不希望破坏客户的代码。
 - en: To avoid this problem, a much better idea is to let the user only access the
     required information. A simple solution is to provide Index Access.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了避免这个问题，一个更好的主意是让用户只能访问所需的信息。一个简单的解决方案是提供索引访问。
 - en: Index Access
+  id: totrans-23
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 索引访问
 - en: Context
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a set of elements stored in a data structure that can be randomly accessed.
     For example, you have an array or a database with functions to randomly retrieve
     single elements. A user wants to iterate these elements.
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: 您有一组存储在可以随机访问的数据结构中的元素。例如，您有一个数组或数据库，其中包含随机检索单个元素的函数。用户想要迭代这些元素。
 - en: Problem
+  id: totrans-26
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to make it possible for the user to iterate elements in your data
     structure in a convenient way, and it should be possible to change internals of
     the data structure without resulting in changes to the user’s code.**'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '**您希望使用户能够方便地迭代您数据结构中的元素，并且应该可以在不影响用户代码的情况下更改数据结构的内部。**'
 - en: The user might be somebody who writes code that is not versioned and released
     with your codebase, so you have to make sure that future versions of your implementation
     also work with the user code written against the current version of your code.
     Thus, the user should not be able to access any internal implementation details,
     such as the underlying data structure you use to hold your elements, because you
     might want to change that at a later point.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户可能是编写代码的人，其代码未与您的代码库版本化和发布，因此您必须确保将来的实现版本也能与用户根据当前版本编写的代码配合使用。因此，用户不应能访问任何内部实现细节，例如您用于保存元素的底层数据结构，因为您可能希望稍后更改它。
 - en: Solution
+  id: totrans-29
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Provide a function that takes an index to address the element in your underlying
     data structure and return the content of this element. The user calls this function
     in a loop to iterate over all elements as shown in [Figure 7-2](#fig_index_access).**'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '**提供一个函数，该函数接受索引以访问底层数据结构中的元素，并返回该元素的内容。用户在循环中调用此函数以迭代所有元素，如[图 7-2](#fig_index_access)所示。**'
 - en: '![sketches/index-access-sketch.png](assets/fluc_0702.png)'
+  id: totrans-31
   prefs: []
   type: TYPE_IMG
+  zh: '![sketches/index-access-sketch.png](assets/fluc_0702.png)'
 - en: Figure 7-2\. Index-accessed iteration
+  id: totrans-32
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-2\. 索引访问迭代
 - en: The equivalent to this approach would be that in an array, the user would simply
     use an index to retrieve the value of one array element or to iterate over all
     elements. But when you have a function that takes such an index, more complex
     underlying data structures are also possible to iterate without requiring the
     user’s knowledge.
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种方法的等效物是，在数组中，用户只需使用索引来检索一个数组元素的值或迭代所有元素。但是，当您有一个接受这样的索引的函数时，也可能迭代更复杂的底层数据结构，而无需用户了解。
 - en: 'In order to achieve this, provide the users only the data they are interested
     in and do not reveal all elements of your underlying data structure. For example,
     do not return a pointer to the whole `struct` element, return a pointer only to
     the `struct` member the user is interested in:'
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了实现这一点，仅向用户提供他们感兴趣的数据，不要透露底层数据结构的所有元素。例如，不要返回指向整个`struct`元素的指针，而是仅返回用户感兴趣的`struct`成员的指针：
 - en: '*Caller’s code*'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE3]'
+  id: totrans-36
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '*Iterator API*'
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: '*迭代器 API*'
 - en: '[PRE4]'
+  id: totrans-38
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: Consequences
+  id: totrans-39
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: Users can retrieve the elements by using the index to conveniently loop over
     the elements in their code. They do not have to deal with the internal data structure
     from which this data was gathered. If something in the implementation changes
     (for example, the retrieved `struct` member is renamed), users need not recompile
     their code.
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户可以通过使用索引检索元素，方便地在其代码中循环遍历元素。他们不必处理从中获取数据的内部数据结构。如果实现中发生了更改（例如，检索的 `struct`
+    成员被重命名），用户无需重新编译其代码。
 - en: Other changes to the underlying data structure might turn out to be more difficult.
     If, for example, the underlying data structure changes from an array (randomly
     accessible) to a linked list (sequentially accessible), then you’d have to iterate
     the list each time until you get to the requested index. That would not be efficient
     at all, and to make sure to also allow such changes in the underlying data structure,
     it would be better to use a Cursor Iterator or Callback Iterator instead.
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 对底层数据结构的其他更改可能会变得更加困难。例如，如果底层数据结构从数组（随机访问）更改为链表（顺序访问），那么每次都必须迭代列表直到到达请求的索引位置。这样做根本不高效，为了确保还允许底层数据结构的这些更改，最好使用游标迭代器或回调迭代器。
 - en: If the user retrieves only basic data types that can be returned as Return Value
     of a C function, then the user implicitly retrieves a copy of this element. If
     the corresponding element in the underlying data structure changes in the meantime,
@@ -236,8 +324,10 @@
     can copy the current data element in a thread-safe way and provide it to the user,
     for example with a Caller-Owned Buffer. If you are not operating in a multithreaded
     environment, you could simply return a pointer for complex data types.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果用户仅检索可以作为C函数返回值的基本数据类型，则用户隐式地检索该元素的副本。如果底层数据结构中的相应元素在此期间发生更改，则这不会影响用户。但是，如果用户检索更复杂的数据类型（如字符串），则与直接提供对底层数据结构的访问相比，使用索引访问具有优势，即您可以以线程安全的方式复制当前数据元素并提供给用户，例如使用调用者拥有的缓冲区。如果您不在多线程环境中操作，则可以简单地为复杂数据类型返回指针。
 - en: When accessing a set of elements, the user often wants to iterate over all elements.
     If somebody else adds or removes an element in the underlying data in the meantime,
     then the user’s understanding of the index to access the elements might become
@@ -249,74 +339,102 @@
     required, copying all the elements might not be worth it. A much more convenient
     solution, where the user does not have to worry about changes to the underlying
     data order during iteration, is to provide a Callback Iterator instead.
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 在访问一组元素时，用户通常希望遍历所有元素。如果其他人在此期间向底层数据添加或删除元素，则用户对访问元素的索引的理解可能会变得无效，并且在迭代过程中可能会无意中检索元素两次。解决此问题的一种简单方法是将用户感兴趣的所有元素简单复制到数组中，并将此独占数组提供给用户，用户可以方便地在此数组上进行循环。用户将拥有该副本的专有所有权，甚至可以修改元素。但如果不明确要求这样做，则复制所有元素可能不值得。一个更方便的解决方案，用户在迭代过程中不必担心底层数据顺序的更改，是提供一个回调迭代器。
 - en: Known Uses
+  id: totrans-44
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: James Noble describes the External Iterator pattern in his article [“Iterators
     and Encapsulation”](https://oreil.ly/fganK). This is an object-oriented version
     of the concept described in this pattern.
+  id: totrans-46
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: James Noble 在他的文章 [“迭代器与封装”](https://oreil.ly/fganK) 中描述了外部迭代器模式。这是该模式中描述的概念的面向对象版本。
 - en: The book *Data Structures and Problem Solving Using Java* by Mark Allen Weiss
     (Addison-Wesley, 2006) describes this approach and calls it access with an array-like
     interface.
+  id: totrans-47
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Mark Allen Weiss 的书籍《Java数据结构与问题解决》（Addison-Wesley, 2006）描述了这种方法，并称其为具有类似数组接口的访问方式。
 - en: The function `service_response_time_get_column_name` of the Wireshark code returns
     the name of columns for a statistics table. The name to be returned is addressed
     with an index parameter provided by the user. The column names cannot change at
     runtime, and therefore even in multithreaded environments this way of accessing
     the data or iterating over column names is safe.
+  id: totrans-48
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark 代码的函数`service_response_time_get_column_name`返回统计表的列名。用户提供的索引参数用于寻址要返回的列名。列名在运行时不能更改，因此即使在多线程环境中，访问数据或迭代列名的方式也是安全的。
 - en: The Subversion project contains code that is used to build up a table of strings.
     These strings can be accessed with the function `svn_fs_x__string_table_get`.
     This function takes an index as parameter that is used to address the string to
     be retrieved. The retrieved string is copied into a provided buffer.
+  id: totrans-49
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Subversion 项目包含用于建立字符串表的代码。可以使用函数`svn_fs_x__string_table_get`访问这些字符串。此函数接受一个索引作为参数，用于定位要检索的字符串。检索到的字符串被复制到提供的缓冲区中。
 - en: The OpenSSL function `TXT_DB_get_by_index` retrieves a string selected with
     an index from a text database and stores it in a provided buffer.
+  id: totrans-50
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL 函数`TXT_DB_get_by_index`从文本数据库中检索选择的字符串，并将其存储在提供的缓冲区中。
 - en: Applied to Running Example
+  id: totrans-51
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now you have a clean abstraction for reading the login names, and you don’t
     reveal internal implementation details to the user:'
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你有了一个清晰的抽象来读取登录名，并且不向用户透露内部实现细节：
 - en: '[PRE5]'
+  id: totrans-53
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: Users do not have to deal with accessing the underlying `struct` array. This
     has the advantage that access to the required data is easier for them and that
     they cannot use any information that is not intended for them. For example, they
     cannot access sub-elements of your `struct` that you might want to change in the
     future and that can only be changed if nobody accesses this data because you do
     not want to break the users’ code.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户不必处理访问底层`struct`数组。这有利于他们更容易访问所需数据，并且他们不能使用未经授权的任何信息。例如，他们不能访问您将来可能想要更改的`struct`的子元素，并且只有在没有人访问这些数据时才能更改，因为您不希望破坏用户的代码。
 - en: 'Someone using this interface, such as someone who wants to write a function
     that checks if there is any login name starting with the letter “X,” writes the
     following code:'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 有人使用此接口，比如想要编写一个检查是否有以字母“X”开头的登录名的函数，编写以下代码：
 - en: '[PRE6]'
+  id: totrans-56
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'You are happy with your implementation until the data structure that you use
     to store the login names changes, because you need a more convenient way to insert
     and delete account data, which is quite difficult when storing the data in a plain
@@ -324,224 +442,315 @@
     an underlying data structure that offers you an operation to get from one element
     to the next without offering an operation to randomly access elements. More specifically,
     you have a linked list that can be accessed, as shown in the following code:'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 在使用普通数组存储数据结构变更后，你对自己的实现感到满意，因为你需要一个更方便的方法来插入和删除账户数据，而在普通数组中存储数据时这相当困难。现在登录名不再存储在单个普通数组中，而是存储在一个底层数据结构中，该数据结构提供了一个从一个元素到下一个元素的操作，而不提供随机访问元素的操作。更具体地说，你有一个可以访问的链表，如下面的代码所示：
 - en: '[PRE7]'
+  id: totrans-58
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: That makes the situation difficult with your current interface, which provides
     one randomly index-accessed login name at a time. To further support this, you’d
     have to emulate the index by calling the `getNext` function and counting until
     you reach the indexed element. That is quite inefficient. All that hassle is only
     necessary because you designed the interface in a way that turned out to be not
     flexible enough.
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 这使得在当前接口中情况变得困难，该接口每次提供一个可以随机索引访问的登录名。要进一步支持这一点，你必须通过调用`getNext`函数来模拟索引，并计算直到达到索引元素为止。这是非常低效的。所有这些麻烦只是因为你设计的接口方式不够灵活而必要。
 - en: To make things easier, provide a Cursor Iterator to access the login names.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了简化操作，提供一个游标迭代器来访问登录名。
 - en: Cursor Iterator
+  id: totrans-61
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 游标迭代器
 - en: Context
+  id: totrans-62
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You have a set of elements stored in a data structure that can be accessed randomly
     or sequentially. For example, you have an array, a linked list, a hash map, or
     a tree data structure. A user wants to iterate these elements.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有一组存储在可以随机或顺序访问的数据结构中的元素。例如，你有一个数组、一个链表、一个哈希映射或一个树形数据结构。用户想要迭代这些元素。
 - en: Problem
+  id: totrans-64
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to provide an iteration interface to your user that is robust in
     case the elements change during the iteration and that enables you to change the
     underlying data structure at a later point without requiring any changes to the
     user’s code.**'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: '**你希望为用户提供一个迭代接口，即使在迭代过程中元素发生变化，也能保持稳定，并且能够在以后改变底层数据结构而无需修改用户的代码。**'
 - en: The user might be somebody who writes code that is not versioned and released
     with your codebase, so you have to make sure that future versions of your implementation
     also work with the user code written against the current version of your code.
     Thus, the user should not be able to access any internal implementation details,
     such as the underlying data structure you use to hold your elements, because you
     might want to change that at a later point.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户可能是那些编写代码但不会与您的代码库版本化和发布的人，因此您必须确保您的实现的将来版本也能与用户针对当前版本编写的代码兼容。因此，用户不应该能够访问任何内部实现细节，例如您用来保存元素的底层数据结构，因为您可能希望稍后更改它。
 - en: Aside from that, when operating in multithreaded environments, you want to provide
     the user a robust and clearly defined behavior if the element’s content changes
     while the user iterates over it. Even for complex data like strings, the user
     should not have to worry about other threads changing that data while the user
     wants to read it.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，在多线程环境下操作时，您希望为用户提供稳健且明确定义的行为，以防止用户在迭代过程中元素内容发生更改。即使是像字符串这样的复杂数据，用户也不应该担心其他线程在用户想要读取数据时更改它。
 - en: You don’t care if you have to make an extra implementation effort to achieve
     all this, because many users will use your code, and if you can take implementation
     effort away from the user by implementing it in your code, then the overall effort
     will be decreased.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使您需要额外的实现工作来实现所有这些，您也不会介意，因为许多用户将使用您的代码，如果您可以通过在您的代码中实现来减少用户的实现工作，那么总体工作量将会减少。
 - en: Solution
+  id: totrans-69
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Create an iterator instance that points to an element in the underlying data
     structure. An iteration function takes this iterator instance as argument, retrieves
     the element the iterator currently points to, and modifies the iteration instance
     to point to the next element. The user then iteratively calls this function to
     retrieve one element at a time as shown in [Figure 7-3](#fig_cursor).**'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '**创建一个指向底层数据结构中元素的迭代器实例。迭代函数将此迭代器实例作为参数，检索迭代器当前指向的元素，并修改迭代实例以指向下一个元素。然后用户迭代调用此函数以逐个检索元素，如图[7-3](#fig_cursor)所示。**'
 - en: '![sketches/cursor-iterator-sketch.png](assets/fluc_0703.png)'
+  id: totrans-71
   prefs: []
   type: TYPE_IMG
+  zh: '![sketches/cursor-iterator-sketch.png](assets/fluc_0703.png)'
 - en: Figure 7-3\. Iteration with a Cursor Iterator
+  id: totrans-72
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-3\. 使用光标迭代器进行迭代
 - en: 'The iterator interface requires two functions to create and destroy the iterator
     instance and one function to perform the actual iteration and to retrieve the
     current element. Having explicit create/destroy functions makes it possible to
     have an instance in which you store your internal iteration data (position, data
     of the current element). The user then has to pass this instance to all your iteration
     function calls as shown in the following code:'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 迭代器接口需要两个函数来创建和销毁迭代器实例，以及一个函数来执行实际的迭代并检索当前元素。显式创建/销毁函数使得您可以拥有一个实例，在其中存储内部迭代数据（位置、当前元素的数据）。然后用户需要将此实例传递给所有迭代函数调用，如下面的代码所示：
 - en: '*Caller’s code*'
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE8]'
+  id: totrans-75
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '*Iterator API*'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '*迭代器 API*'
 - en: '[PRE9]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: If you do not want the user to be able to access this internal data, then you
     can hide it and provide the user with a Handle instead. That makes it possible
     that even changes to this internal data of the iteration instance do not affect
     the user.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您不希望用户能够访问此内部数据，则可以隐藏它并为用户提供一个句柄。这样即使更改迭代实例的内部数据，也不会影响用户。
 - en: When retrieving the current element, basic data types can be provided direcetly
     as the Return Value. Complex data types can either be returned as a reference
     or copied into the iterator instance. Copying them into the iterator instance
     gives you the advantage that the data is consistent, even if the data in the underlying
     data structure changes in the meantime (for example, because it is being modified
     by someone else in a multithreaded environment).
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 在检索当前元素时，可以直接提供基本数据类型作为返回值。复杂数据类型可以作为引用返回，也可以复制到迭代器实例中。将它们复制到迭代器实例中使您可以获得数据的一致性，即使在底层数据结构在此期间发生变化（例如，因为在多线程环境中被其他人修改）。
 - en: Consequences
+  id: totrans-80
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: The user can iterate the data simply by calling the `getNext` method as long
     as valid elements are retrieved. They do not have to deal with the internal data
     structure from which this data was gathered, nor do they have to worry about an
     element index or about the maximum number of elements. But not being able to index
     the elements also means that the user cannot randomly access the elements (which
     could be done with Index Access).
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 只需调用`getNext`方法，用户就可以简单地迭代数据，只要检索到有效元素即可。他们无需处理从中获取这些数据的内部数据结构，也无需担心元素索引或元素的最大数量。但是，无法索引元素也意味着用户无法随机访问元素（这可以通过索引访问来完成）。
 - en: Even if the underlying data structure changes, for example, from a linked list
     to a randomly accessible data structure like an array, then that change can be
     hidden in the iterator implementation and the user need not change or recompile
     code.
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使底层数据结构发生变化，例如从链表变为像数组这样的随机访问数据结构，那么这种变化可以隐藏在迭代器的实现中，用户无需更改或重新编译代码。
 - en: No matter which kind of data the user retrieves—simple or complex data types—they
     need not be afraid that the retrieved element will become invalid if the underlying
     element is changed or removed in the meantime. To make this possible, the user
     now has to explicitly call functions to create and destroy the iterator instance.
     Compared to Index Access, more function calls are necessary.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论用户检索哪种类型的数据——简单的或复杂的数据类型——他们无需担心，如果在此期间更改或删除底层元素，检索的元素将变为无效。为了实现这一点，用户现在必须显式调用函数来创建和销毁迭代器实例。与索引访问相比，需要更多的函数调用。
 - en: When accessing a set of elements, the user often wants to iterate over all elements.
     If somebody else adds an element to the underlying data in the meantime, then
     the user might miss this element during the iteration. If this is a problem for
     you and you want to make sure that the elements do not change at all during the
     iteration, then it is easier to use a Callback Iterator.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 当访问一组元素时，用户通常希望迭代所有元素。如果其他人在此期间向底层数据添加元素，则用户在迭代期间可能会错过此元素。如果这对您来说是一个问题，并且您希望确保元素在迭代期间根本不会更改，则更容易使用回调迭代器。
 - en: Known Uses
+  id: totrans-85
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了该模式的应用：
 - en: James Noble describes an object-oriented version of this iterator as the Magic
     Cookie pattern in his article [“Iterators and Encapsulation.”](https://oreil.ly/NVnbw)
+  id: totrans-87
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: James Noble在他的文章["迭代器和封装"](https://oreil.ly/NVnbw)中将这种迭代器的面向对象版本描述为魔术饼干模式。
 - en: The article [“Interruptible Iterators”](https://oreil.ly/BzFJJ) by Jed Liu et
     al. describes the presented concept as *cursor object*.
+  id: totrans-88
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Jed Liu等人在文章["可中断迭代器"](https://oreil.ly/BzFJJ)中将所述的概念描述为*游标对象*。
 - en: This kind of iteration is used for file access. For example, the `getline` C
     function iterates over the lines in a file, and the iterator position is stored
     in the `FILE` pointer.
+  id: totrans-89
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 此类迭代用于文件访问。例如，`getline` C函数迭代文件中的行，并将迭代器位置存储在`FILE`指针中。
 - en: The OpenSSL code provides the functions `ENGINE_get_first` and `ENGINE_​get_next`
     to iterate a list of encryption engines. Each of these calls takes the pointer
     to an `ENGINE struct` as a parameter. This `struct` stores the current position
     in the iteration.
+  id: totrans-90
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL代码提供了函数`ENGINE_get_first`和`ENGINE_get_next`来迭代加密引擎列表。每个调用都将`ENGINE struct`的指针作为参数。此`struct`存储了迭代中的当前位置。
 - en: The Wireshark code contains the functions `proto_get_first_protocol` and `proto_get_next_protocol`.
     These functions make it possible for a user to iterate over a list of network
     protocols. The functions take a `void` pointer as out-parameter to store and pass
     along state information.
+  id: totrans-91
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark 代码包含函数 `proto_get_first_protocol` 和 `proto_get_next_protocol`。这些函数使用户能够遍历网络协议列表。函数接受一个
+    `void` 指针作为输出参数，用于存储和传递状态信息。
 - en: The code of the Subversion project for generating diffs between files contains
     the function `datasource_get_next_token`. This function is to be called in a loop
     in order to get the next diff token from a provided datasource object that stores
     the iteration position.
+  id: totrans-92
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Subversion 项目中的生成文件之间差异的代码包含函数 `datasource_get_next_token`。此函数需要在循环中调用，以从提供的数据源对象中获取下一个差异标记，数据源对象存储迭代位置。
 - en: Applied to Running Example
+  id: totrans-93
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'You now have the following function to retrieve the login names:'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 你现在有以下函数来检索登录名：
 - en: '[PRE10]'
+  id: totrans-95
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'The following code shows how this interface is used:'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码展示了如何使用此接口：
 - en: '[PRE11]'
+  id: totrans-97
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '[![1](assets/1.png)](#co_flexible_iterator_interfaces_CO1-1)'
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_flexible_iterator_interfaces_CO1-1)'
 - en: The application does not have to deal with the index and the maximum number
     of elements anymore
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序不再需要处理索引和元素的最大数量。
 - en: '[![2](assets/2.png)](#co_flexible_iterator_interfaces_CO1-2)'
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](assets/2.png)](#co_flexible_iterator_interfaces_CO1-2)'
 - en: In this case, the required cleanup code for destroying the iterator leads to
     code duplication.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这   在这种情况下，销毁迭代器所需的清理代码导致了代码重复。
 - en: Next, you don’t just want to implement the `anyoneWithX` function, but you also
     want to implement an additional function that, for example, tells you how many
     login names start with the letter “Y.” You could simply copy the code, modify
@@ -550,39 +759,54 @@
     the same code for creating and destroying the iterator and for performing the
     loop operation. To avoid this code duplication, you can use a Callback Iterator
     instead.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，你不仅想要实现 `anyoneWithX` 函数，还想实现一个额外的函数，例如，告诉你有多少个登录名以字母“Y”开头。你可以简单地复制代码，修改
+    `while` 循环的主体，并统计“Y”的出现次数，但这种方法会导致代码重复，因为你的两个函数都包含创建和销毁迭代器以及执行循环操作的相同代码。为了避免这种代码重复，可以使用回调迭代器。
 - en: Callback Iterator
+  id: totrans-103
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 回调迭代器
 - en: Context
+  id: totrans-104
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 背景
 - en: You have a set of elements stored in a data structure that can be accessed randomly
     or sequentially. For example, you have an array, a linked list, a hash map, or
     a tree data structure. A user wants to iterate these elements.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 你有一组存储在数据结构中的元素，可以随机或顺序访问。例如，你有一个数组、一个链表、一个哈希映射或一个树数据结构。用户希望遍历这些元素。
 - en: Problem
+  id: totrans-106
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to provide a robust iteration interface that does not require the
     user to implement a loop in the code for iterating over all elements and that
     enables you to change the underlying data structure at a later point without requiring
     any changes to the user’s code.**'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: '**你希望提供一个强健的迭代接口，不需要用户在代码中实现遍历所有元素的循环，同时能够在以后更改底层数据结构而无需更改用户的代码。**'
 - en: The user might be somebody who writes code that is not versioned and released
     with your codebase, so you have to make sure that future versions of your implementation
     also work with the user code written against the current version of your code.
     Thus, the user should not be able to access any internal implementation details,
     such as the underlying data structure you use to hold your elements, because you
     might want to change that at a later point.
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户可能是编写不版本化且与您的代码库一起发布的代码的人，因此必须确保您的实现的未来版本也能与用户针对当前版本编写的代码兼容。因此，用户不应该能够访问任何内部实现细节，例如用于存储元素的底层数据结构，因为你可能在以后想要更改它。
 - en: Aside from that, when operating in multithreaded environments, you want to provide
     the user a robust and clearly defined behavior if the element’s content changes
     while the user iterates over it. Even for complex data like strings, the user
@@ -590,65 +814,91 @@
     wants to read it. Also, you want to make sure that the user iterates over each
     element exactly once. That should hold even if other threads try to create new
     elements or delete existing elements during the iteration.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，在多线程环境中操作时，您希望为用户提供稳健且明确定义的行为，以便在用户迭代过程中元素内容发生变化时。即使是像字符串这样的复杂数据，用户也不应该担心其他线程在用户想要读取它时更改该数据。此外，您希望确保用户只对每个元素进行一次迭代。即使其他线程试图在迭代期间创建新元素或删除现有元素，这一点也应该保持不变。
 - en: You don’t care if you have to make an extra implementation effort to achieve
     all this, because many users will use your code, and if you can take implementation
     effort away from the user by implementing it in your code, then the overall effort
     will be decreased.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 你并不在乎是否需要额外的实现工作来实现所有这些，因为许多用户将使用您的代码，如果您可以通过在您的代码中实现它来减少用户的实现工作，那么总体工作量将会减少。
 - en: You want to make access to your elements as easy as possible. In particular,
     the user shouldn’t have to cope with iteration details like mappings between index
     and element or the number of available elements. Also, they shouldn’t have to
     implement loops in their code because that would lead to duplications in the user
     code, so Index Access or a Cursor Iterator isn’t an option for you.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望尽可能地简化用户访问元素的方式。特别是，用户不应该处理诸如索引与元素之间的映射或可用元素数量等迭代细节。此外，他们不应该在其代码中实现循环，因为这会导致用户代码中的重复，因此对于您来说，索引访问或游标迭代器都不是选项。
 - en: Solution
+  id: totrans-112
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Use your existing data structure-specific operations to iterate over all
     your elements within your implementation, and call some provided user-function
     on each element during this iteration. This user-function gets the element content
     as a parameter and can then perform its operations on this element. The user calls
     just one function to trigger the iteration, and the whole iteration takes place
     inside your implementation as shown in [Figure 7-4](#fig_callback).**'
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: '**利用您现有的数据结构特定操作，在您的实现中迭代遍历所有元素，并在此迭代期间调用一些提供的用户函数处理每个元素。此用户函数以元素内容作为参数，可以对该元素执行其操作。用户只需调用一个函数来触发迭代，整个迭代过程都发生在您的实现中，如[图 7-4](#fig_callback)所示。**'
 - en: '![sketches/callback-iterator-sktech.png](assets/fluc_0704.png)'
+  id: totrans-114
   prefs: []
   type: TYPE_IMG
+  zh: '![sketches/callback-iterator-sktech.png](assets/fluc_0704.png)'
 - en: Figure 7-4\. Iteration with a Callback Iterator
+  id: totrans-115
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 7-4\. 使用回调迭代器进行迭代
 - en: To realize this, you have to declare a function pointer in your interface. The
     declared function takes an element that should be iterated over as parameter.
     The user implements such a function and passes it to your iteration function.
     Within your implementation you iterate over all elements, and you’ll call the
     user’s function for each element with the current element as parameter.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 要实现这一点，您必须在您的接口中声明一个函数指针。声明的函数接受应作为参数进行迭代的元素。用户实现这样的函数并将其传递给您的迭代函数。在您的实现中，您遍历所有元素，并且对于每个元素，您将调用用户的函数，参数为当前元素。
 - en: 'You can add an additional `void*` parameter to your iteration function and
     to the function pointer declaration. In the implementation of your iteration function,
     you simply pass that parameter to the user’s function. That makes it possible
     for the user to pass some context information to the function:'
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可以向您的迭代函数和函数指针声明添加一个额外的`void*`参数。在您的迭代函数实现中，您简单地将该参数传递给用户的函数。这使得用户可以向函数传递一些上下文信息：
 - en: '*Caller’s code*'
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE12]'
+  id: totrans-119
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: '*Iterator API*'
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: '*迭代器API*'
 - en: '[PRE13]'
+  id: totrans-121
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: Sometimes the user does not want to iterate over all elements but wants to find
     one specific element. To make that use case more efficient, you can add a break
     condition to your iteration function. For example, you can declare the function
@@ -656,25 +906,33 @@
     and if the user function returns the Return Value `true`, you stop the iteration.
     Then the user can signal as soon as the desired element is found and save the
     time it would take for iterating all the rest of the elements.
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 有时用户并不想迭代所有元素，而是想找到一个特定的元素。为了使这种用例更有效率，你可以在迭代函数中添加一个中断条件。例如，你可以声明用户函数的函数指针，该函数操作返回类型为`bool`的元素，并且如果用户函数返回值为`true`，则停止迭代。然后用户可以在找到所需元素时发出信号，并节省迭代其余元素所需的时间。
 - en: When implementing the iteration function for multithreaded environments, make
     sure to cover the situation when during the iteration, the current element is
     changed, new elements are added, or elements are deleted by other threads. In
     case of such changes, you could Return Status Codes to the user who currently
     iterates, or you could prevent such changes during an iteration by locking write
     access to the elements in the meantime.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 当在多线程环境中实现迭代函数时，请确保覆盖以下情况：在迭代期间，当前元素被改变、新增元素被添加或其他线程删除元素。在这种情况下，你可以向当前迭代的用户返回状态码，或者在迭代期间通过锁定写访问来防止这些变化。
 - en: Because the implementation can ensure that the data is not changed during the
     iteration, it is not necessary to copy the elements on which the user operates.
     The user simply retrieves a pointer to this data and works with the original data.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为实现可以确保在迭代过程中数据不会改变，所以不需要复制用户操作的元素。用户只需获取指向这些数据的指针，并且使用原始数据进行操作。
 - en: Consequences
+  id: totrans-125
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 结果
 - en: The user code for iterating over all elements is now just a single line of code.
     All the implementation details, like an element index and the maximum number of
     elements, are hidden inside the iterator implementation. The user does not even
@@ -683,8 +941,10 @@
     data structure from which the elements are gathered. Even if you change the type
     of underlying data structure in your implementation, they need not even recompile
     the code.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，用户用于迭代所有元素的代码只有一行。所有实现细节，如元素索引和元素的最大数量，都被隐藏在迭代器实现内部。用户甚至不必实现一个循环来迭代元素。他们也不必创建或销毁迭代器实例，也无需处理从中收集元素的内部数据结构。即使在实现中更改底层数据结构的类型，他们也不必重新编译代码。
 - en: If the underlying elements change during an iteration, then the iterator implementation
     can react accordingly, which ensures that the user iterates over a consistent
     set of data while not having to cope with locking functionality in the user code.
@@ -692,21 +952,27 @@
     and the iterator-code. The control flow stays inside the iterator implementation,
     and thus the iterator implementation can detect if elements are changed during
     the iteration and react accordingly.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果在迭代过程中底层元素发生变化，则迭代器实现可以相应地做出反应，从而确保用户在迭代时访问一致的数据集，而无需在用户代码中处理锁定功能。所有这些都是因为控制流不会在用户代码和迭代器代码之间跳转。控制流保持在迭代器实现内部，因此迭代器实现可以检测到迭代过程中元素的变化并做出相应的反应。
 - en: The user can iterate over all elements, but the iteration loop is implemented
     inside the iterator implementation, so the user cannot randomly access elements
     as with Index Access.
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 用户可以迭代所有元素，但迭代循环是在迭代器实现内部实现的，因此用户不能像索引访问一样随机访问元素。
 - en: In the callback, your implementation runs user code on each element. To some
     extent this means that you have to trust that the user’s code does the right thing.
     For example, if your iterator implementation locks all elements during the iteration,
     then you expect the user code to quickly do something with the retrieved element
     and to not perform any time-consuming operations, because during this iteration,
     all other calls accessing this data will be locked.
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 在回调函数中，你的实现会在每个元素上运行用户代码。在某种程度上，这意味着你必须相信用户的代码能够正确执行。例如，如果你的迭代器实现在迭代期间锁定所有元素，那么你期望用户代码能够快速处理检索到的元素，并且不执行耗时的操作，因为在此期间，所有访问该数据的调用都将被锁定。
 - en: Using callbacks implies that you have a platform- and programming language–specific
     interface, because you call the code implemented by your caller, and you can only
     do that if that code uses the same calling conventions (i.e., the same way of
@@ -715,144 +981,208 @@
     in C. You cannot provide a C Callback Iterator, for example, to a user writing
     code with Java (which could with some effort be done with any of the other iterator
     patterns).
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用回调意味着你必须有一个特定于平台和编程语言的接口，因为你调用由调用者实现的代码，并且只有在该代码使用相同的调用约定（即提供函数参数和返回数据的相同方式）时才能这样做。这意味着，在C语言中实现迭代器时，只有当用户代码也是用C语言编写时，才能使用此模式。例如，你不能将一个C回调迭代器提供给使用Java编写代码的用户（尽管可以通过其他迭代器模式之一努力做到这一点）。
 - en: When reading the code, the program flow with callbacks is more difficult to
     follow. For example, compared to having a simple `while` loop directly in the
     code, it might be more difficult to find out that the program iterates over elements
     when seeing only one line of user code with a callback parameter. Thus, it is
     critical to give the iteration function a name that makes it clear that this function
     performs an iteration.
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 当使用回调阅读代码时，程序流程更难以跟踪。例如，与直接在代码中有一个简单的 `while` 循环相比，仅看到一个带有回调参数的用户代码行时，可能更难找出程序在迭代元素时的情况。因此，关键是给迭代函数命名，以清楚表明该函数执行迭代操作。
 - en: Known Uses
+  id: totrans-132
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知的用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: James Noble describes an object-oriented version of this iterator as the Internal
     Iterator pattern in his article [“Iterators and Encapsulation”](https://oreil.ly/u8B7I).
+  id: totrans-134
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: James Noble 在他的文章 [“迭代器与封装”](https://oreil.ly/u8B7I) 中描述了这个迭代器的面向对象版本为内部迭代器模式。
 - en: The function `svn_iter_apr_hash` of the Subversion project iterates over all
     elements in a hash table that is provided to the function as a parameter. For
     each element of the hash table, a function pointer, which has to be provided by
     the caller, is called, and if that call returns `SVN_ERR_ITER_BREAK`, the iteration
     is stopped.
+  id: totrans-135
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Subversion 项目的函数 `svn_iter_apr_hash` 遍历作为参数提供给函数的哈希表中的所有元素。对于哈希表的每个元素，会调用一个由调用者提供的函数指针，如果该调用返回
+    `SVN_ERR_ITER_BREAK`，则停止迭代。
 - en: The OpenSSL function `ossl_provider_forall_loaded` iterates over a set of OpenSSL
     provider objects. The function takes a function pointer as a parameter, and that
     function pointer is called for each provider object. A `void*` parameter can be
     provided to the iteration call, and this parameter is then provided for each call
     in the iteration so that users can pass their own context.
+  id: totrans-136
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: OpenSSL 函数 `ossl_provider_forall_loaded` 遍历一组 OpenSSL 提供者对象。该函数接受一个函数指针作为参数，并且对每个提供者对象调用该函数指针。可以为迭代调用提供一个
+    `void*` 参数，然后为迭代中的每个调用提供该参数，以便用户可以传递自己的上下文。
 - en: The Wireshark function `conversation_table_iterate_tables` iterates through
     a list of “conversation” objects. Each such object stores information about sniffed
     network data. The function takes a function pointer and a `void*` as parameters.
     For each conversation object, the function pointer is called with the `void*`
     as context.
+  id: totrans-137
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Wireshark 函数 `conversation_table_iterate_tables` 遍历“会话”对象列表。每个这样的对象存储关于嗅探网络数据的信息。该函数接受一个函数指针和一个
+    `void*` 作为参数。对于每个会话对象，使用该 `void*` 作为上下文调用函数指针。
 - en: Applied to Running Example
+  id: totrans-138
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'You now provide the following function for accessing the login names:'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在提供以下函数来访问登录名：
 - en: '[PRE14]'
+  id: totrans-140
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'The following code shows how to use this interface:'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码展示了如何使用此接口：
 - en: '[PRE15]'
+  id: totrans-142
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: '[![1](assets/1.png)](#co_flexible_iterator_interfaces_CO2-1)'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_flexible_iterator_interfaces_CO2-1)'
 - en: The application no longer contains an explicit loop statement.
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 应用程序不再包含显式的循环语句。
 - en: As a possible enhancement, the callback function could have a return value that
     determines whether the iteration is continued or stopped. With such a return value,
     the iteration could, for example, be stopped once the `findX` function iterates
     over the first user starting with “X.”
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为可能的增强，回调函数可以具有确定迭代是否继续或停止的返回值。有了这样的返回值，例如，可以在 `findX` 函数遍历以“X”开头的第一个用户后停止迭代。
 - en: Summary
+  id: totrans-146
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 总结
 - en: This chapter showed you three different ways to implement interfaces that provide
     iteration functionality. [Table 7-2](#iterator_comparison) gives an overview of
     the three patterns and compares their consequences.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章展示了实现提供迭代功能的接口的三种不同方法。[表 7-2](#iterator_comparison)提供了这三种模式的概述，并比较了它们的后果。
 - en: Table 7-2\. Comparison of the iterator patterns
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 7-2\. 迭代器模式比较
 - en: '|  | Index Access | Cursor Iterator | Callback Iterator |'
+  id: totrans-149
   prefs: []
   type: TYPE_TB
+  zh: '|  | 索引访问 | 光标迭代器 | 回调迭代器 |'
 - en: '| --- | --- | --- | --- |'
+  id: totrans-150
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- |'
 - en: '| Element access | Allows random access | Only sequential access | Only sequential
     access |'
+  id: totrans-151
   prefs: []
   type: TYPE_TB
+  zh: '| 元素访问 | 允许随机访问 | 仅允许顺序访问 | 仅允许顺序访问 |'
 - en: '| Data structure changes | Underlying data structure can only easily be changed
     to another random-access data structure | Underlying data structure can easily
     be changed | Underlying data structure can easily be changed |'
+  id: totrans-152
   prefs: []
   type: TYPE_TB
+  zh: '| 数据结构更改 | 底层数据结构只能轻松更改为另一个随机访问数据结构 | 底层数据结构可以轻松更改 | 底层数据结构可以轻松更改 |'
 - en: '| Info leaked through interface | Amount of elements; usage of a random-access
     data structure | Iterator position (user can stop and continue the iteration at
     a later point) | - |'
+  id: totrans-153
   prefs: []
   type: TYPE_TB
+  zh: '| 通过接口泄露的信息 | 元素数量；随机访问数据结构的使用 | 迭代器位置（用户可以在稍后的某个时刻停止并继续迭代） | - |'
 - en: '| Code duplication | Loop in user code; index increment in user code | Loop
     in user code | - |'
+  id: totrans-154
   prefs: []
   type: TYPE_TB
+  zh: '| 代码重复 | 用户代码中的循环；用户代码中的索引增量 | 用户代码中的循环 | - |'
 - en: '| Robustness | Difficult to implement robust iteration behavior | Difficult
     to implement robust iteration behavior | easy to implement robust iteration behavior
     because control flow stays within the iteration code, and insert/delete/modify
     operations can simply be locked during the iteration (but would block other iterations
     during that time) |'
+  id: totrans-155
   prefs: []
   type: TYPE_TB
+  zh: '| 鲁棒性 | 实现健壮的迭代行为较困难 | 实现健壮的迭代行为较困难 | 由于控制流仅停留在迭代代码中，插入/删除/修改操作可以在迭代期间简单地被锁定（但会在此期间阻塞其他迭代）
+    |'
 - en: '| Platforms | Interface can be used across different languages and platforms
     | Interface can be used across different languages and platforms | Can only be
     used with the same language and platform (with the same calling convention) as
     the implementation |'
+  id: totrans-156
   prefs: []
   type: TYPE_TB
+  zh: '| 平台 | 接口可用于不同的语言和平台 | 接口可用于不同的语言和平台 | 只能与实现具有相同调用约定的相同语言和平台一起使用 |'
 - en: Further Reading
+  id: totrans-157
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 进一步阅读
 - en: If you’re ready for more, here are some resources that can help you further
     your knowledge of iterator interface design.
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你准备深入了解，这里有一些资源可以帮助你进一步了解迭代器接口设计。
 - en: The most closely related work regarding iterators in C is an online version
     of [university class notes](https://oreil.ly/2fuPK) by James Aspnes. The class
     notes describe different C iterator designs, discuss their advantages and disadvantages,
     and provide source code examples.
+  id: totrans-159
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 关于C中迭代器的最相关工作是James Aspnes的在线版本的[大学课堂笔记](https://oreil.ly/2fuPK)。这些课堂笔记描述了不同的C迭代器设计，讨论了它们的优缺点，并提供了源代码示例。
 - en: There is more guidance on iterators for other programming languages, but many
     of the concepts can also be applied to C. For example, the article [“Iterators
     and Encapsulation”](https://oreil.ly/GWR0F) by James Noble describes eight patterns
@@ -860,30 +1190,42 @@
     Solving Using Java* by Mark Allen Weiss (Addison-Wesley, 2006) describes different
     iterator designs for Java, and the book *Higher-Order Perl* by Mark Jason Dominus
     (Morgan Kaufmann, 2005) describes different iterator designs for Perl.
+  id: totrans-160
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于其他编程语言的迭代器有更多的指导，但许多概念也可以应用于C。例如，James Noble的文章["迭代器和封装"](https://oreil.ly/GWR0F)描述了如何设计面向对象迭代器的八种模式，Mark
+    Allen Weiss（Addison-Wesley，2006年）的书《Java数据结构与问题解决》描述了Java的不同迭代器设计，Mark Jason Dominus（Morgan
+    Kaufmann，2005年）的书《高阶Perl》描述了Perl的不同迭代器设计。
 - en: The article [“Loop Patterns”](https://oreil.ly/JsEKb) by Owen Astrachan and
     Eugene Wallingford contains patterns that describe best practices for implementing
     loops and that include C++ and Java code snippets. Most of the ideas are also
     relevant for C.
+  id: totrans-161
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 文章["循环模式"](https://oreil.ly/JsEKb)由Owen Astrachan和Eugene Wallingford包含描述实现循环的最佳实践模式，包括C++和Java代码片段。大部分想法也适用于C。
 - en: The book *C Interfaces and Implementations* by David R. Hanson (Addison-Wesley,
     1996) describes C implementations and their interfaces for several common data
     structures like linked lists or hash tables. These interfaces of course also contain
     functions that traverse these data structures.
+  id: totrans-162
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 书籍*C接口与实现*（David R. Hanson 著，Addison-Wesley，1996年）描述了C语言中常见数据结构（如链表或哈希表）的实现及其接口。当然，这些接口也包含遍历这些数据结构的函数。
 - en: Outlook
+  id: totrans-163
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: Outlook
 - en: The next chapter focuses on how to organize the code files in large programs.
     Once you apply the patterns from the previous chapters to define your interfaces
     and to program their implementations, you end up with many files. Their file organization
     has to be tackled to implement modular, large scale programs.
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一章重点讨论如何在大型程序中组织代码文件。一旦您应用了前几章的模式来定义接口并编写其实现，您就会得到许多文件。它们的文件组织必须得到解决，以实现模块化、大规模的程序。

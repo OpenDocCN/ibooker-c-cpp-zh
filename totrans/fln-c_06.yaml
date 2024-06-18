@@ -1,39 +1,52 @@
 - en: Chapter 5\. Data Lifetime and Ownership
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第5章 数据生命周期和所有权
 - en: If we have a look at procedural programming languages like C, there are no native
     object-oriented mechanisms. This makes life harder to some extent, because most
     design guidance is tailored for object-oriented software (like the Gang of Four
     design patterns).
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们看看像C这样的过程式编程语言，那么其中没有原生的面向对象机制。这在某种程度上增加了编程的难度，因为大多数设计指导都是针对面向对象软件（例如四人帮设计模式）。
 - en: This chapter discusses patterns for how to structure your C program with object-like
     elements. For these object-like elements, the patterns put special focus on who
     is responsible for creating and destroying them—in other words, they put special
     focus on lifetime and ownership. This topic is especially important for C because
     C has no automatic destructor and no garbage collection mechanism, and thus special
     attention has to be paid to cleanup of resources.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章讨论了如何在C程序中结构化包含对象样元素的模式。对于这些对象样元素，模式特别关注谁负责创建和销毁它们——换句话说，它们特别关注生命周期和所有权。这个主题对于C语言尤为重要，因为C语言没有自动析构函数和垃圾回收机制，因此需要特别注意资源的清理。
 - en: 'However, what is an “object-like element” and what is the meaning of it for
     C? The term *object* is well defined for object-oriented programming languages,
     but for non-object-oriented programming languages it is not clear what the term
     object means. For C, a simple definition for object is the following:'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，“对象样元素”究竟是什么意思，对于C语言来说有什么含义呢？术语*对象*在面向对象编程语言中有明确定义，但对于非面向对象编程语言来说，并不清楚对象一词的含义。对于C语言，对象的简单定义如下：
 - en: “An object is a named region of storage.”
+  id: totrans-4
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: “一个对象是一个命名的存储区域。”
 - en: ''
+  id: totrans-5
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
 - en: Kernighan and Ritchie
+  id: totrans-6
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: Kernighan和Ritchie
 - en: Usually such an object describes a related set of data that has an identity
     and properties and that is used to store representations of things found in the
     real world. In object-oriented programming, an object additionally has the capability
@@ -41,16 +54,20 @@
     this book do not address polymorphism or inheritance, and therefore we’ll not
     use the term object anymore. Instead, we’ll consider such an object-like element
     simply as an instance of a data structure and will furthermore call it *instance*.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常这样的对象描述了具有标识和属性的相关数据集，用于存储现实世界中找到的事物的表示。在面向对象编程中，对象还具有多态性和继承能力。本书描述的对象样元素不涉及多态性或继承，因此我们将不再使用对象一词。相反，我们将简单地将这样的对象样元素视为数据结构的一个实例，并进一步称其为*实例*。
 - en: Such instances do not stand by themselves, but instead they usually come with
     related pieces of code that make it possible to operate on the instances. This
     code is usually put together into a set of header files for its interface and
     a set of implementation files for its implementation. Throughout this chapter,
     the sum of all this related code that, similar to object-oriented classes, often
     defines the operations that can be performed on an instance, will be called *software-module*.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些实例通常不能独立存在，而通常伴随相关的代码片段，使得操作这些实例成为可能。此代码通常组合到一组头文件以供其接口使用，并且一组实现文件用于其实现。在本章中，与面向对象类似的所有这些相关代码的总和，通常定义了可以在实例上执行的操作，将被称为*软件模块*。
 - en: When programming C, the described instances of data are usually implemented
     as abstract data types (for example, by having an instance of a `struct` with
     functions accessing the `struct` members). An example of such an instance is the
@@ -58,52 +75,76 @@
     position in the file. The corresponding software-module is the *stdio.h* API and
     its implementation of functions like `fopen` and `fclose`, which provide access
     to the `FILE` instances.
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 在编写C语言程序时，数据的描述实例通常被实现为抽象数据类型（例如，通过具有访问`struct`成员函数的`struct`实例）。这样一个实例的例子是C标准库`FILE`
+    `struct`，它存储诸如文件指针或文件中位置的信息。相应的软件模块是*stdio.h* API及其实现的函数（如`fopen`和`fclose`），它们提供对`FILE`实例的访问。
 - en: '[Figure 5-1](#fig_lifetime) shows an overview of the patterns discussed in
     this chapter and their relationships, and [Table 5-1](#tab_lifetime) provides
     a summary of the patterns.'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图5-1](#fig_lifetime)展示了本章讨论的模式及其关系的概述，而[表5-1](#tab_lifetime)则提供了这些模式的总结。'
 - en: '![pattern-maps/lifetime-ownership.png](assets/fluc_0501.png)'
+  id: totrans-11
   prefs: []
   type: TYPE_IMG
+  zh: '![模式图/lifetime-ownership.png](assets/fluc_0501.png)'
 - en: Figure 5-1\. Overview of patterns for lifetime and ownership
+  id: totrans-12
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图5-1\. 生命周期和所有权模式概述
 - en: Table 5-1\. Patterns for lifetime and ownership
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 5-1\. 生存期和所有权的模式
 - en: '|  | Pattern name | Summary |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '|  | 模式名称 | 摘要 |'
 - en: '| --- | --- | --- |'
+  id: totrans-15
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '|  | Stateless Software-Module | You want to provide logically related functionality
     to your caller and make that functionality as easy as possible for the caller
     to use. Therefore, keep your functions simple and don’t build up state information
     in your implementation. Put all related functions into one header file and provide
     the caller this interface to your software-module. |'
+  id: totrans-16
   prefs: []
   type: TYPE_TB
+  zh: '|  | 无状态软件模块 | 你希望为你的调用者提供逻辑相关的功能，并尽可能地让调用者使用这些功能变得简单。因此，在你的实现中保持函数简单，并且不在实现中建立状态信息。将所有相关函数放入一个头文件中，并向调用者提供这个接口到你的软件模块。
+    |'
 - en: '|  | Software-Module with Global State | You want to structure your logically
     related code that requires common state information and make that functionality
     as easy as possible for the caller to use. Therefore, have one global instance
     to let your related functions share common resources. Put all functions that operate
     on the instance into one header file and provide the caller this interface to
     your software-module. |'
+  id: totrans-17
   prefs: []
   type: TYPE_TB
+  zh: '|  | 具有全局状态的软件模块 | 你希望结构化你的逻辑相关代码，需要共享状态信息，并尽可能地简化调用者使用这些功能的方式。因此，拥有一个全局实例来让你的相关函数共享公共资源。将所有操作该实例的函数放入一个头文件中，并向调用者提供这个接口到你的软件模块。
+    |'
 - en: '|  | Caller-Owned Instance | You want to provide multiple callers or threads
     access to functionality with functions that depend on one another, and the interaction
     of the caller with your functions builds up state information. Therefore, require
     the caller to pass an instance, which is used to store resource and state information,
     along to your functions. Provide explicit functions to create and destroy these
     instances, so that the caller can determine their lifetime. |'
+  id: totrans-18
   prefs: []
   type: TYPE_TB
+  zh: '|  | 调用者拥有的实例 | 你希望为多个调用者或线程提供访问功能，这些功能依赖于彼此，并且调用者与你的函数的交互会建立起状态信息。因此，要求调用者传递一个实例，该实例用于存储资源和状态信息，并将其传递给你的函数。提供显式函数来创建和销毁这些实例，以便调用者可以确定它们的生命周期。
+    |'
 - en: '|  | Shared Instance | You want to provide multiple callers or threads access
     to functionality with functions that depend on one another, and the interaction
     of the caller with your functions builds up state information, which your callers
@@ -111,8 +152,11 @@
     to store resource and state information, along to your functions. Use the same
     instance for multiple callers and keep the ownership of that instance in your
     software-module. |'
+  id: totrans-19
   prefs: []
   type: TYPE_TB
+  zh: '|  | 共享实例 | 你希望为多个调用者或线程提供访问功能，这些功能依赖于彼此，并且调用者与你的函数的交互会建立起状态信息，你的调用者希望共享这些信息。因此，要求调用者传递一个实例，该实例用于存储资源和状态信息，并将其传递给你的函数。使用同一个实例来为多个调用者服务，并在你的软件模块中保持该实例的所有权。
+    |'
 - en: As a running example, in this chapter you want to implement a device driver
     for your Ethernet network interface card. The Ethernet network interface card
     is installed on the operating system your software runs on, so you can use the
@@ -121,76 +165,105 @@
     receive data compared to socket functions, and because you want to add some additional
     features to your Ethernet driver. Thus you want to implement something that encapsulates
     all the socket details. To achieve this, start with a simple Stateless Software-Module.
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为一个运行的例子，在这一章中，你想要为你的以太网网络接口卡实现一个设备驱动程序。以太网网络接口卡安装在操作系统上，因此你可以使用 POSIX 套接字函数来发送和接收网络数据。你想要为用户构建一些抽象，因为你想要提供一个比套接字函数更简单的方式来发送和接收数据，并且因为你想要为你的以太网驱动程序添加一些额外的功能。因此，你想要实现一个封装所有套接字细节的东西。为了实现这一点，从一个简单的无状态软件模块开始。
 - en: Stateless Software-Module
+  id: totrans-21
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 无状态软件模块
 - en: Context
+  id: totrans-22
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 背景
 - en: You want to provide functions with related functionality to a caller. The functions
     don’t operate on common data shared between the functions, and they don’t require
     preparation of resources like memory that has to be initialized prior to the function
     call.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 你想要为调用者提供相关功能的函数。这些函数不操作在函数之间共享的常规数据，并且它们不需要准备像必须在函数调用之前初始化的内存之类的资源。
 - en: Problem
+  id: totrans-24
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to provide logically related functionality to your caller and make
     that functionality as easy as possible for the caller to use.**'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '**你希望为你的调用者提供逻辑相关的功能，并尽可能地让调用者使用这些功能变得简单。**'
 - en: You want to make it simple for the caller to access your functionality. The
     caller should not have to deal with initialization and cleanup aspects of the
     provided functions, and the caller should not be confronted with implementation
     details.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 你希望调用者可以简单地访问你的功能。调用者不应该处理提供的函数的初始化和清理方面，并且调用者不应该面对实现细节。
 - en: You don’t necessarily need the functions to be very flexible regarding future
     changes while maintaining backwards compatibility—instead the functions should
     provide an easy-to-use abstraction for accessing the implemented functionality.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 你不一定需要函数在保持向后兼容性的同时非常灵活，相反，这些函数应该提供一个易于使用的抽象，用于访问实现的功能。
 - en: You have many options for organizing the header and implementation files, and
     going through and evaluating each of these options becomes a lot of effort if
     you have to do it for each and every functionality that you implement.
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 组织头文件和实现文件有许多选项，如果你必须为每个实现的功能都这样做，那么这个过程将变得非常繁琐。
 - en: Solution
+  id: totrans-29
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Keep your functions simple and don’t build up state information in your implementation.
     Put all related functions into one header file and provide the caller this interface
     to your software-module.**'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: '**保持函数简单，不要在实现中累积状态信息。将所有相关函数放入一个头文件中，并为调用者提供软件模块的接口。**'
 - en: No communication or sharing of internal or external state information takes
     place between the functions, and state information is not stored between function
     calls. This means the functions calculate a result or perform an action that does
     not depend on other function calls in the API (the header file) or previous function
     calls. The only communication that takes place is between the caller and the called
     function (for example, in the form of Return Values).
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数之间不会进行内部或外部状态信息的通信或共享，并且状态信息不会在函数调用之间存储。这意味着函数计算结果或执行操作，不依赖于API（头文件）中的其他函数调用或之前的函数调用。唯一的通信发生在调用者和被调用函数之间（例如，以返回值的形式）。
 - en: If a function requires any resources, such as heap memory, then the resources
     have to be handled transparently for the caller. They have to be acquired, implicitly
     initialized before they are used, and released within the function call. This
     makes it possible to call the functions completely independent from one another.
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果函数需要任何资源，比如堆内存，那么这些资源必须对调用者透明地处理。它们必须在使用之前被获取、隐式初始化，并在函数调用内释放。这使得可以完全独立地调用这些函数。
 - en: Still, the functions are related and because of this they are put together into
     one API. Being related means that the functions are usually applied together by
     a caller (interface segregation principle) and that if they change, they change
     for the same reason (common closure principle). These principles are described
     in the book *Clean Architecture* by Robert C. Martin (Prentice Hall, 2018).
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管函数是相关的，因此它们被放在一个API中。相关意味着这些函数通常由调用者一起使用（接口隔离原则），并且如果它们变化，它们是因为相同的原因变化（公共闭合原则）。这些原则在Robert
+    C. Martin的书《*Clean Architecture*》（Prentice Hall，2018）中有所描述。
 - en: Put the declarations of the related functions into one Header File, and put
     the implementations of the functions into one or more implementation files, but
     into the same Software-Module Directory. The functions are related because they
@@ -199,121 +272,172 @@
     via global variables or to encapsulate this information by passing instances between
     the functions. That’s why each single function implementation could be put into
     a separate implementation file.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 将相关函数的声明放入一个头文件中，并将函数的实现放入一个或多个实现文件，但放入同一个软件模块目录中。这些函数之间是相关的，因为它们在逻辑上属于同一组，但它们不共享公共状态，也不影响彼此的状态，因此不需要通过全局变量在函数之间共享信息，也不需要通过传递实例来封装这些信息。这就是为什么每个单独的函数实现可以放入单独的实现文件中。
 - en: 'The following code shows an example for a simple Stateless Software-Module:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的代码展示了一个简单的无状态软件模块的示例：
 - en: '*Caller’s code*'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE0]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '*API (header file)*'
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE1]'
+  id: totrans-39
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: '*Implementation*'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE2]'
+  id: totrans-41
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: The caller calls `sum` and retrieves a copy of the function result. If you call
     the function twice with the same input parameters, the function would deliver
     the exact same result because no state information is maintained in the Stateless
     Software-Module. As in this special case, no other function that holds state information
     is called either.
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用方调用 `sum` 并检索函数结果的副本。如果您使用相同的输入参数两次调用该函数，函数会提供完全相同的结果，因为无状态软件模块中没有维护状态信息。在这种特殊情况下，也不会调用保存状态信息的其他函数。
 - en: '[Figure 5-2](#fig_stateless) shows an overview of the Stateless Software-Module.'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 5-2](#fig_stateless) 展示了无状态软件模块的概述。'
 - en: '![Stateless Software-Module Lifetime](assets/fluc_0502.png)'
+  id: totrans-44
   prefs: []
   type: TYPE_IMG
+  zh: '![无状态软件模块生命周期](assets/fluc_0502.png)'
 - en: Figure 5-2\. Stateless Software-Module
+  id: totrans-45
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 5-2\. 无状态软件模块
 - en: Consequences
+  id: totrans-46
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 影响
 - en: You have a very simple interface, and the caller does not have to cope with
     initializing or cleaning up anything for your software-module. The caller can
     simply call one of the functions independently of previous function calls and
     other parts of the program, for example, other threads that concurrently access
     the software-module. Having no state information makes it much easier to understand
     what a function does.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 您拥有一个非常简单的接口，调用方无需处理软件模块的初始化或清理任何内容。调用方可以独立调用其中的一个函数，无需考虑先前的函数调用或程序的其他部分，例如同时访问软件模块的其他线程。没有状态信息使得理解函数的操作变得更加简单。
 - en: The caller does not have to cope with questions about ownership because there
     is nothing to own—the functions have no state. The resources required by the function
     are allocated and cleaned up within the function call and are thus transparent
     to the caller.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用方无需关心所有权问题，因为没有任何东西可以拥有——这些函数没有状态。函数调用中所需的资源在函数调用内部分配和清理，对调用方来说是透明的。
 - en: But not all functionality can be provided with such a simple interface. If the
     functions within an API share state information or data (for example, one has
     to allocate resources required by another), then a different approach, like a
     Software-Module with Global State or a Caller-Owned Instance, has to be taken
     in order to share this information.
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 但并非所有功能都能通过这样简单的接口提供。如果 API 中的函数共享状态信息或数据（例如一个函数必须为另一个函数分配所需的资源），那么必须采用不同的方法，例如带有全局状态的软件模块或调用方拥有的实例，以便共享此信息。
 - en: Known Uses
+  id: totrans-50
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知用途
 - en: 'These types of related functions gathered into one API are found each time
     that the function within the API does not require shared information or state
     information. The following examples show applications of this pattern:'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 这类相关函数被集成到一个 API 中，这种情况通常出现在 API 内的函数不需要共享信息或状态信息时。以下示例展示了这种模式的应用：
 - en: The `sin` and `cos` functions from *math.h* are provided in the same header
     file and calculate their results solely based on the function input. They do not
     maintain state information, and each call with the same input produces the same
     output.
+  id: totrans-52
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 从 *math.h* 中提供的 `sin` 和 `cos` 函数都包含在同一个头文件中，并且仅根据函数输入计算它们的结果。它们不维护状态信息，每次使用相同的输入调用时都会产生相同的输出。
 - en: The *string.h* functions `strcpy` or `strcat` do not depend on each other. They
     don’t share information, but they belong together and are thus part of a single
     API.
+  id: totrans-53
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*string.h* 中的 `strcpy` 或 `strcat` 函数不依赖于彼此。它们不共享信息，但它们彼此之间是相关的，因此它们是单个 API
+    的一部分。'
 - en: The Windows header file *VersionHelpers.h* provides information about which
     Microsoft Windows version is currently running. Functions like `IsWind⁠ows​7OrGreater`
     or `IsWindowsServer` provide related information, but the functions still don’t
     share information and are independent from one another.
+  id: totrans-54
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Windows 头文件 *VersionHelpers.h* 提供了有关当前运行的 Microsoft Windows 版本的信息。例如 `IsWindows7OrGreater`
+    或 `IsWindowsServer` 函数提供相关信息，但这些函数仍然不共享信息，彼此独立。
 - en: The Linux header file *parser.h* comes with functions like `match_int` or `match_hex`.
     These functions try to parse an integer or a hexadecimal value from a substring.
     The functions are independent from one another, but they still belong together
     in the same API.
+  id: totrans-55
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Linux 头文件 *parser.h* 提供了诸如 `match_int` 或 `match_hex` 的函数。这些函数尝试从子串中解析整数或十六进制值。这些函数相互独立，但它们仍然属于同一个
+    API。
 - en: The source code of the NetHack game also has many applications of this pattern.
     For example, the *vision.h* header file includes functions to calculate if the
     player is able to see specific items on the game map. The functions `couldsee(x,y)`
     and `cansee(x,y)` calculate if the player has a clear line of sight to the item
     and if the player also faces that item. Both functions are independent from each
     other and don’t share state information.
+  id: totrans-56
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: NetHack游戏的源代码也多次应用了这种模式。例如，*vision.h*头文件包含函数来计算玩家是否能看到游戏地图上的特定物品。函数`couldsee(x,y)`和`cansee(x,y)`计算玩家是否能清楚看到该物品，并且玩家是否朝向该物品。这两个函数彼此独立，不共享状态信息。
 - en: The pattern Header Files present a variant of this pattern with more focus on
     API flexibility.
+  id: totrans-57
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 头文件模式展示了这种模式的变体，更侧重于API的灵活性。
 - en: The pattern called Per-Request Instance from the book *Remoting Patterns* by
     Markus Voelter et al. (Wiley, 2007) explains that a server in a distributed object
     middleware should activate a new servant for each invocation, and that it should,
@@ -321,88 +445,126 @@
     Such a call to a server maintains no state information and is similar to calls
     in Stateless Software-Modules, but with the difference that Stateless Software-Modules
     don’t deal with remote entities.
+  id: totrans-58
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 由Markus Voelter等人（Wiley，2007年）的书籍*Remoting Patterns*中称为Per-Request Instance的模式解释了分布式对象中间件中服务器应为每次调用激活新的servant，并且在servant处理请求后，返回结果并且停用servant。此类对服务器的调用不维护状态信息，类似于无状态软件模块的调用，但区别在于无状态软件模块不涉及远程实体。
 - en: Applied to Running Example
+  id: totrans-59
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Your first device driver has the following code:'
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的第一个设备驱动程序具有以下代码：
 - en: '*API (header file)*'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE3]'
+  id: totrans-62
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: '*Implementation*'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE4]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The user of your Ethernet driver does not have to cope with implementation details
     like how to access sockets and can simply use the provided API. Both of the functions
     in this API can be called at any time independently from each other and the caller
     can obtain data provided by the functions without having to cope with ownership
     and freeing resources. Using this API is simple but also very limited.
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的以太网驱动程序的用户无需处理如何访问套接字等实现细节，可以简单地使用提供的API。该API中的两个函数可以在任何时候独立调用，调用方可以获取函数提供的数据，而无需处理资源的所有权和释放。使用该API简单但也非常有限。
 - en: Next, you want to provide additional functionality for your driver. You want
     to make it possible for the user to see whether the Ethernet communication works,
     and thus you want to provide statistics showing the number of sent or received
     bytes. With a simple Stateless Software-Module, you cannot achieve this, because
     you have no retained memory for storing state information from one function call
     to another.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，您希望为驱动程序提供额外的功能。您希望用户能够查看以太网通信是否正常工作，因此您希望提供显示发送或接收字节数的统计信息。使用简单的无状态软件模块，您无法实现这一点，因为您没有保留内存来存储从一个函数调用到另一个函数调用的状态信息。
 - en: To achieve this, you need a Software-Module with Global State.
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 要实现这一点，您需要一个具有全局状态的软件模块。
 - en: Software-Module with Global State
+  id: totrans-68
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 具有全局状态的软件模块
 - en: Context
+  id: totrans-69
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You want to provide functions with related functionality to a caller. The functions
     operate on common data shared between them, and they might require preparation
     of resources like memory that has to be initialized prior to using your functionality,
     but the functions do not require any caller-dependent state information.
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望为调用方提供相关功能的函数。这些函数操作之间共享的公共数据，并且它们可能需要准备资源（如必须在使用功能之前初始化的内存），但这些函数不需要任何依赖于调用方的状态信息。
 - en: Problem
+  id: totrans-71
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to structure your logically related code that requires common state
     information and make that functionality as easy as possible to use for the caller.**'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: '**您希望将需要共享状态信息的逻辑相关代码进行结构化，并使调用方尽可能轻松地使用该功能。**'
 - en: You want to make it simple for the caller to access your functionality. The
     caller should not have to deal with initialization and cleanup aspects of the
     functions, and the caller should not be confronted with implementation details.
     The caller should not necessarily realize that the functions access common data.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望让调用方能够轻松访问您的功能。调用方不应处理函数的初始化和清理方面，并且不应直接面对实现细节。调用方不一定要意识到这些函数访问公共数据。
 - en: You don’t necessarily need the functions to be very flexible regarding future
     changes while maintaining backwards compatibility—instead the functions should
     provide an easy-to-use abstraction for accessing the implemented functionality.
+  id: totrans-74
   prefs: []
   type: TYPE_NORMAL
+  zh: 您不一定需要使函数在保持向后兼容性的同时对未来更改非常灵活——相反，函数应该提供易于使用的抽象，以访问实现的功能。
 - en: Solution
+  id: totrans-75
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Have one global instance to let your related function implementations share
     common resources. Put all functions that operate on this instance into one header
     file and provide the caller this interface to your software-module.**'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '**有一个全局实例，让您的相关函数实现共享共同资源。将所有操作该实例的函数放入一个头文件中，并向调用者提供您的软件模块的此接口。**'
 - en: Put the function declaration in one Header File, and put all the implementations
     for your software-module into one implementation file in a Software-Module Directory.
     In this implementation file, have a global instance (a file-global static `struct`
@@ -410,15 +572,19 @@
     shared resources that should be available for your function implementations. Your
     function implementations can then access these shared resources similar to how
     private variables work in object-oriented programming languages.
+  id: totrans-77
   prefs: []
   type: TYPE_NORMAL
+  zh: 将函数声明放在一个头文件中，并将所有软件模块的实现放入一个实现文件中的软件模块目录中。在此实现文件中，有一个全局实例（文件全局静态`struct`或几个文件全局静态变量——参见永恒内存），用于保存应为函数实现提供的公共共享资源。然后，您的函数实现可以访问这些共享资源，类似于面向对象编程语言中的私有变量的工作方式。
 - en: The initialization and lifetime of the resources are transparently managed in
     the software-module and are independent from the lifetime of its callers. If the
     resources have to be initialized, then you can initialize them at startup time,
     or you can use lazy acquisition to initialize the resources right before they
     are needed.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 软件模块的初始化和资源的生命周期由软件模块透明地管理，并且独立于其调用者的生命周期。如果需要初始化资源，那么可以在启动时初始化它们，或者可以使用延迟获取，在需要资源之前初始化资源。
 - en: The caller does not realize from the function call syntax that the functions
     operate on common resources, so you should document this for the caller. Within
     your software-module, the access to these file-global resources might have to
@@ -426,58 +592,86 @@
     to have multiple callers from different threads. Make this synchronization within
     your function implementation, so that the caller does not have to deal with synchronization
     aspects.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用者从函数调用语法中并不意识到这些函数操作于共享资源上，因此您应该为调用者记录这一点。在您的软件模块内部，对这些文件全局资源的访问可能需要通过同步原语（如互斥体）来保护，以便能够从不同线程的多个调用者进行调用。在您的函数实现中进行这种同步，这样调用者就不必处理同步方面的问题。
 - en: 'The following code shows an example of a simple Software-Module with Global
     State:'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码显示了一个简单的具有全局状态的软件模块示例：
 - en: '*Caller’s code*'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE5]'
+  id: totrans-82
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '*API (header file)*'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE6]'
+  id: totrans-84
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: '*Implementation*'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE7]'
+  id: totrans-86
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The caller calls `addNext` and retrieves a copy of the result. When calling
     the function twice with same the input parameters, the function might deliver
     different results because the function maintains state information.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用者调用`addNext`并获取结果的副本。当使用相同的输入参数两次调用函数时，由于函数维护状态信息，可能会产生不同的结果。
 - en: '[Figure 5-3](#fig_global) shows an overview of the Software-Module with Global
     State.'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 5-3](#fig_global)显示了具有全局状态的软件模块的概述。'
 - en: '![sketches/alt=Software-Module with Global State Lifetime](assets/fluc_0503.png)'
+  id: totrans-89
   prefs: []
   type: TYPE_IMG
+  zh: '![草图/alt=具有全局状态生命周期的软件模块](assets/fluc_0503.png)'
 - en: Figure 5-3\. Software-Module with Global State
+  id: totrans-90
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 5-3\. 具有全局状态的软件模块
 - en: Consequences
+  id: totrans-91
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: Now your functions can share information or resources, even though the caller
     is not required to pass parameters containing this shared information, and the
     caller is not responsible for allocating and cleaning up resources. To achieve
     this sharing of information in your software-module, you implemented the C version
     of a Singleton. Beware of the Singleton—many have commented on the disadvantages
     of this pattern, and often it is instead called an antipattern.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，您的函数可以共享信息或资源，即使调用者无需传递包含此共享信息的参数，并且调用者无需负责分配和清理资源。为了在您的软件模块中实现此信息共享，您实现了C语言版本的单例模式。请注意单例模式——许多人评论了此模式的缺点，并且通常被称为反模式。
 - en: Still, in C such Software-Modules with Global State are widespread, because
     it is quite easy to write the keyword `static` before a variable, and as soon
     as you do that, you have your Singleton. In some cases that is OK. If your implementation
@@ -487,8 +681,10 @@
     just fine. However if multithreading and state information become an issue and
     your implementation file becomes longer and longer, then you are in trouble and
     the Software-Module with Global State is not a good solution anymore.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 C 语言中，这样的具有全局状态的软件模块非常普遍，因为在变量前加上关键字 `static` 很容易，一旦这样做了，就得到了单例模式。在某些情况下这是可以接受的。如果您的实现文件很短，具有文件全局变量与面向对象编程中的私有变量相当相似。如果您的函数不需要状态信息或不在多线程环境中操作，则可能完全没问题。但是，如果多线程和状态信息变成问题，并且您的实现文件变得越来越长，那么您就有麻烦了，具有全局状态的软件模块就不再是一个好的解决方案了。
 - en: If your Software-Module with Global State requires initialization, then you
     either have to initialize it during an initialization phase like at system startup,
     or you have to use lazy acquisition to initialize short before the first use of
@@ -498,80 +694,113 @@
     to the caller. The resources are owned by your software-module, and thus the caller
     is not burdened with ownership of resources and does not have to explicitly acquire
     or release the resources.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您的具有全局状态的软件模块需要初始化，则必须在系统启动时或在资源的第一次使用之前使用延迟获取来初始化。但是，这样做的缺点是函数调用的持续时间会有所变化，因为在第一次调用时会隐式调用额外的初始化代码。无论如何，资源获取对调用者来说是透明的。资源由您的软件模块拥有，因此调用者不需要负担资源的所有权，也不需要显式获取或释放资源。
 - en: However, not all functionality can be provided with such a simple interface.
     If the functions within an API share caller-specific state information, then a
     different approach, like a Caller-Owned Instance, has to be taken.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，并非所有功能都能通过这样简单的接口提供。如果 API 内的函数共享调用者特定的状态信息，则必须采取不同的方法，例如调用者拥有的实例。
 - en: Known Uses
+  id: totrans-96
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知应用
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: The *string.h* function `strtok` splits a string into tokens. Each time the
     function is called, the next token for the string is delivered. In order to have
     the state information about which token to deliver next, the function uses static
     variables.
+  id: totrans-98
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '*string.h* 函数 `strtok` 将字符串分割成标记。每次调用该函数时，都会提供字符串的下一个标记。为了保存关于下一个要提供的标记的状态信息，该函数使用静态变量。'
 - en: With a Trusted Platform Module (TPM) one can accumulate hash values of loaded
     software. The corresponding function in the TPM-Emulator v0.7 code uses static
     variables to store this accumulated hash value.
+  id: totrans-99
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用可信平台模块（TPM），可以累积已加载软件的哈希值。TPM-Emulator v0.7 代码中相应的函数使用静态变量存储这些累积的哈希值。
 - en: The `math` library uses a state for its random number generation. Each call
     of `rand` calculates a new pseudorandom number based on the number calculated
     with the previous `rand` call. `srand` has to be called first in order to set
     the seed (the initial static information) for the pseudorandom number generator
     called with `rand`.
+  id: totrans-100
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`math` 库使用状态来生成随机数。每次调用 `rand` 都会基于前一次 `rand` 调用计算新的伪随机数。首先必须调用 `srand` 来设置种子（伪随机数生成器的初始静态信息），然后再调用
+    `rand`。'
 - en: An Immutable Instance can be seen as part of a Software-Module with Global State
     with the special case that the instance is not modified at runtime.
+  id: totrans-101
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 不可变实例可以看作是具有全局状态的软件模块的一部分，特殊情况是实例在运行时不被修改。
 - en: The source code of the NetHack game stores information about items (swords,
     shields) in a static list defined at compile time and provides functions to access
     this shared information.
+  id: totrans-102
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: NetHack 游戏的源代码在编译时定义了一个静态列表，存储关于物品（剑、盾）的信息，并提供访问此共享信息的函数。
 - en: The pattern called Static Instance from the book *Remoting Patterns* by Markus
     Voelter et al. (Wiley, 2007) suggests providing remote objects with lifetime decoupled
     from the lifetime of the caller. The remote objects can, for example, be initialized
     at startup time and then be provided to a caller when requested. Software-Module
     with Global State presents the same idea of having static data, but it is not
     meant to have multiple instances for different callers.
+  id: totrans-103
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 《远程模式》一书（Markus Voelter 等人著，Wiley，2007年）中称为静态实例的模式建议，提供具有与调用者生命周期解耦的远程对象。例如，可以在启动时初始化远程对象，然后在请求时提供给调用者。具有全局状态的软件模块提出了相同的静态数据概念，但不适合为不同的调用者提供多个实例。
 - en: Applied to Running Example
+  id: totrans-104
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now you have the following code for your Ethernet driver:'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你有以下代码用于你的以太网驱动程序：
 - en: '*API (header file)*'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE8]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: '*Implementation*'
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE9]'
+  id: totrans-109
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: The API looks very similar to an API of a Stateless Software-Module, but behind
     this API now lies functionality to retain information between the function calls,
     which is needed for the counters for sent and received bytes. As long as there
@@ -579,16 +808,20 @@
     if there are multiple threads, then with static variables you always run into
     the problem that race conditions occur if you don’t implement mutual exclusion
     for the access to the static variables.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: API看起来与无状态软件模块的API非常相似，但在这个API背后现在存在着保持信息的功能，这些信息是在函数调用之间需要的，用于发送和接收字节的计数器。只要只有一个用户（一个线程）使用这个API，一切都很好。然而，如果有多个线程，那么使用静态变量总是会遇到竞态条件的问题，如果不为对静态变量的访问实现互斥，则可能会出现问题。
 - en: All right—now you want the Ethernet driver to be more efficient, and you want
     to send more data. You could simply call your `sendByte` function frequently to
     do this, but in your Ethernet driver implementation that means that for each `sendByte`
     call, you establish a socket connection, send the data, and close the socket connection
     again. Establishing and closing the socket connection takes most of the communication
     time.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你想要以更高效的方式来实现以太网驱动程序，并且你希望发送更多的数据。你可以简单地频繁调用你的`sendByte`函数来实现，但在你的以太网驱动实现中，这意味着每次调用`sendByte`时都会建立套接字连接，发送数据，然后再关闭套接字连接。建立和关闭套接字连接占据了大部分通信时间。
 - en: This is quite inefficient and you’d prefer to open your socket connection once,
     then send all the data by calling your `sendByte` function several times, and
     then close the socket connection. But now your `sendByte` function requires a
@@ -596,137 +829,197 @@
     with Global State because as soon as you have more than one caller (that is, more
     than one thread), you’d run into the problem or multiple callers wanting to simultaneously
     send data—maybe even to different destinations.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 这样做效率低下，你更希望只打开一次套接字连接，然后通过多次调用你的`sendByte`函数来发送所有数据，然后再关闭套接字连接。但现在你的`sendByte`函数需要准备和拆除阶段。这种状态不能存储在具有全局状态的软件模块中，因为一旦你有多个调用者（即多个线程），你可能会遇到多个调用者同时想要发送数据的问题，甚至可能是发送到不同的目的地。
 - en: To achieve that, provide each of these callers with a Caller-Owned Instance.
+  id: totrans-113
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了实现这一点，为每个调用者提供一个调用者拥有的实例。
 - en: Caller-Owned Instance
+  id: totrans-114
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 调用者拥有的实例
 - en: Context
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You want to provide functions with related functionality to a caller. The functions
     operate on common data shared between them, they might require preparation of
     resources like memory that has to be initialized prior to using your functionality,
     and they share caller-specific state information among one another.
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 你希望为调用者提供具有相关功能的函数。这些函数在它们之间共享的公共数据上运行，它们可能需要资源的准备，比如必须在使用你的功能之前初始化的内存，并且它们在彼此之间共享调用者特定的状态信息。
 - en: Problem
+  id: totrans-117
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to provide multiple callers or threads access to functionality with
     functions that depend on one another, and the interaction of the caller with your
     functions builds up state information.**'
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: '**你希望提供多个调用者或线程访问依赖于彼此的功能，调用者与你的函数的交互构建起状态信息。**'
 - en: Maybe one function has to be called before another because it influences a state
     stored in your software-module that is then needed by the other function. This
     can be achieved with a Software-Module with Global State, but it only works as
     long as there is only one caller. In a multithreaded environment with multiple
     callers, you cannot have one central software-module holding all caller-dependent
     state information.
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 也许一个函数必须在另一个函数之前调用，因为它会影响存储在软件模块中的状态，而后者需要另一个函数。这可以通过具有全局状态的软件模块来实现，但仅在只有一个调用方时才有效。在具有多个调用方的多线程环境中，无法有一个集中的软件模块来持有所有调用方相关的状态信息。
 - en: Still, you want to hide implementation details from the caller, and you want
     to make it as simple as possible for the caller to access your functionality.
     It has to be clearly defined if the caller is responsible for allocating and cleaning
     up resources.
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管如此，你仍然希望隐藏调用方的实现细节，并且希望让调用方尽可能简单地访问你的功能。必须明确定义调用方是否负责分配和清理资源。
 - en: Solution
+  id: totrans-121
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Require the caller to pass an instance, which is used to store resource and
     state information, along to your functions. Provide explicit functions to create
     and destroy these instances, so that the caller can determine their lifetime.**'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: '**要求调用方传递一个实例，用于存储资源和状态信息，并传递给你的函数。提供显式函数来创建和销毁这些实例，以便调用方可以确定它们的生命周期。**'
 - en: To implement such an instance that can be accessed from multiple functions,
     pass a `struct` pointer along with all functions that require sharing resources
     or state information. The functions can now use the `struct` members, which are
     similar to private variables in object-oriented languages, to store and read resource
     and state information.
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 要实现一个可以从多个函数访问的实例，可以在所有需要共享资源或状态信息的函数中传递一个 `struct` 指针。现在函数可以使用 `struct` 成员，类似于面向对象语言中的私有变量，来存储和读取资源和状态信息。
 - en: The `struct` can be declared in the API to let the caller conveniently access
     its members directly. Alternatively, the `struct` can be declared in the implementation,
     and only a pointer to the `struct` can be declared in the API (as suggested by
     Handle). The caller does not know the `struct` members (they are like private
     variables) and can only operate with functions on the `struct`.
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 可以在 API 中声明 `struct`，以便调用方可以方便地直接访问其成员。或者，可以在实现中声明 `struct`，并且只能在 API 中声明 `struct`
+    的指针（如 Handle 建议的方式）。调用方不知道 `struct` 的成员（它们就像是私有变量），只能通过函数对 `struct` 进行操作。
 - en: Because the instance has to be manipulated by multiple functions and you do
     not know when the caller finished calling functions, the lifetime of the instance
     has to be determined by the caller. Therefore, Dedicate Ownership to the caller
     and provide explicit functions for creating and destroying the instance. The caller
     has an aggregate relationship to the instance.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为实例必须由多个函数操作，而你无法知道调用方何时完成函数调用，所以实例的生命周期必须由调用方确定。因此，将所有权委托给调用方，并提供用于创建和销毁实例的显式函数。调用方与实例之间存在聚合关系。
 - en: Aggregation Versus Association
+  id: totrans-126
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 聚合与关联
 - en: If an instance is semantically related to another instance, then those instances
     are associated. A stronger type of association is an aggregation, in which one
     instance has ownership of the other.
+  id: totrans-127
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果一个实例在语义上与另一个实例相关联，则这些实例是关联的。更强的关联类型是聚合，其中一个实例拥有另一个实例。
 - en: 'The following code shows an example of a simple Caller-Owned Instance:'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码显示了一个简单调用方拥有的实例的示例：
 - en: '*Caller’s code*'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Caller’s code*'
 - en: '[PRE10]'
+  id: totrans-130
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: '*API (header file)*'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE11]'
+  id: totrans-132
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: '*Implementation*'
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE12]'
+  id: totrans-134
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: The function `operateOnInstance` works on resources created with the previous
     function call `createInstance`. The resource or state information between the
     two function calls is transported by the caller, who has to provide the `INSTANCE`
     for each function call and who also has to clean up all the resources by calling
     `destroy​In⁠stance`.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数 `operateOnInstance` 处理由前一个函数调用 `createInstance` 创建的资源。这两个函数调用之间的资源或状态信息由调用方传输，调用方必须为每个函数调用提供
+    `INSTANCE`，并且还必须通过调用 `destroy​In⁠stance` 清理所有资源。
 - en: '[Figure 5-4](#fig_caller) shows an overview of the Caller-Owned Instance.'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 5-4](#fig_caller) 显示了调用方拥有的实例的概述。'
 - en: '![Caller-Owned Instance Lifetime](assets/fluc_0504.png)'
+  id: totrans-137
   prefs: []
   type: TYPE_IMG
+  zh: '![调用方拥有的实例生命周期](assets/fluc_0504.png)'
 - en: Figure 5-4\. Caller-Owned Instance
+  id: totrans-138
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 5-4\. 调用方拥有的实例
 - en: Consequences
+  id: totrans-139
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: The functions in your API are more powerful now because they can share state
     information and operate on shared data while still being available for multiple
     callers (that is, multiple threads). Each created Caller-Owned Instance has its
     own private variables, and even if more than one such Caller-Owned Instance is
     created (for example, by multiple callers in a multithreaded environment), it
     is not a problem.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在你的 API 函数更加强大，因为它们可以共享状态信息并操作共享数据，同时仍然可用于多个调用者（即多个线程）。每个创建的调用者拥有实例都有其自己的私有变量，即使在多线程环境中由多个调用者创建了多个这样的调用者拥有实例，也不会出现问题。
 - en: However, to achieve this, your API becomes more complicated. You have to make
     explicit `create()` and `destroy()` calls for managing the instance’s lifetime,
     because C does not support constructors and destructors. This makes handling with
@@ -736,160 +1029,226 @@
     this is a common pitfall for memory leaks. This issue is addressed by Object-Based
     Error Handling, which suggests that the caller should also have a dedicated cleanup
     function to make this task more explicit.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，要实现这一点，你的 API 变得更加复杂。你必须显式调用`create()`和`destroy()`来管理实例的生命周期，因为 C 语言不支持构造函数和析构函数。这使得处理实例变得更加困难，因为调用者获取所有权并负责清理实例。由于必须手动使用`destroy()`调用来完成此操作，而不是像面向对象编程语言中那样通过自动析构函数，这很容易导致内存泄漏的常见陷阱。对象基础错误处理解决了这个问题，建议调用者还应该有一个专门的清理函数来使这个任务更加明确。
 - en: Also, compared to a Stateless Software-Module, calling each of the functions
     becomes a bit more complicated. Each function takes an additional parameter referencing
     the instance, and the functions cannot be called in arbitrary order—the caller
     has to know which one has to be called first. This is made explicit through the
     function signatures.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 此外，与无状态软件模块相比，调用每个函数变得稍微复杂一些。每个函数都需要一个引用实例的附加参数，并且函数不能以任意顺序调用——调用者必须知道首先调用哪个函数。这通过函数签名明确表示出来。
 - en: Known Uses
+  id: totrans-143
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知应用
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的例子展示了此模式的应用：
 - en: An example of the use of a Caller-Owned Instance is the doubly linked list provided
     with the `glibc` library. The caller creates a list with `g_list_alloc` and can
     then insert items into this list with `g_list_insert`. When finished working with
     the list, the caller is responsible for cleaning it up with `g_list_free`.
+  id: totrans-145
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 调用者拥有实例的一个示例是`glibc`库提供的双向链表。调用者使用`g_list_alloc`创建列表，然后可以使用`g_list_insert`向此列表插入项目。完成列表操作后，调用者需使用`g_list_free`清理列表。
 - en: This pattern is described by Robert Strandh in the article [“Modular C”](https://oreil.ly/UVodl).
     It describes how to write modular C programs. The article states the importance
     of identifying abstract data types—which can be manipulated or accessed with functions—in
     the application.
+  id: totrans-146
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 这种模式由 Robert Strandh 在文章[《Modular C》](https://oreil.ly/UVodl)中描述。它描述了如何编写模块化的
+    C 程序。文章强调了在应用程序中识别抽象数据类型的重要性，这些类型可以通过函数进行操作或访问。
 - en: The Windows API to create menus in the menu bar has a function to create a menu
     instance (`CreateMenu`), functions to operate on menus (like `InsertMenu​Item`),
     and a function to destroy the menu instance (`DestroyMenu`). All these functions
     have one parameter to pass the Handle to the menu instance.
+  id: totrans-147
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Windows API 在菜单栏中创建菜单有一个创建菜单实例的函数 (`CreateMenu`)，操作菜单的函数（如 `InsertMenu​Item`），以及销毁菜单实例的函数
+    (`DestroyMenu`)。所有这些函数都有一个参数传递菜单实例的句柄。
 - en: Apache’s software-module to handle HTTP requests provides functions to create
     all required request information (`ap_sub_req_lookup_uri`), to process it (`ap_run_sub_req`),
     and to destroy it (`ap_destroy_sub_req`). These functions take a `struct` pointer
     to the request instance in order to share request information.
+  id: totrans-148
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Apache 的处理 HTTP 请求的软件模块提供了创建所有必需的请求信息 (`ap_sub_req_lookup_uri`)、处理它 (`ap_run_sub_req`)
+    和销毁它 (`ap_destroy_sub_req`) 的函数。这些函数接受一个指向请求实例的 `struct` 指针，以便共享请求信息。
 - en: The source code of the NetHack game uses a `struct` instance to represent monsters
     and provides functions to create and destroy a monster. The NetHack code also
     provides functions to obtian information from monsters (`is_starting_pet`, `is_vampshifter`).
+  id: totrans-149
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: NetHack游戏的源代码使用`struct`实例来表示怪物，并提供了用于创建和销毁怪物的函数。NetHack代码还提供了从怪物获取信息的函数（`is_starting_pet`，`is_vampshifter`）。
 - en: The pattern called Client-Dependent Instance, from the book *Remoting Patterns*
     by Markus Voelter et al. (Wiley, 2007), suggests for distributed object middlewares,
     providing remote objects whose lifetime is controlled by the clients. The server
     creates new instances for clients and the client can then work with these instances,
     pass them along, or destroy them.
+  id: totrans-150
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 从《Remoting Patterns》（马库斯·沃尔特等人，Wiley，2007）的模式中称为客户端相关实例，建议为分布式对象中间件提供由客户端控制生命周期的远程对象。服务器为客户端创建新实例，客户端可以使用这些实例、传递它们或销毁它们。
 - en: Applied to Running Example
+  id: totrans-151
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'Now you have the following code for your Ethernet driver:'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在您的以太网驱动程序有以下代码：
 - en: '*API (header file)*'
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE13]'
+  id: totrans-154
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '*Implementation*'
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实施*'
 - en: '[PRE14]'
+  id: totrans-156
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'A caller can first create a sender, then send all the data, and then destroy
     the sender. Thus, the caller can make sure that the socket connection does not
     have to be established again for each `sendByte()` call. The caller has ownership
     of the created sender, has full control over how long the sender lives, and is
     responsible for cleaning it up:'
+  id: totrans-157
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用者可以首先创建一个发送方，然后发送所有数据，最后销毁发送方。因此，调用者可以确保每次`sendByte()`调用时不必重新建立套接字连接。调用者拥有所创建的发送方的所有权，完全控制发送方的生存期，并负责清理它：
 - en: '*Caller’s code*'
+  id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Caller’s code*'
 - en: '[PRE15]'
+  id: totrans-159
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: Next, let’s assume that you are not the only user of this API. There might be
     multiple threads using your API. As long as one thread creates a sender for sending
     to IP address X and another thread creates a sender for sending to Y, we are just
     fine, and the Ethernet driver creates independent sockets for both threads.
+  id: totrans-160
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，假设您不是此API的唯一用户。可能有多个线程使用您的API。只要一个线程为发送到IP地址X创建发送方，另一个线程为发送到Y创建发送方，我们就没问题了，以太网驱动程序为这两个线程创建独立的套接字。
 - en: However, let’s say the two threads want to send data to the same recipient.
     Now the Ethernet driver is in trouble because on one specific port, it can only
     open one socket per destination IP. A solution to this problem would be to not
     allow two different threads to send to the same destination—the second thread
     creating the sender could simply receive an error. But it is also possible to
     allow both threads to send data using the same sender.
+  id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，假设两个线程希望向同一接收方发送数据。现在以太网驱动程序出现了问题，因为在特定端口上，每个目标IP只能打开一个套接字。解决此问题的方法是不允许两个不同的线程向同一目标发送数据
+    —— 第二个线程创建发送方可能会收到错误。但也可以允许两个线程使用同一个发送方发送数据。
 - en: To achieve this, simply construct a Shared Instance.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了实现这一点，只需构建一个共享实例。
 - en: Shared Instance
+  id: totrans-163
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 共享实例
 - en: Context
+  id: totrans-164
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 上下文
 - en: You want to provide functions with related functionality to a caller. The functions
     operate on shared common data, and they might require preparation of resources
     like memory that has to be initialized prior to using your functionality. There
     are multiple contexts in which the functionality can be called, and these contexts
     are shared between the callers.
+  id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: 您希望为调用者提供与调用者相关功能的函数。这些函数操作共享的公共数据，并且可能需要准备资源（如必须在使用功能之前初始化的内存）。功能可以在多个调用者之间共享的多个上下文中调用。
 - en: Problem
+  id: totrans-166
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 问题
 - en: '**You want to provide multiple callers or threads access to functionality with
     functions that depend on one another, and the interaction of the caller with your
     functions builds up state information, which your callers want to share.**'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: '**您希望为多个调用者或线程提供访问功能的函数，这些函数相互依赖，并且调用者与您的函数的交互会建立起调用者希望共享的状态信息。**'
 - en: Storing the state information in a Software-Module with Global State is not
     an option because there are multiple callers who want to build up different state
     information. Storing the state information per caller in a Caller-Owned Instance
     is not an option because either some of your callers want to access and operate
     on the same instance, or because you don’t want to create new instances for every
     caller in order to keep resource costs low.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 在软件模块中存储状态信息的全局状态不是一个选项，因为有多个调用者想要建立不同的状态信息。在调用者拥有的实例中存储状态信息也不是一个选项，因为要么您的某些调用者想要访问和操作同一实例，要么您不想为每个调用者创建新实例以保持资源成本低。
 - en: Still, you want to hide implementation details from the caller, and you want
     to make it as simple as possible for the caller to access your functionality.
     It has to be clearly defined if the caller is responsible for allocating and cleaning
     up resources.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，您希望隐藏来自调用者的实现细节，并希望使调用者尽可能简单地访问您的功能。必须明确定义调用者是否负责分配和清理资源。
 - en: Solution
+  id: totrans-170
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解决方案
 - en: '**Require the caller to pass an instance, which is used to store resource and
     state information, along to your functions. Use the same instance for multiple
     callers and keep the ownership of that instance in your software-module.**'
+  id: totrans-171
   prefs: []
   type: TYPE_NORMAL
+  zh: '**要求调用者传递一个实例，用于存储资源和状态信息，并将该实例的所有权保留在您的软件模块中。**'
 - en: Just like with the Caller-Owned Instance, provide a `struct` pointer or a Handle
     that the caller then passes along the function calls. When creating the instance,
     the caller now also has to provide an identifier (for example, a unique name)
@@ -897,8 +1256,10 @@
     such an instance already exists. If it exists, you don’t create a new instance,
     but instead return the `struct` pointer or Handle to the instance that you already
     created and returned to other callers.
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 就像具有调用者所有权的实例一样，现在提供一个`struct`指针或句柄，然后调用者可以将其传递给函数调用。创建实例时，调用者现在还必须提供标识符（例如，唯一名称）以指定要创建的实例类型。通过此标识符，您可以知道是否已存在这样的实例。如果存在，则不创建新实例，而是返回已创建并返回给其他调用者的实例的`struct`指针或句柄。
 - en: To know if an instance already exists, you have to hold a list of already created
     instances in your software-module. This can be done by implementing a Software-Module
     with Global State to hold the list. In addition to whether an instance was already
@@ -907,8 +1268,10 @@
     information is required because when everybody is finished accessing an instance,
     it is your duty to clean it up because you are the one who has Dedicated Ownership
     of it.
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 要知道一个实例是否已经存在，您必须在软件模块中维护一个已创建实例的列表。这可以通过实现具有全局状态的软件模块来实现。除了是否已创建实例之外，还可以存储当前访问哪些实例的信息，或者至少可以存储当前访问实例的调用者数量。这些额外的信息是必需的，因为当每个人都完成对实例的访问时，您有责任清理它，因为您是其专用所有者。
 - en: You also have to check whether your functions can be called simultaneously by
     different callers on the same instance. In some easier cases, there might be no
     data whose access has to be mutually excluded by different callers because it
@@ -916,35 +1279,55 @@
     to change the instance, could be implemented. But in other cases, you have to
     implement mutual exclusion in your functions for resources shared through the
     instance.
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: 您还必须检查您的函数是否可以同时由不同调用者在同一实例上调用。在一些更简单的情况下，可能没有需要通过不同调用者互斥访问的数据，因为它只是读取。在这种情况下，可以实现一个不可变实例，它不允许调用者更改实例。但在其他情况下，您必须为通过实例共享的资源在函数中实现互斥排除。
 - en: 'The following code shows an example of a simple Shared Instance:'
+  id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码显示了一个简单共享实例的示例：
 - en: '*Caller1’s code*'
+  id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Caller1的代码*'
 - en: '[PRE16]'
+  id: totrans-177
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '*Caller2’s code*'
+  id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Caller2的代码*'
 - en: '[PRE17]'
+  id: totrans-179
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: '*API (header file)*'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE18]'
+  id: totrans-181
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: '*Implementation*'
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE19]'
+  id: totrans-183
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: The caller retrieves an `INSTANCE` by calling `openInstance`. The `INSTANCE`
     might be created by this function call, or it might have already been created
     by a previous function call and might also be used by another caller. The caller
@@ -953,80 +1336,108 @@
     the `INSTANCE`. When finished, the caller has to call `closeInstance` so that
     the resources can be cleaned up, if no other caller operates on the `INSTANCE`
     anymore.
+  id: totrans-184
   prefs: []
   type: TYPE_NORMAL
+  zh: 调用者通过调用`openInstance`来检索`INSTANCE`。此函数调用可能会创建`INSTANCE`，也可能已经通过先前的函数调用创建，并且可能也被另一个调用者使用。然后，调用者可以将`INSTANCE`传递给`operateOnInstance`函数调用，以提供该函数所需的资源或状态信息。完成后，调用者必须调用`closeInstance`，以便在没有其他调用者操作`INSTANCE`时清理资源。
 - en: '[Figure 5-5](#fig_shared) shows an overview of the Shared Instance.'
+  id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 5-5](#fig_shared)显示了共享实例的概述。'
 - en: '![Shared Instance Lifetime](assets/fluc_0505.png)'
+  id: totrans-186
   prefs: []
   type: TYPE_IMG
+  zh: '![共享实例的生命周期](assets/fluc_0505.png)'
 - en: Figure 5-5\. Shared Instance
+  id: totrans-187
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 5-5\. 共享实例
 - en: Consequences
+  id: totrans-188
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 后果
 - en: Multiple callers now have simultaneous access to a single instance. This quite
     often implies that you have to cope with mutual exclusion within your implementation
     in order not to burden the user with such issues. This implies that the duration
     for a function call varies because the caller never knows if another caller currently
     uses the same resources and blocks them.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 多个调用者现在可以同时访问单个实例。这往往意味着您必须在实现中处理互斥，以免为用户带来此类问题。这意味着函数调用的持续时间会有所变化，因为调用者永远不知道另一个调用者当前是否正在使用相同的资源并阻塞它们。
 - en: Your software-module, not the caller, has ownership of the instance, and your
     software-module is responsible for cleaning up resources. The caller is still
     responsible for releasing the resources so that your software-module knows when
     to clean everything up—as with the Caller-Owned Instance, this is a pitfall for
     memory leaks.
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的软件模块，而不是调用者，拥有实例的所有权，并且您的软件模块负责清理资源。调用者仍然负责释放资源，以便您的软件模块知道何时清理一切——就像拥有者拥有的实例一样，这是内存泄漏的一个陷阱。
 - en: Because the software-module has ownership of the instances, it can also clean
     up the instances without requiring the callers to initiate cleanup. For example,
     if the software-module receives a shutdown signal from the operating system, it
     can clean up all instances because it has ownership of them.
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为软件模块拥有这些实例的所有权，它可以在无需调用者启动清理的情况下清理这些实例。例如，如果软件模块从操作系统接收到关闭信号，它可以清理所有实例，因为它拥有它们的所有权。
 - en: Known Uses
+  id: totrans-192
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已知的用途
 - en: 'The following examples show applications of this pattern:'
+  id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下示例展示了此模式的应用：
 - en: An example of the use of a Shared Instance is the *stdio.h* file-functions.
     A file can be opened by multiple callers via the function `fopen`. The caller
     retrieves a Handle to the file and can read from or write to the file (`fread`,
     `fprintf`). The file is a shared resource. For example, there is one global cursor
     position in the file for all callers. When a caller finishes operating on the
     file, it has to be closed with `fclose`.
+  id: totrans-194
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 使用共享实例的一个示例是*stdio.h*文件函数。文件可以通过函数`fopen`被多个调用者打开。调用者获取文件的句柄并可以从中读取或写入（`fread`，`fprintf`）。文件是一个共享资源。例如，所有调用者都共享文件中的一个全局光标位置。当调用者完成对文件的操作时，必须使用`fclose`关闭它。
 - en: 'This pattern and its implementation details for object-oriented programming
     languages are presented as Counting Handle in the article [“C++ Patterns: Reference
     Accounting”](https://oreil.ly/inThj) by Kevlin Henney. It describes how a shared
     object on the heap can be accessed and how its lifetime can be handled transparently.'
+  id: totrans-195
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '此模式及其面向对象编程语言的实现细节在Kevlin Henney的文章["C++ Patterns: Reference Accounting"](https://oreil.ly/inThj)中被称为计数句柄。它描述了如何访问堆上的共享对象以及如何透明地处理其生命周期。'
 - en: The Windows registry can be accessed simultaneously by multiple threads with
     the function `RegCreateKey` (which opens the key, if it already exists). The function
     delivers a Handle that can be used by other functions to operate on the registry
     key. When the registry operations are finished, the `RegCloseKey` function has
     to be called by everybody who opened the key.
+  id: totrans-196
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Windows注册表可以通过函数`RegCreateKey`（如果已存在则打开键）同时由多个线程访问。该函数提供一个句柄，其他函数可以使用它来操作注册表键。完成注册表操作后，必须由所有打开该键的人调用`RegCloseKey`函数关闭它。
 - en: The Windows functionality to access Mutex (`CreateMutex`) can be used to access
     a shared resource (the Mutex) from multiple threads. With the Mutex, interprocess
     synchronization can be implemented. When finished working with the Mutex, each
     caller has to close it by using the function `CloseHandle`.
+  id: totrans-197
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: Windows功能`CreateMutex`用于从多个线程访问共享资源（Mutex）。使用Mutex，可以实现进程间同步。完成Mutex操作后，每个调用者必须使用`CloseHandle`函数关闭它。
 - en: The B&R Automation Runtime operating system allows multiple callers to access
     device drivers simultaneously. A caller uses the function `DmDeviceOpen` to select
     one of the available devices. The device driver framework checks if the selected
@@ -1035,28 +1446,42 @@
     interact with the driver (send or read data, interact via IO-controls, etc.),
     and after this interaction they tell the device driver framework that they are
     finished by calling `DmDeviceClose`.
+  id: totrans-198
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: B&R Automation Runtime操作系统允许多个调用者同时访问设备驱动程序。调用者使用函数`DmDeviceOpen`来选择可用设备之一。设备驱动程序框架检查所选驱动程序是否可用，然后为调用者提供一个句柄。如果多个调用者操作同一驱动程序，则它们共享句柄。然后，调用者可以同时与驱动程序交互（发送或读取数据，通过IO控制进行交互等），并在此交互后通过调用`DmDeviceClose`告知设备驱动程序框架已完成操作。
 - en: Applied to Running Example
+  id: totrans-199
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 应用于运行示例
 - en: 'The driver now additionally implements the following functions:'
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，驱动程序还额外实现了以下功能：
 - en: '*API (header file)*'
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: '*API（头文件）*'
 - en: '[PRE20]'
+  id: totrans-202
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: '*Implementation*'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: '*实现*'
 - en: '[PRE21]'
+  id: totrans-204
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: The API of the running example did not change a lot—instead of having create/destroy
     functions, your driver now provides open/close functions. By calling such a function,
     the caller retrieves the Handle for the sender and indicates to the driver that
@@ -1066,16 +1491,20 @@
     might not actually destroy the sender. The ownership of this sender remains in
     the driver implementation, which can decide when to destroy the senders (for example,
     when all callers close the sender, or if some termination signal is received).
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: 运行示例的API并没有发生太大变化——现在驱动程序提供打开/关闭函数而不是创建/销毁函数。通过调用这样的函数，调用者检索发送者的句柄，并指示驱动程序此时操作发送者，但驱动程序不一定在那时创建此发送者。可能早些时候由驱动程序的其他调用（可能由不同的线程执行）执行过这个操作。同样，关闭调用实际上可能不会销毁发送者。该发送者的所有权仍在驱动程序实现中，它可以决定何时销毁发送者（例如，当所有调用者关闭发送者时，或者接收到某些终止信号时）。
 - en: The fact that you now have a Shared Instance instead of a Caller-Owned Instance
     is mostly transparent to the caller. But the driver implementation changed—it
     has to remember if a specific sender was already created and provide this shared
     instance instead of creating a new one. When opening a sender, the caller does
     not know whether this sender will be newly created or whether an existing sender
     is retrieved. Depending on this, the duration of the function call might vary.
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在有一个共享实例而不是一个调用者拥有的实例，这对调用者来说基本上是透明的。但是驱动程序的实现发生了变化——它必须记住是否已经创建了特定的发送者，并提供此共享实例，而不是创建一个新的。在打开发送者时，调用者不知道这个发送者是新创建的还是检索到的现有发送者。根据这一点，函数调用的持续时间可能会有所不同。
 - en: The presented running driver example showed different kinds of ownership and
     data lifetime in a single example. We saw how a simple Ethernet driver evolved
     by adding functionality. First, a Stateless Software-Module was sufficient because
@@ -1084,56 +1513,80 @@
     in the driver. Then, the need for more performant send functions and for multiple
     callers for these send functions came up and was first implemented by the Caller-Owned
     Instance and in a next step by the Shared Instance.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 在所示的运行驱动程序示例中展示了单个示例中不同类型的所有权和数据生命周期。我们看到一个简单的以太网驱动程序通过添加功能而发展。首先，一个无状态软件模块就足够了，因为驱动程序不需要任何状态信息。接下来，需要这样的状态信息，并且通过在驱动程序中具有全局状态的软件模块来实现。然后，需要更高效的发送功能以及多个调用者为这些发送功能服务，并首先通过调用者拥有的实例实现，然后通过共享实例实现。
 - en: Summary
+  id: totrans-208
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 摘要
 - en: The patterns in this chapter showed different ways of structuring your C programs
     and how long different instances in your program live. [Table 5-2](#lifetime_comparison)
     gives an overview of the patterns and compares their consequences.
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章中的模式展示了不同的结构化C程序的方式以及程序中不同实例的生命周期。[Table 5-2](#lifetime_comparison) 提供了模式的概述并比较了它们的后果。
 - en: Table 5-2\. Comparing patterns on lifetime and ownership
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 表5-2\. 比较生命周期和所有权的模式
 - en: '|  | Stateless Software-Module | Software-Module with Global State | Caller-Owned
     Instance | Shared Instance |'
+  id: totrans-211
   prefs: []
   type: TYPE_TB
+  zh: '|  | 无状态软件模块 | 具有全局状态的软件模块 | 调用者拥有的实例 | 共享实例 |'
 - en: '| --- | --- | --- | --- | --- |'
+  id: totrans-212
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- | --- | --- |'
 - en: '| Resource sharing between functions | Not possible | Single set of resources
     | Set of resources per instance ( = per caller) | Set of resources per instance
     (shared by multiple callers) |'
+  id: totrans-213
   prefs: []
   type: TYPE_TB
+  zh: '| 函数间资源共享 | 不可能 | 单一资源集合 | 每个实例的资源集合（即每个调用者） | 多个调用者共享的每个实例的资源集合 |'
 - en: '| Resource ownership | Nothing to own | The software-module owns the static
     data | The caller owns the instance | The software-module owns instances and provides
     references |'
+  id: totrans-214
   prefs: []
   type: TYPE_TB
+  zh: '| 资源所有权 | 无需拥有 | 软件模块拥有静态数据 | 调用者拥有实例 | 软件模块拥有实例并提供引用 |'
 - en: '| Resource lifetime | No resources live longer than a function call | Static
     data lives forever in the software-module | Instances live until callers destroy
     them | Instances live until the software-module destroys them |'
+  id: totrans-215
   prefs: []
   type: TYPE_TB
+  zh: '| 资源生命周期 | 没有资源比函数调用更长 | 静态数据永远存在于软件模块中 | 实例存在直到调用者销毁它们 | 实例存在直到软件模块销毁它们 |'
 - en: '| Resource initialization | Nothing to initialize | At compile time or at startup
     | By the caller when creating an instance | By the software-module when the first
     caller opens an instance |'
+  id: totrans-216
   prefs: []
   type: TYPE_TB
+  zh: '| 资源初始化 | 无需初始化 | 在编译时或启动时 | 创建实例时由调用者 | 第一个调用者打开实例时由软件模块 |'
 - en: With these patterns, a C programmer has some basic guidance about the design
     options for organizing programs into software-modules and the design options regarding
     ownership and lifetime when constructing instances.
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这些模式，C 程序员就能对将程序组织成软件模块的设计选项和在构建实例时关于所有权和生命周期的设计选项有一些基本指导。
 - en: Further Reading
+  id: totrans-218
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 进一步阅读
 - en: The patterns in this chapter cover how to provide access to instances and who
     has ownership of these instances. A very similar topic is covered by a subset
     of the patterns from the book *Remoting Patterns* by Markus Voelter et al. (Wiley,
@@ -1144,14 +1597,22 @@
     procedural programs. They focus on C programming, but can also be used for other
     procedural programming languages. Still, some of the underlying ideas in the patterns
     are very similar to those in *Remoting Patterns*.
+  id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章中的模式涵盖了如何提供对实例的访问以及谁拥有这些实例的问题。Markus Voelter 等人的书籍 *Remoting Patterns*（Wiley,
+    2007）中的一些模式子集也涵盖了类似的主题。该书介绍了构建分布式对象中间件的模式，其中三种模式专注于远程服务器创建的对象的生命周期和所有权。与此相比，本章介绍的模式关注的是不同的上下文。它们不是远程系统的模式，而是用于本地过程化程序的模式。它们专注于C编程，但也适用于其他过程化编程语言。尽管如此，这些模式的一些基本思想与
+    *Remoting Patterns* 中的思想非常相似。
 - en: Outlook
+  id: totrans-220
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 展望
 - en: The next chapter presents different kinds of interfaces for software-modules
     with a special focus on how to make the interface flexible. The patterns elaboarate
     on the trade-off between simplicity and flexibility.
+  id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章介绍了软件模块的不同接口类型，特别关注如何使接口灵活。这些模式详细阐述了简单性和灵活性之间的权衡。

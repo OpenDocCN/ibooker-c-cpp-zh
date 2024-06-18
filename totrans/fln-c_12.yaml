@@ -1,14 +1,18 @@
 - en: Chapter 10\. Implementing Logging Functionality
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第 10 章 实现日志功能
 - en: Choosing the right patterns in the right situations helps a lot when designing
     software. But sometimes it is difficult to find the right pattern and to decide
     when to apply it. You can find guidance for that in the context and problem sections
     of the patterns from [Part I](part01.xhtml#part_1) of this book. But usually it
     is much easier to understand how to do something by looking at a concrete example.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 在设计软件时，选择适当的模式在适当的情况下帮助很大。但有时很难找到正确的模式并决定何时应用它。您可以在本书的[第 I 部分](part01.xhtml#part_1)中的上下文和问题部分找到相关指导。但通常通过查看具体示例来理解如何做某事要容易得多。
 - en: This chapter tells the story of applying the patterns from [Part I](part01.xhtml#part_1)
     of this book to a running example that was abstracted from an industrial-strength
     implementation of a logging system. To keep the example code easy to grasp, not
@@ -16,25 +20,34 @@
     the code design does not focus on performance or testability aspects. Still, the
     example nicely shows how to build a logging system piece by piece by applying
     patterns.
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 本章讲述了将本书[第 I 部分](part01.xhtml#part_1)的模式应用于一个抽象自工业强度实现的日志系统的运行示例的故事。为了使示例代码易于理解，没有涵盖原始工业强度代码的所有方面。例如，代码设计不关注性能或可测试性方面。尽管如此，示例很好地展示了如何逐步构建一个日志系统，通过应用模式。
 - en: The Pattern Story
+  id: totrans-3
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 模式故事
 - en: Imagine you have a C program out in the field that you have to maintain. If
     an error occurs, you get into your car, drive to the customer, and debug the program.
     This works fine until your customer moves to another city. The car ride now takes
     several hours, which is not at all satisfactory.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 想象一下，您在现场有一个需要维护的 C 程序。如果发生错误，您开车前往客户那里进行调试。这在客户还在同一城市时效果很好。现在客户搬到另一个城市，开车需要几个小时，这完全不能令人满意。
 - en: You’d prefer to solve the problem from your desk to save both time and nerves.
     In some instances, you can utilize remote debugging. In other instances, you need
     detailed data about the exact software states in which the error occurred, which
     is very hard to get via a remote connection—especially in instances of sporadic
     errors.
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 您更喜欢从您的办公桌解决问题，以节省时间和神经。在某些情况下，您可以利用远程调试。在其他情况下，您需要详细的关于发生错误的确切软件状态的数据，这在 sporadic
+    错误的情况下尤为困难。
 - en: Perhaps you’ve already guessed what the solution is to avoiding your long car
     rides. Your solution is to implement a logging functionality and to ask your customer
     in case of error to send you the log files containing the debug information. In
@@ -42,147 +55,214 @@
     bugs after they occur, which allows you to more easily fix those bugs without
     having to reproduce them. While this sounds simple, there are many crucial design
     decisions you’ll need to make to implement logging functionality.
+  id: totrans-6
   prefs: []
   type: TYPE_NORMAL
+  zh: 也许您已经猜到了避免长时间车程的解决方案。您的解决方案是实现日志功能，并在发生错误时要求客户发送包含调试信息的日志文件。换句话说，您想实现日志错误模式，以便能够分析错误发生后的
+    bug，这使您更容易修复这些 bug 而无需重现它们。尽管听起来很简单，但要实现日志功能，您需要做出许多关键的设计决策。
 - en: File Organization
+  id: totrans-7
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 文件组织
 - en: To get started, organize the header and implementation files that you expect
     to need. You already have a large codebase, so you want to clearly separate these
     files from the rest of your code. How should you organize the files? Should you
     put all your logging-related files into the same directory? Should you put all
     the header files of your code into a single directory?
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 要开始，请组织您预计需要的头文件和实现文件。您已经有一个庞大的代码库，因此希望将这些文件清晰地与其余代码分开。您应该如何组织这些文件？您应该将所有与日志相关的文件放入同一个目录中吗？您应该将所有代码的头文件放入单个目录中吗？
 - en: 'To answer these questions, you search for patterns on organizing files and
     find them in Chapters [6](ch06.xhtml#chapter_api_flexibility) and [8](ch08.xhtml#directory_structure).
     You read through the problem statements of these patterns, and you trust in the
     knowledge provided in the described solutions. You end up with the following three
     patterns that nicely address your problems:'
+  id: totrans-9
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了回答这些问题，您搜索了关于组织文件的模式，并在第[6](ch06.xhtml#chapter_api_flexibility)章和第[8](ch08.xhtml#directory_structure)章找到了它们。您阅读了这些模式的问题陈述，并信任所描述解决方案中提供的知识。最终，您得到了以下三个很好地解决了您问题的模式：
 - en: '| Pattern name | Summary |'
+  id: totrans-10
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-11
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Software-Module Directories | Put header files and implementation files that
     belong to a tightly coupled functionality into one directory. Name that directory
     after the functionality that is provided via the header files. |'
+  id: totrans-12
   prefs: []
   type: TYPE_TB
+  zh: '| 软件模块目录 | 将属于紧密耦合功能的头文件和实现文件放入一个目录中。以提供给用户的头文件功能命名该目录。 |'
 - en: '| Header Files | Provide function declarations in your API for any functionality
     you want to provide to your user. Hide any internal functions, internal data,
     and your function definitions (the implementations) in your implementation file
     and don’t provide this implementation file to the user. |'
+  id: totrans-13
   prefs: []
   type: TYPE_TB
+  zh: '| 头文件 | 在您的API中提供功能声明，以提供给用户您想要提供的任何功能。隐藏任何内部函数、内部数据和您的函数定义（实现）在您的实现文件中，不要将此实现文件提供给用户。
+    |'
 - en: '| Global Include Directory | Have one global directory in your codebase that
     contains all software-module APIs. Add this directory to the global include paths
     in your toolchain. |'
+  id: totrans-14
   prefs: []
   type: TYPE_TB
+  zh: '| 全局包含目录 | 在您的代码库中有一个全局目录，其中包含所有软件模块的API。将此目录添加到您工具链中的全局包含路径中。 |'
 - en: Create a Software-Module Directory for your implementation files and put the
     Header File of your logging software-module into the already existing Global Include
     Directory of your codebase. Having this header file in the Global Include Directory
     has the advantage that the callers of your code will definitely know which header
     file they are supposed to use.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 为您的实现文件创建一个软件模块目录，并将您的日志软件模块的头文件放入已存在的全局包含目录中。将此头文件放入全局包含目录中的好处是调用者一定知道他们应该使用哪个头文件。
 - en: Your file structure should appear as shown in [Figure 10-1](#fig_story1).
+  id: totrans-16
   prefs: []
   type: TYPE_NORMAL
+  zh: 您的文件结构应如[图 10-1](#fig_story1)所示。
 - en: '![fluc 1001](assets/fluc_1001.png)'
+  id: totrans-17
   prefs: []
   type: TYPE_IMG
+  zh: '![fluc 1001](assets/fluc_1001.png)'
 - en: Figure 10-1\. File structure
+  id: totrans-18
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 10-1\. 文件结构
 - en: With this file structure, you can put any implementation files that only concern
     your logging software-module into the *logger* directory. You can put the interface,
     which can be used from other parts of your program, into the *inc* directory.
+  id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个文件结构，您可以将任何仅涉及您的日志软件模块的实现文件放入*logger*目录中。您可以将可以从程序的其他部分使用的接口放入*inc*目录中。
 - en: Central Logging Function
+  id: totrans-20
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 中心化日志函数
 - en: As a start, implement a central function for error logging that takes custom
     error texts, adds the current timestamp to the texts, and prints it to the standard
     output. The timestamp information will make it easier for you to analyze the error
     texts later on.
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为起步，实现一个中心化的错误日志记录函数，该函数接受自定义的错误文本，在文本中添加当前时间戳，并将其打印到标准输出。时间戳信息将使您稍后分析错误文本更加容易。
 - en: 'Put the function declaration into the *logger.h* file. To protect your header
     file against multiple inclusion, add an Include Guard. There is no need to store
     any information in that code or to initialize it; simply implement a Stateless
     Software-Module. Having a stateless logger brings many benefits: you keep your
     logging code simple, and things get easier when calling the code in a multithreaded
     environment.'
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 将函数声明放入*logger.h*文件中。为了保护您的头文件免受多次包含的影响，请添加一个包含保护。在该代码中不需要存储任何信息或进行初始化；只需实现一个无状态的软件模块。拥有无状态的日志记录器带来很多好处：您的日志记录代码保持简单，并且在多线程环境中调用代码变得更加容易。
 - en: '| Pattern name | Summary |'
+  id: totrans-23
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-24
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Include Guard | Protect the content of your header files against multiple
     inclusion so that the developer using the header files does not have to care whether
     it is included multiple times. Use an interlocked `#ifdef` statement or a `#pragma
     once` statement to achieve this. |'
+  id: totrans-25
   prefs: []
   type: TYPE_TB
+  zh: '| 包含保护 | 保护您的头文件内容免受多次包含的影响，以便使用头文件的开发人员不必关心它是否被多次包含。使用交错的`#ifdef`语句或`#pragma
+    once`语句来实现这一点。 |'
 - en: '| Stateless Software-Module | Keep your functions simple and don’t build up
     state information in your implementation. Put all related functions into one header
     file and provide the caller this interface to your software-module. |'
+  id: totrans-26
   prefs: []
   type: TYPE_TB
+  zh: '| 无状态的软件模块 | 保持函数简单，在您的实现中不积累状态信息。将所有相关函数放入一个头文件中，并为调用者提供您软件模块的接口。 |'
 - en: '*logger.h*'
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.h*'
 - en: '[PRE0]'
+  id: totrans-28
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: '*Caller’s code*'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: '*调用者的代码*'
 - en: '[PRE1]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: To implement the function in your *logger.h* file, call a `printf` to write
     the timestamp and the text to `stdout`. But what if the caller of your function
     provides invalid logging input like a `NULL` pointer? Should you check for such
     invalid input and provide error information to the caller? Adhere to the Samurai
     Principle, according to which you should not return error information about programming
     errors.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在*logger.h*文件中实现该函数，在其中调用`printf`来将时间戳和文本写入`stdout`。但是，如果您的函数的调用者提供了无效的日志输入，比如`NULL`指针，该怎么办？您应该检查这样的无效输入并向调用者提供错误信息吗？遵循武士原则，根据该原则，您不应返回关于编程错误的错误信息。
 - en: '| Pattern name | Summary |'
+  id: totrans-32
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-33
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Samurai Principle | Return from a function victorious or not at all. If there
     is a situation for that you know that an error cannot be handled, then abort the
     program. |'
+  id: totrans-34
   prefs: []
   type: TYPE_TB
+  zh: '| 武士原则 | 从函数中返回，要么胜利，要么不返回。如果有一种情况，你知道错误无法处理，那么终止程序。 |'
 - en: 'Forward the provided text to the `printf` function, and in case of invalid
     input your program simply crashes, which makes it easy for the caller to find
     out programming errors regarding invalid input:'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 将提供的文本转发给`printf`函数，如果输入无效，您的程序将简单地崩溃，这使得调用者可以找出关于无效输入的编程错误：
 - en: '*logger.c*'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE2]'
+  id: totrans-37
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: And what if you call the function in the context of a multithreaded program?
     Can the string provided to the function be changed by other threads, or is it
     necessary for the string to remain unchanged until the logging function is finished?
@@ -190,54 +270,80 @@
     `logging` function and is responsible for ensuring that the string is valid until
     the function returns. So we have a Caller-Owned Buffer here. That behavior has
     to be documented in the function’s interface.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您在多线程程序的上下文中调用该函数会怎样？调用函数的字符串是否可以被其他线程更改，或者在日志函数完成之前字符串是否需要保持不变？在上述代码示例中，调用者必须将`text`作为`logging`函数的输入，并负责确保该字符串在函数返回之前是有效的。因此，这里有一个调用者拥有的缓冲区。该行为必须在函数接口中进行文档化。
 - en: '| Pattern name | Summary |'
+  id: totrans-39
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-40
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Caller-Owned Buffer | Require the caller to provide a buffer and its size
     to the function that returns the large, complex data. In the function implementation,
     copy the required data into the buffer if the buffer size is large enough. |'
+  id: totrans-41
   prefs: []
   type: TYPE_TB
+  zh: '| 调用者拥有的缓冲区 | 要求调用者为返回大型复杂数据的函数提供缓冲区及其大小。在函数实现中，如果缓冲区大小足够大，则将所需数据复制到缓冲区中。 |'
 - en: '*logger.h*'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.h*'
 - en: '[PRE3]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Logging Source Filter
+  id: totrans-44
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 日志源过滤器
 - en: Now imagine that every software-module calls the logging function in order to
     log some information. The output can become quite messy, especially if you have
     a multithreaded program.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在想象每个软件模块都调用日志函数以记录一些信息。输出可能会变得非常混乱，特别是在多线程程序中。
 - en: 'To make it easier to get the information you are looking for, you want to make
     it possible to configure the code so that it only prints the logging information
     for configured software-modules. To achieve this, add an additional parameter
     to your function which identifies the current software-module. Add a function
     to enable printing output for a software-module. If that function is called, all
     future logging output for that software-module will be printed:'
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了更容易获取您正在寻找的信息，您希望能够配置代码，使其仅打印已配置软件模块的日志信息。为此，请向您的函数添加一个额外的参数，用于标识当前的软件模块。添加一个函数以启用打印软件模块的输出。如果调用该函数，将来该软件模块的所有日志输出都将被打印：
 - en: '*logger.h*'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.h*'
 - en: '[PRE4]'
+  id: totrans-48
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: '*Caller’s code*'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Caller’s code*'
 - en: '[PRE5]'
+  id: totrans-50
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: How will you keep track of which software-modules’ logging information should
     be printed? Should you store that state information in a global variable, or is
     each global variable a code smell? Or in order to avoid global variables, should
@@ -245,40 +351,60 @@
     information? Should the required memory be allocated throughout the whole lifetime
     of your program? The answer to these questions involves implementing a Software-Module
     with Global State using Eternal Memory.
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 您将如何跟踪应该打印哪些软件模块的日志信息？您应该将该状态信息存储在全局变量中，还是每个全局变量都是一种代码异味？或者为了避免全局变量，应该向所有函数传递一个额外的参数来存储这些状态信息？在整个程序生命周期内是否应分配所需的内存？这些问题的答案涉及使用永久内存实现具有全局状态的软件模块。
 - en: '| Pattern name | Summary |'
+  id: totrans-52
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Software-Module with Global State | Have one global instance to let your
     related functions share common resources. Put all functions that operate on this
     instance into one header file and provide the caller this interface to your software-module.
     |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| 具有全局状态的软件模块 | 有一个全局实例，让您的相关函数共享公共资源。将所有操作此实例的函数放入一个头文件中，并向调用者提供此接口以访问您的软件模块。|'
 - en: '| Eternal Memory | Put your data into memory that is available throughout the
     whole lifetime of your program. |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '| 永久内存 | 将数据放入整个程序生命周期可用的内存中。|'
 - en: '*logger.c*'
+  id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE6]'
+  id: totrans-57
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'The list in the preceding code example is populated by enabling software-modules
     with the following function:'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 前面示例中的列表由以下功能启用软件模块来填充：
 - en: '*logger.c*'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE7]'
+  id: totrans-60
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: The preceding code adds the software-module name to the list if a slot in the
     list is empty and if that name is not already in the list. The caller sees through
     the Return Value whether an error occurred but does not see which of these errors
@@ -286,46 +412,68 @@
     there is no relevant scenario in which the caller could react differently to the
     described error situations. You should also document this behavior in your function
     definition.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 前面的代码如果列表中的某个槽为空并且该名称尚未在列表中，则将软件模块名称添加到列表中。调用者通过返回值看到是否发生错误，但看不到发生了哪些错误。不返回状态码；只返回相关的错误，因为调用者在描述的错误情况下没有不同的反应场景。您还应该在函数定义中记录此行为。
 - en: '| Pattern name | Summary |'
+  id: totrans-62
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-63
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Return Value | Simply use the one C mechanism intended to retrieve information
     about the result of a function call: the Return Value. The mechanism to return
     data in C copies the function result and provides the caller access to this copy.
     |'
+  id: totrans-64
   prefs: []
   type: TYPE_TB
+  zh: '| 返回值 | 只需使用用于检索函数调用结果信息的 C 机制之一：返回值。在 C 中返回数据的机制是复制函数结果并提供调用者对此副本的访问。|'
 - en: '| Return Relevant Errors | Only return error information to the caller if that
     information is relevant to the caller. Error information is only relevant to the
     caller if the caller can react to that information. |'
+  id: totrans-65
   prefs: []
   type: TYPE_TB
+  zh: '| 只返回相关的错误 | 只有当错误信息对调用者有关时，才将错误信息返回给调用者。只有当调用者能够对此信息做出反应时，错误信息才对调用者有关。 |'
 - en: '*logger.h*'
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.h*'
 - en: '[PRE8]'
+  id: totrans-67
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: Conditional Logging
+  id: totrans-68
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 条件记录
 - en: 'Now, with the activated software-modules in your list, you can conditionally
     log information depending on the activated modules, as shown in the following
     code:'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在，在列表中激活了软件模块后，您可以根据激活的模块条件性地记录信息，如下代码所示：
 - en: '*logger.c*'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE9]'
+  id: totrans-71
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'But how do you implement the `isInList` function? There are several ways to
     iterate through a list. You could have a Cursor Iterator that provides a `getNext`
     method to abstract the underlying data structure. But is that necessary here?
@@ -333,308 +481,450 @@
     iterated data is not carried across API boundaries that might have to be kept
     compatible, you can apply a much simpler solution here. Index Access directly
     uses an index to access the elements you want to iterate:'
+  id: totrans-72
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是您如何实现 `isInList` 函数呢？有多种方法可以迭代列表。您可以使用游标迭代器，提供 `getNext` 方法来抽象底层数据结构。但是这里是否有必要呢？毕竟，在您自己的软件模块中，只需遍历一个数组。因为迭代的数据未跨
+    API 边界传递，这里可以应用一个更简单的解决方案。索引访问直接使用索引访问您希望迭代的元素：
 - en: '| Pattern name | Summary |'
+  id: totrans-73
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-74
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Index Access | Provide a function that takes an index to address the element
     in your underlying data structure and return the content of this element. The
     user calls this function in a loop to iterate over all elements. |'
+  id: totrans-75
   prefs: []
   type: TYPE_TB
+  zh: '| 索引访问 | 提供一个函数，接受索引来访问底层数据结构中的元素，并返回此元素的内容。用户在循环中调用此函数以遍历所有元素。|'
 - en: '*logger.c*'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE10]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: Now all your code for software-module-specific logging is written. The code
     simply iterates the data structure by incrementing an index. The same kind of
     iteration was already used in your `enableModule` function.
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: '现在，您所有的软件模块特定记录代码都已编写完成。该代码简单地通过增加索引来迭代数据结构。与您的 `enableModule` 函数中已经使用的相同类型的迭代。 '
 - en: Multiple Logging Destinations
+  id: totrans-79
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 多个记录目的地
 - en: 'Next, you want to provide different destinations for your log entries. Until
     now, all output is logged to the `stdout`, but you want your caller to be able
     to configure your code to directly log into a file. Such a configuration is usually
     done before the action to be logged is started. Start with a function that allows
     you to configure the logging destination for all future loggings:'
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，您希望为日志条目提供不同的目标位置。到目前为止，所有输出都记录在`stdout`上，但您希望调用者能够配置您的代码直接记录到文件中。这样的配置通常在开始记录要执行的操作之前完成。从一个允许您为所有未来的日志记录配置日志目标的函数开始：
 - en: '*logger.h*'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.h*'
 - en: '[PRE11]'
+  id: totrans-82
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: To implement this log destination selection, you could simply have an `if` or
     `switch` statement to call the right function depending on the configured logging
     destination. However, each time you add another logging destination, you’d have
     to touch that piece of code. That is not a good solution according to the open-closed
     principle. A much better solution is to implement a Dynamic Interface.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 要实现此日志目标选择，您可以简单地使用`if`或`switch`语句调用正确的函数，具体取决于配置的日志目标。但是每次添加另一个日志目标时，您都必须修改该代码片段。这不符合开闭原则的良好解决方案。更好的解决方案是实现一个动态接口。
 - en: '| Pattern name | Summary |'
+  id: totrans-84
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 概要 |'
 - en: '| --- | --- |'
+  id: totrans-85
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Dynamic Interface | Define a common interface for the deviating functionalities
     in your API and require the caller to provide a callback function for that functionality
     which you then call in your function implementation. |'
+  id: totrans-86
   prefs: []
   type: TYPE_TB
+  zh: '| 动态接口 | 为API中不同功能定义一个通用接口，并要求调用者提供该功能的回调函数，然后在您的函数实现中调用该函数。 |'
 - en: '*logger.c*'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE12]'
+  id: totrans-88
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: A lot changed in the existing code, but now additional log destinations can
     be added without any changes to the `logging` function. In the preceding code,
     the `stdoutLogging` function is already implemented, but the `fileLogging` function
     is still missing.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 现有代码发生了很多变化，但现在可以添加额外的日志目标而无需更改`logging`函数。在前面的代码中，`stdoutLogging`函数已经实现，但`fileLogging`函数还未完成。
 - en: File Logging
+  id: totrans-90
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 文件记录
 - en: To log to a file, you could simply open and close the file each time you log
     a message. But that is not very efficient, and if you want to log a lot of information,
     that approach takes a lot of time. So what alternative do you have? You could
     simply open the file once and then leave it open. But how do you know when to
     open the file? And when would you close it?
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 要记录到文件，您可以每次记录消息时简单地打开和关闭文件。但这并不是很高效，如果要记录大量信息，这种方法会花费大量时间。那么您有什么替代方案呢？您可以打开文件一次，然后保持打开状态。但是您如何知道何时打开文件？何时关闭它呢？
 - en: 'After reviewing the patterns in this book, you cannot find one that solves
     your problem. However, a quick Google search will lead you to the pattern that
     solves your problem: Lazy Acquisition. In the first call to your `fileLogging`
     function, open the file once and then leave it open. You can store the file descriptor
     in Eternal Memory.'
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 在查看本书中的模式后，您找不到解决您问题的模式。然而，通过快速的谷歌搜索，您会找到解决您问题的模式：延迟获取。在首次调用您的`fileLogging`函数时，打开文件一次，然后保持打开状态。您可以将文件描述符存储在永久存储中。
 - en: '| Pattern name | Summary |'
+  id: totrans-93
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 概要 |'
 - en: '| --- | --- |'
+  id: totrans-94
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Lazy Acquisition | Implicitly initialize the object or data the first time
     it is used (see *Pattern-Oriented Software Architecture: Volume 3: Patterns for
     Resource Management* by Michael Kirchner and Prashant Jain [Wiley, 2004]) |'
+  id: totrans-95
   prefs: []
   type: TYPE_TB
+  zh: '| 延迟获取 | 首次使用时隐式初始化对象或数据（见《面向模式的软件架构：第3卷：资源管理模式》Michael Kirchner和Prashant Jain
+    [Wiley, 2004]） |'
 - en: '| Eternal Memory | Put your data into memory that is available throughout the
     whole lifetime of your program. |'
+  id: totrans-96
   prefs: []
   type: TYPE_TB
+  zh: '| 永久存储 | 将数据放入整个程序生命周期内可用的内存中。 |'
 - en: '*logger.c*'
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE13]'
+  id: totrans-98
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: '[![1](assets/1.png)](#co_implementing_logging_functionality_CO1-1)'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](assets/1.png)](#co_implementing_logging_functionality_CO1-1)'
 - en: Such `static` variables are only initialized once and not each time the function
     is called.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些`static`变量只初始化一次，而不是每次调用函数时都初始化。
 - en: To keep the code example simple, it does not target thread safety. In order
     to be thread-safe, the code would have to protect the Lazy Acquisition with a
     Mutex to make sure that the acquisition only happens once.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了使示例代码保持简单，它并不针对线程安全性。为了线程安全，代码必须使用互斥锁保护延迟获取，以确保获取只发生一次。
 - en: What about closing the file? For some applications, like the one in this chapter,
     not closing the file is a valid option. Imagine that you want to log as long as
     your application is running, and when you shut the application down, you rely
     on the operating system to clean up the file that you left open. If you are afraid
     that the information is not stored in case of a system crash, you could even flush
     the file content from time to time.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么关闭文件怎么样？对于某些应用程序（比如本章中的应用程序），不关闭文件是一个有效的选择。想象一下，你希望在应用程序运行时记录，当你关闭应用程序时，你依赖操作系统清理你留下的文件。如果你担心在系统崩溃时信息没有被存储，你甚至可以定期刷新文件内容。
 - en: Cross-Platform Files
+  id: totrans-103
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 跨平台文件
 - en: The code so far implements logging to a file on Linux systems, but you also
     want to use your code on Windows platforms, for which the current code won’t yet
     work.
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止的代码在Linux系统上实现了向文件的日志记录，但你还想在Windows平台上使用你的代码，而当前的代码尚不能工作。
 - en: To support multiple platforms, you first consider to Avoid Variants so that
     you only have common code for all platforms. That would be possible for writing
     files by simply using the `fopen`, `fwrite`, and `fclose` functions, which are
     available on Linux as well as on Windows systems.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了支持多个平台，你首先考虑避免变体，这样你只有所有平台的通用代码。这对于通过简单使用在Linux和Windows系统上都可用的`fopen`、`fwrite`和`fclose`函数来编写文件是可能的。
 - en: '| Pattern name | Summary |'
+  id: totrans-106
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-107
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Avoid Variants | Use standardized functions that are available on all platforms.
     If there are no standardized functions, consider not implementing the functionality.
     |'
+  id: totrans-108
   prefs: []
   type: TYPE_TB
+  zh: '| 避免变体 | 使用所有平台上都可用的标准化函数。如果没有标准化函数，考虑不实现这个功能。 |'
 - en: However, you want to make your file logging code as efficient as possible and
     using the platform-specific functions for accessing files is more efficient. But
     how do you implement platform-specific code? Duplicating your codebase to have
     one full code version for Windows and one full code version for Linux is not an
     option because future changes and maintenance of duplicated code can become a
     nightmare.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，你希望使文件日志记录代码尽可能高效，并且使用特定于平台的函数来访问文件更有效。但是如何实现特定于平台的代码呢？复制你的代码库以获得一个完整的Windows版本和一个完整的Linux版本不是一个选择，因为未来的更改和维护可能会变成一场噩梦。
 - en: You decide to use `#ifdef` statements in your code to differentiate between
     the platforms. But isn’t that a code duplication as well? After all, when you
     have huge `#ifdef` blocks in your code, all the program logic in these statements
     is duplicated. How can you avoid code duplication while still supporting multiple
     platforms?
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 你决定在你的代码中使用`#ifdef`语句来区分平台。但这难道不也是代码复制吗？毕竟，当你的代码中有大量的`#ifdef`块时，这些语句中的所有程序逻辑都是重复的。如何在支持多个平台的同时避免代码重复呢？
 - en: Again the patterns show you the way. First, define platform-independent interfaces
     for the functionality that requires the platform-dependent functions. In other
     words, define an Abstraction Layer.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，这些模式为你指明了方向。首先，为需要依赖于特定平台函数的功能定义平台无关的接口。换句话说，定义一个抽象层。
 - en: '| Pattern name | Summary |'
+  id: totrans-112
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 摘要 |'
 - en: '| --- | --- |'
+  id: totrans-113
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Abstraction Layer | Provide an API for each functionality that requires platform-specific
     code. Define only platform-independent functions in the header file and put all
     platform-specific `#ifdef` code into the implementation file. The caller of your
     functions includes only your header file and does not have to include any platform-specific
     files. |'
+  id: totrans-114
   prefs: []
   type: TYPE_TB
+  zh: '| Abstraction Layer | 为每个需要特定于平台代码的功能提供一个API。在头文件中只定义平台无关的函数，并将所有特定于平台的`#ifdef`代码放入实现文件中。调用者只需要包含你的头文件，而不需要包含任何特定于平台的文件。|'
 - en: '*logger.c*'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE14]'
+  id: totrans-116
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: Behind this Abstraction Layer you have Isolated Primitives of your code variants.
     That means you don’t use `#ifdef` statements across several functions, but you
     stick to one `#ifdef` for one function. Should you have an `#ifdef` statement
     across the whole function implementation or just across the platform-specific
     part?
+  id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个抽象层后面，你有你代码变体的隔离原语。这意味着你不在几个函数中使用`#ifdef`语句，而是为一个函数坚持使用一个`#ifdef`。你是否应该在整个函数实现中使用`#ifdef`语句，还是仅在特定于平台的部分中使用？
 - en: The solution is to have both. You should have Atomic Primitives. The functions
     should be on a granularity so that they only contain platform-specific code. If
     they don’t, then you can split these functions up further. That is the best way
     to keep platform-dependent code manageable.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 解决方案是两者都有。你应该有原子原语。函数应该以一种粒度存在，使其仅包含特定于平台的代码。如果不是这样，那么你可以进一步拆分这些函数。这是保持平台相关代码可管理性的最佳方式。
 - en: '| Pattern name | Summary |'
+  id: totrans-119
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 概要 |'
 - en: '| --- | --- |'
+  id: totrans-120
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Isolated Primitives | Isolate your code variants. In your implementation
     file, put the code handling the variants into separate functions and call these
     functions from your main program logic, which then contains only platform-independent
     code. |'
+  id: totrans-121
   prefs: []
   type: TYPE_TB
+  zh: '| 独立原语 | 隔离您的代码变体。在您的实现文件中，将处理变体的代码放入单独的函数中，并从主程序逻辑中调用这些函数，这样主程序逻辑中只包含平台无关的代码。
+    |'
 - en: '| Atomic Primitives | Make your primitives atomic. Only handle exactly one
     kind of variant per function. If you handle multiple kinds of variants, for example,
     operating system variants and hardware variants, then have separate functions
     for that. |'
+  id: totrans-122
   prefs: []
   type: TYPE_TB
+  zh: '| 原子原语 | 使您的原语变成原子的。每个函数只处理一种变体。如果您处理多种变体，例如操作系统变体和硬件变体，则应分别为其创建函数。 |'
 - en: 'The following code shows the implementations of your Atomic Primitives:'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的代码展示了原子原语的实现：
 - en: '*logger.c*'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: '*logger.c*'
 - en: '[PRE15]'
+  id: totrans-125
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: The preceding code doesn’t look great. But then again, any platform-dependent
     code rarely looks nice. Is there anything else you can do to make that code easier
     to read and maintain? A possible approach to improve things is to Split Variant
     Implementations into separate files.
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 上述代码看起来并不美观。但再怎么说，任何依赖于平台的代码很少看起来好看。有什么其他方法可以使该代码更易于阅读和维护吗？改进的一种可能方法是将变体实现分割为单独的文件。
 - en: '| Pattern name | Summary |'
+  id: totrans-127
   prefs: []
   type: TYPE_TB
+  zh: '| 模式名称 | 概要 |'
 - en: '| --- | --- |'
+  id: totrans-128
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- |'
 - en: '| Split Variant Implementations | Put each variant implementation into a separate
     implementation file and select per file what you want to compile for which platform.
     |'
+  id: totrans-129
   prefs: []
   type: TYPE_TB
+  zh: '| 分割变体实现 | 将每个变体实现放入单独的实现文件中，并根据需要选择为哪个平台编译。 |'
 - en: '*fileLinux.c*'
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: '*fileLinux.c*'
 - en: '[PRE16]'
+  id: totrans-131
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: '*fileWindows.c*'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: '*fileWindows.c*'
 - en: '[PRE17]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: Both of the shown code files are a lot easier to read compared to the code where
     Linux and Windows code is mixed within a single function. Also, instead of conditionally
     compiling the code on a platform via `#ifdef` statements, it is now possible to
     eliminate all `#ifdef` statements and to use Makefiles to select which files to
     compile.
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 这两个显示的代码文件与将 Linux 和 Windows 代码混合在单个函数内的代码相比，要容易得多。而且，与通过`#ifdef`语句在平台上有条件地编译代码相比，现在可以消除所有`#ifdef`语句，并使用
+    Makefile 选择要编译的文件。
 - en: Using the Logger
+  id: totrans-135
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 使用记录器
 - en: 'With these final changes to your logging functionality, your code can now log
     messages for configured software-modules to `stdout` or to cross-platform files.
     The following code shows how to use the logging functionality:'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: 在你的日志功能做出最后更改后，你的代码现在可以将消息记录到配置的软件模块，可以输出到`stdout`或跨平台文件中。以下代码展示了如何使用日志功能：
 - en: '[PRE18]'
+  id: totrans-137
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: After you finish making all these coding decisions and then implementing them,
     you are very relieved. You take your hands off the keyboard and look at the code
     in admiration. You are astonished at how some of your initial questions that seemed
     difficult to you were easily resolved by the patterns. The benefit to utilizing
     the patterns is that they remove the burden of making hundreds of decisions by
     yourself.
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: 在完成所有这些编码决策并实施它们之后，您感到非常宽慰。您从键盘上抬起双手，欣赏着代码。您对一些最初似乎困扰您的问题如何轻松解决感到惊讶。利用这些模式的好处在于，它们消除了您自己做出数百个决策的负担。
 - en: The long car rides to fix bugs on site are in the past. Now you simply get the
     debug information that you need via the log files. That makes your customer happy,
     because they get quicker bug fixes. More importantly, it makes your own life better.
     You can provide more professional software, and you now have the time to get home
     from work early.
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 以前的长途汽车驾驶修复错误已成为过去。现在，您只需通过日志文件获取所需的调试信息。这让您的客户感到高兴，因为他们可以更快地修复错误。更重要的是，它让您的生活更加美好。您可以提供更专业的软件，并且现在有时间早点下班。
 - en: Summary
+  id: totrans-140
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 概要
 - en: You constructed the code for this logging functionality step by step by applying
     the patterns presented in [Part I](part01.xhtml#part_1) in order to solve one
     problem after another. At the start you had many questions on how to organize
@@ -643,23 +933,33 @@
     also provide understanding as to why the code looks and behaves the way it does.
     [Figure 10-2](#fig_story1_patterns) shows an overview of the decisions that the
     patterns helped you make.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 你通过逐步应用[第一部分](part01.xhtml#part_1)中提出的模式来构建此日志功能的代码，以便逐一解决各种问题。刚开始时，你对如何组织文件或如何处理错误处理有很多问题。这些模式指引了你的方向。它们为你提供了指导，并使得构建这段代码变得更加容易。它们还帮助你理解代码看起来和表现出来的原因。[图 10-2](#fig_story1_patterns)显示了模式帮助你做出的决策概述。
 - en: There are, of course, still a lot of potential feature improvements for your
     code. The code, for example, doesn’t handle maximum file sizes or rotation of
     logfiles, and doesn’t support configuration of a log level to skip very detailed
     logging. To keep things simple and easier to grasp, these features are not covered
     but could be added to the code examples.
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，你的代码仍有许多潜在的功能改进空间。例如，该代码不处理文件的最大大小或日志文件的轮换，并且不支持配置日志级别以跳过非常详细的日志记录。为了保持简单和易于理解，这些功能没有涵盖在内，但可以添加到代码示例中。
 - en: The next chapter will tell another story on how to apply the patterns to build
     another larger industrial-strength piece of code.
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 下一章将讲述如何将这些模式应用于构建另一个更大的工业级代码片段的另一个故事。
 - en: '![fluc 1002](assets/fluc_1002.png)'
+  id: totrans-144
   prefs: []
   type: TYPE_IMG
+  zh: '![fluc 1002](assets/fluc_1002.png)'
 - en: Figure 10-2\. The patterns applied throughout this story
+  id: totrans-145
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 10-2\. 故事中应用的模式

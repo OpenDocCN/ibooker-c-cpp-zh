@@ -1,7 +1,9 @@
 - en: Chapter 10\. Faster Code
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第10章 快速代码
 - en: I mentioned at the very beginning of [Chapter 1](ch01.xhtml#smallerc-CHP-1)
     that C was designed for machines with limited resources—at least by today’s standards.
     Microcontrollers have many of those same limitations, making C a pretty natural
@@ -9,8 +11,10 @@
     performance out of a tiny chip, C’s ability to work directly with memory addresses,
     as we saw in [“Addresses in C”](ch06.xhtml#smallerc-CHP-6-SECT-1), is unparalleled,
     if tedious.^([1](ch10.xhtml#idm45018716293016))
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 我在[第1章](ch01.xhtml#smallerc-CHP-1)的一开始就提到，C语言是为了那些有限资源的机器设计的——至少按照今天的标准来看是这样。微控制器也有许多相同的限制，这使得C语言成为一个相当自然的开发语言选择。事实上，如果你想从一个微小的芯片中获得最大可能的性能，C语言直接操作内存地址的能力，正如我们在[“C中的地址”](ch06.xhtml#smallerc-CHP-6-SECT-1)中所看到的那样，是无与伦比的，尽管有些乏味。^([1](ch10.xhtml#idm45018716293016))
 - en: 'I’m happy to say that even without diving into the depths of datasheets (seriously
     technical specifications produced by component and microcontroller manufacturers),
     you can employ several straightforward tricks to speed up your code. But do remember
@@ -22,40 +26,57 @@
     and its cousins are definitely more limited than desktops. Sometimes your program
     won’t run or doesn’t quite do what you need. In those instances, consider bringing
     some of the following optimizations to bear.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 我很高兴地告诉你，即使没有深入研究数据表（由组件和微控制器制造商编制的严肃技术规格书），你也可以采用几个简单的技巧来加速你的代码。但请记住，有时候“足够好”就已经足够了！首先尝试使用你知道的模式来使你的代码运行。你的程序是否运行？它是否做你需要的事情？如果是，我在本章中强调的有趣的选项，如使用整数而不是浮点数或展开循环，仅仅是有趣的。它们并不一定“更好”，当然也不是必需的。通常情况下。Arduino及其同类产品显然比桌面电脑更有限。有时你的程序可能无法运行或没有完全按照你的需求工作。在这些情况下，考虑采用以下优化方法。
 - en: The Setup
+  id: totrans-3
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 设置
 - en: Rather than toss another slew of new gadgets and configurations and wiring diagrams
     at you, I’m going to focus on a hardware setup similar to our first Arduino projects
     back in [Chapter 8](ch08.xhtml#smallerc-CHP-8). We’ll use one NeoPixel strip.
     [Figure 10-1](#smallerc-CHP-10-FIG-optimize-led) shows the usual wiring diagram
     and my Metro Mini wired (and powered) up.
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 我不打算向你介绍一堆新的小工具、配置和接线图，而是会专注于类似我们在[第8章](ch08.xhtml#smallerc-CHP-8)中进行的首个Arduino项目的硬件设置。我们将使用一个NeoPixel条。[图10-1](#smallerc-CHP-10-FIG-optimize-led)展示了通常的接线图和我连接（和供电）好的Metro
+    Mini。
 - en: '![smac 1001](Images/smac_1001.png)'
+  id: totrans-5
   prefs: []
   type: TYPE_IMG
+  zh: '![smac 1001](Images/smac_1001.png)'
 - en: Figure 10-1\. Our simple LED setup
+  id: totrans-6
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图10-1 我们简单的LED设置
 - en: Next, we’ll steal the “breathing” logic from [“Trying Out the Arduino ‘Stuff’”](ch09.xhtml#smallerC-CHP-9-SECT-1.4)
     and apply it to each pixel in the strip. Rather than start with random colors,
     we’ll simply assign some nice rainbowy ones. Feel free to tweak the colors, by
     the way. Pick a palette you will enjoy staring at; we’ll be using this sketch
     as the basis for every optimization in the chapter.
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 接下来，我们将从[“尝试Arduino的‘东西’”](ch09.xhtml#smallerC-CHP-9-SECT-1.4)中借鉴“呼吸”逻辑，并将其应用到条中的每个像素。与其从随机颜色开始，我们将简单地分配一些漂亮的彩虹色。顺便说一句，随意调整颜色。选择一个你喜欢盯着看的调色板；我们将使用这个草图作为本章中每个优化的基础。
 - en: Pull up [*ch10/optimize/optimize.ino*](https://oreil.ly/UHE04) and try it out
     on your own setup. Be sure to adjust the `LED_PIN` and `LED_COUNT` values if needed.
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 打开[*ch10/optimize/optimize.ino*](https://oreil.ly/UHE04)，并在你自己的设置上试一试。如有需要，请调整`LED_PIN`和`LED_COUNT`的值。
 - en: '[PRE0]'
+  id: totrans-9
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: With this minimal example in place, we can look at some popular techniques for
     gaining performance. Many of these techniques are squarely in the trade-off realm.
     Many take up a little extra storage in flash memory or in SRAM in return for speeding
@@ -63,12 +84,17 @@
     involving your time and energy as a programmer. But again, if your program is
     already working the way you want, there’s not really anything overly superior
     in the alterations that follow. :)
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个最小的示例，我们可以看看一些提升性能的流行技术。其中许多技术都位于权衡的领域。许多技术会在flash存储器或SRAM中占用一些额外的存储空间，以换取在`loop()`函数中所需执行工作的加速。然而，有些则是涉及到作为程序员的你的时间和精力的权衡。但再次强调，如果你的程序已经按照你的要求正常运行，后续的调整并没有什么特别优越之处。
+    :)
 - en: Floating-Point Versus Integer Math
+  id: totrans-11
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 浮点数与整数运算
 - en: A lot of computer hardware press these days discusses the ever more powerful
     GPUs (graphics processing units, impressive chips devoted to displaying and manipulating
     graphics) available from various venders. But not so long ago, you could also
@@ -76,8 +102,11 @@
     performing—and speeding up—floating-point calculations).^([2](ch10.xhtml#idm45018716049464))
     Floating-point math takes power, and it took a while for computers to get generally
     powerful enough that such niceties could be integrated.
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 当今，很多计算机硬件媒体都在讨论各种厂商提供的越来越强大的GPU（图形处理单元，专注于显示和操作图形的令人印象深刻的芯片）。但不久之前，你也可以谈论单独的FPU，即浮点运算单元（专注于执行和加速浮点运算）。^([2](ch10.xhtml#idm45018716049464))
+    浮点数计算需要强大的处理能力，而电脑的普遍性能足够强大，才能集成这样的精细计算。
 - en: Happily, our computers have really grown in power (while shrinking in size)
     and Arduino projects do have access to good floating-point support and fancier
     things that use floating-point math like trigonometric functions. But doing that
@@ -85,23 +114,31 @@
     the [Arduino forums](https://oreil.ly/xT1E6), you’ll see anecdotes about floating-point
     math taking twice (or more!) the time that comparable calculations take with integer
     operands.
+  id: totrans-13
   prefs: []
   type: TYPE_NORMAL
+  zh: 令人高兴的是，我们的计算机在性能上取得了长足的进步（同时体积也在缩小），Arduino项目确实可以访问良好的浮点支持和使用浮点数学如三角函数的更高级功能。但进行这样的数学计算仍然需要比纯整数计算更多的处理能力。如果你经常浏览[Arduino论坛](https://oreil.ly/xT1E6)，你会看到关于浮点数计算所需时间是整数操作数计算两倍甚至更多的轶事。
 - en: Note
+  id: totrans-14
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: It’s worth pointing out that on microcontrollers, `float` and `double` are not
     always 4- and 8-byte types like they usually are on desktops. On the Metro Mini
     (with a 16MHz ATmega328P chip), for example, both types are 4 bytes. It’s unlikely
     this fact will cause much trouble, but on the off chance you need really high-precision
     floating-point numbers, you may need to look for a library to help out.
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 值得指出的是，在微控制器上，`float`和`double`并不总是像在台式机上那样的4字节和8字节类型。例如，在Metro Mini上（使用16MHz的ATmega328P芯片），这两种类型都是4字节。这个事实可能不会造成太多麻烦，但万一你需要真正高精度的浮点数，可能需要找一个库来帮助解决。
 - en: Floating-Point Math Alternatives
+  id: totrans-16
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 浮点数计算替代方案
 - en: 'Many times, programmers use floating-point numbers without really considering
     the costs. Decimal numbers and fractions are everywhere around us: gas gauges,
     gas prices, tax rates, tip percentages, and on and on and on. It can make sense
@@ -109,32 +146,44 @@
     read by humans. (For example, we converted the raw voltage readings of our TMP36
     sensor from [“Segmented Displays”](ch09.xhtml#smallerc-CHP-9-SECT-2.4) to floating-point
     degrees.)'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: 许多时候，程序员在使用浮点数时并没有真正考虑到成本。十进制数和分数无处不在：汽车油表，油价，税率，小费百分比等等。在某些情况下使用它们是有意义的，特别是在输出供人类阅读的信息时。（例如，我们将TMP36传感器的原始电压读数从[“分段显示”](ch09.xhtml#smallerc-CHP-9-SECT-2.4)转换为浮点度数。）
 - en: 'But if we are just doing some internal work, and not showing those results
     to users, sometimes we can get the same results with integers. Consider these
     two calculations:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，如果我们只是在内部进行一些工作，而不向用户展示这些结果，有时候我们可以用整数来得到相同的结果。考虑这两个计算：
 - en: '[PRE1]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'Both `six` and `half_a_dozen` will contain the `int` value 6, but multiplying
     by 0.5 is more expensive. This example is obviously contrived, but only slightly.
     Let’s look at our `breath` calculation and think about what, exactly, we are trying
     to do:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: '`six`和`half_a_dozen`都包含整数值6，但乘以0.5会更耗费计算资源。这个例子显然是虚构的，但只是略有变通。让我们来看看我们的`breath`计算，并考虑我们到底想做什么：'
 - en: '[PRE2]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: We are taking an ever-increasing count and turning it into a value between 0.0
     and 1.0. We then multiply that value to give us a “portion” of our various colors.
     The net result, though, is still a `byte` value. We never use 140.7 units of red,
     we only use 140\. What we’re really trying to do is convert a value from the range
     (0 to `RATE`) to a value in the range (0 to 255) along a wave-like curve.
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们正在将一个不断增长的计数转换为介于0.0和1.0之间的值。然后我们将这个值乘以来给我们的各种颜色一个“部分”。然而，最终结果仍然是一个`byte`值。我们从不使用140.7个单位的红色，我们只使用140。我们真正想做的是将一个值从范围（0到`RATE`）转换为范围（0到255）中的值，沿着波浪形曲线。
 - en: It just so happens that this task is very common for LED applications—it makes
     for nice fading animations, as we’ve seen. There is a very spiffy `sine8()` function
     in the NeoPixel library that approximates the sine calculation with `uint8_t`
@@ -142,30 +191,43 @@
     treats the input range of (0 to 255) as if it were the classic radian range of
     (0 to 2π). In turn, it outputs values between 0 and 255 as though it were the
     classic (–1 to 1) range of the sine wave.
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 恰好这项任务在LED应用中非常常见——正如我们所见，它可用于漂亮的淡入淡出动画。NeoPixel库中有一个非常漂亮的 `sine8()` 函数，它使用
+    `uint8_t` 值作为输入和输出，近似计算正弦函数。 `sine8()` 将输入范围（0到255）视为经典弧度范围（0到2π），然后将其输出值视为正弦波的经典（-1到1）范围内的值，介于0和255之间。
 - en: 'That might sound too mathy, but the upshot is that we can get our brightness
     animation by constraining our (increasing) milliseconds to the range (0 to 255)
     and using the `sine8()` function to get a cycling value between 0 and 255\. We
     can then treat `breath / 255` as a fraction with all integer parts. That allows
     us to apply our `half_a_dozen` trick. Rather than multiply by a floating-point
     value between 0.0 and 1.0, we multiply by `breath` and then divide by 255:'
+  id: totrans-24
   prefs: []
   type: TYPE_NORMAL
+  zh: 那听起来可能有点数学化，但关键是我们可以通过将（递增的）毫秒限制在（0到255）范围内，并使用 `sine8()` 函数来获取在0到255之间循环的值来实现亮度动画。然后，我们可以将
+    `breath / 255` 视为一个带有所有整数部分的分数。这使我们能够应用我们的 `half_a_dozen` 技巧。与其乘以0.0到1.0之间的浮点值，不如乘以
+    `breath`，然后除以255：
 - en: '[PRE3]'
+  id: totrans-25
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: Slick! But be careful not to use parentheses around our “fraction” `breath /
     255`. While it might read nicer and highlight the proportional value we’re after,
     in integer math, dividing a smaller number (something between 0 and 255) by a
     larger number (always 255) will just give us 0, except for the very last case
     of 255 / 255, which does result in 1.
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 棒极了！但要小心不要在我们的“分数” `breath / 255` 周围使用括号。虽然这可能读起来更好，并突出显示我们所追求的比例值，在整数运算中，将一个较小的数（介于0和255之间的值）除以一个较大的数（始终为255）将只会得到0，除了255/255的最后一种情况，这将确实得到1。
 - en: Integer Math Versus No Math
+  id: totrans-27
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 整数运算与非数学运算
 - en: 'You know what’s better than integer math? No math at all! Sometimes a little
     planning can make a big difference. Look at how we use the `colors` array. We
     use the actual, full 32-bit values only once in `setup()`. Inside `loop()`, though,
@@ -173,52 +235,76 @@
     we do that every 10 milliseconds. Yikes! So rather than store single 32-bit values,
     why not store individual bytes from the get-go? We could use a two-dimensional
     `byte` array if we want:'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 你知道什么比整数运算更好吗？根本不需要数学！有时候，一点点规划可以产生很大的差别。看看我们如何使用 `colors` 数组。我们在 `setup()`
+    中仅使用实际的完整32位值一次。然而，在 `loop()` 中，我们将这些颜色分解为它们各自的红色、绿色和蓝色部分。而我们每10毫秒都这样做。天哪！所以，与其存储单个32位值，为什么不从一开始就存储单独的字节？如果我们想的话，我们可以使用一个二维
+    `byte` 数组：
 - en: '[PRE4]'
+  id: totrans-29
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'We could also store them in a single, simple array and do the tiny amount of
     math required to get the green and blue index values as needed:'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们也可以将它们存储在一个简单的单一数组中，并根据需要执行少量的数学运算来获取绿色和蓝色索引值：
 - en: '[PRE5]'
+  id: totrans-31
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'What’s more, both options save us eight bytes of storage! Since both options
     require either a second index or a bit of math on the lone index, it’s up to you
     which feels easier. Here’s how we can alter both the initial show in `setup()`
     and the more interesting uses in `loop()` with the two-dimensional approach:'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 而且，这两种选项都节省了八个字节的存储空间！由于这两个选项都要求使用第二个索引或对单个索引进行一些数学处理，所以你可以选择哪种更容易。以下是我们如何在
+    `setup()` 中修改初始显示和在 `loop()` 中更有趣的用法，采用二维方法：
 - en: '[PRE6]'
+  id: totrans-33
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: That definitely feels simpler. And while it isn’t always true, one of the things
     I love about C is that looks are rarely deceiving. C can certainly work magic
     on small devices, but that magic is usually out in the open. So writing clean,
     simple code often increases both readability *and* performance.
+  id: totrans-34
   prefs: []
   type: TYPE_NORMAL
+  zh: 这绝对感觉更简单。虽然这并不总是正确的，但我喜欢C语言的一点是看起来很少欺骗人。C语言确实能在小设备上发挥奇迹，但这种奇迹通常是公开的。因此，编写干净、简单的代码通常会提高可读性
+    *和* 性能。
 - en: Lookup Tables
+  id: totrans-35
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 查找表
 - en: 'While not quite as good as no math, performing a common calculation just once
     and then storing the answer for reuse is a close second. If we look at the calculations
     we’re performing inside our `loop()` function, there are basically two: one to
     convert the current `millis()` value into a fraction, and then one to apply that
     function to our color channels (albeit separately for each channel). It would
     be great to get rid of those calculations.'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管不及无数学计算好，但仅执行一次常见计算，然后存储答案以便重复使用，几乎可以媲美。如果我们查看`loop()`函数内执行的计算，基本上有两个：一个是将当前的`millis()`值转换为分数，然后是将该函数应用于我们的颜色通道（虽然对于每个通道是分开的）。摆脱这些计算将是极好的。
 - en: When you have more storage space than processing power (another trade-off),
     a popular trick is to use *lookup tables*. You essentially run every calculation
     you need ahead of time, and store the answers in an array. Then when you need
     one of those answers, all you have to do is pluck the correct entry out of that
     array.
+  id: totrans-37
   prefs: []
   type: TYPE_NORMAL
+  zh: 当存储空间比处理能力多时（另一种权衡），一个流行的技巧是使用*查找表*。您可以提前运行您需要的每个计算，并将答案存储在数组中。然后，当您需要其中一个答案时，只需从数组中取出正确的条目即可。
 - en: Depending on how expensive the calculation you want to store actually is, you
     have two options for creating your lookup table. If it’s not too expensive, you
     can build the table up at runtime before it’s needed. (For example, in an Arduino
@@ -226,80 +312,118 @@
     the array in the `loop()` function.) If the calculation is just impossibly expensive,
     you can do all the work “offline” and then simply transcribe the results into
     your program and initialize your array with a litany of literal values.
+  id: totrans-38
   prefs: []
   type: TYPE_NORMAL
+  zh: 取决于您想存储的计算的费用如何，创建查找表有两种选择。如果不太昂贵，您可以在需要之前在运行时构建表格。（例如，在Arduino项目中，我们可以使用`setup()`函数来完成此工作。然后在`loop()`函数中从数组中读取。）如果计算实在太昂贵，您可以在“离线”完成所有工作，然后只需将结果转录到您的程序中，并在声明时使用大量的文字值初始化数组。
 - en: With limited memory, this type of optimization won’t always make sense. Filling
     up a large global array might put too much of a squeeze on the rest of your program.
     But if the calculation is expensive enough, even reading from the slightly slower
     flash memory becomes feasible and you can store your lookup table there. In the
     latter case, of course, you have to do the offline calculation and initialize
     the array in `PROGMEM` when you declare it.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于有限的内存，这种优化并不总是有意义。填充一个大型全局数组可能会对您的程序的其余部分造成太大的压力。但是如果计算足够昂贵，甚至从稍慢的闪存中读取也变得可行，您可以将查找表存储在那里。在后一种情况下，当然，您必须在声明时进行离线计算并在`PROGMEM`中初始化数组。
 - en: The Project So Far
+  id: totrans-40
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 到目前为止的项目
 - en: 'Let’s put our lookup table (we’ll build ours in `setup()`) and our simpler
     math to work. When you do sit down to optimize one of your projects, it’s a good
     idea to try out your ideas in small steps. This incremental approach makes it
     less likely you’ll break anything. But when you do break something, the incremental
     approach should make it easier to fix—or rip out and start over if worse comes
     to worst. Here’s [*ch10/optimize2/optimize2.ino*](https://oreil.ly/eDKmd):'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们把我们的查找表（我们将在`setup()`中构建）和我们的简单数学方法投入使用。当您开始优化项目时，最好逐步尝试您的想法。这种渐进式方法使您不太可能破坏任何东西。但是，如果确实出现了问题，渐进式方法应该会使修复或者重新开始变得更容易。这里是[*ch10/optimize2/optimize2.ino*](https://oreil.ly/eDKmd)：
 - en: '[PRE7]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: '[![1](Images/1.png)](#co_faster_code_CO1-1)'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![1](Images/1.png)](#co_faster_code_CO1-1)'
 - en: Break out our pixel colors into a two-dimensional array (for easier calculations
     in `loop()`).
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 将我们的像素颜色分解成二维数组（以便在`loop()`中更容易进行计算）。
 - en: '[![2](Images/2.png)](#co_faster_code_CO1-2)'
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![2](Images/2.png)](#co_faster_code_CO1-2)'
 - en: Make a global for our lookup table so we can initialize it in `setup()` and
     refer to it in `loop()`.
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建一个全局变量用于我们的查找表，这样我们可以在`setup()`中初始化它并在`loop()`中引用它。
 - en: '[![3](Images/3.png)](#co_faster_code_CO1-3)'
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![3](Images/3.png)](#co_faster_code_CO1-3)'
 - en: Use an alternate function to set the pixel colors that accepts the red, green,
     and blue values individually.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用一个替代函数设置像素颜色，该函数接受单独的红色、绿色和蓝色值。
 - en: '[![4](Images/4.png)](#co_faster_code_CO1-4)'
+  id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![4](Images/4.png)](#co_faster_code_CO1-4)'
 - en: Fill in our sine value lookup table using the handy (and speedy) `sine8()` function
     from the NeoPixel library.
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用NeoPixel库中方便（且快速）的`sine8()`函数填充我们的正弦值查找表。
 - en: '[![5](Images/5.png)](#co_faster_code_CO1-5)'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![5](Images/5.png)](#co_faster_code_CO1-5)'
 - en: Simplify our translation from milliseconds to lookup index.
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 简化我们从毫秒到查找索引的转换。
 - en: '[![6](Images/6.png)](#co_faster_code_CO1-6)'
+  id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: '[![6](Images/6.png)](#co_faster_code_CO1-6)'
 - en: Now put our lookup table value to use in calculating the current brightness.
+  id: totrans-54
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在把我们的查找表值用于计算当前亮度。
 - en: You can certainly give this a try on your controller, but hopefully the behavior
     of your LED strip is the same. The intent is to make sure you understand the changes
     we made before tackling more tweaks.
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 您肯定可以在您的控制器上尝试一下，但希望您的LED灯带的行为是相同的。我们在处理更多调整之前，确保您理解我们所做的更改的意图。
 - en: Warning
+  id: totrans-56
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 警告
 - en: Notice that I used an `int` variable for the `breaths` array initialization.
     Since we need to go right to the edge of what a `byte` can store (namely, we need
     to use 255), we can’t use a byte-sized variable for the index value. The adjustment
@@ -309,52 +433,71 @@
     0 is less than or equal to 255, we keep going. I made this mistake the first time
     I wrote up the initialization loop. It took me a few minutes to figure out why
     the `setup()` function never ended!
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，我在`breaths`数组初始化时使用了一个`int`变量。由于我们需要到达`byte`可以存储的边缘（即，我们需要使用255），我们不能使用字节大小的变量作为索引值。在增加`s`时，调整步骤将在`s`等于255时多执行一次，将其推到256。但是对于`byte`变量，这种推动会强制变量回滚到0。回滚后，我们检查循环条件。由于0小于或等于255，我们继续进行。第一次编写初始化循环时，我犯了这个错误。花了我几分钟的时间弄清楚为什么`setup()`函数永远不会结束！
 - en: The Power of Powers of 2
+  id: totrans-58
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 2的力量
 - en: 'One more math-related optimization to keep in your bag of tricks: use bitwise
     operations instead of multiplication and division. Multiplication is not cheap.
     Division is downright expensive. On microcontrollers, these operations can be
     *very* expensive—except when you are multiplying or dividing by 2 or a power of
     2 (i.e., 4, 8, 1024, etc.). The remainder operation (`%`) is really a division
     operation as well, so it is also expensive, except where a power of 2 can be used.'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 在你的技巧包中保留一个与数学相关的优化：使用位操作而不是乘法和除法。乘法不便宜。除法非常昂贵。在微控制器上，这些操作可能非常昂贵，除非你乘以或除以2或2的幂次方（即4、8、1024等）。余数运算（`%`）实际上也是一种除法运算，因此也很昂贵，除非可以使用2的幂次方。
 - en: We have removed a lot of expensive steps from our breathing loop, but we do
     still have some remainder and division operations. Let’s see how powers of 2 help
     on these calculations.
+  id: totrans-60
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们已经从我们的呼吸循环中删除了许多昂贵的步骤，但我们仍然有一些余数和除法操作。让我们看看2的幂次方如何在这些计算中起作用。
 - en: 'When we multiply a color by our `breath` variable and divide by 255 to get
     the correct shade of that color, we’re trying to make sure that the shade is somewhere
     in the 0 to 255 range. That fraction we create has a denominator tanalizingly
     close to a power of 2, namely 255 is almost 256\. For example, consider our brightest
     red. Ideally, we would display the value 255 on our LED. The calculation we currently
     use looks like this:'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 当我们将颜色乘以我们的`breath`变量并除以255来获取正确的颜色深度时，我们试图确保该颜色深度在0到255的范围内。我们创建的这个分数的分母与2的幂非常接近，即255几乎等于256。例如，考虑我们最亮的红色。理想情况下，我们希望在LED上显示值255。我们目前使用的计算如下所示：
 - en: '[PRE8]'
+  id: totrans-62
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'This calculation results in 255, which is exactly what we want. But I said
     dividing by 256 would speed things up. I’ll show you how shortly, but first let’s
     explore an important question: is it OK to divide by 256 rather than 255? Well,
     65025 / 256 is ~254.004\. For an LED, that is definitely close enough. So how
     is dividing by 256 faster than dividing by 255?'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个计算结果是255，这正是我们想要的。但我说过，通过256进行除法会加快速度。我很快会向您展示，但首先让我们探讨一个重要的问题：通过256而不是255进行除法是否可以接受？好吧，65025
+    / 256约等于254.004。对于LED来说，这绝对足够接近。那么，通过256进行除法比通过255进行除法更快的原因是什么呢？
 - en: 'It turns out that for computers with their binary brains, dividing by a power
     of two is the same thing as using the right shift operator, `>>`. That is marvelously
     fast compared to division. So our `red` approximation can now be calculated like
     this:'
+  id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 结果表明，对于具有二进制智能的计算机来说，除以2的幂次方等同于使用右移运算符`>>`。与除法相比，这速度非常快。因此，我们的`red`近似可以这样计算：
 - en: '[PRE9]'
+  id: totrans-65
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: You simply shift by the “power” part of your power of 2; e.g., dividing by 2
     (2¹) means shifting right by 1\. Dividing by 256 (2⁸) means shifting right by
     8\. Multiplication by a power of 2, then, works the same way; you just shift left.
@@ -362,8 +505,11 @@
     speedy. All the computer has to do is scoot some bits left or right. That type
     of work is very simple compared to the algorithms for multiplying and dividing,
     even though the results are the same.
+  id: totrans-66
   prefs: []
   type: TYPE_NORMAL
+  zh: 你只需按照你的2的幂次数进行移位；例如，除以2（2¹）意味着向右移动1位。除以256（2⁸）意味着向右移动8位。同样，乘以2的幂次数也是一样的；你只需左移。需要将一个值乘以四倍？将其左移2位（2²
+    == 4）。棒极了！而且更重要的是，速度快。计算机只需移动一些位，这种工作与乘除算法相比非常简单，尽管结果相同。
 - en: 'But what about remainders? They are just as expensive as division since you
     perform the division on the way to finding the leftover amount. But if you are
     using `%` and a power of two, that can be expressed with the bitwise `&` operation
@@ -373,51 +519,70 @@
     out to be 63, or 64–1.) If we were to adjust our breathing rate to about four
     seconds (4096 milliseconds, or 2^(12), to be precise), we could rewrite our millisecond
     conversion like this:'
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 那么余数呢？它们和除法一样昂贵，因为你在找到剩余量时执行了除法。但如果你使用`%`和二的幂次，那可以用按位`&`操作和正确的*掩码*来表示。你经常会听说比特“掩码”，它们只是保留某些比特位但隐藏（或掩盖）其他位的数字。要找到除以64（2⁶）的余数，比如说，你创建一个6位的掩码：0x3f。（结果为63，或者64-1。）如果我们将我们的呼吸速率调整为约四秒（4096毫秒，或2^(12)，更精确一些），我们可以像这样重新编写我们的毫秒转换：
 - en: '[PRE10]'
+  id: totrans-68
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'And since we really want that `ms` value to lie in the range of 0 to 255 so
     it is an appropriate index into our lookup table, we can turn that division into
     another shift operaion with a small adjustment to our divisor (5000 / 20 is roughly
     4095 / 16):'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 而且因为我们真的希望`ms`值位于0到255的范围内，这样才能作为我们查找表的适当索引，我们可以将该除法转换为另一个带有对除数的小调整的移位操作（5000
+    / 20 约等于 4095 / 16）：
 - en: '[PRE11]'
+  id: totrans-70
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: 'Not bad. Not bad at all. We did have to fudge our breath rate, though. Remember
     my caveat at the top of the chapter: if it’s working, it’s working! If you get
     a satisfactory animation with all the floating-point math and nice round numbers
     like 5 seconds, your project is a success. But if you aren’t getting the results
     you want, consider making adjustments to take advantage of these optimization
     tricks.'
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 不错。一点也不错。不过，我们确实需要调整我们的呼吸速率。记住本章开头的警告：如果能运行，那就是好的！如果你能得到一个满意的动画，包括所有浮点数运算和像5秒这样的整数时间，那么你的项目就是成功的。但如果你没有得到想要的结果，考虑调整以利用这些优化技巧。
 - en: Loop Optimizations
+  id: totrans-72
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 循环优化
 - en: We have one more clever alteration we could make to our breathing LED sketch
     to make it run even faster.^([4](ch10.xhtml#idm45018714600472)) Looping sections
     often sacrifice a little performance for the sake of readable, reusable code.
     When performance is the top goal, you can steal back a little of that speed by
     reducing that reusability.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们还可以对我们的呼吸LED草图进行一些聪明的改动，让它运行得更快。循环部分通常为了可读性和可重用性而牺牲了一些性能。当性能是最重要的目标时，你可以通过减少可重用性来夺回一点速度。
 - en: Unrolling for Fun and Profit
+  id: totrans-74
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 为了乐趣和利润展开
 - en: The motivation behind this optimization is that it takes a little bit of time
     to manage a loop. In our `loop()` function, we have a `for` loop that sets the
     color for each LED on our little stick. After one LED has been updated, we have
     to increment the `p` variable and then test to see if there are more LEDs to process.
     Those few steps are tiny, but they are not nothing. If you are counting microseconds,
     this might not be time you can spare.
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种优化的动机在于管理循环需要一点时间。在我们的`loop()`函数中，我们有一个`for`循环，为我们的小棒上的每个LED设置颜色。更新一个LED后，我们必须增加`p`变量，然后测试是否还有更多LED需要处理。这些步骤虽小，但并非无关紧要。如果你在计算微秒，这些时间可能就不能轻易浪费了。
 - en: 'To get those microseconds back, you can *unroll* or *unwind* your loop. Basically,
     you take the body of your loop and simply copy it once for every iteration required,
     then hardcode the controlling variable (`p` in our case). I want you to try some
@@ -425,39 +590,53 @@
     can also use the `>>` trick to replace the division required when calculating
     the red/blue/green values. Updating the first couple LEDs would then look like
     this:'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了节省这些微秒，你可以*展开*或*解开*你的循环。基本上，你将循环体简单地复制一次，每次需要迭代，然后硬编码控制变量（在我们的例子中是`p`）。我希望你尝试一些这样的优化作为良好的实践，所以我不会完全展开`for`循环。我们还可以使用`>>`技巧来替换计算红/蓝/绿值时所需的除法。更新前几个LED将会像这样：
 - en: '[PRE12]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'As with other optimizations, there is a trade-off here: we will consume more
     program space with the unrolled loop. But again, we’re here for performance—as
     long as we have the space. Just make sure you get the loop working correctly before
     you unroll it. Any bug hiding in an unrolled loop will require tedious copying
     and pasting to fix each and every expanded chunk.'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 和其他优化一样，这里也存在一个折衷：我们将用未展开的循环消耗更多的程序空间。但是，我们的目标是性能——只要我们有空间。确保在展开循环之前正确地使循环工作。隐藏在未展开循环中的任何错误都将需要繁琐的复制和粘贴来修复每个扩展块。
 - en: Recursion Versus Iteration
+  id: totrans-79
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 递归与迭代
 - en: There is another loop option that is not quite an optimization, but one worth
     mentioning. On devices with limited memory, recursive algorithms can run amok
     rather quickly. Happily, every recursive algorithm can also be written iteratively.
     Sometimes the loop approach is not intuitive or looks unwieldy, but it will work.
     If you are worried about recursive calls in your code, consider converting them
     into a loop with some extra variables to help out.
+  id: totrans-80
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有另一种循环选项，这不完全是一种优化，但值得一提。在内存有限的设备上，递归算法很快就会失控。幸运的是，每个递归算法也可以用迭代的方式编写。有时循环方法并不直观，或者看起来笨拙，但它确实有效。如果你担心代码中的递归调用，考虑将它们转换为带有额外变量的循环来帮助解决问题。
 - en: 'As a quick demonstration, let’s look at a loop approach to finding the nth
     Fibonacci number (to replace the recursive algorithm we coded up back in [“Recursive
     Functions”](ch05.xhtml#smallerc-CHP-5-SECT-5.1)). We can use a `for` loop and
     three variables:'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为一个快速演示，让我们来看看找到第n个斐波那契数的循环方法（以替换我们之前在[“递归函数”](ch05.xhtml#smallerc-CHP-5-SECT-5.1)中编码的递归算法）。我们可以使用一个`for`循环和三个变量：
 - en: '[PRE13]'
+  id: totrans-82
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: You might recall that the recursive algorithm got sluggish with larger numbers.
     That won’t happen here. The numbers will eventually grow quite large, so you might
     need something like a `long long` to store the results, but the algorithm would
@@ -465,34 +644,44 @@
     not obvious with the Fibonacci series, but sometimes the recursive algorithm is
     simply, well, simpler (occasionally *much* simpler) to understand and translate
     into code.
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能还记得，递归算法在处理较大数字时会变得很慢。这种情况在这里不会发生。数字最终会变得非常大，所以你可能需要类似`long long`来存储结果，但算法将继续快速运行。那么为什么我们不总是使用迭代选项呢？对于斐波那契数列来说，这并不明显，但有时递归算法只是简单（有时*非常*简单），更容易理解并转化为代码。
 - en: 'Again we have a trade-off: complexity versus performance. In this case, though,
     the trade-off may be a no-brainer. If you can’t finish performing a calculation,
     using a potentially more complex algorithm that *can* complete the calculation
     will win.'
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次面临一个折衷：复杂性与性能。不过，在这种情况下，这个折衷可能是显而易见的。如果你无法完成计算，使用一个可能更复杂的算法，*能够*完成计算，会更好。
 - en: String Versus char[]
+  id: totrans-85
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: String与char[]
 - en: The `String` class that you can use with the Arduino IDE for storing and processing
     text is another candidate for optimization. Our simple LED project didn’t really
     use any text, but if you tackle any projects with text output, say on a mini LCD
     screen or over a WiFi connection, you may be tempted to use `String` as it has
     some convenient features. If you are running out of room, though, consider using
     (and reusing) boring old `char[]` variables.
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以在Arduino IDE中使用的`String`类来存储和处理文本，这也是另一个可以进行优化的候选方案。我们的简单LED项目并没有真正使用任何文本，但如果你处理任何需要文本输出的项目，比如在迷你LCD屏幕上或通过WiFi连接，你可能会考虑使用`String`，因为它有一些方便的特性。不过，如果空间不够，请考虑使用（和重复使用）老式的`char[]`变量。
 - en: Many examples you’ll find online make use of `String` precisely because of those
     convenient extras like converting numbers to text in a given base, or functions
     like `toLowerCase()`, or using the `+` operator to concatenate `String` objects
     together. (You can read about all of these extras in the [String documentation](https://oreil.ly/8SZ50).)
     The examples with `String` read well, and the text involved is often incidental
     to the project.
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: 在线上你会发现许多例子都使用`String`，因为它们具有方便的附加功能，比如将数字转换为给定基数的文本，或者像`toLowerCase()`这样的函数，或者使用`+`操作符将`String`对象连接在一起（你可以在[String文档](https://oreil.ly/8SZ50)中了解所有这些额外功能）。使用`String`的例子阅读起来很顺畅，而涉及的文本通常与项目无关。
 - en: But if you are doing something more serious with text like driving an LED or
     LCD display, or shipping JSON blobs to a web service (we’ll do something similar
     in [“IoT and Arduino”](ch12.xhtml#smallerc-CHP-12-SECT-1.1)), the convenience
@@ -500,27 +689,37 @@
     an array of characters that you control can keep that memory consumption to a
     minimum. At the very least, you’ll be aware of exactly how much room is required
     to accomplish your goals.
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是，如果你在处理诸如驱动LED或LCD显示器或将JSON块发送到Web服务之类的文本方面做更严肃的事情（我们将在["IoT and Arduino"](https://oreil.ly/J8Myy#smallerc-CHP-12-SECT-1.1)中做类似的事情），那么`String`对象的方便性可能会开始消耗你的SRAM。使用你控制的字符数组可以将内存消耗降至最低。至少，你会准确地知道完成目标所需的空间。
 - en: Don’t forget that you can store text in flash for on-demand use as we saw in
     [“Flash (PROGMEM)”](ch09.xhtml#smallerc-CHP-9-SECT-3.1). Sometimes that `F()`
     macro is all you need. But relying on flash will slow your program down a little
     bit and you can’t programmatically alter those messages you store in flash. The
     control you get with `char[]` can be a win all around; the trade-off here is your
     time and energy.
+  id: totrans-89
   prefs: []
   type: TYPE_NORMAL
+  zh: 不要忘记，你可以像我们在["Flash (PROGMEM)"](https://oreil.ly/J8Myy#smallerc-CHP-9-SECT-3.1)中看到的那样将文本存储在闪存中以供按需使用。有时候，`F()`宏就足够了。但依赖闪存会使你的程序稍微慢一点，并且你无法以编程方式修改存储在闪存中的这些消息。使用`char[]`可以在各方面都是一个胜利；在这里的权衡是你的时间和精力。
 - en: Our Final Offer
+  id: totrans-90
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 我们的最终提议
 - en: 'Even for such a simple project, there were a surprising number of optimizations
     available. Here’s our final version of the project, [*ch10/optimize3/optimize3.ino*](https://oreil.ly/J8Myy):'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使对于这样一个简单的项目，也有令人惊讶的优化方式可用。这是我们项目的最终版本，[*ch10/optimize3/optimize3.ino*](https://oreil.ly/J8Myy)：
 - en: '[PRE14]'
+  id: totrans-92
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: The only change from our previous version is the use of integer math and bitwise
     operations in our `loop()` function. We convert the current millisecond count
     to an index we can use with our sine lookup table and simplify the current shade
@@ -529,51 +728,71 @@
     Now we could handle more LEDs or work on fancier animations. Or we could include
     some sensors and integrate their readings into our output. All in 2K of RAM. Your
     programmer ancestors would be proud. :)
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 与我们之前版本唯一的改变是在我们的`loop()`函数中使用整数数学和位操作。我们将当前毫秒计数转换为我们可以与正弦查找表一起使用的索引，并简化我们红色、绿色和蓝色值的当前阴影计算。总的来说，这是一系列改进！额外的效率留出空间做其他事情。现在我们可以处理更多的LED或者制作更复杂的动画。或者我们可以包含一些传感器并将它们的读数整合到我们的输出中。所有这些在2K
+    RAM中完成。你的程序员祖先会感到骄傲的。 :)
 - en: But I shouldn’t forget the practice I mentioned. If you want to try your own
     bit of optimizing, unroll the `for` loop like we started to do in [“Unrolling
     for Fun and Profit”](#smallerc-CHP-10-SECT-5.1) and make sure the project still
     behaves as expected.
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 但是我不应该忘记我提到的实践。如果你想尝试自己的优化，可以像我们在["Unrolling for Fun and Profit"](https://oreil.ly/8SZ50#smallerc-CHP-10-SECT-5.1)中开始的那样展开`for`循环，并确保项目仍然如预期般运行。
 - en: Next Steps
+  id: totrans-95
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 下一步
 - en: We’ve seen quite an array of optimization tricks in this chapter. There are
     other, more esoteric tricks, but they require more knowledge of the specific hardware
     you plan to use. I don’t have any specific exercises this time, but I hope you’ll
     revisit this chapter after you get some of your own Arduino projects off the ground.
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章中，我们看到了许多优化技巧。还有其他更加深奥的技巧，但它们需要更多了解你计划使用的具体硬件的知识。这次我没有具体的练习，但希望你在启动自己的Arduino项目后能再次回顾这一章。
 - en: If you end up with any useful functions that you optimize and tune to perfection,
     you can put them in a custom library for reuse with future projects. You can even
     publish them for others to use! Either way, Arduino makes making libraries relatively
     easy. Let’s see how it’s done in the next chapter.
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你最终得到了任何优化并调整得完美无缺的有用函数，你可以将它们放入一个自定义库中，以便将来的项目中重复使用。你甚至可以发布它们供他人使用！无论如何，在Arduino上制作库相对容易。我们将在下一章看看它是如何做到的。
 - en: ^([1](ch10.xhtml#idm45018716293016-marker)) Making use of this feature requires
     understanding the really low-level details of your chip. That understanding comes
     with a pretty steep learning curve that’s well beyond our goals in this book.
     Even the SAM D21 heart of tiny controllers like Adafruit’s Trinket M0 has a 1000+
     page datasheet for your reading pleasure!
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch10.xhtml#idm45018716293016-marker)) 要利用这一功能，需要理解芯片的真正低级细节。这种理解有一个非常陡峭的学习曲线，远远超出了本书的目标范围。即使是像Adafruit的Trinket
+    M0这样的微控制器的核心SAM D21，也有一本1000多页的数据手册供您阅读！
 - en: ^([2](ch10.xhtml#idm45018716049464-marker)) I had the distinct pleasure of upgrading
     my 8086 CPU with an *amazing* 8087 FPU coprocessor. I’ll leave it to you, gentle
     reader, to suss out the incriminating dates of this lovely bit of nostalgia.
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch10.xhtml#idm45018716049464-marker)) 我有幸将我的8086 CPU升级为一个*令人惊叹的*8087 FPU协处理器。我留给你，亲爱的读者，来查找这段美好怀旧的时间吧。
 - en: ^([3](ch10.xhtml#idm45018715776888-marker)) The [NeoPixel documentation](https://oreil.ly/hMmZw)
     uses the type `uint8_t` rather than `byte`, so I will follow suit for the temporary
     variables.
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch10.xhtml#idm45018715776888-marker)) [NeoPixel文档](https://oreil.ly/hMmZw)使用的是`uint8_t`类型而不是`byte`，所以我将照此来做临时变量。
 - en: ^([4](ch10.xhtml#idm45018714600472-marker)) An important side effect of “running
     faster” is that you also make room for more calculations—or more complex calculations—to
     run in the same amount of time as your old calculations used to run. So without
     losing any performance, we could support longer strips of LEDs instead, or LEDs
     with more than just red, green, and blue channels.
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch10.xhtml#idm45018714600472-marker)) “跑得更快”的一个重要副作用是，你可以在同样的时间内运行更多的计算，或者运行更复杂的计算。因此，我们可以支持更长的LED条或者具有不止红色、绿色和蓝色通道的LED，而不会损失性能。
