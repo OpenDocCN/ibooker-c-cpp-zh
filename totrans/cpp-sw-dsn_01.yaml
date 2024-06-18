@@ -1234,11 +1234,13 @@
   id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 总之，软件中预期会发生变化，因此设计变更至关重要。分离关注点并尽量减少重复，使您可以轻松地进行变更，而无需担心破坏其他正交方面。
 - en: 'Guideline 3: Separate Interfaces to Avoid Artificial Coupling'
   id: totrans-132
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指导方针 3：分离接口以避免人为耦合
 - en: 'Let’s revisit the `Document` example from [“Guideline 2: Design for Change”](#design_for_change).
     I know, by now you probably feel like you’ve seen enough documents, but believe
     me, we’re not done yet. There’s still an important coupling aspect to address.
@@ -1247,6 +1249,8 @@
   id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们重新审视来自[“指导方针 2：为变更设计”](#design_for_change)的 `Document` 示例。我知道，到现在为止你可能已经看够了文档，但请相信，我们还没有结束。还有一个重要的耦合方面需要解决。这次我们不专注于
+    `Document` 类中的各个函数，而是整体接口：
 - en: '[PRE7]'
   id: totrans-134
   prefs: []
@@ -1257,6 +1261,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 将接口分离以分隔关注点
 - en: 'The `Document` requires deriving classes to handle both JSON exports and serialization.
     While, from the point of view of a document, this may seem reasonable (after all,
     *all* documents should be exportable into JSON and serializable), it unfortunately
@@ -1264,6 +1269,8 @@
   id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Document` 要求派生类处理 JSON 导出和序列化两者。尽管从文档的角度来看，这似乎是合理的（毕竟，*所有* 文档都应该能导出为 JSON
+    并可序列化），但不幸的是，它引发了另一种耦合。想象一下以下用户代码：'
 - en: '[PRE8]'
   id: totrans-137
   prefs: []
@@ -1288,22 +1295,31 @@
   id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: '`exportDocument()` 函数专注于将给定文档导出为 JSON。换句话说，`exportDocument()` 函数并不关心文档的序列化或
+    `Document` 提供的任何其他方面。然而，由于 `Document` 接口的定义，由于耦合许多正交的方面在一起，`exportDocument()`
+    函数依赖的不仅仅是 JSON 导出。所有这些依赖关系都是不必要的和人为的。改变其中任何一个，例如 `ByteStream` 类或 `serialize()`
+    函数的签名，都会影响 *所有* 使用 `Document` 的用户，即使它们并不需要序列化。对于任何更改，包括 `exportDocument()` 函数在内的
+    *所有* 用户都需要重新编译、重新测试，并且在最坏的情况下重新部署（例如，如果它是在一个单独的库中提供）。如果 `Document` 类通过另一个函数扩展，比如导出到另一种文档类型，也会发生同样的情况。随着在
+    `Document` 中耦合更多正交功能，任何变化都可能在整个代码库中造成连锁反应。这实在令人沮丧，因为接口应该帮助解耦，而不是引入人为耦合。'
 - en: 'This coupling is caused by a violation of the Interface Segregation Principle
     (ISP), which is the *I* in the *SOLID* acronym:'
   id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种耦合是由于违反了接口隔离原则（ISP），这是 *SOLID* 缩写中的 *I*：
 - en: Clients should not be forced to depend on methods that they do not use.^([31](ch01.xhtml#idm45043123066176))
   id: totrans-140
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 客户端不应被强制依赖于它们不使用的方法^([31](ch01.xhtml#idm45043123066176))
 - en: 'The ISP advises separating concerns by segregating (decoupling) interfaces.
     In our case, there should be two separate interfaces representing the two orthogonal
     aspects of JSON export and serialization:'
   id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: ISP 建议通过隔离（解耦）接口来分离关注点。在我们的情况下，应该有两个独立的接口来表示 JSON 导出和序列化的两个正交方面：
 - en: '[PRE9]'
   id: totrans-142
   prefs: []
@@ -1316,6 +1332,7 @@
   id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种分离并不使得`Document`类过时。相反，`Document`类仍然代表着对所有文档提出的要求。然而，这种关注点的分离现在使您能够最小化依赖，仅限于实际需要的函数集：
 - en: '[PRE10]'
   id: totrans-144
   prefs: []
@@ -1328,6 +1345,7 @@
   id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: 以这种形式，仅依赖于分离的`JSONExportable`接口，`exportDocument()`函数不再依赖于序列化功能，因此也不再依赖于`ByteStream`类。因此，接口的分离有助于减少耦合。
 - en: '“But isn’t that just a separation of concerns?” you ask. “Isn’t that just another
     example of the SRP?” Yes, indeed it is. I agree that we’ve essentially identified
     two orthogonal aspects, separated them, and thus applied the SRP to the `Document`
@@ -1349,11 +1367,14 @@
   id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '“但这不仅仅是关注点分离吗？”你问道。“这不仅是SRP的另一个例子吗？”是的，确实如此。我同意我们实质上已经确定了两个正交的方面，将它们分开，并因此应用了SRP到`Document`接口。因此，我们可以说ISP和SRP是相同的。或者至少ISP是SRP的一个特例，因为ISP专注于接口。这种态度似乎是社区的共识，我也同意。然而，我仍然认为讨论ISP是有价值的。尽管ISP可能只是一个特例，但我认为它是一个重要的特例。不幸的是，很容易将不相关的正交方面聚合到一个接口中。甚至可能发生在*你*身上，你将分离的方面耦合到一个接口中。当然，我绝不是在暗示你有意这样做，而是无意地、偶然地。我们经常没有足够的注意这些细节。当然，你可能会争辩说，“我绝不会那样做。”然而，在[“Guideline
+    19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)中，你将看到一个例子，可能会说服你这种情况有多容易发生。由于以后更改接口可能非常困难，我认为引起人们对这个接口问题的注意是值得的。因此，我没有放弃ISP，而是将其作为SRP的一个重要和值得注意的案例包括在内。'
 - en: Minimizing Requirements of Template Arguments
   id: totrans-147
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 减少模板参数的要求
 - en: 'Although it appears as if the ISP is applicable only to base classes, and although
     the ISP is mostly introduced by means of object-oriented programming, the general
     idea of minimizing the dependencies introduced by interfaces can also be applied
@@ -1361,6 +1382,7 @@
   id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管看起来ISP仅适用于基类，并且ISP主要是通过面向对象编程介绍的，但通过接口最小化依赖的一般思想也可以应用于模板。例如考虑`std::copy()`函数：
 - en: '[PRE11]'
   id: totrans-149
   prefs: []
@@ -1370,6 +1392,7 @@
   id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++20中，我们可以应用*概念*来表达这些要求：
 - en: '[PRE12]'
   id: totrans-151
   prefs: []
@@ -1382,11 +1405,13 @@
   id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::copy()`期望一对输入迭代器作为复制来源的范围，并且一个输出迭代器作为目标范围。它明确要求输入迭代器和输出迭代器，因为它不需要任何其他操作。因此，它最小化了对传递参数的要求。'
 - en: 'Let’s assume that `std::copy()` requires `std::forward_iterator` instead of
     `std::input_iterator` and `std::output_iterator`:'
   id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设`std::copy()`需要`std::forward_iterator`而不是`std::input_iterator`和`std::output_iterator`：
 - en: '[PRE13]'
   id: totrans-154
   prefs: []
@@ -1402,6 +1427,7 @@
   id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: 这会不幸地限制`std::copy()`算法的有用性。我们将无法再从输入流复制，因为它们通常不提供多遍保证，也不允许我们写入。那将是不幸的。然而，专注于依赖关系，`std::copy()`现在将依赖于它不需要的操作和要求。传递给`std::copy()`的迭代器将被迫提供额外的操作，因此`std::copy()`会强加依赖关系。
 - en: This is only a hypothetical example, but it illustrates how important the separation
     of concerns in interfaces is. Obviously, the solution is the realization that
     input and output capabilities are separate aspects. Thus, after separating concerns
@@ -1409,11 +1435,13 @@
   id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: 这只是一个假设性的例子，但它说明了接口中关注点分离的重要性。显然，解决方案是意识到输入和输出能力是独立的方面。因此，在分离关注点并应用ISP之后，依赖关系显著减少了。
 - en: 'Guideline 4: Design for Testability'
   id: totrans-157
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 4：设计可测试性
 - en: 'As discussed in [“Guideline 1: Understand the Importance of Software Design”](#understand_the_importance_of_software_design),
     *soft*ware changes. It’s expected to change. But every time you change something
     in your software, you run the risk of breaking something. Of course, not intentionally
@@ -1424,6 +1452,7 @@
   id: totrans-158
   prefs: []
   type: TYPE_NORMAL
+  zh: 如[“指南 1：理解软件设计的重要性”](#understand_the_importance_of_software_design)所讨论的，*软*件会变化。预期会变化。但每次在软件中改变某些东西时，都会存在意外破坏的风险。当然，这并非故意，而是无意之中，尽管你已尽力而为。风险始终存在。但作为一名有经验的开发者，你不会因此失眠。让风险存在吧——你不在乎。你有一些东西保护你免受意外破坏，一些东西将风险降到最低：你的测试。
 - en: 'The purpose of having tests is to be able to assert that all of your software
     functionality still works, despite constantly changing things. So obviously, tests
     are your protection layer, your life vest. Tests are essential! However, first
@@ -1435,11 +1464,13 @@
   id: totrans-159
   prefs: []
   type: TYPE_NORMAL
+  zh: 拥有测试的目的是能够断言你的软件功能仍然正常工作，尽管不断变化。因此，显然，测试是你的保护层，你的救生衣。测试是必不可少的！但首先，你必须编写测试。为了编写测试并设置这个保护层，你的软件必须具备测试性：你的软件必须以一种可以测试的方式编写，最好是*容易*可以添加测试。这就引出了这个指南的核心：软件应设计为可测试性。
 - en: How to Test a Private Member Function
   id: totrans-160
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 如何测试私有成员函数
 - en: “Of course I have tests,” you argue. “Everyone should have tests. That’s common
     knowledge, isn’t it?” I completely agree. And I believe you that your codebase
     is equipped with a reasonable test suite.^([32](ch01.xhtml#idm45043122620688))
@@ -1450,6 +1481,9 @@
   id: totrans-161
   prefs: []
   type: TYPE_NORMAL
+  zh: “当然，我有测试”，你辩解道。“每个人都应该有测试。这是常识，不是吗？”我完全同意。我相信你的代码库配备了一个合理的测试套件。^([32](ch01.xhtml#idm45043122620688))
+    但令人惊讶的是，尽管每个人都同意需要测试，但并非所有软件都是在这种意识下编写的。^([33](ch01.xhtml#idm45043122618256))
+    实际上，很多代码很难进行测试。有时候这只是因为代码本身并没有设计成可测试的。
 - en: 'To give you an idea, I have a challenge for you. Take a look at the following
     `Widget` class. `Widget` holds a collection of `Blob` objects, which once in a
     while need to be updated. For that purpose, `Widget` provides the `updateCollection()`
@@ -1459,6 +1493,7 @@
   id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了给你一个想法，我有一个挑战给你。看看下面的`Widget`类。`Widget`包含一组`Blob`对象，偶尔需要更新这些对象。为此，`Widget`提供了`updateCollection()`成员函数，我们现在假设这个函数非常重要，我们需要为它编写一个测试。这就是我的挑战：你将如何测试`updateCollection()`成员函数？
 - en: '[PRE14]'
   id: totrans-163
   prefs: []
@@ -1471,6 +1506,7 @@
   id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 我假设你立即看到真正的挑战：`updateCollection()` 成员函数被声明在类的私有部分。这意味着外部无法直接访问，因此也无法直接进行测试。所以，请花几秒钟思考一下……
 - en: '“It’s private, yes, but this is still not much of a challenge. There are multiple
     ways I can do that,” you say. I agree, there are multiple ways you could try.
     So please, go ahead. You weigh your options, then you come up with your first
@@ -1482,6 +1518,8 @@
   id: totrans-165
   prefs: []
   type: TYPE_NORMAL
+  zh: “它是私有的，是的，但这并不是什么大挑战。有很多方法可以做到这一点，” 你说。我同意，你可以尝试多种方法。所以，请继续。你权衡了你的选择，然后提出了第一个想法：“好吧，最简单的方法是通过其他一些公共成员函数来测试这个函数，而这个公共成员函数内部调用`updateCollection()`函数。”
+    这听起来是个有趣的第一个想法。让我们假设当向集合添加新的`Blob`时，集合需要更新。调用`addBlob()`成员函数将触发`updateCollection()`函数：
 - en: '[PRE15]'
   id: totrans-166
   prefs: []
@@ -1504,6 +1542,7 @@
   id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管这听起来是个合理的做法，但如果可能的话，你应该避免这样做。你提出的是所谓的*白盒测试*。白盒测试了解某个函数的内部实现细节，并基于这些知识进行测试。这会使测试代码依赖于生产代码的实现细节。这种方法的问题在于软件是会变的。代码会变。细节会变。例如，将来可能会重写`addBlob()`函数，因此不再需要更新集合。如果发生这种情况，你的测试就不再执行其原本的任务了。你可能甚至都没有意识到，你会失去`updateCollection()`的测试。因此，白盒测试存在风险。就像你在生产代码中应该避免和减少依赖一样（参见[“指南1：理解软件设计的重要性”](#understand_the_importance_of_software_design)），你也应该避免测试和生产代码的细节之间的依赖。
 - en: What we really need is a *black box test*. A black box test does not make any
     assumptions about internal implementation details, but tests only for expected
     behavior. Of course, this kind of test can also break if you change something,
@@ -1512,6 +1551,7 @@
   id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们真正需要的是*黑盒测试*。黑盒测试不对内部实现细节做任何假设，只测试预期行为。当然，这种测试也可能会失败，如果你改变了一些东西，但它不应该因为实现细节的变化而失败——只有当预期行为改变时才应该失败。
 - en: “OK, I get your point,” you say. “But you don’t suggest making the `update​Col⁠lec⁠tion()`
     function public, do you?” No, rest assured that isn’t what I’m suggesting. Of
     course, sometimes this may be a reasonable approach. But in our case, I doubt
@@ -1523,12 +1563,14 @@
   id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，我明白你的意思。”你说。“但是你并不建议将`updateCollection()`函数设为公共的，对吧？”放心，我并不是在建议这样做。当然，有时这可能是一个合理的做法。但在我们的情况下，我怀疑这不是一个明智的举动。`updateCollection()`函数不应该仅仅是为了好玩而调用。它应该在正确的时间、出于良好的理由下调用，可能是为了保持某种不变量。这是我们不应该委托给用户的事情。所以不，我不认为将该函数作为`public`部分的一个好选择。
 - en: '“OK, good, just checking. Then let’s simply make the test a `friend` of the
     `Widget` class. This way it would have full access and could call the `private`
     member function unhindered”:'
   id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，好的，我只是确认一下。那么我们就让测试类成为`Widget`类的`friend`，这样它将拥有完全访问权，并且可以无障碍地调用`private`成员函数。”
 - en: '[PRE16]'
   id: totrans-171
   prefs: []
@@ -1548,6 +1590,7 @@
   id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 是的，我们可以添加一个`friend`。假设有`TestWidget`测试夹具，包含了`Widget`类的所有测试。我们可以让这个测试夹具成为`Widget`类的`friend`。虽然这听起来像是另一个合理的方法，但我很遗憾再次打扰。是的，从技术上讲，这将解决问题，但从设计的角度来看，我们刚刚又引入了一个人为的依赖关系。通过积极地修改生产代码来引入`friend`声明，生产代码现在知道了测试代码的存在。虽然测试代码当然应该知道生产代码（这就是测试代码的目的），但生产代码不应该知道测试代码。这引入了一个循环依赖，这是一个不幸的人为依赖。
 - en: “You sound like this is the worst thing in the world. Is it really that bad?”
     Well, sometimes this may actually be a reasonable solution. It definitely is a
     simple and quick solution. However, since right now we have the time to discuss
@@ -1555,11 +1598,13 @@
   id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: “你听起来好像这是世界上最糟糕的事情。真的那么糟吗？”嗯，有时这确实可能是一个合理的解决方案。它绝对是一个简单而快速的解决方案。然而，既然我们现在有时间讨论所有的选项，肯定有比添加一个`friend`更好的选择。
 - en: Note
   id: totrans-174
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: 'I don’t want to make things worse, but in C++ we don’t have a lot of `friend`s.
     Yes, I know, this sounds sad and lonely, but of course I mean the keyword `friend`:
     in C++, `friend` is not your friend. The reason is that `friend`s introduce coupling,
@@ -1571,12 +1616,15 @@
   id: totrans-175
   prefs: []
   type: TYPE_NORMAL
+  zh: “我不想把事情弄得更糟，但是在C++中，我们并没有很多`friend`。”是的，我知道，这听起来有点悲伤和孤单，但我当然是指关键字`friend`：在C++中，`friend`并不是你的朋友。原因在于`friend`引入了耦合，大多数是人为的耦合，我们应该避免耦合。当然，对于好的`friend`，那些你无法没有的，可以做出一些例外，比如[隐式友元](https://oreil.ly/Lu6rq)，或者`friend`的惯用法，比如[*Passkey
+    idiom*](https://oreil.ly/qEN0m)。测试更像是社交媒体上的朋友，因此将测试声明为`friend`并不像是一个明智的选择。
 - en: '“OK, then let’s switch from `private` to `protected` and make the test derive
     from the `Widget` class,” you suggest. “This way, the test would gain full access
     to the `updateCollection()` function”:'
   id: totrans-176
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，那么让我们从`private`改为`protected`，并让测试类从`Widget`类派生，这样测试类将完全访问`updateCollection()`函数：”
 - en: '[PRE17]'
   id: totrans-177
   prefs: []
@@ -1589,11 +1637,13 @@
   id: totrans-178
   prefs: []
   type: TYPE_NORMAL
+  zh: 嗯，我必须承认，从技术上讲，这种方法是可行的。然而，你建议使用继承来解决这个问题告诉我，我们确实需要讨论继承的含义以及如何正确使用它。引用两位务实的程序员如下：^([34](ch01.xhtml#idm45043122277712))
 - en: Inheritance is rarely the answer.
   id: totrans-179
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 继承很少是答案。
 - en: Since we’ll be focusing on this topic fairly soon, let me just say that it feels
     like we’re abusing inheritance for the sole reason of gaining access to nonpublic
     member functions. I’m pretty certain this isn’t why inheritance was invented.
@@ -1604,11 +1654,13 @@
   id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于我们很快就会集中讨论这个话题，让我先说一下，这感觉像是我们在滥用继承，仅仅是为了访问非公开成员函数。我非常确定这不是继承被发明的原因。使用继承来访问一个类的`protected`部分就像是对本应非常简单的事情使用重型武器的方法。毕竟，这几乎等同于将函数设为`public`，因为每个人都可以轻易访问。看起来我们真的没有设计这个类以便轻松测试。
 - en: '“Come on, what else could we do? Or do you really want me to use the preprocessor
     and define all `private` labels as `public`?”:'
   id: totrans-181
   prefs: []
   type: TYPE_NORMAL
+  zh: “来吧，我们还能做什么？还是你真的希望我使用预处理器并将所有`private`标签定义为`public`？”：
 - en: '[PRE18]'
   id: totrans-182
   prefs: []
@@ -1621,11 +1673,14 @@
   id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 好的，让我们深呼吸一下。虽然这最后一种方法可能看起来有点滑稽，但请记住，我们现在已经超出了合理论据的范围。^([35](ch01.xhtml#idm45043122228608))
+    如果我们认真考虑使用预处理器来入侵`Widget`类的`private`部分，那么一切都完了。
 - en: 'The True Solution: Separate Concerns'
   id: totrans-184
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 真正的解决方案：分离关注
 - en: '“OK then, what *should* I do to test the `private` member function? You have
     already discarded all the options.” No, not all the options. We have not yet discussed
     the one design approach that I highlighted in [“Guideline 2: Design for Change”](#design_for_change):
@@ -1635,6 +1690,7 @@
   id: totrans-185
   prefs: []
   type: TYPE_NORMAL
+  zh: “好的，那么，我应该怎么做来测试`private`成员函数呢？你已经丢弃了所有的选择。” 不，不是所有的选择。我们还没有讨论我在[“指导原则2：为变更设计”](#design_for_change)中强调的一种设计方法：关注分离。在我们的代码库中，我的方法是将`private`成员函数从类中提取出来，使其成为一个独立的实体。在这种情况下，我倾向于将该成员函数提取为一个自由函数：
 - en: '[PRE19]'
   id: totrans-186
   prefs: []
@@ -1648,6 +1704,7 @@
   id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有对前一个成员函数的调用都可以通过将`blobs_`作为第一个函数参数，仅仅通过调用自由的`updateCollection()`函数来替换。或者，如果函数有一些状态附加，我们可以将其提取成另一个类的形式。无论哪种方式，我们都设计出最终的代码，使得测试变得容易，甚至可能是微不足道的：
 - en: '[PRE20]'
   id: totrans-188
   prefs: []
@@ -1710,6 +1767,8 @@
   id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过分离关注点并提取这一功能块，你现在获得了几个优势。首先，正如刚才讨论的那样，`Widget`类变得更加封装。更少的成员可以访问`private`成员。其次，提取的`update​Col⁠lection()`函数易于测试，甚至是微不足道的。你甚至不需要一个`Widget`对象，而是可以将`std::vector<Blob>`作为第一个参数传递（不是任何成员函数的隐式第一个参数，即`this`指针），或者调用`public`成员函数。第三，你无需改变`Widget`类的任何其他方面：当你需要更新集合时，只需将`blobs_`成员传递给`updateCollection()`函数即可。无需添加任何其他的`public`
+    getter。而且，可能最重要的是，你现在可以在隔离的情况下更改该函数，而无需处理`Widget`。这表明你已经减少了依赖关系。在最初的设置中，`updateCollection()`函数与`Widget`类（是的，`this`指针）紧密耦合，但现在我们已经切断了这些联系。`updateCollection()`函数现在是一个独立的服务，甚至可以被重用。
 - en: I can see that you still have questions. Maybe you’re concerned that this means
     you shouldn’t have any member functions anymore. No, to be clear, I did not suggest
     that you should extract each and every member function from your classes. I merely
@@ -1723,17 +1782,20 @@
   id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: 我可以看出你仍然有疑问。也许你担心这意味着你不应该再有任何成员函数了。不，清楚地说，我并没有建议你从你的类中提取每一个成员函数。我只是建议你仔细查看那些需要测试但放在类的`private`部分的函数。此外，你可能想知道这如何与虚函数一起使用，虚函数无法以自由函数的形式提取。嗯，对此没有快速的答案，但这是我们将在本书中通过多种不同的方式处理的内容。我的目标始终是减少耦合，增加可测试性，甚至是分离虚函数。
 - en: In summary, do not hinder your design and testability with artificial coupling
     and artificial boundaries. Design for testability. Separate concerns. Free your
     functions!
   id: totrans-193
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，不要因为人为的耦合和人为的边界限制你的设计和可测试性。要为可测试性进行设计。分离关注点。释放你的函数！
 - en: 'Guideline 5: Design for Extension'
   id: totrans-194
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南5：为扩展性设计
 - en: 'There is an important aspect about changing software that I haven’t highlighted
     yet: extensibility. Extensibility should be one of the primary goals of your design.
     Because, frankly speaking, if you’re no longer able to add new functionality to
@@ -1744,11 +1806,13 @@
   id: totrans-195
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有一个关于改变软件的重要方面我尚未强调：可扩展性。可扩展性应该是你设计的主要目标之一。因为坦率地说，如果你不能再向你的代码添加新功能，那么你的代码已经到达了它的生命周期的尽头。因此，添加新功能——扩展代码库——是基本兴趣。因此，可扩展性确实应该是你的主要目标之一，也是良好软件设计的驱动因素。
 - en: The Open-Closed Principle
   id: totrans-196
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 开闭原则
 - en: 'Design for extension is unfortunately not something that just falls into your
     lap or magically materializes. No, you will have to explicitly take extensibility
     into account when designing software. We’ve already seen an example of a naive
@@ -1758,6 +1822,8 @@
   id: totrans-197
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，设计用于扩展并不是一件掉到你膝盖上或神奇出现的事情。不，当设计软件时，你必须明确考虑可扩展性。我们已经在 [“指南 2：面向变更设计”](#design_for_change)
+    中看到了一个序列化文档的简单方法的例子。在那种情况下，我们使用了一个带有纯虚 `serialize()` 函数的 `Document` 基类：
 - en: '[PRE21]'
   id: totrans-198
   prefs: []
@@ -1768,6 +1834,7 @@
   id: totrans-199
   prefs: []
   type: TYPE_NORMAL
+  zh: 因为 `serialize()` 是一个纯虚函数，所有派生类，包括 `PDF` 类，都需要实现它：
 - en: '[PRE22]'
   id: totrans-200
   prefs: []
@@ -1782,6 +1849,8 @@
   id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: 目前为止，一切顺利。有趣的问题是：我们如何实现 `serialize()` 成员函数？一个要求是在以后的某个时间点能够将字节转换回 `PDF` 实例（我们希望将字节反序列化为
+    PDF）。为此，存储字节所代表信息是至关重要的。在 [“指南 2：面向变更设计”](#design_for_change) 中，我们通过一个枚举完成了这一点：
 - en: '[PRE23]'
   id: totrans-202
   prefs: []
@@ -1798,6 +1867,8 @@
   id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个枚举现在可以被所有派生类用来将文档类型放在字节流的开头。这样，在反序列化时，很容易检测存储的是哪种类型的文档。不幸的是，这种设计选择证明是一个不幸的决定。由于这个枚举，我们意外地耦合了所有类型的文档：`PDF`
+    类知道 Word 格式。当然，相应的 `Word` 类也会知道 PDF 格式。是的，你是对的——它们不知道实现细节，但它们仍然彼此知道。
 - en: This coupling situation is illustrated in [Figure 1-5](#fig_ocp_strong_coupling).
     From an architectural point of view, the `DocumentType` enumeration resides on
     the same level as the `PDF` and `Word` classes. Both types of documents use (and
@@ -1805,16 +1876,20 @@
   id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种耦合情况在 [图 1-5](#fig_ocp_strong_coupling) 中有所体现。从架构的角度看，`DocumentType` 枚举与 `PDF`
+    和 `Word` 类位于同一级别。两种类型的文档都使用（因此依赖于）`DocumentType` 枚举。
 - en: '![cpsd 0105](assets/cpsd_0105.png)'
   id: totrans-205
   prefs: []
   type: TYPE_IMG
+  zh: '![cpsd 0105](assets/cpsd_0105.png)'
 - en: Figure 1-5\. Artificial coupling of different document types via the `DocumentType`
     enumeration.
   id: totrans-206
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-5\. 通过 `DocumentType` 枚举人为耦合不同的文档类型。
 - en: 'The problem with this becomes obvious if we try to extend the functionality.
     Next to PDF and Word, we now also want to support a plain XML format. Ideally,
     all we should have to do is add the `XML` class as deriving from the `Document`
@@ -1822,6 +1897,8 @@
   id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个问题在试图扩展功能时显而易见。现在除了 PDF 和 Word，我们还希望支持纯 XML 格式。理想情况下，我们只需将 `XML` 类添加为 `Document`
+    类的派生类即可。但不幸的是，我们还必须调整 `DocumentType` 枚举：
 - en: '[PRE24]'
   id: totrans-208
   prefs: []
@@ -1838,6 +1915,8 @@
   id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种变更至少会导致所有其他文档类型（PDF、Word 等）重新编译。现在你可能会耸耸肩，想着，“哦，好吧！它只是需要重新编译。”请注意，我说的是“至少”。在最坏的情况下，这种设计显著限制了其他人扩展代码——即添加新类型的文档——因为并非每个人都能扩展
+    `DocumentType` 枚举。不，这种耦合感觉就不对：`PDF` 和 `Word` 不应该完全了解新的 `XML` 格式。它们不应该看到或感觉到任何东西，甚至不需要重新编译。
 - en: The problem in this example can be explained as a violation of the Open-Closed
     Principle (OCP). The OCP is the second of the SOLID principles. It advises us
     to design software such that it is easy to make the necessary extensions:^([37](ch01.xhtml#idm45043121676880))
@@ -1913,6 +1992,7 @@
   id: totrans-219
   prefs: []
   type: TYPE_NORMAL
+  zh: “但是添加新类型的文档怎么办？这不是需要修改`Serialization`组件吗？” 同样，你是完全正确的。但这并不违反 OCP，它建议我们不应该在同一架构层或更高层次上修改现有代码。然而，你无法控制或阻止在更低层次上的修改。`Serialization`必须依赖于所有类型的文档，因此必须针对每种新类型的文档进行适配。因此，`Serialization`必须位于我们架构的较低级别（考虑*依赖*级别）。
 - en: 'As also discussed in [“Guideline 2: Design for Change”](#design_for_change),
     the solution in this example is the separation of concerns. Thus, it appears as
     if the real solution is to adhere to the SRP. For that reason, there are some
@@ -1925,6 +2005,9 @@
   id: totrans-220
   prefs: []
   type: TYPE_NORMAL
+  zh: 如同在[“指南 2：设计以便变更”](ch04.xhtml#design_for_change)中讨论的一样，这个示例中的解决方案是关注点分离。因此，看起来真正的解决方案是遵循
+    SRP。因此，有些批评声音认为 OCP 不是一个独立的原则，而是与 SRP 相同。我承认我理解这种推理。很多时候，关注点的分离已经导致了所需的可扩展性。在本书的多个地方我们都会多次体验到这一点，特别是当我们讨论设计模式时。因此，可以推断
+    SRP 和 OCP 是相关的，甚至可以说是相同的。
 - en: 'On the other hand, in this example we have seen that there are some specific,
     architectural considerations about the OCP that we didn’t take into account while
     talking about the SRP. Also, as we will experience in [“Guideline 15: Design for
@@ -1938,6 +2021,8 @@
   id: totrans-221
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一方面，在这个示例中，我们看到在谈论 SRP 时没有考虑到 OCP 的一些具体的架构考虑。同样，正如我们将在[“指南 15：设计以便添加类型或操作”](ch04.xhtml#design_for_the_addition_of_types_or_operations)中体验到的那样，我们经常需要明确地决定我们想要扩展什么以及我们想要如何扩展它。这种决定可以显著影响我们如何应用
+    SRP 和我们设计软件的方式。因此，OCP 更多地关乎对扩展的意识以及对扩展的有意识决策，而不仅仅是 SRP 的一个附带思考。或许它取决于具体情况。
 - en: Either way, this example indisputably demonstrates that extensibility should
     be explicitly considered during software design, and that the desire for extending
     our software in a specific way is an excellent indication for the need to separate
@@ -1947,11 +2032,13 @@
   id: totrans-222
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论如何，这个例子无可争议地表明，在软件设计过程中明确考虑可扩展性是很重要的，而希望以特定方式扩展我们软件的愿望是需要分离关注点的一个很好的指示。重要的是要理解软件如何进行扩展，识别这样的*定制点*，并设计以便可以轻松执行这种扩展。
 - en: Compile-Time Extensibility
   id: totrans-223
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 编译时扩展性
 - en: 'The `Document` example may give the impression that all of these design considerations
     apply to runtime polymorphism. No, absolutely not: the same considerations and
     the same arguments also apply to compile-time problems. To illustrate this, I
@@ -1965,11 +2052,13 @@
   id: totrans-224
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Document`示例可能给人的印象是所有这些设计考虑都适用于运行时多态性。不，绝对不是：相同的考虑和相同的论点也适用于编译时问题。为了说明这一点，我现在从标准库中拿出一些例子。当然，您能够扩展标准库是非常重要的。是的，您应该*使用*标准库，但也鼓励您在其基础上构建并添加自己的功能。因此，标准库被设计用于可扩展性。但有趣的是，它并不使用基类来实现这一目的，而主要依赖于函数重载、模板和（类）模板专门化。'
 - en: 'An excellent example of extension by function overloading is the `std::swap()`
     algorithm. Since C++11, `std::swap()` has been defined in this way:'
   id: totrans-225
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数重载扩展的一个很好的例子是`std::swap()`算法。自C++11以来，`std::swap()`已以这种方式定义：
 - en: '[PRE25]'
   id: totrans-226
   prefs: []
@@ -1986,15 +2075,19 @@
   id: totrans-227
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于`std::swap()`被定义为函数模板，您可以对任何类型使用它：像`int`和`double`这样的基本类型，像`std::string`这样的标准库类型，当然也包括您自己的类型。但是，可能存在一些类型需要特别注意，一些类型不能或不应通过`std::swap()`进行交换（例如，因为它们无法有效地移动），但仍然可以通过其他方式有效地交换。但是，预期值类型可以交换，正如[Core
+    Guideline C.83](https://oreil.ly/Peqhm)所表达的那样：^([39](ch01.xhtml#idm45043121526144))
 - en: For value-like types, consider providing a `noexcept` swap function.
   id: totrans-228
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 对于类似值类型的情况，考虑提供一个`noexcept`的交换函数。
 - en: 'In such a case, you can overload `std::swap()` for your own type:'
   id: totrans-229
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种情况下，您可以为自己的类型重载`std::swap()`：
 - en: '[PRE26]'
   id: totrans-230
   prefs: []
@@ -2005,6 +2098,7 @@
   id: totrans-231
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果正确使用`swap()`，这个自定义函数将对两个`CustomType`实例执行一种特殊的交换操作：^([40](ch01.xhtml#idm45043121480288))
 - en: '[PRE27]'
   id: totrans-232
   prefs: []
@@ -2016,6 +2110,7 @@
   id: totrans-233
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，`std::swap()`被设计为*定制点*，允许您插入新的自定义类型和行为。标准库中的所有算法也是如此。例如，考虑`std::find()`和`std::find_if()`：
 - en: '[PRE28]'
   id: totrans-234
   prefs: []
@@ -2029,12 +2124,14 @@
   id: totrans-235
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过模板参数及其隐含的概念，`std::find()`和`std::find_if()`（正如所有其他算法一样）使您能够使用自己的（迭代器）类型执行搜索。此外，`std::find_if()`允许您自定义如何处理元素的比较。因此，这些函数明确设计用于扩展和定制。
 - en: 'The last kind of *customization point* is template specialization. This approach
     is, for instance, used by the `std::hash` class template. Assuming the `CustomType`
     from the `std::swap()` example, we can specialize `std::hash` explicitly:'
   id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后一种*定制点*是模板专门化。例如，这种方法由`std::hash`类模板使用。假设来自`std::swap()`示例的`CustomType`，我们可以显式地为其专门化`std::hash`：
 - en: '[PRE29]'
   id: totrans-237
   prefs: []
@@ -2046,6 +2143,7 @@
   id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::hash`的设计使您能够调整其行为以适应任何自定义类型。最值得注意的是，您无需修改任何现有代码；提供此单独的专门化即可满足特殊需求。'
 - en: Almost the entire Standard Library is designed for extension and customization.
     This shouldn’t come as a surprise, however, because the Standard Library is supposed
     to represent one of the highest levels in your architecture. Thus, the Standard
@@ -2054,11 +2152,13 @@
   id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 标准库几乎全部设计用于扩展和定制。然而，这并不奇怪，因为标准库应该代表您架构中的最高水平之一。因此，标准库不能依赖于您的任何代码，但您完全依赖于标准库。
 - en: Avoid Premature Design for Extension
   id: totrans-240
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 避免过早地为扩展而设计
 - en: 'The C++ Standard Library is a great example of designing for extension. Hopefully
     it gives you a feeling for how important extensibility really is. However, although
     extensibility is important, this doesn’t mean that you should automatically, without
@@ -2078,12 +2178,14 @@
   id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: C++标准库是为扩展而设计的一个很好的例子。希望这能让您对可扩展性的重要性有所感觉。然而，尽管可扩展性很重要，这并不意味着您应该自动、不加反思地为每个可能的实现细节都使用基类或模板来保证将来的扩展性。就像您不应该过早地分离关注点一样，您也不应该过早地为扩展性而设计。当然，如果您对代码将如何演变有一个良好的想法，那么请按照这个思路来设计它。但是，请记住YAGNI原则：如果您不知道代码将如何演变，那么等待可能比预测一个永远不会发生的扩展更明智。也许下一个扩展会让您对将来的扩展有所思考，这样您就可以重构代码，使后续的扩展变得容易。否则，您可能会遇到这样的问题：偏爱某种扩展方式会使其他类型的扩展变得更加困难（例如，请参阅[“指南15：为类型或操作的添加进行设计”](ch04.xhtml#design_for_the_addition_of_types_or_operations)）。如果可能的话，您应该尽量避免这种情况。
 - en: In summary, designing for extension is an important part of design for change.
     Therefore, explicitly keep an eye out for pieces of functionality that are expected
     to be extended and design the code so that extension is easy.
   id: totrans-242
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，为扩展而设计是设计变更的重要部分。因此，请明确地关注预计会扩展的功能片段，并设计代码，以便扩展变得容易。
 - en: ^([1](ch01.xhtml#idm45043124162128-marker)) But of course you would never even
     try to print the current C++ standard. You would either use a PDF of the [official
     C++ standard](https://oreil.ly/bZUDd) or use the [current working draft](https://oreil.ly/r46ta).
@@ -2092,6 +2194,7 @@
   id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch01.xhtml#idm45043124162128-marker)) 但当然您绝不会试图打印当前的C++标准。您要么使用[官方C++标准的PDF](https://oreil.ly/bZUDd)，要么使用[当前工作草案](https://oreil.ly/r46ta)。然而，在您的日常工作中，您可能想参考[C++参考网站](https://oreil.ly/z0tKS)。
 - en: ^([2](ch01.xhtml#idm45043137738976-marker)) Unfortunately, I can’t present any
     numbers, as I can hardly say that I have a complete overview of the vast realm
     of C++. On the contrary, I might not even have a complete overview of the sources
@@ -2100,17 +2203,21 @@
   id: totrans-244
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch01.xhtml#idm45043137738976-marker)) 不幸的是，我不能提供任何数字，因为我几乎不能说我对C++的广阔领域有完整的了解。相反，我甚至可能没有对我已知的资源有完整的了解！因此，请把这看作是我的个人印象以及我对C++社区的感知方式。您可能有不同的看法。
 - en: ^([3](ch01.xhtml#idm45043125488704-marker)) Whether or not the code modification
     is risky may very much depend on your test coverage. A good test coverage may
     actually absorb some of the damage bad software design may cause.
   id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch01.xhtml#idm45043125488704-marker)) 代码修改是否冒险，很大程度上取决于您的测试覆盖率。良好的测试覆盖率实际上可以吸收一些糟糕软件设计可能造成的损害。
 - en: '^([4](ch01.xhtml#idm45043123493296-marker)) Kent Beck, *Test-Driven Development:
     By Example* (Addison-Wesley, 2002).'
   id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch01.xhtml#idm45043123493296-marker)) Kent Beck，《通过示例驱动开发：Test-Driven
+    Development》（Addison-Wesley，2002年）。
 - en: ^([5](ch01.xhtml#idm45043126004560-marker)) Robert C. Martin, *Clean Architecture*
     (Addison-Wesley, 2017).
   id: totrans-247
@@ -2329,16 +2436,20 @@
   id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([36](ch01.xhtml#idm45043121978352-marker)) 你可以在Scott Meyers的《Effective C++》的第23条中找到这个令人信服的论点。
 - en: ^([37](ch01.xhtml#idm45043121676880-marker)) Bertrand Meyer, *Object-Oriented
     Software Construction*, 2nd ed. (Pearson, 2000).
   id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([37](ch01.xhtml#idm45043121676880-marker)) Bertrand Meyer的《面向对象软件构造》，第2版（Pearson,
+    2000）。
 - en: ^([38](ch01.xhtml#idm45043121655248-marker)) The answer “It depends!” will of
     course satisfy even the strongest critics of the OCP.
   id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([38](ch01.xhtml#idm45043121655248-marker)) 当然，“这要看情况！”会满足甚至是最强硬的OCP批评者。
 - en: ^([39](ch01.xhtml#idm45043121526144-marker)) The [C++ Core Guidelines](https://oreil.ly/PGze4)
     are a community effort to collect and agree on a set of guidelines for writing
     good C++ code. They best represent the common sense of what idiomatic C++ is.
@@ -2346,9 +2457,12 @@
   id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([39](ch01.xhtml#idm45043121526144-marker)) [C++核心指南](https://oreil.ly/PGze4)是社区努力的结果，旨在制定一套编写良好C++代码的指南。它们最能代表C++惯用的常识。你可以在[GitHub](https://oreil.ly/PGze4)找到这些指南。
 - en: ^([40](ch01.xhtml#idm45043121480288-marker)) The abbreviation ADL refers to
     Argument Dependent Lookup. See the [CppReference](https://oreil.ly/lRSZD) or my
     [CppCon 2020 talk](https://oreil.ly/3f7Zo) for an introduction.
   id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([40](ch01.xhtml#idm45043121480288-marker)) ADL（Argument Dependent Lookup）是指参数相关的查找。请参阅[CppReference](https://oreil.ly/lRSZD)或者我的[CppCon
+    2020演讲](https://oreil.ly/3f7Zo)了解详情。
