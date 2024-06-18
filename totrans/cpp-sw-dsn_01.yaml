@@ -194,23 +194,27 @@
   id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 依赖性是每个软件开发人员的梦魇。你可能会争辩说：“当然会有依赖性。不同的代码片段怎样才能协同工作呢？”当然，你是正确的。不同的代码片段需要协同工作，这种交互总会创建某种形式的耦合。然而，虽然有必要的、不可避免的依赖关系，但也存在我们因为缺乏对底层问题的理解、没有明确的大局观或者没有足够注意而无意中引入的人为依赖关系。不用说，这些人为依赖关系是有害的。它们使我们更难理解软件、改变软件、添加新功能和编写测试。因此，软件开发人员的首要任务，如果不是唯一的任务，就是尽量将人为依赖关系降到最低。
 - en: This minimization of dependencies is the goal of software architecture and design.
     To state it in the words of Robert C. Martin:^([5](ch01.xhtml#idm45043126004560))
   id: totrans-19
   prefs: []
   type: TYPE_NORMAL
+  zh: 减少依赖性是软件架构和设计的目标。用罗伯特·C·马丁的话来说：^([5](ch01.xhtml#idm45043126004560))
 - en: The goal of software architecture is to minimize the human resources required
     to build and maintain the required system.
   id: totrans-20
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 软件架构的目标是尽量减少构建和维护所需系统所需的人力资源。
 - en: Architecture and design are the tools needed to minimize the work effort in
     any project. They deal with dependencies and reduce the complexity via abstractions.
     In my own words:^([6](ch01.xhtml#idm45043124440192))
   id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 架构和设计是任何项目中减少工作量的必要工具。它们处理依赖关系，并通过抽象降低复杂性。用我的话来说：^([6](ch01.xhtml#idm45043124440192))
 - en: Software design is the art of managing interdependencies between software components.
     It aims at minimizing artificial (technical) dependencies and introduces the necessary
     abstractions and compromises.
@@ -218,6 +222,7 @@
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 软件设计是管理软件组件之间相互依赖的艺术。它旨在最小化人为（技术性）依赖关系，并引入必要的抽象和妥协。
 - en: Yes, software design is an art. It’s not a science, and it doesn’t come with
     a set of easy and clear answers.^([7](ch01.xhtml#idm45043124165840)) Too often
     the big picture of design eludes us, and we are overwhelmed by the complex interdependencies
@@ -230,11 +235,13 @@
   id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 是的，软件设计是一门艺术。它不是一门科学，也没有一套简单清晰的答案。^([7](ch01.xhtml#idm45043124165840)) 设计的整体图景往往容易使我们困惑，我们被软件实体的复杂相互依赖所压倒。但我们试图通过引入适当类型的抽象来处理这种复杂性并将其减少。这样一来，我们将详细程度保持在合理的水平。然而，在团队中，个别开发人员对架构和设计可能有不同的理解。我们可能无法实现自己对设计的愿景，不得不妥协以继续前进。
 - en: Tip
   id: totrans-24
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: The term *abstraction* is used in different contexts. It’s used for the organization
     of functionality and data items into data types and functions. But it’s also used
     to describe the modeling of common behavior and the representation of a set of
@@ -243,6 +250,7 @@
   id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: “抽象”这个术语在不同的上下文中使用。它用于将功能和数据项组织成数据类型和函数。但它也用于描述共同行为的建模以及一组需求和期望的表示。在本书中关于软件设计，我主要用这个术语来指代后者（特别是见[第2章](ch02.xhtml#the_art_of_building_abstractions)）。
 - en: Note that the words *architecture* and *design* can be interchanged in the preceding
     quotes, since they’re very similar and share the same goals. Yet they aren’t the
     same. The similarities, but also differences, become clear if you take a look
@@ -250,17 +258,21 @@
   id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，在前面的引用中，“架构”和“设计”这两个词可以互换，因为它们非常相似并且具有相同的目标。然而它们并不相同。如果您看看软件开发的三个层次，这些相似之处和差异将变得清晰。
 - en: The Three Levels of Software Development
   id: totrans-27
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 软件开发的三个层次
 - en: '*Software Architecture* and *Software Design* are just two of the three levels
     of software development. They are complemented by the level of *Implementation
     Details*. [Figure 1-1](#fig_level_overview) gives an overview of these three levels.'
   id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: '*软件架构* 和 *软件设计* 只是软件开发的三个层次之一。它们还包括 *实施细节* 的层次。[图 1-1](#fig_level_overview)
+    概述了这三个层次。'
 - en: 'To give you a feeling for these three levels, let’s start with a real-world
     example of the relationship among architecture, design, and implementation details.
     Consider yourself to be in the role of an architect. And no, please don’t picture
@@ -279,10 +291,13 @@
   id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了让您对这三个层次有所了解，让我们从一个关于架构、设计和实施细节之间关系的现实世界例子开始。想象您是一名建筑师。不，不要想象自己坐在电脑前的舒适椅子上，旁边放着一杯热咖啡，而是想象自己在一个建筑工地外面。是的，我说的是建筑师。^([8](ch01.xhtml#idm45043123335424))
+    作为这样的建筑师，您将负责房屋的所有重要属性：它与社区的融合、结构完整性、房间的布置、管道等等。您还将关注它的外观和功能特性——也许是一个大客厅，厨房和餐厅之间的便捷通道等等。换句话说，您将负责整体架构，这些事情稍后难以改变，但您也会处理关于建筑的更小设计方面。然而，很难区分二者：架构和设计之间的边界看起来模糊且不明确分开。
 - en: '![cpsd 0101](assets/cpsd_0101.png)'
   id: totrans-30
   prefs: []
   type: TYPE_IMG
+  zh: '![cpsd 0101](assets/cpsd_0101.png)'
 - en: 'Figure 1-1\. The three levels of software development: *Software Architecture*,
     *Software Design*, and *Implementation Details*. *Idioms* can be design or implementation
     patterns.'
@@ -290,6 +305,7 @@
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-1\. 软件开发的三个层次：*软件架构*、*软件设计* 和 *实施细节*。*惯用语* 可以是设计或实施模式。
 - en: These decisions would be the end of your responsibility, however. As an architect,
     you wouldn’t worry about where to place the refrigerator, the TV, or other furniture.
     You wouldn’t deal with all the nifty details about where to place pictures and
@@ -298,6 +314,7 @@
   id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，这些决定将是您责任的终点。作为一名架构师，您不必担心冰箱、电视或其他家具的摆放位置。您不会处理所有关于放置图片和其他装饰品的巧妙细节。换句话说，您不会处理细节；您只需确保业主拥有良好生活所需的结构。
 - en: The furniture and other “nifty details” in this metaphor correspond to the lowest
     and most concrete level of software development, the implementation details. This
     level handles how a solution is implemented. You choose the necessary (and available)
@@ -436,6 +453,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 关注功能
 - en: If software architecture and software design are of such importance, then why
     are we in the C++ community focusing so strongly on features? Why do we create
     the illusion that C++ standards, language mechanics, and features are decisive
@@ -447,6 +465,8 @@
   id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果软件架构和软件设计如此重要，那么为什么我们在 C++ 社区如此强调功能？为什么我们制造了一个假象，即 C++ 标准、语言机制和功能对项目至关重要？我认为有三个很强的理由。首先，因为有如此多的功能，有时候还带有复杂的细节，我们需要花费大量时间讨论如何正确使用它们。我们需要形成一个共识，哪种用法是好的，哪种用法是不好的。作为一个社区，我们需要发展出一种习惯用法的
+    C++ 的感觉。
 - en: The second reason is that we might put the wrong expectations on features. As
     an example, let’s consider C++20 modules. Without going into details, this feature
     may indeed be considered the biggest technical revolution since the beginning
@@ -455,6 +475,7 @@
   id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个原因是我们可能对功能设置了错误的期望。例如，让我们考虑一下 C++20 模块。不详细讨论，这个功能确实可能被认为是自 C++ 开始以来最大的技术革新。模块最终可能会结束将头文件包含到源文件中的可疑和繁琐做法。
 - en: 'Due to this potential, the expectations for that feature are enormous. Some
     people even expect modules to save their project by fixing their structural issues.
     Unfortunately, modules will have a hard time satisfying these expectations: modules
@@ -465,6 +486,7 @@
   id: totrans-49
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于这种潜力，对该功能的期望是巨大的。有些人甚至期望模块通过修复其结构性问题来拯救他们的项目。不幸的是，模块很难满足这些期望：模块并不改善代码的结构或设计，而只能表示当前的结构和设计。模块不能修复您的设计问题，但它们可能能够显现出缺陷。因此，模块根本不能拯救您的项目。因此，我们可能确实给功能设置了太多或错误的期望。
 - en: And last, but not least, the third reason is that despite the huge amount of
     features and their complexity, in comparison to the complexity of software design,
     the complexity of C++ features is small. It’s much easier to explain a given set
@@ -473,6 +495,7 @@
   id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后但同样重要的是，尽管功能非常多且复杂，与软件设计的复杂性相比，C++ 功能的复杂性是小的。解释功能的一组规则（无论它们包含多少特殊情况）要容易得多，比解释如何最佳地解耦软件实体要容易得多。
 - en: 'While there is usually a good answer to all feature-related questions, the
     common answer in software design is “It depends.” That answer might not even be
     evidence of inexperience, but of the realization that the best way to make code
@@ -483,11 +506,13 @@
   id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管与功能相关的问题通常都有一个很好的答案，但在软件设计中，常见的答案是“这取决于”。这个答案甚至可能不是经验不足的证据，而是意识到使代码更易维护、更易变更、更易扩展、更易测试和更易扩展的最佳方法在很大程度上取决于许多项目特定因素之间复杂的相互作用解耦，可能是人类有史以来最具挑战性的事业之一：
 - en: Design and programming are human activities; forget that and all is lost.^([17](ch01.xhtml#idm45043123657936))
   id: totrans-52
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 设计和编程是人类活动；忘记这一点，一切都将失去。^([17](ch01.xhtml#idm45043123657936))
 - en: To me, a combination of these three reasons is why we focus on features so much.
     But please, don’t get me wrong. That’s not to say that features are not important.
     On the contrary, features *are* important. And yes, it’s necessary to talk about
@@ -496,11 +521,13 @@
   id: totrans-53
   prefs: []
   type: TYPE_NORMAL
+  zh: 对我来说，这三个原因的结合是为什么我们如此关注功能。但请不要误解。这并不是说功能不重要。相反，功能 *是* 重要的。是的，有必要讨论功能，并学习如何正确使用它们，但再次强调，单靠它们无法拯救您的项目。
 - en: The Focus on Software Design and Design Principles
   id: totrans-54
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 关注软件设计和设计原则
 - en: While features are important, and while it is of course good to talk about them,
     software design is more important. Software design is essential. I would even
     argue that it’s the foundation of the success of our projects. Therefore, in this
@@ -726,6 +753,9 @@
   id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最坏的情况下，`exportToJSON()` 函数可能会引入第二个依赖。在 `exportToJSON()` 调用中期望的参数可能会意外地反映出所选
+    JSON 库的一些实现细节。在这种情况下，最终切换到另一个库可能会导致 `exportToJSON()` 函数签名的变更，随后导致所有调用者的变更。因此，对所选
+    JSON 库的依赖可能会意外地比预期更广泛。
 - en: The third kind of dependency is introduced by the `serialize()` function. Due
     to this function, the classes deriving from `Document` depend on global decisions
     on how documents are serialized. What format do we use? Do we use little endian
@@ -736,6 +766,8 @@
   id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '`serialize()` 函数引入了第三种依赖。由于这个函数，从 `Document` 派生的类依赖于关于如何序列化文档的全局决策。我们使用什么格式？我们使用小端还是大端？我们是否需要添加这些字节表示一个
+    PDF 文件还是 Word 文件的信息？如果是的话（我认为这很可能），我们如何表示这样的文档？通过一个整数值吗？例如，我们可以为此目的使用一个枚举值：^([27](ch01.xhtml#idm45043128374128))'
 - en: '[PRE1]'
   id: totrans-80
   prefs: []
@@ -750,6 +782,8 @@
   id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种方法在序列化中非常常见。然而，如果在 `Document` 类的实现中使用这种低级文档表示，我们会意外地耦合所有不同类型的文档。每个派生类都会隐含地知道所有其他
+    `Document` 类型。因此，添加新类型的文档将直接影响所有现有的文档类型。这将是一个严重的设计缺陷，因为这会使更改变得更加困难。
 - en: 'Unfortunately, the `Document` class promotes many different kinds of coupling.
     So no, the `Document` class is not a great example of good class design, since
     it isn’t easy to change. On the contrary, it is hard to change and thus a great
@@ -760,36 +794,43 @@
   id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，`Document` 类促进了许多不同种类的耦合。因此，`Document` 类不是一个良好类设计的好例子，因为它不容易改变。相反，它很难改变，因此是
+    SRP 的一个违反的很好例子：因为我们已经在几个正交但无关的方面之间创建了强耦合，所以从 `Document` 派生的类和文档的使用者可能因以下任一原因而改变：
 - en: The implementation details of the `exportToJSON()` function change because of
     a direct dependency on the used JSON library
   id: totrans-83
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`exportToJSON()` 函数的实现细节因为直接依赖于所使用的 JSON 库而改变。'
 - en: The signature of the `exportToJSON()` function changes because the underlying
     implementation changes
   id: totrans-84
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`exportToJSON()` 函数的签名因底层实现的改变而改变。'
 - en: The `Document` class and the `serialize()` function change because of a direct
     dependency on the `ByteStream` class
   id: totrans-85
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`Document` 类和 `serialize()` 函数因为直接依赖于 `ByteStream` 类而改变。'
 - en: The implementation details of the `serialize()` function change because of a
     direct dependency on the implementation details
   id: totrans-86
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: '`serialize()` 函数的实现细节因为直接依赖于实现细节而改变。'
 - en: All types of documents change because of the direct dependency on the `DocumentType`
     enumeration
   id: totrans-87
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 所有类型的文档都因对 `DocumentType` 枚举的直接依赖而改变。
 - en: Obviously, this design promotes more changes, and every single change would
     be harder. And of course, in the general case, there is the danger that additional
     orthogonal aspects are artificially coupled inside documents, which would further
@@ -802,11 +843,14 @@
   id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，这种设计促进了更多的变化，每一次变更都会变得更加困难。当然，在一般情况下，还存在着附加的正交方面被人为地耦合在文档内部的风险，这会进一步增加进行更改的复杂性。此外，其中一些更改显然不仅限于代码库中的单一位置。特别是，对
+    `exportToJSON()` 和 `serialize()` 的实现细节的更改不仅限于单个类，而可能影响所有类型的文档（如 PDF、Word 等）。因此，一次更改将影响代码库中多个地方，这带来了维护风险。
 - en: Logical Versus Physical Coupling
   id: totrans-89
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 逻辑耦合与物理耦合
 - en: 'The coupling isn’t limited to logical coupling but also extends to physical
     coupling. [Figure 1-2](#fig_srp_strong_coupling) illustrates that coupling. Let’s
     assume that there is a `User` class on the low level of our architecture that
@@ -823,11 +867,17 @@
   id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 耦合不仅限于逻辑耦合，还延伸到物理耦合。[图 1-2](#fig_srp_strong_coupling) 说明了这种耦合。假设我们的架构低层存在一个需要使用高层文档的
+    `User` 类。当然，`User` 类直接依赖于 `Document` 类，这是给定问题的必要依赖——一个内在的依赖，因此这不应成为我们的关注点。然而，`Document`
+    对所选的 JSON 库的（潜在）物理依赖性以及对 `ByteStream` 类的直接依赖性会导致 `User` 对 JSON 库和 `ByteStream`
+    的间接、传递依赖性，而这些在我们架构的最高层。在最坏的情况下，这意味着对 JSON 库或 `ByteStream` 类的更改会影响到 `User`。希望很容易看出，这是一种人为的、非故意的依赖关系：`User`
+    不应该依赖于 JSON 或序列化。
 - en: Note
   id: totrans-91
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 注意
 - en: I should explicitly state that there is a *potential* physical dependency of
     `Document` on the select JSON library. If the `<Document.h>` header file includes
     any header from the JSON library of choice (as indicated in the code snippet at
@@ -841,16 +891,22 @@
   id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 我应明确指出，`Document` 可能会对所选的 JSON 库存在*潜在*的物理依赖性。如果 `<Document.h>` 头文件包含来自所选 JSON
+    库的任何头文件（如在 [“人工耦合示例”](#example_of_artificial_coupling) 中的代码片段中所示），例如因为 `exportToJSON()`
+    函数期望基于该库的某些参数，则存在对该库的明确依赖关系。然而，如果接口能够适当地抽象这些细节，并且 `<Document.h>` 头文件没有包含任何来自 JSON
+    库的内容，则可以避免物理依赖性。因此，这取决于依赖关系能够（并且是如何）被抽象化。
 - en: '![cpsd 0102](assets/cpsd_0102.png)'
   id: totrans-93
   prefs: []
   type: TYPE_IMG
+  zh: '![cpsd 0102](assets/cpsd_0102.png)'
 - en: Figure 1-2\. The strong transitive, physical coupling between `User` and orthogonal
     aspects like JSON and serialization.
   id: totrans-94
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图1-2\. `User` 和 JSON、序列化等正交方面之间强传递的物理耦合。
 - en: '“High level, low level—now I’m confused,” you complain. Yes, I know that these
     two terms usually cause some confusion. So before we move on, let’s agree on the
     terminology for high level and low level. The origin of these two terms relates
@@ -866,6 +922,7 @@
   id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: “高级别、低级别——我现在搞混了”，你抱怨道。是的，我知道这两个术语通常会引起一些混淆。因此，在我们继续之前，让我们就高级别和低级别的术语达成一致。这两个术语的起源与我们在[*统一建模语言（UML）*](https://oreil.ly/s0ID2)中绘制图表的方式有关：我们认为稳定的功能出现在顶部，即高级别。那些更频繁变化，因此被认为是不稳定或可塑性更大的功能出现在底部，即低级别。不幸的是，当我们绘制架构图时，我们通常试图展示事物如何彼此依赖，因此最稳定的部分出现在架构的底部。这当然会造成一些混淆。无论事物如何被绘制，只要记住这些术语：*高级别*指的是你架构中稳定的部分，而*低级别*指的是更频繁变化或更有可能变化的方面。
 - en: 'Back to the problem: the SRP advises that we should separate concerns and the
     things that do not truly belong, i.e., the noncohesive (adhesive) things. In other
     words, it advises us to separate the things that change for different reasons
@@ -874,20 +931,25 @@
   id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 回到问题本身：SRP建议我们应该分离关注点和那些不真正属于其中的事物，即非内聚的（粘合的）事物。换句话说，它建议我们将因不同原因而变化的事物分离成*变化点*。[图 1-3](#fig_srp_weak_coupling)
+    显示了如果我们将JSON和序列化方面分离出来，则耦合情况如何。
 - en: '![cpsd 0103](assets/cpsd_0103.png)'
   id: totrans-97
   prefs: []
   type: TYPE_IMG
+  zh: '![cpsd 0103](assets/cpsd_0103.png)'
 - en: Figure 1-3\. Adherence to the *SRP* resolves the artificial coupling between
     `User` and JSON and serialization.
   id: totrans-98
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-3\. 遵循*SRP*可以解决`User`与JSON和序列化之间的人为耦合。
 - en: 'Based on this advice, the `Document` class is refactored in the following way:'
   id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 根据这些建议，`Document`类被按照以下方式重构：
 - en: '[PRE2]'
   id: totrans-100
   prefs: []
@@ -909,6 +971,7 @@
   id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: JSON和序列化方面并不是`Document`类基本功能的一部分。`Document`类应该仅仅表示不同种类文档的基本操作。所有正交的方面应该被分离开来。这将使得修改变得更加容易。例如，通过将JSON方面隔离为一个独立的变化点并成为新的`JSON`组件，从一个JSON库切换到另一个库只会影响到这一个组件。修改可以在一个地方完成，并且与所有其他正交方面隔离开来。同时，通过多个JSON库支持JSON格式也会更加容易。此外，任何关于文档序列化方式的改变只会影响到代码中的一个组件：新的`Serialization`组件。同样，`Serialization`将作为一个变化点，促使隔离和简单的改变。这将是最优的情况。
 - en: 'After your initial disappointment with the `Document` example, I can see you’re
     looking happier again. Perhaps there’s even an “I knew it!” smile on your face.
     However, you’re not entirely satisfied yet: “Yes, I agree with the general idea
@@ -922,6 +985,7 @@
   id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: 在您对 `Document` 示例的初步失望之后，我看到您再次变得更加快乐。也许您的脸上甚至露出了“我知道了！”的微笑。然而，您仍然不完全满意：“是的，我同意分离关注点的一般想法。但我该如何组织我的软件来分离关注点呢？我该做什么才能让它起作用？”这是一个很好的问题，但是有很多答案，我将在接下来的章节中详细讨论。然而，第一个也是最重要的一点是识别变化点，即您的代码中预期变化的某个方面。这些变化点应该被提取、隔离和包装，以便不再依赖于这些变化。这最终将有助于使变更变得更容易。
 - en: '“But that is still only superficial advice!” I hear you say. And you’re correct.
     Unfortunately, there is no single answer and there is no simple answer. It depends.
     But I promise to give many concrete answers for how to separate concerns in the
@@ -937,11 +1001,16 @@
   id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: “但这仍然只是表面的建议！”我听到你说。你说得对。不幸的是，没有单一的答案，也没有简单的答案。这取决于情况。但我承诺在接下来的章节中会提供许多关于如何分离关注点的具体答案。毕竟，这是一本关于软件设计的书，即一本关于管理依赖关系的书。作为一个小小的引子，在[第 3
+    章](ch03.xhtml#the_purpose_of_design_patterns) 中，我将介绍解决这个问题的一个通用而实用的方法：设计模式。在这个总体思路下，我将展示如何使用不同的设计模式来分离关注点。例如，*访问者*、*策略*
+    和 *外部多态性* 设计模式让人想起。所有这些模式都有不同的优缺点，但它们共享一个特性，即引入某种抽象以帮助您减少依赖关系。此外，我承诺将仔细研究如何在现代
+    C++ 中实现这些设计模式。
 - en: Tip
   id: totrans-104
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 提示
 - en: 'I will introduce the Visitor design pattern in [“Guideline 16: Use Visitor
     to Extend Operations”](ch04.xhtml#use_visitors_to_extend_operations), and the
     Strategy design pattern in [“Guideline 19: Use Strategy to Isolate How Things
@@ -951,30 +1020,39 @@
   id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 我将在[“指南 16：使用访问者扩展操作”](ch04.xhtml#use_visitors_to_extend_operations) 中介绍访问者设计模式，并在[“指南 19：使用策略来隔离操作方式”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)
+    中介绍策略设计模式。外部多态性设计模式将是[“指南 31：使用外部多态性进行非侵入式运行时多态性”](ch07.xhtml#use_external_polymorphism_for_non_intrusive_runtime_polymorphism)
+    的主题。
 - en: Don’t Repeat Yourself
   id: totrans-106
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 不要重复自己
 - en: 'There is a second, important aspect to changeability. To explain this aspect,
     I will introduce another example: a hierarchy of items. [Figure 1-4](#fig_simple_item_hierarchy)
     gives an impression of this hierarchy.'
   id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 另一个重要的变更性方面是有一个第二个方面。为了解释这一点，我将引入另一个例子：项目层次结构。[图 1-4](#fig_simple_item_hierarchy)
+    给出了这个层次结构的印象。
 - en: '![cpsd 0104](assets/cpsd_0104.png)'
   id: totrans-108
   prefs: []
   type: TYPE_IMG
+  zh: '![cpsd 0104](assets/cpsd_0104.png)'
 - en: Figure 1-4\. The `Item` class hierarchy.
   id: totrans-109
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-4\. `Item` 类层次结构。
 - en: 'At the top of that hierarchy is the `Item` base class:'
   id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个层次结构的顶部是`Item`基类：
 - en: '[PRE3]'
   id: totrans-111
   prefs: []
@@ -987,6 +1065,8 @@
   id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Item` 基类代表具有价格标签（由 `Money` 类表示）的任何类型的项目的抽象。通过 `price()` 函数，您可以查询该价格。当然，有许多可能的项目，但为了说明目的，我们限制在
+    `CppBook` 和 `ConferenceTicket`：'
 - en: '[PRE4]'
   id: totrans-113
   prefs: []
@@ -1003,10 +1083,15 @@
   id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: '`CppBook` 类的构造函数需要以字符串形式提供书名和作者，并以 `Money` 形式提供价格（[![3](assets/3.png)](#code_g2_3))。^([28](ch01.xhtml#idm45043129091136))
+    除此之外，你只能通过 `title()`、`author()` 和 `price()` 函数来访问书名、作者和价格（[![4](assets/4.png)](#code_g2_4),
+    [![5](assets/5.png)](#code_g2_5) 和 [![6](assets/6.png)](#code_g2_6))。然而，`price()`
+    函数有点特殊：显然，书籍是需要交税的。因此，书籍的原价需要根据给定的税率进行调整。在这个例子中，假设一个虚构的税率为 15%。'
 - en: 'The `ConferenceTicket` class is the second example of an `Item`:'
   id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ConferenceTicket` 类是 `Item` 的第二个示例：'
 - en: '[PRE5]'
   id: totrans-116
   prefs: []
@@ -1021,11 +1106,14 @@
   id: totrans-117
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ConferenceTicket` 类与 `CppBook` 类非常相似，但构造函数只需提供会议名称和价格（[![7](assets/7.png)](#code_g2_7))。当然，你可以通过
+    `name()` 和 `price()` 函数分别访问会议名称和价格。然而，对于 C++ 会议，价格也需要纳税。因此，我们再次根据虚构的税率 15% 调整原始价格。'
 - en: 'With this functionality available, we can go ahead and create a couple of `Item`s
     in the `main()` function:'
   id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个功能，我们可以在 `main()` 函数中继续创建一些 `Item`：
 - en: '[PRE6]'
   id: totrans-119
   prefs: []
@@ -1037,6 +1125,8 @@
   id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 `main()` 中，我们创建了一些物品（两本书和三个会议票），并计算了所有物品的总价格。^([29](ch01.xhtml#idm45043128523184))
+    总价格当然包括虚构的 15% 税率。
 - en: 'That sounds like a good design. We have separated the specific kinds of items
     and are able to change how the price of each item is computed in isolation. It
     seems that we have fulfilled the SRP and extracted and isolated the variation
@@ -1048,6 +1138,8 @@
   id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 听起来是一个不错的设计。我们已经分离了特定种类的物品，并能够在隔离环境中改变每个物品的价格计算方式。看起来我们已经实现了 SRP，并提取和隔离了变化点。当然，还有更多的物品。很多很多。而且所有这些物品都将确保适用的税率被正确考虑。太棒了！然而，尽管这个
+    `Item` 层次结构将在一段时间内让我们感到满意，但这个设计不幸地有一个显著的缺陷。我们可能今天意识不到，但在软件问题的背后，总有一个潜在的问题在遥远的阴影中：变化。
 - en: 'What happens if for some reason the tax rate changes? What if the 15% tax rate
     is lowered to 12%? Or raised to 16%? I can still hear the arguments from the day
     the initial design was committed into the codebase: “No, that will never happen!”
@@ -1059,6 +1151,9 @@
   id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果由于某些原因税率发生变化会怎么样？如果 15% 的税率降低到 12% 呢？或者提高到 16% 呢？我仍然能听到当初设计被提交到代码库时的争论声：“不，那绝不会发生！”然而，最意想不到的事情可能会发生。例如，在德国，税率在
+    2021 年的半年内从 19% 降低到 16%。当然，这意味着我们需要在代码库中改变税率。我们在哪里应用这个改变？在目前的情况下，这个改变几乎会影响到每一个继承自
+    `Item` 类的类。这个改变会遍布整个代码库！
 - en: Just as much as the SRP advises separating variation points, we should take
     care not to duplicate information throughout the codebase. As much as everything
     should have a single responsibility (a single reason to change), every responsibility
@@ -1070,6 +1165,7 @@
   id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如SRP建议分离变化点一样，我们应该注意不要在代码库中重复信息。尽管每件事都应该有一个单一责任（一个变更的唯一原因），但每个责任在系统中应该只存在一次。这个思想通常称为“不要重复自己”（DRY）原则。该原则建议我们不要在许多地方重复一些关键信息，而是设计系统使我们只需在一个地方进行更改。在最佳情况下，税率应该在确切的一个地方表示，以便您可以轻松地进行更改。
 - en: 'Usually the SRP and the DRY principles work together very nicely. Adhering
     the SRP will often lead to adhering to DRY as well, and vice versa. However, sometimes
     adhering to both requires some extra steps. I know you’re eager to learn what
@@ -1080,11 +1176,13 @@
   id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 通常，SRP和DRY原则可以非常好地配合。遵循SRP通常也会导致遵循DRY，反之亦然。然而，有时遵循这两个原则需要额外的步骤。我知道你渴望了解这些额外步骤及如何解决问题，但在这一点上，指出SRP和DRY的一般思想已足够。我承诺会重新审视这个问题，并向您展示如何解决它（参见[“指南35：使用装饰器分层地添加定制”](ch09.xhtml#use_decorators_to_add_customization_hierarchically)）。
 - en: Avoid Premature Separation of Concerns
   id: totrans-125
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 避免过早地分离关注点。
 - en: At this point, I’ve hopefully convinced you that adhering to SRP and DRY is
     a very reasonable idea. You might even be so committed that you plan to separate
     everything—all classes and functions—into the most tiny units of functionality.
@@ -1094,11 +1192,13 @@
   id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 到目前为止，希望我已经说服你遵循SRP和DRY是非常合理的想法。你甚至可能如此坚定，计划将所有东西——所有类和函数——分离成最微小的功能单元。毕竟，这是目标，对吧？如果你现在正这么想，请停下！深呼吸。再深一口。然后请仔细听凯特里娜·特拉杰夫斯卡的智慧：^([30](ch01.xhtml#idm45043128758896))
 - en: Don’t try to achieve SOLID, use SOLID to achieve maintainability.
   id: totrans-127
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 不要试图实现SOLID原则，而是利用SOLID来实现可维护性。
 - en: 'Both SRP and DRY are your tools for achieving better maintainability and simplifying
     change. They are not your goals. While both are of utmost importance in the long
     run, it can be very counterproductive to separate entities without a clear idea
@@ -1114,17 +1214,20 @@
   id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: SRP和DRY都是实现更好可维护性和简化变更的工具。它们不是你的目标。虽然长远来看两者都非常重要，但在没有清晰想法的情况下分离实体可能会非常适得其反。为变更而设计通常会偏向于特定类型的变更，但不幸的是可能会使其他类型的变更变得更加困难。这种哲学是众所周知的“你不会需要它”（YAGNI）原则的一部分，该原则警告你不要过度设计（也请参阅[“指南5：设计用于扩展”](#design_for_extension)）。如果有明确的计划，如果你知道可以预期什么样的变化，那么就应用SRP和DRY使这种变化变得简单。然而，如果你不知道可以预期什么样的变化，那么不要猜测——只需等待。等到你对可以预期什么样的变化有了清晰的想法，然后重构以尽可能地简化变化。
 - en: Tip
   id: totrans-129
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 小贴士
 - en: Just don’t forget that one aspect of easily changing things is having unit tests
     in place that give you confirmation that the change did not break the expected
     behavior.
   id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 别忘了轻松修改事物的一个方面是拥有单元测试，这些测试可以确认修改没有破坏预期的行为。
 - en: In summary, change is expected in *soft*ware and therefore it’s vital to design
     for change. Separate concerns and minimize duplication to enable you to easily
     change things without being afraid to break other, orthogonal aspects.
