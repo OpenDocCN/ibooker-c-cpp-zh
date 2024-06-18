@@ -1,0 +1,635 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Preface" data-type="preface" epub:type="preface"><div class="preface" id="preface_id">
+<h1>Preface</h1>
+<p>You picked up this book to move your programming skills one step forward. That is good, because you’ll definitely benefit from the hands-on knowledge provided in this book. If you have a lot of experience programming in C, you’ll learn the details of good design decisions and about their benefits and drawbacks. If you are fairly new to C programming, you’ll find guidance about design decisions, and you’ll see how these decisions are applied bit by bit to running code examples for building larger scale programs.</p>
+<p>The book answers questions such as how to structure a C program, how to cope with error handling, or how to design flexible interfaces. As you learn more about C programming, questions often pop up, such as the following:</p>
+<ul>
+<li>
+<p>Should I return any error information I have?</p>
+</li>
+<li>
+<p>Should I use the global variable <code>errno</code> to do that?</p>
+</li>
+<li>
+<p>Should I have few functions with many parameters or the other way around?</p>
+</li>
+<li>
+<p>How do I build a flexible interface?</p>
+</li>
+<li>
+<p>How can I build basic things like an iterator?</p>
+</li>
+</ul>
+<p>For object-oriented languages, most of these questions are answered to a great extent by the Gang of Four book <em>Design Patterns: Elements of Reusable Object-Oriented Software</em> by Erich Gamma, Richard Helm, Ralph Johnson, and John Vlissides (Prentice Hall, 1997). Design patterns<a data-primary="design patterns" data-secondary="purpose of" data-type="indexterm" id="idm45587944914464"/> provide a programmer with best practices on how objects should interact and which object owns which other kinds of objects. Also, design patterns show how such objects can be grouped together.</p>
+<p>However, for<a data-primary="design patterns" data-secondary="challenges of C programming language" data-type="indexterm" id="idm45587944623488"/> procedural programming languages like C, most of these design patterns cannot be implemented in the way described by the Gang of Four. There are no native object-oriented mechanisms in C. It is possible to emulate inheritance or polymorphism in the C programming language, but that might not be the first choice, because such emulation makes things unfamiliar for programmers who are used to programming C and are not used to programming with object-oriented languages like C++ and using concepts like inheritance and polymorphism. Such programmers may want to stick to their native C programming style that they are used to. However, with the native C programming style, not all object-oriented design patterns guidance is usable, or at least the specific implementation of the idea presented in a design pattern is not provided for non-object-oriented programming languages.</p>
+<p>And that is where we stand: we want to program in C, but we cannot directly use most of the knowledge documented in design patterns. This book shows how to bridge this gap and implement hands-on design knowledge for the C programming language.</p>
+<section data-pdf-bookmark="Why I Wrote This Book" data-type="sect1"><div class="sect1" id="idm45587945706080">
+<h1>Why I Wrote This Book</h1>
+<p>Let<a data-primary="C programming language" data-secondary="challenges of" data-type="indexterm" id="CPchallenges00"/> me tell you why the knowledge gathered in this book turned out to be very important for me and why such knowledge is hard to find.</p>
+<p>In school I learned C programming as my first programming language. Just like every new C programmer, I wondered why arrays start with index 0, and I first rather randomly tried out how to place the operators <code>*</code> and <code>&amp;</code> in order to finally get the C pointer magic working.</p>
+<p>At university I learned how C syntax actually works and how it translates to bits and bytes on the hardware. With that knowledge I was able to write small programs that worked very well. However, I still had trouble understanding why longer code looked the way it did, and I certainly wouldn’t have come up with solutions like the 
+<span class="keep-together">following:</span></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">typedef</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">INTERNAL_DRIVER_STRUCT</code><code class="o">*</code><code class="w"> </code><code class="n">DRIVER_HANDLE</code><code class="p">;</code><code class="w"/>
+<code class="k">typedef</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="p">(</code><code class="o">*</code><code class="n">DriverSend_FP</code><code class="p">)(</code><code class="kt">char</code><code class="w"> </code><code class="n">byte</code><code class="p">);</code><code class="w"/>
+<code class="k">typedef</code><code class="w"> </code><code class="kt">char</code><code class="w"> </code><code class="p">(</code><code class="o">*</code><code class="n">DriverReceive_FP</code><code class="p">)();</code><code class="w"/>
+<code class="k">typedef</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="p">(</code><code class="o">*</code><code class="n">DriverIOCTL_FP</code><code class="p">)(</code><code class="kt">int</code><code class="w"> </code><code class="n">ioctl</code><code class="p">,</code><code class="w"> </code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">context</code><code class="p">);</code><code class="w"/>
+
+<code class="k">struct</code><code class="w"> </code><code class="nc">DriverFunctions</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="n">DriverSend_FP</code><code class="w"> </code><code class="n">fpSend</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="n">DriverReceive_FP</code><code class="w"> </code><code class="n">fpReceive</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="n">DriverIOCTL_FP</code><code class="w"> </code><code class="n">fpIOCTL</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="n">DRIVER_HANDLE</code><code class="w"> </code><code class="nf">driverCreate</code><code class="p">(</code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">initArg</code><code class="p">,</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">DriverFunctions</code><code class="w"> </code><code class="n">f</code><code class="p">);</code><code class="w"/>
+<code class="kt">void</code><code class="w"> </code><code class="nf">driverDestroy</code><code class="p">(</code><code class="n">DRIVER_HANDLE</code><code class="w"> </code><code class="n">h</code><code class="p">);</code><code class="w"/>
+<code class="kt">void</code><code class="w"> </code><code class="nf">sendByte</code><code class="p">(</code><code class="n">DRIVER_HANDLE</code><code class="w"> </code><code class="n">h</code><code class="p">,</code><code class="w"> </code><code class="kt">char</code><code class="w"> </code><code class="n">byte</code><code class="p">);</code><code class="w"/>
+<code class="kt">char</code><code class="w"> </code><code class="nf">receiveByte</code><code class="p">(</code><code class="n">DRIVER_HANDLE</code><code class="w"> </code><code class="n">h</code><code class="p">);</code><code class="w"/>
+<code class="kt">void</code><code class="w"> </code><code class="nf">driverIOCTL</code><code class="p">(</code><code class="n">DRIVER_HANDLE</code><code class="w"> </code><code class="n">h</code><code class="p">,</code><code class="w"> </code><code class="kt">int</code><code class="w"> </code><code class="n">ioctl</code><code class="p">,</code><code class="w"> </code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">context</code><code class="p">);</code><code class="w"/></pre>
+<p class="pagebreak-before">Looking at code like that prompted many questions:</p>
+<ul>
+<li>
+<p>Why have function pointers in the <code>struct</code>?</p>
+</li>
+<li>
+<p>Why do the functions need that <code>DRIVER_HANDLE</code>?</p>
+</li>
+<li>
+<p>What is an IOCTL, and why would I not have separate functions instead?</p>
+</li>
+<li>
+<p>Why have explicit create and destroy functions?</p>
+</li>
+</ul>
+<p>These questions came up as I began writing industrial applications. I regularly came across situations where I realized I did not have the C programming knowledge, for example, to decide how to implement an iterator or to decide how to cope with error handling in my functions. I realized that although I knew C syntax, I had no clue how to apply it. I tried to achieve something but just managed to do it in a clumsy way or not at all. What I needed were best practices on how to achieve specific tasks with the C programming language. For example, I needed to know things like the following:</p>
+<ul>
+<li>
+<p>How can I acquire and release resources in an easy way?</p>
+</li>
+<li>
+<p>Is it a good idea to use <code>goto</code> for error handling?</p>
+</li>
+<li>
+<p>Should I design my interface to be flexible, or should I simply change it when the need arises?</p>
+</li>
+<li>
+<p>Should I use an <code>assert</code> statement, or should I return an error code?</p>
+</li>
+<li>
+<p>How is an iterator implemented in C?</p>
+</li>
+</ul>
+<p>It was very interesting for me to realize that while my experienced work colleagues had many different answers for these questions, nobody could point me to anything that documented these design decisions and their benefits and drawbacks.</p>
+<p>So next I turned to the internet, and yet again I was surprised: it was very hard to find sound answers to these questions even though the C programming language has been around for decades. I found out that while there is much literature on the C programming language basics and its syntax, there’s not much on advanced C programming topics or how to write beautiful C code that holds up to industrial applications.</p>
+<p>And that is exactly where this book comes in. This book teaches you how to advance your programming skills from writing basic C programs to writing larger-scale C programs that consider error handling and that are flexible regarding certain future changes in requirements and design. This book uses the concept of design patterns to provide you bit by bit with design decisions and their benefits and drawbacks. These design patterns are applied to running code examples that teach you how code like the earlier example evolves and why it ends up looking the way it does.</p>
+<p class="pagebreak-before">The presented patterns can be applied to any C programming domains. As I come from the domain of embedded programming in a multithreaded real-time environment, some of the patterns are biased towards that domain. Anyways, you’ll see that the general idea of the patterns can be applied to other C programming domains and even beyond the scope of C programming.<a data-primary="" data-startref="CPchallenges00" data-type="indexterm" id="idm45587935131280"/></p>
+</div></section>
+<section data-pdf-bookmark="Patterns Basics" data-type="sect1"><div class="sect1" id="idm45587935130048">
+<h1>Patterns Basics</h1>
+<p>The<a data-primary="design patterns" data-secondary="development of" data-type="indexterm" id="idm45587935128512"/> design guidance in this book is provided in the form of patterns. The idea of presenting knowledge and best practices in the form of patterns comes from the architect Christopher Alexander in <em>The Timeless Way of Building</em> (Oxford University Press, 1979). He uses small pieces of well-proven solutions to tackle a huge problem in his domain: how to design and construct cities. The approach of applying patterns was adopted by the software development domain, where pattern conferences like the conference on Pattern Languages of Programs (PLoP) are held to extend the body of knowledge of patterns. In particular, the book <em>Design Patterns: Elements of Reusable Object-Oriented Software</em> by the Gang of Four (Prentice Hall, 1997) had a significant impact and made the concept of design patterns well known to software developers.</p>
+<p>But what exactly is a pattern? There are many definitions out there, and if you are deeply interested in the topic, then the book <em>Pattern-Oriented Software Architecture: On Patterns and Pattern Languages</em> by Frank Buschmann et al. (Wiley, 2007) can provide you with accurate descriptions and details. For<a data-primary="design patterns" data-secondary="definition of term" data-type="indexterm" id="idm45587935089056"/> the purposes of this book, a pattern provides a well-proven solution to a real-life problem. The patterns presented in this book have the<a data-primary="design patterns" data-secondary="structure of" data-type="indexterm" id="idm45587935088080"/> structure shown in <a data-type="xref" href="#tab_pattern_sections">Table P-1</a>.</p>
+<table id="tab_pattern_sections">
+<caption><span class="label">Table P-1. </span>How patterns are broken down in this book</caption>
+<thead>
+<tr>
+<th>Pattern section</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>Name</p></td>
+<td><p>This is the name of the pattern, which should be easy to remember. The aim is that this name will be used by programmers in their everyday language (as is the case with the Gang of Four patterns, where you hear programmers say, “And the Abstract Factory creates the object”). 
+<span class="keep-together">Pattern names are capitalized in this book.</span></p></td>
+</tr>
+<tr>
+<td><p>Context</p></td>
+<td><p>The context section sets the scene for the pattern. It tells you under which circumstances this pattern can be applied.</p></td>
+</tr>
+<tr>
+<td><p>Problem</p></td>
+<td><p>The problem section gives you information about the issue you want to tackle. It starts with the major problem statement written in bold font type and then adds details on why the problem is hard to solve. (In other pattern formats, these details go into a separate section called “forces.”)</p></td>
+</tr>
+<tr>
+<td><p>Solution</p></td>
+<td><p>This section provides guidance on how to tackle the problem. It starts with stating the main idea of the solution written in bold font type and continues with details about the solution. It also provides a code example in order to give very concrete guidance.</p></td>
+</tr>
+<tr>
+<td><p>Consequences</p></td>
+<td><p>This section lists the benefits and drawbacks of applying the described solution. When applying a pattern, you should always confirm that the consequences that arise are OK with you.</p></td>
+</tr>
+<tr>
+<td><p>Known uses</p></td>
+<td><p>The known uses give you evidence that the proposed solution is good and actually works in real-life applications. They also show you concrete examples to help you understand how to apply the pattern.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A<a data-primary="design patterns" data-secondary="selecting" data-type="indexterm" id="idm45587935073712"/> major benefit of presenting design guidance in the form of patterns is that these patterns can be applied one after another. If you have a huge design problem, it’s hard to find the one guidance document and the one solution that addresses exactly that problem. Instead, you can think of your huge and very specific problem as a sum of many smaller and more generic problems, and you can tackle these problems bit by bit by applying one pattern after the other. You simply check the problem descriptions of the patterns and apply the one that fits your problem and that has consequences you can live with. These consequences might lead to another problem that you can then address by applying another pattern. That way you incrementally design your code instead of trying to come up with a complete up-front design before even writing the first line of code.</p>
+</div></section>
+<section data-pdf-bookmark="How to Read This Book" data-type="sect1"><div class="sect1" id="idm45587935072608">
+<h1>How to Read This Book</h1>
+<p>You should already know C programming basics. You should know the C syntax and how it works—for example, this book won’t teach you what a pointer is or how to use it. This book delivers hints and guidance on advanced topics.</p>
+<p>The<a data-primary="design patterns" data-secondary="approach to learning" data-type="indexterm" id="idm45587935070848"/> chapters in this book are self-standing. You can read them in an arbitrary order, and you can simply pick out the topics you are interested in. You’ll find an overview of all patterns in the next section, and from there you can jump to the patterns you are interested in. So if you know exactly what you are looking for, you can start 
+<span class="keep-together">right there.</span></p>
+<p>If you are not looking for one particular pattern, but instead want to get an overview of possible C design options, read through <a data-type="xref" href="part01.xhtml#part_1">Part I</a> of the book. Each chapter there focuses on a particular topic, starting with basic topics like error handling and memory managment, and then moving to more advanced and specific topics like interface design or platform-independent code. The chapters each present patterns related to that topic and a running code example that shows bit by bit how the patterns can 
+<span class="keep-together">be applied.</span></p>
+<p><a data-type="xref" href="part02.xhtml#part_2">Part II</a> of this book shows two larger running examples that apply many of the patterns from <a data-type="xref" href="part01.xhtml#part_1">Part I</a>. Here you can learn how to build up some larger piece of software bit by bit through the application of patterns.</p>
+</div></section>
+<section data-pdf-bookmark="Overview of the Patterns" data-type="sect1"><div class="sect1" id="idm45587935065776">
+<h1>Overview of the Patterns</h1>
+<p>You’ll find an overview of all patterns presented in this book in Tables <a href="#tab1a">P-2</a> through <a href="#tab1i">P-10</a>. The tables show a short form of the patterns that only contains a brief description of the core problem, followed by the keyword “Therefore,” followed by the core solution.</p>
+<table id="tab1a">
+<caption><span class="label">Table P-2. </span>Patterns for error handling</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch01.xhtml#pattern_function_split">“Function Split”</a></p></td>
+<td><p>The<a data-primary="design patterns" data-secondary="overview of" data-tertiary="error handling" data-type="indexterm" id="idm45587935057744"/><a data-primary="error handling" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587935056464"/> function has several responsibilities, which makes the function hard to read and maintain. Therefore, split it up. Take a part of a function that seems useful on its own, create a new function with that, and call that function.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch01.xhtml#pattern_guard_clause">“Guard Clause”</a></p></td>
+<td><p>The function is hard to read and maintain because it mixes pre-condition checks with the main program logic of the function. Therefore, check if you have mandatory pre-conditions, and immediately return from the function if these pre-conditions are not met.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch01.xhtml#pattern_samurai_principle">“Samurai Principle”</a></p></td>
+<td><p>When returning error information, you assume that the caller checks for this information. However, the caller can simply omit this check and the error might go unnoticed. Therefore, return from a function victorious or not at all. If there is a situation for which you know that an error cannot be handled, then abort the program.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch01.xhtml#pattern_goto">“Goto Error Handling”</a></p></td>
+<td><p>Code gets difficult to read and maintain if it acquires and cleans up multiple resources at different places within a function. Therefore, have all resource cleanup and error handling at the end of the function. If a resource cannot be acquired, use the <code>goto</code> statement to jump to the resource cleanup code.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch01.xhtml#pattern_cleanup_record">“Cleanup Record”</a></p></td>
+<td><p>It is difficult to make a piece of code easy to read and maintain if this code acquires and cleans up multiple resources, particularly if those resources depend on one another. Therefore, call resource acquisition functions as long as they succeed, and store which functions require cleanup. Call the cleanup functions depending on these stored values.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch01.xhtml#pattern_object_based_error_handling">“Object-Based Error Handling”</a></p></td>
+<td><p>Having multiple responsibilities in one function, such as resource acquisition, resource cleanup, and usage of that resource, makes that code difficult to implement, read, maintain, and test. Therefore, put initialization and cleanup into separate functions, similar to the concept of constructors and destructors in object-oriented programming.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1b">
+<caption><span class="label">Table P-3. </span>Patterns for returning error information</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch02.xhtml#pattern_return_error_codes">“Return Status Codes”</a></p></td>
+<td><p>You<a data-primary="design patterns" data-secondary="overview of" data-tertiary="returning error information" data-type="indexterm" id="idm45587935039280"/><a data-primary="error information, returning" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587935038032"/> want to have a mechanism to return status information to the caller, so that the caller can react to it. You want the mechanism to be simple to use, and the caller should be able to clearly distinguish between different error situations that could occur. Therefore, use the Return Value of a function to return status information. Return a value that represents a specific status. Both of you as the callee and the caller must have a mutual understanding of what the value means.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch02.xhtml#pattern_return_relevant_errors">“Return Relevant Errors”</a></p></td>
+<td><p>On the one hand, the caller should be able to react to errors; on the other hand, the more error information you return, the more your code and the code of your caller have to deal with error handling, which makes the code longer. Longer code is harder to read and maintain and brings in the risk of additional bugs. Therefore, only return error information to the caller if that information is relevant to the caller. Error information is only relevant to the caller if the caller can react to that information.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch02.xhtml#pattern_special_return_values">“Special Return Values”</a></p></td>
+<td><p>You want to return error information, but it’s not an option to explicitly Return Status Codes because that implies that you cannot use the Return Value of the function to return other data. You’d have to return that data via Out-Parameters, which would make calling your function more difficult. Therefore, use the Return Value of your function to return the data computed by the function. Reserve one or more special values to be returned if an error occurs.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch02.xhtml#pattern_log_errors">“Log Errors”</a></p></td>
+<td><p>You want to make sure that in case of an error you can easily find out its cause. However, you don’t want your error-handling code to become complicated because of this. Therefore, use different channels to provide error information that is relevant for the calling code and error information that is relevant for the developer. For example, write debug error information into a log file and don’t return the detailed debug error information to the caller.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1c">
+<caption><span class="label">Table P-4. </span>Patterns for memory management</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_stack_first">“Stack First”</a></p></td>
+<td><p>Deciding<a data-primary="design patterns" data-secondary="overview of" data-tertiary="memory management" data-type="indexterm" id="idm45587935025088"/><a data-primary="memory management" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587935023808"/> the storage class and memory section (stack, heap, …) for variables is a decision every programmer has to make often. It gets exhausting if for each and every variable, the pros and cons of all possible alternatives have to be considered in detail. Therefore, simply put your variables on the stack by default to profit from automatic cleanup of stack variables.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_eternal_memory">“Eternal Memory”</a></p></td>
+<td><p>Holding large amounts of data and transporting it between function calls is difficult because you have to make sure that the memory for the data is large enough and that the lifetime extends across your function calls. Therefore, put your data into memory that is available throughout the whole lifetime of your program.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_screw_freeing">“Lazy Cleanup”</a></p></td>
+<td><p>Having dynamic memory is required if you need large amounts of memory and memory where you don’t know the required size beforehand. However, handling cleanup of dynamic memory is a hassle and is the source of many programming errors. Therefore, allocate dynamic memory and let the operating system cope with deallocation by the end of your program.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_dedicated_ownership">“Dedicated Ownership”</a></p></td>
+<td><p>The great power of using dynamic memory comes with the great responsibility of having to properly clean that memory up. In larger programs, it becomes difficult to make sure that all dynamic memory is cleaned up properly. Therefore, right at the time when you implement memory allocation, clearly define and document where it’s going to be cleaned up and who is going to do that.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_allocation_wrapper">“Allocation Wrapper”</a></p></td>
+<td><p>Each allocation of dynamic memory might fail, so you should check allocations in your code to react accordingly. This is cumbersome because you have many places for such checks in your code. Therefore, wrap the allocation and deallocation calls, and implement error handling or additional memory management organization in these wrapper functions.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_pointer_check">“Pointer Check”</a></p></td>
+<td><p>Programming errors that lead to accessing an invalid pointer cause uncontrolled program behavior, and such errors are difficult to debug. However, because your code works with pointers frequently, there is a good chance that you have introduced such programming errors. Therefore, explicitly invalidate uninitialized or freed pointers and always check pointers for validity before accessing them.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch03.xhtml#pattern_memory_pool">“Memory Pool”</a></p></td>
+<td><p>Frequently allocating and deallocating objects from the heap leads to memory fragmentation. Therefore, hold a large piece of memory throughout the whole lifetime of your program. At runtime, retrieve fixed-size chunks of that memory pool instead of directly allocating new memory from the heap.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1d">
+<caption><span class="label">Table P-5. </span>Patterns for returning data from C functions</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch04.xhtml#pattern_return_value">“Return Value”</a></p></td>
+<td><p>The<a data-primary="design patterns" data-secondary="overview of" data-tertiary="returning data from C functions" data-type="indexterm" id="idm45587935004656"/><a data-primary="C functions, returning data from" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587935003360"/> function parts you want to split are not independent from one another. As usual in procedural programming, some part delivers a result that is then needed by some other part. The function parts that you want to split need to share some data. Therefore, simply use the one C mechanism intended to retrieve information about the result of a function call: the Return Value. The mechanism to return data in C copies the function result and provides the caller access to this copy.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch04.xhtml#pattern_out_parameters">“Out-Parameters”</a></p></td>
+<td><p>C only supports returning a single type from a function call, and that makes it complicated to return multiple pieces of information. Therefore, return all the data with a single function call by emulating by-reference arguments with pointers.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch04.xhtml#pattern_aggregate_instance">“Aggregate Instance”</a></p></td>
+<td><p>C only supports returning a single type from a function call, and that makes it complicated to return multiple pieces of information. Therefore, put all data that is related into a newly defined type. Define this Aggregate Instance to contain all the related data that you want to share. Define it in the interface of your component to let the caller directly access all the data stored in the instance.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch04.xhtml#pattern_immutable_instance">“Immutable Instance”</a></p></td>
+<td><p>You want to provide information held in large pieces of immutable data from your component to a caller. Therefore, have an instance (for example, a <code>struct</code>) containing the data to share in static memory. Provide this data to users who want to access it and make sure that they cannot modify it.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch04.xhtml#pattern_caller_owned_buffer">“Caller-Owned Buffer”</a></p></td>
+<td><p>You want to provide complex or large data of known size to the caller, and that data is not immutable (it changes at runtime). Therefore, require the caller to provide a buffer and its size to the function that returns the large, complex data. In the function implementation, copy the required data into the buffer if the buffer size is large enough.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch04.xhtml#pattern_callee_allocates">“Callee Allocates”</a></p></td>
+<td><p>You want to provide complex or large data of unknown size to the caller, and that data is not immutable (it changes at runtime). Therefore, allocate a buffer with the required size inside the function that provides the large, complex data. Copy the required data into the buffer and return a pointer to that buffer.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1e">
+<caption><span class="label">Table P-6. </span>Patterns for data lifetime and ownership</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch05.xhtml#pattern_stateless_software_module">“Stateless Software-Module”</a></p></td>
+<td><p>You<a data-primary="design patterns" data-secondary="overview of" data-tertiary="data lifetime and ownership" data-type="indexterm" id="idm45587934986048"/><a data-primary="data lifetime and ownership" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587934984752"/> want to provide logically related functionality to your caller and make that functionality as easy as possible for the caller to use. Therefore, keep your functions simple and don’t build up state information in your implementation. Put all related functions into one header file and provide the caller this interface to your software-module.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch05.xhtml#pattern_software_module_with_global_state">“Software-Module with Global State”</a></p></td>
+<td><p>You want to structure your logically related code that requires common state information and make that functionality as easy as possible for the caller to use. Therefore, have one global instance to let your related functions share common resources. Put all functions that operate on this instance into one header file, and provide the caller this interface to your software-module.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch05.xhtml#pattern_caller_owned_instance">“Caller-Owned Instance”</a></p></td>
+<td><p>You want to provide multiple callers or threads access to functionality with functions that depend on one another, and the interaction of the caller with your functions builds up state information. Therefore, require the caller to pass an instance, which is used to store resource and state information, along to your functions. Provide explicit functions to create and destroy these instances, so that the caller can determine their lifetime.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch05.xhtml#pattern_shared_instance">“Shared Instance”</a></p></td>
+<td><p>You want to provide multiple callers or threads access to functionality with functions that depend on one another, and the interaction of the caller with your functions builds up state information, which your callers want to share. Therefore, require the caller to pass an instance, which is used to store resource and state information, along to your functions. Use the same instance for multiple callers and keep the ownership of that instance in your software-module.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1f">
+<caption><span class="label">Table P-7. </span>Patterns for flexible APIs</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch06.xhtml#pattern_header_files">“Header Files”</a></p></td>
+<td><p>You<a data-primary="design patterns" data-secondary="overview of" data-tertiary="flexible APIs" data-type="indexterm" id="idm45587934971856"/><a data-primary="APIs, flexible" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587934970576"/> want functionality that you implement to be accessible to code from other implementation files, but you want to hide your implementation details from the caller. Therefore, provide function declarations in your API for any functionality you want to provide to your user. Hide any internal functions, internal data, and your function definitions (the implementations) in your implementation file and don’t provide this implementation file to the user.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch06.xhtml#pattern_handle">“Handle”</a></p></td>
+<td><p>You have to share state information or operate on shared resources in your function implementations, but you don’t want your caller to see or even access all that state information and shared resources. Therefore, have a function to create the context on which the caller operates and return an abstract pointer to internal data for that context. Require the caller to pass that pointer to all your functions, which can then use the internal data to store state information and resources.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch06.xhtml#pattern_dynamic_interface">“Dynamic Interface”</a></p></td>
+<td><p>It should be possible to call implementations with slightly deviating behaviors, but it should not be necessary to duplicate any code, not even the control logic implementation and interface declaration. Therefore, define a common interface for the deviating functionalities in your API and require the caller to provide a callback function for that functionality, which you then call in your function implementation.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch06.xhtml#pattern_function_control">“Function Control”</a></p></td>
+<td><p>You want to call implementations with slightly deviating behaviors, but you don’t want to duplicate any code, not even the control logic implementation or the interface declaration. Therefore, add a parameter to your function that passes meta-information about the function call and that specifies the actual functionality to be performed.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1g">
+<caption><span class="label">Table P-8. </span>Patterns for flexible iterator interfaces</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch07.xhtml#pattern_index_access">“Index Access”</a></p></td>
+<td><p>You<a data-primary="design patterns" data-secondary="overview of" data-tertiary="iterator interfaces" data-type="indexterm" id="idm45587934957744"/><a data-primary="iterator interfaces" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587934956464"/> want to make it possible for the user to iterate elements in your data structure in a convenient way, and it should be possible to change internals of the data structure without resulting in changes to the user’s code. Therefore, provide a function that takes an index to address the element in your underlying data structure and return the content of this element. The user calls this function in a loop to iterate over all elements.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch07.xhtml#pattern_cursor_iterator">“Cursor Iterator”</a></p></td>
+<td><p>You want to provide an iteration interface to your user which is robust in case the elements change during the iteration and which enables you to change the underlying data structure at a later point without requiring any changes to the user’s code. Therefore, create an iterator instance that points to an element in the underlying data structure. An iteration function takes this iterator instance as argument, retrieves the element the iterator currently points to, and modifies the iteration instance to point to the next element. The user then iteratively calls this function to retrieve one element at a time.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch07.xhtml#pattern_callback_iterator">“Callback Iterator”</a></p></td>
+<td><p>You want to provide a robust iteration interface which does not require the user to implement a loop in the code for iterating over all elements and which enables you to change the underlying data structure at a later point without requiring any changes to the user’s code. Therefore, use your existing data structure—specific operations to iterate over all your elements within your implementation, and call some provided user-function on each element during this iteration. This user-function gets the element content as a parameter and can then perform its operations on this element. The user calls just one function to trigger the iteration, and the whole iteration takes place inside your implementation.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1h">
+<caption><span class="label">Table P-9. </span>Patterns for organizing files in modular programs</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch08.xhtml#pattern_include_guard">“Include Guard”</a></p></td>
+<td><p>It’s<a data-primary="design patterns" data-secondary="overview of" data-tertiary="organizing files in modular programs" data-type="indexterm" id="idm45587934945504"/><a data-primary="files, organizing in modular programs" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587934944208"/><a data-primary="modular programs" data-secondary="organizing files in" data-tertiary="overview of patterns for" data-type="indexterm" id="idm45587934943232"/> easy to include a header file multiple times, but including the same header file leads to compile errors if types or certain macros are part of it, because during compilation they get redefined. Therefore, protect the content of your header files against multiple inclusion so that the developer using the header files does not have to care whether it is included multiple times. Use an interlocked <code>#ifdef</code> statement or a <code>#pragma once</code> statement to achieve this.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch08.xhtml#pattern_software_module_directories">“Software-Module Directories”</a></p></td>
+<td><p>Splitting code into different files increases the number of files in your codebase. Having all files in one directory makes it difficult to keep an overview of all the files, particularly for large codebases. Therefore, put header files and implementation files that belong to a tightly coupled functionality into one directory. Name that directory after the functionality that is provided via the header files.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch08.xhtml#pattern_global_include_directory">“Global Include Directory”</a></p></td>
+<td><p>To include files from other software-modules, you have to use relative paths like <em>../othersoftwaremodule/file.h</em>. You have to know the exact location of the other header file. Therefore, have one global directory in your codebase that contains all software-module APIs. Add this directory to the global include paths in your toolchain.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch08.xhtml#pattern_self_contained_component">“Self-Contained Component”</a></p></td>
+<td><p>From the directory structure it is not possible to see the dependencies in the code. Any software-module can simply include the header files from any other software-module, so it’s impossible to check dependencies in the code via the compiler. Therefore, identify software-modules that contain similar functionality and that should be deployed together. Put these software-modules into a common directory and have a designated subdirectory for their header files that are relevant for the caller.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch08.xhtml#pattern_api_copy">“API Copy”</a></p></td>
+<td><p>You want to develop, version, and deploy the parts of your codebase independently from one another. However, to do that, you need clearly defined interfaces between the code parts and the ability to separate that code into different repositories. Therefore, to use the functionality of another component, copy its API. Build that other component separately and copy the build artifacts and its public header files. Put these files into a directory inside your component and configure that directory as a global include path.</p></td>
+</tr>
+</tbody>
+</table>
+<table id="tab1i">
+<caption><span class="label">Table P-10. </span>Patterns for escaping <code>#ifdef</code> hell</caption>
+<thead>
+<tr>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><a data-type="xref" href="ch09.xhtml#pattern_avoid_variants">“Avoid Variants”</a></p></td>
+<td><p>Using<a data-primary="design patterns" data-secondary="overview of" data-tertiary="escaping #ifdef hell" data-type="indexterm" id="idm45587934926144"/> different functions for each platform makes the code harder to read and write. The programmer is required to initially understand, correctly use, and test these multiple functions in order to achieve a single functionality across multiple platforms. Therefore, use standardized functions that are available on all platforms. If there are no standardized functions, consider not implementing the functionality.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch09.xhtml#pattern_isolate_primitives">“Isolated Primitives”</a></p></td>
+<td><p>Having code variants organized with <code>#ifdef</code> statements makes the code unreadable. It is very difficult to follow the program flow, because it is implemented multiple times for multiple platforms. Therefore, isolate your code variants. In your implementation file, put the code handling the variants into separate functions and call these functions from your main program logic, which then contains only platform-independent code.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch09.xhtml#pattern_atomic_primitives">“Atomic Primitives”</a></p></td>
+<td><p>The function that contains the variants and is called by the main program is still hard to comprehend because all the complex <code>#ifdef</code> code was only put into this function in order to get rid of it in the main program. Therefore, make your primitives atomic. Only handle exactly one kind of variant per function. If you handle multiple kinds of variants, for example, operating system variants and hardware variants, then have separate functions for that.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch09.xhtml#pattern_abstraction_layer">“Abstraction Layer”</a></p></td>
+<td><p>You want to use the functionality which handles platform variants at several places in your codebase, but you do not want to duplicate the code of that functionality. Therefore, provide an API for each functionality that requires platform-specific code. Define only platform-independent functions in the header file and put all platform-specific <code>#ifdef</code> code into the implementation file. The caller of your functions includes only your header file and does not have to include any platform-specific files.</p></td>
+</tr>
+<tr>
+<td><p><a data-type="xref" href="ch09.xhtml#pattern_split_implementation_variants">“Split Variant Implementations”</a></p></td>
+<td><p>The platform-specific implementations still contain <code>#ifdef</code> statements to distinguish between code variants. That makes it difficult to see and select which part of the code should be built for which platform. Therefore, put each variant implementation into a separate implementation file and select per file what you want to compile for which platform.</p></td>
+</tr>
+</tbody>
+</table>
+</div></section>
+<section class="pagebreak-before" data-pdf-bookmark="Conventions Used in This Book" data-type="sect1"><div class="sect1" id="idm45587934913984">
+<h1>Conventions Used in This Book</h1>
+<p>The following typographical conventions are used in this book:</p>
+<dl>
+<dt><em>Italic</em></dt>
+<dd>
+<p>Indicates new terms, URLs, email addresses, filenames, and file extensions.</p>
+</dd>
+</dl>
+<dl class="dt_plain">
+<dt><strong>Bold</strong></dt>
+<dd>
+<p>Used to highlight the problem and solution for each pattern.</p>
+</dd>
+<dt><code>Constant width</code></dt>
+<dd>
+<p>Used for program listings, as well as within paragraphs to refer to program elements such as variable or function names, databases, data types, environment variables, statements, and keywords.</p>
+</dd>
+</dl>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>This element signifies a general note.</p>
+</div>
+<div data-type="warning" epub:type="warning"><h6>Warning</h6>
+<p>This element indicates a warning or caution.</p>
+</div>
+</div></section>
+<section data-pdf-bookmark="Using Code Examples" data-type="sect1"><div class="sect1" id="idm45587934904272">
+<h1>Using Code Examples</h1>
+<!--PROD: Please reach out to author to find out if they will be uploading code examples to oreilly.com or their own site (e.g., GitHub). If there is no code download, delete this whole section. If there is, when you email digidist with the link, let them know what you filled in for title_title (should be as close to book title as possible, i.e., learning_python_2e). This info will determine where digidist loads the files.-->
+<p>The<a data-primary="code examples" data-secondary="obtaining and using" data-type="indexterm" id="idm45587934902480"/> code examples in this book show short code snippets which focus on the core idea to showcase the patterns and their application. The code snippets by themselves won’t compile, because to keep it simple several things are omitted (for example, include files). If you are interested in getting the full code which does compile, you can download it from GitHub at
+<a href="https://github.com/christopher-preschern/fluent-c"><em class="hyperlink">https://github.com/christopher-preschern/fluent-c</em></a>.</p>
+<p>If you have a technical question or a problem using the code examples, please send email to <a class="email" href="mailto:bookquestions@oreilly.com"><em>bookquestions@oreilly.com</em></a>.</p>
+<p class="fix-tracking">This book is here to help you get your job done. In general, if example code is offered with this book, you may use it in your programs and documentation. You do not need to contact us for permission unless you’re reproducing a significant portion of the code. For example, writing a program that uses several chunks of code from this book does not require permission. Selling or distributing examples from O’Reilly books does require permission. Answering a question by citing this book and quoting example code does not require permission. Incorporating a significant amount of example code from this book into your product’s documentation does require 
+<span class="keep-together">permission.</span></p>
+<p>We appreciate, but generally do not require, attribution. An attribution usually includes the title, author, publisher, and ISBN. For example: “<em>Fluent C</em> by Christopher Preschern (O’Reilly). Copyright 2023 Christopher Preschern, 978-1-492-09733-4.”</p>
+<p>If you feel your use of code examples falls outside fair use or the permission given above, feel free to contact us at <a class="email" href="mailto:permissions@oreilly.com"><em>permissions@oreilly.com</em></a>.</p>
+<p>The<a data-primary="code examples" data-secondary="references to examples presented in patterns" data-type="indexterm" id="idm45587934894224"/><a data-primary="design patterns" data-secondary="references to examples presented in patterns" data-type="indexterm" id="idm45587934893120"/> patterns in this book all present existing code examples which apply these patterns. The following list shows the references to these code examples:</p>
+<ul>
+<li>
+<p><a href="https://oreil.ly/nzO5W">The game NetHack</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/qeppo">OpenWrt Project</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/zzsMO">OpenSSL library</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/M55B5">Wireshark network sniffer</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/wkZzb">Portland Pattern repository</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/7F9Oz">Git version control system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/ysaM6">Apache Portable Runtime</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/W6SMn">Apache Webserver</a></p>
+</li>
+<li>
+<p>B&amp;R Automation Runtime operating system (proprietary and undisclosed code of the company B&amp;R Industrial Automation GmbH)</p>
+</li>
+<li>
+<p>B&amp;R Visual Components automation system visualization editor (proprietary and undisclosed code of the company B&amp;R Industrial Automation GmbH)</p>
+</li>
+<li>
+<p><a href="https://oreil.ly/eR0EV">NetDRMS data management system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/UpvJK">MATLAB programming and numeric computing platform</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/QoUwT">GLib library</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/L1Eij">GoAccess real-time web analyzer</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/phLBb">Cloudy physical calculation software</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/KK4jY">GNU Compiler Collection (GCC)</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/YKXxs">MySQL database system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/2JV7h">Android ION memory manager</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/nnzyX">Windows API</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/sQuaI">Apple’s Cocoa API</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/UMUaj">VxWorks real-time operating system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/k3SQI">sam text editor</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/9Qr95">C standard library functions: glibc implementation</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/sg9sz">Subversion project</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/1sDZz">Netdata real-time performance monitoring and visualization system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/8Yz5R">Nmap network tool</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/VWeQL">OpenZFS file system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/LhZM4">RIOT operating system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/TUYfh">Radare reverse engineering framework</a></p>
+</li>
+<li>
+<p><a href="https://www.ef.com">Education First digital learning products</a></p>
+</li>
+<li>
+<p><a href="https://github.com/vim/vim">VIM text editor</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/PlQPj">GNUplot graphing utility</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/5Knfz">SQLite database engine</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/it40Z">gzip data compression program</a></p>
+</li>
+<li>
+<p><a href="https://github.com/lighttpd">lighttpd web server</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/IKVYV">U-Boot bootloader</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/NJnCH">Smpl discrete event simulation system</a></p>
+</li>
+<li>
+<p><a href="https://oreil.ly/RwDtt">Nokia’s Maemo platform</a></p>
+</li>
+</ul>
+</div></section>
+<section data-pdf-bookmark="O’Reilly Online Learning" data-type="sect1"><div class="sect1" id="idm45587934841536">
+<h1>O’Reilly Online Learning</h1>
+<div class="ormenabled" data-type="note" epub:type="note"><h6>Note</h6>
+<p>For more than 40 years, <a class="orm:hideurl" href="https://oreilly.com"><em class="hyperlink">O’Reilly Media</em></a> has provided technology and business training, knowledge, and insight to help companies succeed.</p>
+</div>
+<p>Our unique network of experts and innovators share their knowledge and expertise through books, articles, and our online learning platform. O’Reilly’s online learning platform gives you on-demand access to live training courses, in-depth learning paths, interactive coding environments, and a vast collection of text and video from O’Reilly and 200+ other publishers. For more information, visit <a class="orm:hideurl" href="https://oreilly.com"><em>https://oreilly.com</em></a>.</p>
+</div></section>
+<section class="pagebreak-before" data-pdf-bookmark="How to Contact Us" data-type="sect1"><div class="sect1" id="idm45587934835856">
+<h1>How to Contact Us</h1>
+<p>Please address comments and questions concerning this book to the publisher:</p>
+<ul class="simplelist">
+<li>O’Reilly Media, Inc.</li>
+<li>1005 Gravenstein Highway North</li>
+<li>Sebastopol, CA 95472</li>
+<li>800-998-9938 (in the United States or Canada)</li>
+<li>707-829-0515 (international or local)</li>
+<li>707-829-0104 (fax)</li>
+</ul>
+<p>We have a web page for this book, where we list errata, examples, and any additional information. You can access this page at <a href="https://oreil.ly/fluent-c"><em class="hyperlink">https://oreil.ly/fluent-c</em></a>.</p>
+<!--Don't forget to update the link above.-->
+<p>Email <a class="email" href="mailto:bookquestions@oreilly.com"><em>bookquestions@oreilly.com</em></a> to comment or ask technical questions about this book.</p>
+<p>For news and information about our books and courses, visit <a href="https://oreilly.com"><em class="hyperlink">https://oreilly.com</em></a>.</p>
+<p>Find us on LinkedIn: <a href="https://linkedin.com/company/oreilly-media"><em class="hyperlink">https://linkedin.com/company/oreilly-media</em></a></p>
+<p>Follow us on Twitter: <a href="https://twitter.com/oreillymedia"><em class="hyperlink">https://twitter.com/oreillymedia</em></a></p>
+<p>Watch us on YouTube: <a href="https://www.youtube.com/oreillymedia"><em class="hyperlink">https://www.youtube.com/oreillymedia</em></a></p>
+</div></section>
+<section data-pdf-bookmark="Acknowledgments" data-type="sect1"><div class="sect1" id="idm45587934820288">
+<h1>Acknowledgments</h1>
+<p>I want to thank my wife Silke who by now even knows what patterns are :-) and I want to thank my daughter Ylvi. They both make my life happier, and they both make sure that I don’t end up sitting in front of my computer working all the time, but that I instead enjoy life.</p>
+<p class="fix-tracking">This book would not have come to life without the help of many pattern enthusiasts. I want to thank all the participants of Writers’ Workshops at the European Conference on Pattern Languages of Programs for providing me with feedback on the patterns. In particular, I want to thank the following people, who provided me with very helpful feedback during the so-called shepherding process of that conference: Jari Rauhamäki, Tobias Rauter, Andrea Höller, James Coplien, Uwe Zdun, Thomas Raser, Eden Burton, Claudius Link, Valentino Vranić, and Sumit Kalra. Special thanks also to my work colleagues, in particular to Thomas Havlovec, who made sure that I got the C programming details in my patterns right. Robert Hanmer, Michael Weiss, David Griffiths, and Thomas Krug spent a lot of time for reviewing this book and provided me with additional ideas how to improve it—thank you very much! Thanks also to the whole team at O’Reilly who helped me a lot in making this book happen. In particular, I want to thank my development editor, Corbin Collins, and my production editor, Jonathon Owen.</p>
+<p>The<a data-primary="design patterns" data-secondary="references to published papers" data-type="indexterm" id="idm45587934816656"/> content of this book is based on the following papers that were accepted at the European Conference on Pattern Languages of Programs and published with ACM. These papers can be accessed for free at the website <a href="http://www.preschern.com"><em class="hyperlink">http://www.preschern.com</em></a>.</p>
+<ul>
+<li>
+<p>“A Pattern Story About C Programming,” EuroPLoP ’21: 26th European Conference on Pattern Languages of Programs, July 2015, article no. 53, 1–10, <a href="https://dl.acm.org/doi/10.1145/3489449.3489978"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3489449.3489978</em></a>.</p>
+</li>
+<li>
+<p>“Patterns for Organizing Files in Modular C Programs,” EuroPLoP ’20: Proceedings of the European Conference on Pattern Languages of Programs, July 2020, article no. 1, 1–15, <a href="https://dl.acm.org/doi/10.1145/3424771.3424772"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3424771.3424772</em></a>.</p>
+</li>
+<li>
+<p>“Patterns to Escape the #ifdef Hell,” EuroPLop ’19: Proceedings of the 24th European Conference on Pattern Languages of Programs, July 2019, article no. 2, 
+<span class="keep-together">1–12,</span> <a href="https://dl.acm.org/doi/10.1145/3361149.3361151"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3361149.3361151</em></a>.</p>
+</li>
+<li>
+<p>“Patterns for Returning Error Information in C,” EuroPLop ’19: Proceedings of the 24th European Conference on Pattern Languages of Programs, July 2019, article no. 3, 1–14, <a href="https://dl.acm.org/doi/10.1145/3361149.3361152"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3361149.3361152</em></a>.</p>
+</li>
+<li>
+<p>“Patterns for Returning Data from C Functions,” EuroPLop ’19: Proceedings of the 24th European Conference on Pattern Languages of Programs, July 2019, article no. 37, 1–13, <a href="https://dl.acm.org/doi/10.1145/3361149.3361188"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3361149.3361188</em></a>.</p>
+</li>
+<li>
+<p>“C Patterns on Data Lifetime and Ownership,” EuroPLop ’19: Proceedings of the 24th European Conference on Pattern Languages of Programs, July 2019, article no. 36, 1–13, <a href="https://dl.acm.org/doi/10.1145/3361149.3361187"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3361149.3361187</em></a>.</p>
+</li>
+<li>
+<p>“Patterns for C Iterator Interfaces,” EuroPLoP ’17: Proceedings of the 22nd European Conference on Pattern Languages of Programs, July 2017, article no. 8, 
+<span class="keep-together">1–14,</span> <a href="https://dl.acm.org/doi/10.1145/3147704.3147714"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3147704.3147714</em></a>.</p>
+</li>
+<li>
+<p>“API Patterns in C,” EuroPlop ’16: Proceedings of the 21st European Conference on Pattern Languages of Programs, July 2016, article no. 7, 1–11, <a href="https://dl.acm.org/doi/10.1145/3011784.3011791"><em class="hyperlink">https://dl.acm.org/doi/10.1145/3011784.3011791</em></a>.</p>
+</li>
+<li>
+<p>“Idioms for Error Handling in C,” EuroPLoP ’15: Proceedings of the 20th European Conference on Pattern Languages of Programs, July 2015, article no. 53, 
+<span class="keep-together">1–10,</span> <a href="https://dl.acm.org/doi/10.1145/2855321.2855377"><em class="hyperlink">https://dl.acm.org/doi/10.1145/2855321.2855377</em></a>.</p>
+</li>
+</ul>
+</div></section>
+</div></section></div></body></html>

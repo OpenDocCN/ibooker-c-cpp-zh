@@ -1,0 +1,734 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Chapter 1. Error Handling" data-type="chapter" epub:type="chapter"><div class="chapter" id="chapter_error_handling">
+<h1><span class="label">Chapter 1. </span>Error Handling</h1>
+<p>Error handling<a data-primary="error handling" data-secondary="challenges of" data-type="indexterm" id="idm45587934788768"/> is a big part of writing software, and when it’s done poorly, the software becomes difficult to extend and to maintain. Programming languages like C++ or Java provide “Exceptions” and “Destructors” that make error handling easier. Such mechanisms are not natively available for C, and literature on good error handling in C is widely scattered over the internet.</p>
+<p class="fix-tracking">This chapter provides collected knowledge on good error handling in the form of C error-handling patterns and a running example that applies the patterns. The patterns provide good practice design decisions and elaborate on when to apply them and which consequences they bring. For a programmer, these patterns remove the burden of making many fine-grained decisions. Instead, a programmer can rely on the knowledge presented in these patterns and use them as a starting point to write good code.</p>
+<p><a data-type="xref" href="#fig_error_handling">Figure 1-1</a> shows an overview of the patterns covered in this chapter and their relationships, and <a data-type="xref" href="#tab_error_handling">Table 1-1</a> provides a summary of the patterns.</p>
+<figure><div class="figure" id="fig_error_handling">
+<img alt="pattern-maps/error-handling.png" height="770" src="assets/fluc_0101.png" width="1289"/>
+<h6><span class="label">Figure 1-1. </span>Overview of patterns for error handling</h6>
+</div></figure>
+<table id="tab_error_handling">
+<caption><span class="label">Table 1-1. </span>Patterns for error handling</caption>
+<thead>
+<tr>
+<th/>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td/>
+<td><p>Function Split</p></td>
+<td><p>The<a data-primary="error handling" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587934777376"/><a data-primary="design patterns" data-secondary="overview of" data-tertiary="error handling" data-type="indexterm" id="idm45587934776304"/> function has several responsibilities, which makes the function hard to read and maintain. Therefore, split it up. Take a part of a function that seems useful on its own, create a new function with that, and call that function.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Guard Clause</p></td>
+<td><p>The function is hard to read and maintain because it mixes pre-condition checks with the main program logic of the function. Therefore, check whether you have mandatory pre-conditions and immediately return from the function if these pre-conditions are not met.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Samurai Principle</p></td>
+<td><p>When returning error information, you assume that the caller checks for this information. However, the caller can simply omit this check and the error might go unnoticed. Therefore, return from a function victorious or not at all. If there is a situation for which you know that an error cannot be handled, then abort the program.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Goto Error Handling</p></td>
+<td><p>Code gets difficult to read and maintain if it acquires and cleans up multiple resources at different places within a function. Therefore, have all resource cleanup and error handling at the end of the function. If a resource cannot be acquired, use the <code>goto</code> statement to jump to the resource cleanup code.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Cleanup Record</p></td>
+<td><p>It is difficult to make a piece of code easy to read and maintain if this code acquires and cleans up multiple resources, particularly if those resources depend on one another. Therefore, call resource acquisition functions as long as they succeed, and store which functions require cleanup. Call the cleanup functions depending on these stored values.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Object-Based Error Handling</p></td>
+<td><p>Having multiple responsibilities in one function, such as resource acquisition, resource cleanup, and usage of that resource, makes that code difficult to implement, read, maintain, and test. Therefore, put initialization and cleanup into separate functions, similar to the concept of constructors and destructors in object-oriented programming.</p></td>
+</tr>
+</tbody>
+</table>
+<section data-pdf-bookmark="Running Example" data-type="sect1"><div class="sect1" id="idm45587934763920">
+<h1>Running Example</h1>
+<p>You<a data-primary="error handling" data-secondary="running example" data-type="indexterm" id="idm45587934762272"/> want to implement a function that parses a file for certain keywords and that returns information on which of the keywords was found.</p>
+<p>The standard way to indicate an error situation in C is to provide this information via the return value of a function. To provide additional error information, legacy C functions often set the <code>errno</code> variable (see <em>errno.h</em>) to a specific error code. The caller can then check <code>errno</code> to get information about the error.</p>
+<p>However, in the following code, you simply use return values instead of <code>errno</code> because you don’t need very detailed error information. You come up with the following initial piece of code:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">file_name</code><code class="o">!=</code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"r"</code><code class="p">))</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="n">buffer</code><code class="o">=</code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">))</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"/>
+<code class="w">        </code><code class="cm">/* parse file content*/</code><code class="w"/>
+<code class="w">        </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">NO_KEYWORD_FOUND</code><code class="p">;</code><code class="w"/>
+<code class="w">        </code><code class="k">while</code><code class="p">(</code><code class="n">fgets</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">BUFFER_SIZE</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">)</code><code class="o">!=</code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">        </code><code class="p">{</code><code class="w"/>
+<code class="w">          </code><code class="k">if</code><code class="p">(</code><code class="n">strcmp</code><code class="p">(</code><code class="s">"KEYWORD_ONE</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">buffer</code><code class="p">)</code><code class="o">==</code><code class="mi">0</code><code class="p">)</code><code class="w"/>
+<code class="w">          </code><code class="p">{</code><code class="w"/>
+<code class="w">            </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">KEYWORD_ONE_FOUND_FIRST</code><code class="p">;</code><code class="w"/>
+<code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w"/>
+<code class="w">          </code><code class="p">}</code><code class="w"/>
+<code class="w">          </code><code class="k">if</code><code class="p">(</code><code class="n">strcmp</code><code class="p">(</code><code class="s">"KEYWORD_TWO</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">buffer</code><code class="p">)</code><code class="o">==</code><code class="mi">0</code><code class="p">)</code><code class="w"/>
+<code class="w">          </code><code class="p">{</code><code class="w"/>
+<code class="w">            </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">KEYWORD_TWO_FOUND_FIRST</code><code class="p">;</code><code class="w"/>
+<code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w"/>
+<code class="w">          </code><code class="p">}</code><code class="w"/>
+<code class="w">        </code><code class="p">}</code><code class="w"/>
+<code class="w">        </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="w">      </code><code class="p">}</code><code class="w"/>
+<code class="w">      </code><code class="n">fclose</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>In the code, you have to check the return values of the function calls to know whether an error occurred, so you end up with deeply nested <code>if</code> statements in your code. That presents the following problems:</p>
+<ul>
+<li>
+<p>The function is long and mixes error-handling, initialization, cleanup, and functional code. This makes it difficult to maintain the code.</p>
+</li>
+<li>
+<p>The main code that reads and interprets the file data is deeply nested inside the <code>if</code> clauses, which makes it difficult to follow the program logic.</p>
+</li>
+<li>
+<p>The cleanup functions are far separated from their initialization functions, which makes it easy to forget some cleanup. This is particularly true if the function contains multiple return statements.</p>
+</li>
+</ul>
+<p>To make things better, you first perform a Function Split.</p>
+</div></section>
+<section data-pdf-bookmark="Function Split" data-type="sect1"><div class="sect1" id="pattern_function_split">
+<h1>Function Split</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587934646304">
+<h2>Context</h2>
+<p class="fix-tracking">You<a data-primary="error handling" data-secondary="Function Split pattern" data-type="indexterm" id="efunsppat"/><a data-primary="Function Split pattern" data-type="indexterm" id="funsplpat"/> have a function that performs multiple actions. For example, it allocates a resource (like dynamic memory or some file handle), uses this resource, and cleans it up.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587934641792">
+<h2>Problem</h2>
+<p><strong>The function has several responsibilities, which makes the function hard to read and maintain.</strong></p>
+<p>Such a function could be responsible for allocating resources, operating on these resources, and cleaning up these resources. Maybe the cleanup is even scattered over the function and duplicated in some places. In particular, error handling of failed resource allocation makes such a function hard to read, because quite often that ends up in nested <code>if</code> statements.</p>
+<p>Coping with allocation, cleanup, and usage of multiple resources in one function makes it easy to forget cleanup of a resource, particularly if the code is changed later on. For example, if a return statement is added in the middle of the code, then it is easy to forget cleaning up the resources that were already allocated at that point in the function.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587934637904">
+<h2>Solution</h2>
+<p><strong>Split<a data-primary="functions" data-secondary="splitting responsibilities" data-type="indexterm" id="idm45587934635904"/> it up. Take a part of a function that seems useful on its own, create a new function with that, and call that function.</strong></p>
+<p>To find out which part of the function to isolate, simply check whether you can give it its own meaningful name and whether the split isolates responsibilities. That could, for example, result in one function containing just functional code and one containing just error-handling code.</p>
+<p>A good indicator for a function to be split is if it contains cleanup of the same resource at multiple places in the function. In such a case, it is a lot better to split the code into one function that allocates and cleans up the resources and one function that uses these resources. The called function that uses the resources can then easily have multiple return statements without the need to clean up the resources before each return statement, because that is done in the other function. This is shown in the following code:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">malloc</code><code class="p">(</code><code class="n">LARGE_SIZE</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">buffer</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="n">mainFunctionality</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">mainFunctionality</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="c1">// implementation goes here</code>
+<code class="p">}</code><code class="w"/></pre>
+<p>Now, you have two functions instead of one. That means, of course, that the calling function is not self-contained anymore and depends on the other function. You have to define where to put that other function. The first step is to put it right in the same file as the calling function, but if the two functions are not closely coupled, you can consider putting the called function into a separate implementation file and including a Header File declaration of that function.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587934411952">
+<h2>Consequences</h2>
+<p>You improved the code because two short functions are easier to read and maintain compared to one long function. For example, the code is easier to read because the cleanup functions are closer to the functions that need cleanup and because the resource allocation and cleanup do not mix with the main program logic. That makes the main program logic easier to maintain and to extend its functionality later on.</p>
+<p>The called function can now easily contain several return statements because it does not have to care about cleanup of the resources before each return statement. That cleanup is done at a single point by the calling function.</p>
+<p>If many resources are used by the called function, all these resources also have to be passed to that function. Having a lot of function parameters makes the code hard to read, and accidentally switching the order of the parameters when calling the function might result in programming errors. To avoid that, you can have an Aggregate Instance in such a case.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587934409376">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>Pretty much all C code contains parts that apply this pattern and parts that do not apply this pattern and that are thus difficult to maintain. According to the book <em>Clean Code: A Handbook of Agile Software Craftsmanship</em> by Robert C. Martin (Prentice Hall, 2008), each function should have exactly one responsibility (single-responsibility principle), and thus resource handling and other program logic should always be split into different functions.</p>
+</li>
+<li>
+<p>This pattern is called Function Wrapper in the Portland Pattern Repository.</p>
+</li>
+<li>
+<p>For object-oriented programming, the Template Method pattern also describes a way to structure the code by splitting it up.</p>
+</li>
+<li>
+<p>The criteria for when and where to split the function are described in <em>Refactoring: Improving the Design of Existing Code</em> by Martin Fowler (Addison-Wesley, 1999) as the Extract Method pattern.</p>
+</li>
+<li>
+<p>The game NetHack applies this pattern in its function <code>read_config_file</code>, in which resources are handled and in which the function <code>parse_conf_file</code> is called, which then works on the resources.</p>
+</li>
+<li>
+<p>The OpenWrt code uses this pattern at several places for buffer handling. For example, the code responsible for MD5 calculation allocates a buffer, passes this buffer to another function that works on that buffer, and then cleans that 
+<span class="keep-together">buffer up.</span></p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587934347136">
+<h2>Applied to Running Example</h2>
+<p>Your<a data-primary="error handling" data-secondary="Function Split pattern" data-startref="efunsppat" data-type="indexterm" id="idm45587934345424"/><a data-primary="Function Split pattern" data-startref="funsplpat" data-type="indexterm" id="idm45587934344144"/> code already looks a lot better. Instead of one huge function you now have two large functions with distinct responsibilities. One function is responsible for retrieving and releasing resources, and the other is responsible for searching for the keywords as shown in the following code:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">searchFileForKeywords</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">while</code><code class="p">(</code><code class="n">fgets</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">BUFFER_SIZE</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">)</code><code class="o">!=</code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">strcmp</code><code class="p">(</code><code class="s">"KEYWORD_ONE</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">buffer</code><code class="p">)</code><code class="o">==</code><code class="mi">0</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">KEYWORD_ONE_FOUND_FIRST</code><code class="p">;</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">strcmp</code><code class="p">(</code><code class="s">"KEYWORD_TWO</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">buffer</code><code class="p">)</code><code class="o">==</code><code class="mi">0</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">KEYWORD_TWO_FOUND_FIRST</code><code class="p">;</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">NO_KEYWORD_FOUND</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">file_name</code><code class="o">!=</code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"r"</code><code class="p">))</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="n">buffer</code><code class="o">=</code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">))</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"/>
+<code class="w">        </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">searchFileForKeywords</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">        </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="w">      </code><code class="p">}</code><code class="w"/>
+<code class="w">      </code><code class="n">fclose</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>The depth of the <code>if</code> cascade decreased, but the function <code>parseFile</code> still contains three <code>if</code> statements that check for resource allocation errors, which is way too many. You can make that function cleaner by implementing a Guard Clause.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Guard Clause" data-type="sect1"><div class="sect1" id="pattern_guard_clause">
+<h1>Guard Clause</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587934248272">
+<h2>Context</h2>
+<p>You<a data-primary="error handling" data-secondary="Guard Clause pattern" data-type="indexterm" id="eguaclpat"/><a data-primary="Guard Clause pattern" data-type="indexterm" id="guaclapat"/> have a function that performs a task that can only be successfully completed under certain conditions (like valid input parameters).</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587934244032">
+<h2>Problem</h2>
+<p><strong>The<a data-primary="functions" data-secondary="improving readability" data-type="indexterm" id="idm45587934242064"/> function is hard to read and maintain because it<a data-primary="pre-condition checks" data-type="indexterm" id="idm45587934240928"/> mixes pre-condition checks with the main program logic of the function.</strong></p>
+<p>Allocating resources always requires their cleanup. If you allocate a resource and then later on realize that another pre-condition of the function was not met, then that resource also has to be cleaned up.</p>
+<p>It is difficult to follow the program flow if there are several pre-condition checks scattered across the function, particularly if these checks are implemented in nested <code>if</code> statements. When there are many such checks, the function becomes very long, which by itself is a code smell.</p>
+<div data-type="note" epub:type="note"><h1>Code Smell</h1>
+<p>A<a data-primary="code smells" data-type="indexterm" id="idm45587934237328"/> code “smells” if it is badly structured or programmed in a way that makes the code hard to maintain. Examples of code smells are very long functions or duplicated code. More code smell examples and countermeasures are covered in the book <em>Refactoring: Improving the Design of Existing Code</em> by Martin Fowler (Addison-Wesley, 1999).</p>
+</div>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587934235824">
+<h2>Solution</h2>
+<p><strong>Check if you have mandatory pre-conditions and immediately return from the function if these pre-conditions are not met.</strong></p>
+<p>For example, check for the validity of input parameters or check if the program is in a state that allows execution of the rest of the function. Carefully think about which kind of pre-conditions for calling your function you want to set. On the one hand, it makes life easier for you to be very strict on what you allow as function input, but on the other hand, it would make life easier for the caller of your function if you are more liberal regarding possible inputs (as described by Postel’s law: “Be conservative in what you do, be liberal in what you accept from others”).</p>
+<p>If you have many pre-condition checks, you can call a separate function for performing these checks. In any case, perform the checks before any resource allocation has been done because then it is very easy to return from a function as no cleanup of resources has to be done.</p>
+<p>Clearly describe the pre-conditions for your function in the function’s interface. The best place to document that behavior is in the header file where the function is declared.</p>
+<p>If it is important for the caller to know which pre-condition was not met, you can provide the caller with error information. For example, you can Return Status Codes, but make sure to only Return Relevant Errors. The following code shows an example without returning error information:</p>
+<p class="pagebreak-before"><em>someFile.h</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="cm">/* This function operates on the 'user_input', which must not be NULL */</code><code class="w"/>
+<code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">user_input</code><code class="p">);</code><code class="w"/></pre>
+<p><br/><em>someFile.c</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">user_input</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">user_input</code><code class="w"> </code><code class="o">==</code><code class="w"> </code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">return</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="n">operateOnData</code><code class="p">(</code><code class="n">user_input</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587934235232">
+<h2>Consequences</h2>
+<p>Immediately returning when the pre-conditions are not met makes the code easier to read compared to nested <code>if</code> constructs. It is made very clear in the code that the function execution is not continued if the pre-conditions are not met. That makes the pre-conditions very well separated from the rest of the code.</p>
+<p>However, some coding guidelines forbid returning in the middle of a function. For example, for code that has to be formally proved, return statements are usually only allowed at the very end of the function. In such a case, a Cleanup Record can be kept, which also is a better choice if you want to have a central place for error handling.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587933942736">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>The Guard Clause is described in the Portland Pattern Repository.</p>
+</li>
+<li>
+<p>The article “Error Detection” by Klaus Renzel (Proceedings of the 2nd EuroPLoP conference, 1997) describes the very similar Error Detection pattern that suggests introducing pre-condition and post-condition checks.</p>
+</li>
+<li>
+<p>The NetHack game uses this pattern at several places in its code, for example, in the <code>placebc</code> function. That function puts a chain on the NetHack hero that reduces the hero’s movement speed as punishment. The function immediately returns if no chain objects are available.</p>
+</li>
+<li>
+<p>The OpenSSL code uses this pattern. For example, the <code>SSL_new</code> function immediately returns in case of invalid input parameters.</p>
+</li>
+<li>
+<p>The Wireshark code <code>capture_stats</code>, which is responsible for gathering statistics when sniffing network packets, first checks its input parameters for validity and immediately returns in case of invalid parameters.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587933908448">
+<h2>Applied to Running Example</h2>
+<p>The<a data-primary="error handling" data-secondary="Guard Clause pattern" data-startref="eguaclpat" data-type="indexterm" id="idm45587933906704"/><a data-primary="Guard Clause pattern" data-startref="guaclapat" data-type="indexterm" id="idm45587933905424"/> following code shows how the <code>parseFile</code> function applies a Guard Clause to check pre-conditions of the function:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">file_name</code><code class="o">=</code><code class="o">=</code><code class="nb">NULL</code><code class="p">)</code><code class="w"> </code><a class="co" href="#callout_error_handling_CO1-1" id="co_error_handling_CO1-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="w">  </code><code class="p">{</code><code class="w">
+</code><code class="w">    </code><code class="k">return</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="p">}</code><code class="w">
+</code><code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"</code><code class="s">r</code><code class="s">"</code><code class="p">)</code><code class="p">)</code><code class="w">
+</code><code class="w">  </code><code class="p">{</code><code class="w">
+</code><code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">buffer</code><code class="o">=</code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">)</code><code class="p">)</code><code class="w">
+</code><code class="w">    </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">searchFileForKeywords</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">    </code><code class="p">}</code><code class="w">
+</code><code class="w">    </code><code class="n">fclose</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="p">}</code><code class="w">
+</code><code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" href="#co_error_handling_CO1-1" id="callout_error_handling_CO1-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></dt>
+<dd><p>If invalid parameters are provided, we immediately return and no cleanup is required because no resources were acquired yet.</p></dd>
+</dl>
+<p>The code Returns Status Codes to implement the Guard Clause. It returns the constant <code>ERROR</code> in the specific case of a <code>NULL</code> parameter. The caller could now check the Return Value to know whether an invalid <code>NULL</code> parameter was provided to the function. But such an invalid parameter usually indicates a programming error, and checking for programming errors and propagating this information within the code is not a good idea. In such a case, it is easier to simply apply the Samurai Principle.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Samurai Principle" data-type="sect1"><div class="sect1" id="pattern_samurai_principle">
+<h1>Samurai Principle</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587933769264">
+<h2>Context</h2>
+<p>You<a data-primary="error handling" data-secondary="Samurai Principle pattern" data-type="indexterm" id="esamprpat"/><a data-primary="Samurai Principle pattern" data-type="indexterm" id="sampripat"/> have some code with complicated error handling, and some errors are very severe. Your system does not perform safety-critical actions, and high availability is not very important.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587933765088">
+<h2>Problem</h2>
+<p><strong>When<a data-primary="error information, returning" data-secondary="unnoticed errors" data-type="indexterm" id="idm45587933705360"/> returning error information, you assume that the caller checks for this information. However, the caller can simply omit this check and the error might go unnoticed.</strong></p>
+<p>In C it is not mandatory to check return values of the called functions, and your caller can simply ignore the return value of a function. If the error that occurs in your function is severe and cannot be gracefully handled by the caller, you don’t want your caller to decide whether and how the error should be handled. Instead, you’d want to make sure that an action is definitely taken.</p>
+<p>Even if the caller handles an error situation, quite often the program will still crash or some error will still occur. The error might simply show up somewhere else—maybe somewhere in the caller’s caller code that might not handle error situations properly. In such a case, handling the error disguises the error, which makes it much harder to debug the error in order to find out the root cause.</p>
+<p>Some errors in your code might only occur very rarely. To Return Status Codes for such situations and handle them in the caller’s code makes that code less readable, because it distracts from the main program logic and the actual purpose of the caller’s code. The caller might have to write many lines of code to handle very rarely occurring situations.</p>
+<p>Returning such error information also poses the problem of how to actually return the information. Using the Return Value or Out-Parameters of the function to return error information makes the function’s signature more complicated and makes the code more difficult to understand. Because of this, you don’t want to have additional parameters for your function that only return error information.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587933702176">
+<h2>Solution</h2>
+<p><strong>Return from a<a data-primary="functions" data-secondary="aborting programs in error conditions" data-type="indexterm" id="idm45587933700176"/> function victorious or not at all (samurai principle). If there is a situation for which you know that an error cannot be handled, then abort the 
+<span class="keep-together">program</span>.</strong></p>
+<p>Don’t use Out-Parameters or the Return Value to return error information. You have all the error information at hand, so handle the error right away. If an error occurs, simply let the program crash. Abort the program in a structured way by using the<a data-primary="assert statements" data-type="indexterm" id="idm45587933697808"/> <code>assert</code> statement. Additionally, you can provide debug information with the <code>assert</code> statement as shown in the following code:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="n">assert</code><code class="p">(</code><code class="n">checkPreconditions</code><code class="p">()</code><code class="w"> </code><code class="o">&amp;&amp;</code><code class="w"> </code><code class="s">"Preconditions are not met"</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">mainFunctionality</code><code class="p">();</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>This piece of code checks for the condition in the <code>assert</code> statement and if it is not true, the <code>assert</code> statement including the string on the right will be printed to <code>stderr</code> and the program will be aborted. It would be OK to abort the program in a less structured way by not checking for <code>NULL</code> pointers and accessing such pointers. Simply make sure that the program crashes at the point where the error occurs.</p>
+<p>Quite often, the Guard Clauses are good candidates for aborting the program in case of errors. For example, if you know that a coding error occurred (if the caller provided you a <code>NULL</code> pointer), abort the program and log debug information instead of returning error information to the caller. However, don’t abort the program for every kind of error. For example, runtime errors like invalid user input should definitely not lead to a program abort.</p>
+<p>The caller has to be well aware of the behavior of your function, so you have to document in the function’s API the cases in which the function aborts the program. For example, the function documentation has to state whether the program crashes if the function is provided a <code>NULL</code> pointer as parameter.</p>
+<p>Of course, the Samurai Principle is not appropriate for all errors or all application domains. You wouldn’t want to let the program crash in case of some unexpected user input. However, in case of a programming error, it can be appropriate to fail fast and let the program crash. That makes it as simple as possible for the programmers to find the error.</p>
+<p>Still, such a crash need not necessarily be shown to the user. If your program is just some noncritical part of a larger application, then you might still want your program to crash. But in the context of the overall application, your program might fail silently so as not not disturb the rest of the application or the user.</p>
+<div data-type="note" epub:type="note"><h1>Asserts in Release Executables</h1>
+<p>When using <code>assert</code> statements, the discussion comes up of whether to only have them active in debug executables or whether to also have them active in release executables. <code>Assert</code> statements can be deactivated by defining the macro <code>NDEBUG</code> in your code before including <em>assert.h</em> or by directly defining the macro in your toolchain.
+A main argument for deactivating <code>assert</code> statements for release executables is that you already catch your programming errors that use <code>asserts</code> when testing your debug executables, so there is no need to risk aborting programs due to <code>asserts</code> in release executables.
+A main argument for also having <code>assert</code> statements active in release executables is that you use them anyway for critical errors that cannot be handled gracefully, and such errors should never go unnoticed, not even in release executables used by your customers.</p>
+</div>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587933656320">
+<h2>Consequences</h2>
+<p>The error cannot go unnoticed because it is handled right at the point where it shows up. The caller is not burdened with having to check for this error, so the caller code becomes simpler. However, now the caller cannot choose how to react to the error.</p>
+<p>In some cases aborting the application is OK because a fast crash is better than unpredictable behavior later on. Still, you have to consider how such an error should be presented to the user. Maybe the user will see it as an abort statement on the screen. However, for embedded applications that use sensors and actors to interact with the environment, you have to take more care and consider the influence an aborting program has on the environment and whether this is acceptable. In many such cases, the application might have to be more robust and simply aborting the application will not be acceptable.</p>
+<p>To abort the program and to Log Errors right at the point where the error shows up makes it easier to find and fix the error because the error is not disguised. Thus, in the long term, by applying this pattern you end up with more robust and bug-free software.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587933653040">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>A similar pattern that suggests adding a debug information string to an <code>assert</code> statement is called Assertion Context and is described in the book <em>Patterns in C</em> by Adam Tornhill (Leanpub, 2014).</p>
+</li>
+<li>
+<p>The Wireshark network sniffer applies this pattern all over its code. For example, the function <code>register_capture_dissector</code> uses <code>assert</code> to check that the registration of a dissector is unique.</p>
+</li>
+<li>
+<p>The source code of the Git project uses <code>assert</code> statements. For example, the functions for  storing SHA1 hash values use <code>assert</code> to check whether the path to the file where the hash value should be stored is correct.</p>
+</li>
+<li>
+<p>The OpenWrt code responsible for handling large numbers uses <code>assert</code> statements to check pre-conditions in its functions.</p>
+</li>
+<li>
+<p>A similar pattern with the name Let It Crash is presented by Pekka Alho and Jari Rauhamäki in the article <a href="https://oreil.ly/x0tQW">“Patterns for Light-Weight Fault Tolerance and Decoupled Design in Distributed Control Systems”</a>. The pattern targets distributed control systems and suggests letting single fail-safe processes crash and then restart quickly.</p>
+</li>
+<li>
+<p>The C standard library function <code>strcpy</code> does not check for valid user input. If you provide the function with a <code>NULL</code> pointer, it crashes.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587933620896">
+<h2>Applied to Running Example</h2>
+<p>The<a data-primary="error handling" data-secondary="Samurai Principle pattern" data-startref="esamprpat" data-type="indexterm" id="idm45587933619152"/><a data-primary="Samurai Principle pattern" data-startref="sampripat" data-type="indexterm" id="idm45587933617904"/> <code>parseFile</code> function now looks a lot better. Instead of returning an Error Code, you now have a simple <code>assert</code> statement. That makes the following code shorter, and the caller of the code does not have the burden of checking against the Return Value:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+
+<code class="w">  </code><code class="n">assert</code><code class="p">(</code><code class="n">file_name</code><code class="o">!=</code><code class="nb">NULL</code><code class="w"> </code><code class="o">&amp;&amp;</code><code class="w"> </code><code class="s">"Invalid filename"</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"r"</code><code class="p">))</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">buffer</code><code class="o">=</code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">))</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">searchFileForKeywords</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">      </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">    </code><code class="n">fclose</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>While the <code>if</code> statements that don’t require resource cleanup are eliminated, the code still contains nested <code>if</code> statements for everything that requires cleanup. Also, you don’t yet handle the error situation if the <code>malloc</code> call fails. All of this can be improved by using Goto Error Handling.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Goto Error Handling" data-type="sect1"><div class="sect1" id="pattern_goto">
+<h1>Goto Error Handling</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587933477520">
+<h2>Context</h2>
+<p>You<a data-primary="functions" data-secondary="cleaning up multiple resources with" data-type="indexterm" id="idm45587933475888"/><a data-primary="error handling" data-secondary="Goto Error Handling pattern" data-type="indexterm" id="egoerhpat"/><a data-primary="Goto Error Handling pattern" data-type="indexterm" id="goerhapat"/><a data-primary="resources" data-secondary="acquiring and cleaning up multiple" data-type="indexterm" id="idm45587933472816"/> have a function that acquires and cleans up multiple resources.  Maybe you already tried to reduce the complexity by applying Guard Clause, Function Split, or Samurai Principle, but you still have a deeply nested <code>if</code> construct in the code, particularly because of resource acquisition. You might even have duplicated code for resource cleanup.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587933471136">
+<h2>Problem</h2>
+<p><strong>Code gets difficult to read and maintain if it acquires and cleans up multiple resources at different places within a function.</strong></p>
+<p>Such code becomes difficult because usually each resource acquisition can fail, and each resource cleanup can just be called if the resource was successfully acquired. To implement this, a lot of <code>if</code> statements are required, and when implemented poorly, nested <code>if</code> statements in a single function make the code hard to read and maintain.</p>
+<p>Because you have to clean up the resources, returning in the middle of the function when something goes wrong is not a good option. This is because all resources already acquired have to be cleaned up before each return statement. So you end up with multiple points in the code where the same resource is being cleaned up, but you don’t want to have duplicated error handling and cleanup code.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587933467440">
+<h2>Solution</h2>
+<p><strong>Have all resource cleanup and error handling at the end of the function. If a resource cannot be acquired, use the <code>goto</code> statement to jump to the resource cleanup code.</strong></p>
+<p>Acquire the resources in the order you need them, and at the end of your function clean the resources up in the reverse order. For the resource cleanup, have a separate label to which you can jump for each cleanup function. Simply jump to the label if an error occurs or if a resource cannot be acquired, but don’t jump multiple times and only jump forward as is done in the following code:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="o">!</code><code class="n">allocateResource1</code><code class="p">())</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">goto</code><code class="w"> </code><code class="n">cleanup1</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="o">!</code><code class="n">allocateResource2</code><code class="p">())</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">goto</code><code class="w"> </code><code class="n">cleanup2</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="n">mainFunctionality</code><code class="p">();</code><code class="w"/>
+<code class="nl">cleanup2</code><code class="p">:</code><code class="w"/>
+<code class="w">  </code><code class="n">cleanupResource2</code><code class="p">();</code><code class="w"/>
+<code class="nl">cleanup1</code><code class="p">:</code><code class="w"/>
+<code class="w">  </code><code class="n">cleanupResource1</code><code class="p">();</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>If your coding standard forbids the usage of <code>goto</code> statements, you can emulate it with a <code>do{ ... }while(0);</code> loop around your code. On error use <code>break</code> to jump to the end of the loop where you put your error handling. However, that workaround is usually a bad idea because if <code>goto</code> is not allowed by your coding standard, then you should also not be emulating it just to continue programming in your own style. You could use a Cleanup Record as an alternative to <code>goto</code>.</p>
+<p>In any case, the usage of <code>goto</code> might simply be an indicator that your function is already too complex, and splitting the function, for example with Object-Based Error Handling, might be a better idea.</p>
+<div data-type="note" epub:type="note"><h1>goto: Good or Evil?</h1>
+<p>There are many discussions about whether the usage of <code>goto</code> is good or bad. The most famous article against the use of <code>goto</code> is by <a href="https://oreil.ly/yXkyq">Edsger W. Dijkstra</a>, who argues that it obscures the program flow. That is true if <code>goto</code> is being used to jump back and forth in a program, but <code>goto</code> in C cannot be as badly abused as in the programming languages Dijkstra wrote about. (In C you can only use <code>goto</code> to jump within a function.)</p>
+</div>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587933326304">
+<h2>Consequences</h2>
+<p>The function is a single point of return, and the main program flow is well separated from the error handling and resource cleanup. No nested <code>if</code> statements are required anymore to achieve this, but not everybody is used to and likes reading <code>goto</code>
+<span class="keep-together">statements.</span></p>
+<p>If you use <code>goto</code> statements, you have to be careful, because it is tempting to use them for things other than error handling and cleanup, and that definitely makes the code unreadable. Also, you have to be extra careful to have the correct cleanup functions at the correct labels. It is a common pitfall to accidentally put cleanup functions at the wrong label.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587933321888">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>The Linux kernel code uses mostly <code>goto</code>-based error handling. For example, the book <a href="https://oreil.ly/linux-device-drivers"><em>Linux Device Drivers</em></a> by Alessandro Rubini and Jonathan Corbet (O’Reilly, 2001) describes <code>goto</code>-based error handling for programming Linux device drivers.</p>
+</li>
+<li>
+<p><em>The CERT C Coding Standard</em> by Robert C. Seacord (Addison-Wesley Professional, 2014) suggests the use of <code>goto</code> for error handling.</p>
+</li>
+<li>
+<p>The <code>goto</code> emulation using a <code>do-while</code> loop is described in the Portland Pattern Repository as the Trivial Do-While-Loop pattern.</p>
+</li>
+<li>
+<p>The OpenSSL code uses the <code>goto</code> statement. For example, the functions that handle X509 certificates use <code>goto</code> to jump forward to a central error handler.</p>
+</li>
+<li>
+<p>The Wireshark code uses <code>goto</code> statements to jump from its <code>main</code> function to a central error handler at the end of that function.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587933310112">
+<h2>Applied to Running Example</h2>
+<p>Even<a data-primary="error handling" data-secondary="Goto Error Handling pattern" data-startref="egoerhpat" data-type="indexterm" id="idm45587933308368"/><a data-primary="Goto Error Handling pattern" data-startref="goerhapat" data-type="indexterm" id="idm45587933307120"/> though quite a few people highly disapprove of the use of <code>goto</code> statements, the error handling is better compared to the previous code example. In the following code there are no nested <code>if</code> statements, and the cleanup code is well separated from the main program flow:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+
+<code class="w">  </code><code class="n">assert</code><code class="p">(</code><code class="n">file_name</code><code class="o">!=</code><code class="nb">NULL</code><code class="w"> </code><code class="o">&amp;&amp;</code><code class="w"> </code><code class="s">"Invalid filename"</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="o">!</code><code class="p">(</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"r"</code><code class="p">)))</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">goto</code><code class="w"> </code><code class="n">error_fileopen</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="o">!</code><code class="p">(</code><code class="n">buffer</code><code class="o">=</code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">)))</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">goto</code><code class="w"> </code><code class="n">error_malloc</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">searchFileForKeywords</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="nl">error_malloc</code><code class="p">:</code><code class="w"/>
+<code class="w">  </code><code class="n">fclose</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="nl">error_fileopen</code><code class="p">:</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>Now, let’s say you don’t like <code>goto</code> statements or your coding guidelines forbid them, but you still have to clean up your resources. There are alternatives. You can, for example, simply have a Cleanup Record instead.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Cleanup Record" data-type="sect1"><div class="sect1" id="pattern_cleanup_record">
+<h1>Cleanup Record</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587933244336">
+<h2>Context</h2>
+<p>You<a data-primary="functions" data-secondary="cleaning up multiple resources with" data-type="indexterm" id="idm45587933134944"/><a data-primary="error handling" data-secondary="Cleanup Record pattern" data-type="indexterm" id="eclerepat"/><a data-primary="Cleanup Record pattern" data-type="indexterm" id="clerecpat"/><a data-primary="resources" data-secondary="acquiring and cleaning up multiple" data-type="indexterm" id="idm45587933131808"/> have a function that acquires and cleans up multiple resources.  Maybe you already tried to reduce the complexity by applying Guard Clause, Function Split, or Samurai Principle, but you still have a deeply nested <code>if</code> construct in the code, because of resource acquisition. You might even have duplicated code for resource cleanup. Your coding standards don’t allow you to implement Goto Error Handling, or you don’t want to use <code>goto</code>.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587933129712">
+<h2>Problem</h2>
+<p><strong>It is difficult to make a piece of code easy to read and maintain if this code acquires and cleans up multiple resources, particularly if those resources depend on one another.</strong></p>
+<p>This is difficult because usually each resource acquisition can fail, and each resource cleanup can just be called if the resource was successfully acquired. To implement this, a lot of <code>if</code> statements are required, and when implemented poorly, nested <code>if</code> statements in a single function make the code hard to read and maintain.</p>
+<p>Because you have to clean up the resources, returning in the middle of the function when something goes wrong is not a good option. This is because all resources already acquired have to be cleaned up before each return statement. So you end up with multiple points in the code where the same resource is being cleaned up, but you don’t want to have duplicated error handling and cleanup code.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587933125376">
+<h2>Solution</h2>
+<p><strong>Call resource acquisition functions as long as they succeed, and store which functions require cleanup. Call the cleanup functions depending on these stored 
+<span class="keep-together">values</span>.</strong></p>
+<p>In C, lazy evaluation<a data-primary="lazy evaluation" data-type="indexterm" id="idm45587933121920"/> of<a data-primary="if statements" data-type="indexterm" id="idm45587933121056"/> <code>if</code> statements can be used to achieve this. Simply call a sequence of functions inside a single <code>if</code> statement as long as these functions succeed. For each function call, store the acquired resource in a variable. Have the code operating on the resources in the body of the <code>if</code> statement, and have all resource cleanup after the <code>if</code> statement only if the resource was successfully acquired. The following code shows an example of this:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="p">(</code><code class="n">r1</code><code class="o">=</code><code class="n">allocateResource1</code><code class="p">(</code><code class="p">)</code><code class="p">)</code><code class="w"> </code><code class="o">&amp;</code><code class="o">&amp;</code><code class="w"> </code><code class="p">(</code><code class="n">r2</code><code class="o">=</code><code class="n">allocateResource2</code><code class="p">(</code><code class="p">)</code><code class="p">)</code><code class="p">)</code><code class="w">
+</code><code class="w">  </code><code class="p">{</code><code class="w">
+</code><code class="w">    </code><code class="n">mainFunctionality</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="p">}</code><code class="w">
+</code><code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">r1</code><code class="p">)</code><code class="w"> </code><a class="co" href="#callout_error_handling_CO2-1" id="co_error_handling_CO2-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="w">  </code><code class="p">{</code><code class="w">
+</code><code class="w">    </code><code class="n">cleanupResource1</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="p">}</code><code class="w">
+</code><code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">r2</code><code class="p">)</code><code class="w"> </code><a class="co" href="#callout_error_handling_CO2-1" id="co_error_handling_CO2-2"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="w">  </code><code class="p">{</code><code class="w">
+</code><code class="w">    </code><code class="n">cleanupResource2</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="p">}</code><code class="w">
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" href="#co_error_handling_CO2-1" id="callout_error_handling_CO2-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></dt>
+<dd><p>To make the code easier to read, you can alternatively put these checks inside the cleanup functions. This is a good approach if you have to provide the resource variable to the cleanup function anyway.</p></dd>
+</dl>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587933014560">
+<h2>Consequences</h2>
+<p>You now have no nested <code>if</code> statements anymore, and you still have one central point at the end of the function for resource cleanup. That makes the code a lot easier to read because the main program flow is no longer obscured by error handling.</p>
+<p>Also, the function is easy to read because it has a single exit point. However, the fact that you have to have many variables for keeping track of which resources were successfully allocated makes the code more complicated. Maybe an Aggregate Instance can help to structure the resource variables.</p>
+<p>If many resources are being acquired, then many functions are being called in the single <code>if</code> statement. That makes the <code>if</code> statement very hard to read and even harder to debug. Therefore, if many resources are being acquired, it is a much better solution to have Object-Based Error Handling.</p>
+<p>Another reason for having Object-Based Error Handling instead is that the preceding code is still complicated because it has a single function that contains the main functionality as well as resource allocation and cleanup. So one function has multiple responsibilities.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587933009984">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>In the Portland Pattern Repository, a similar solution where each of the called functions registers a cleanup handler to a callback list is presented. For cleanup, all functions from the callback list are called.</p>
+</li>
+<li>
+<p>The OpenSSL function <code>dh_key2buf</code> uses lazy evaluation in an <code>if</code> statement to keep track of allocated bytes that are then cleaned up later on.</p>
+</li>
+<li>
+<p>The function <code>cap_open_socket</code> of the Wireshark network sniffer uses lazy evaluation of an <code>if</code> statement and stores the resources allocated in this <code>if</code> statement in variables. At cleanup, these variables are then checked, and if the resource allocation was successful, the resource is cleaned up.</p>
+</li>
+<li>
+<p>The <code>nvram_commit</code> function of the OpenWrt source code allocates its resources inside an <code>if</code> statement and stores these resources to a variable right inside that <code>if</code> statement.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587932956544">
+<h2>Applied to Running Example</h2>
+<p>Now, instead<a data-primary="error handling" data-secondary="Cleanup Record pattern" data-startref="eclerepat" data-type="indexterm" id="idm45587932954544"/><a data-primary="Cleanup Record pattern" data-startref="clerecpat" data-type="indexterm" id="idm45587932953296"/> of <code>goto</code> statements and nested <code>if</code> statements, you have a single <code>if</code> statement. The advantage of not using <code>goto</code> statements in the following code is that the error handling is well separated from the main program flow:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+
+<code class="w">  </code><code class="n">assert</code><code class="p">(</code><code class="n">file_name</code><code class="o">!=</code><code class="nb">NULL</code><code class="w"> </code><code class="o">&amp;&amp;</code><code class="w"> </code><code class="s">"Invalid filename"</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">((</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"r"</code><code class="p">))</code><code class="w"> </code><code class="o">&amp;&amp;</code><code class="w"/>
+<code class="w">     </code><code class="p">(</code><code class="n">buffer</code><code class="o">=</code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">)))</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">searchFileForKeywords</code><code class="p">(</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="n">fclose</code><code class="p">(</code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">buffer</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>Still, the code does not look nice. This one function has a lot of responsibilities: resource allocation, resource deallocation, file handling, and error handling. These responsibilities should be split into different functions with Object-Based Error 
+<span class="keep-together">Handling.</span></p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Object-Based Error Handling" data-type="sect1"><div class="sect1" id="pattern_object_based_error_handling">
+<h1>Object-Based Error Handling</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587932791424">
+<h2>Context</h2>
+<p>You have a<a data-primary="functions" data-secondary="cleaning up multiple resources with" data-type="indexterm" id="idm45587932789856"/><a data-primary="resources" data-secondary="acquiring and cleaning up multiple" data-type="indexterm" id="idm45587932788880"/><a data-primary="error handling" data-secondary="Object-Based Error Handling pattern" data-type="indexterm" id="eobbehpat"/><a data-primary="Object-Based Error Handling pattern" data-type="indexterm" id="obbaehpat"/> function that acquires and cleans up multiple resources.  Maybe you already tried to reduce the complexity by applying Guard Clause, Function Split, or Samurai Principle, but you still have a deeply nested <code>if</code> construct in the code, because of resource acquisition. You might even have duplicated code for resource cleanup. But maybe you already got rid of nested <code>if</code> statements by using Goto Error Handling or a Cleanup Record.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587932784688">
+<h2>Problem</h2>
+<p><strong>Having multiple responsibilities in one function, such as resource acquisition, resource cleanup, and usage of that resource, makes that code difficult to implement, read,  maintain, and test.</strong></p>
+<p>All of that becomes difficult because usually each resource acquisition can fail, and each resource cleanup can just be called if the resource was successfully acquired. To implement this, a<a data-primary="if statements" data-type="indexterm" id="idm45587932782192"/> lot of <code>if</code> statements are required, and when implemented poorly, nested <code>if</code> statements in a single function make the code hard to read and maintain.</p>
+<p>Because you have to clean up the resources, returning in the middle of the function when something goes wrong is not a good option. This is because all resources already acquired have to be cleaned up before each return statement. So you end up with multiple points in the code where the same resource is being cleaned up, but you don’t want to have duplicated error handling and cleanup code.</p>
+<p>Even if you already have a Cleanup Record or Goto Error Handling, the function is still hard to read because it mixes different responsibilities. The function is responsible for acquisition of multiple resources, error handling, and cleanup of multiple resources. However, a function should only have one responsibility.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587932779152">
+<h2>Solution</h2>
+<p><strong>Put initialization<a data-primary="functions" data-secondary="separating initialization and cleanup" data-type="indexterm" id="idm45587932777152"/> and cleanup into separate functions, similar to the concept of constructors and destructors in object-oriented programming.</strong></p>
+<p>In your main function, simply call one function that acquires all resources, one function that operates in these resources, and one function that cleans up the resources.</p>
+<p>If the acquired resources are not global, then you have to pass the resources along the functions. When you have multiple resources, you can pass an Aggregate Instance containing all resources along the functions. If you want to instead hide the actual resources from the caller, you can use a Handle for passing the resource information between the functions.</p>
+<p>If resource allocation fails, store this information in a variable (for example, a <code>NULL</code> pointer if memory allocation fails). When using or cleaning up the resources, first check whether the resource is valid. Perform that check not in your main function, but rather in the called functions, because that makes your main function a lot more readable:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">someFunction</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="n">allocateResources</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">mainFunctionality</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">cleanupResources</code><code class="p">();</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587932710992">
+<h2>Consequences</h2>
+<p>The function is now easy to read. While it requires allocation and cleanup of multiple resources, as well as the operations on these resources, these different tasks are still well separated into different functions.</p>
+<p>Having object-like instances that you pass along functions is known as an “object-based” programming style. This style makes procedural programming more similar to object-oriented programming, and thus code written in such a style is also more familiar to programmers who are used to object-orientation.</p>
+<p>In the main function, there is no reason for having multiple return statements anymore, because there are no more nested <code>if</code> statements for the logic of resource allocation and cleanup. However, you did not eliminate the logic regarding resource allocation and cleanup, of course. All this logic is still present in the separated functions, but it is not mixed with the operation on the resources anymore.</p>
+<p>Instead of having a single function, you now have multiple functions. While that could have a negative impact on performance, it usually does not matter a lot. The performance impact is minor, and for most applications it is not relevant.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587932707248">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>This form of cleanup is used in object-oriented programming where constructors and destructors are implicitly called.</p>
+</li>
+<li>
+<p>The OpenSSL code uses this pattern. For example, the allocation and cleanup of buffers is realized with the functions <code>BUF_MEM_new</code> and <code>BUF_MEM_free</code> that are called across the code to cover buffer handling.</p>
+</li>
+<li>
+<p>The <code>show_help</code> function of the OpenWrt source code shows help information in a context menu. The function calls an initialization function to create a <code>struct</code>, then operates on that <code>struct</code> and calls a function to clean up that <code>struct</code>.</p>
+</li>
+<li>
+<p>The function <code>cmd__windows_named_pipe</code> of the Git project uses a Handle to create a pipe, then operates on that pipe and calls a separate function to clean up the pipe.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587932698144">
+<h2>Applied to Running Example</h2>
+<p>You<a data-primary="error handling" data-secondary="Object-Based Error Handling pattern" data-startref="eobbehpat" data-type="indexterm" id="idm45587932696336"/><a data-primary="Object-Based Error Handling pattern" data-startref="obbaehpat" data-type="indexterm" id="idm45587932679616"/> finally end up with the following code, in which the <code>parseFile</code> function calls other functions to create and clean up a parser instance:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">typedef</code><code class="w"> </code><code class="k">struct</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">FILE</code><code class="o">*</code><code class="w"> </code><code class="n">file_pointer</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="n">FileParser</code><code class="p">;</code><code class="w"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">parseFile</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="n">FileParser</code><code class="o">*</code><code class="w"> </code><code class="n">parser</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">createParser</code><code class="p">(</code><code class="n">file_name</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">return_value</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">searchFileForKeywords</code><code class="p">(</code><code class="n">parser</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">cleanupParser</code><code class="p">(</code><code class="n">parser</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">return_value</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">searchFileForKeywords</code><code class="p">(</code><code class="n">FileParser</code><code class="o">*</code><code class="w"> </code><code class="n">parser</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">parser</code><code class="w"> </code><code class="o">==</code><code class="w"> </code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">return</code><code class="w"> </code><code class="n">ERROR</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">while</code><code class="p">(</code><code class="n">fgets</code><code class="p">(</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="n">BUFFER_SIZE</code><code class="p">,</code><code class="w"> </code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">file_pointer</code><code class="p">)</code><code class="o">!=</code><code class="nb">NULL</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">strcmp</code><code class="p">(</code><code class="s">"KEYWORD_ONE</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="p">)</code><code class="o">==</code><code class="mi">0</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">KEYWORD_ONE_FOUND_FIRST</code><code class="p">;</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">strcmp</code><code class="p">(</code><code class="s">"KEYWORD_TWO</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="p">)</code><code class="o">==</code><code class="mi">0</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">KEYWORD_TWO_FOUND_FIRST</code><code class="p">;</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">NO_KEYWORD_FOUND</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/>
+
+<code class="n">FileParser</code><code class="o">*</code><code class="w"> </code><code class="nf">createParser</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">file_name</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="n">assert</code><code class="p">(</code><code class="n">file_name</code><code class="o">!=</code><code class="nb">NULL</code><code class="w"> </code><code class="o">&amp;&amp;</code><code class="w"> </code><code class="s">"Invalid filename"</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">FileParser</code><code class="o">*</code><code class="w"> </code><code class="n">parser</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">malloc</code><code class="p">(</code><code class="k">sizeof</code><code class="p">(</code><code class="n">FileParser</code><code class="p">));</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">parser</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">file_pointer</code><code class="o">=</code><code class="n">fopen</code><code class="p">(</code><code class="n">file_name</code><code class="p">,</code><code class="w"> </code><code class="s">"r"</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">malloc</code><code class="p">(</code><code class="n">BUFFER_SIZE</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="o">!</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">file_pointer</code><code class="w"> </code><code class="o">||</code><code class="w"> </code><code class="o">!</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">cleanupParser</code><code class="p">(</code><code class="n">parser</code><code class="p">);</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="nb">NULL</code><code class="p">;</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">parser</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">cleanupParser</code><code class="p">(</code><code class="n">FileParser</code><code class="o">*</code><code class="w"> </code><code class="n">parser</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">if</code><code class="p">(</code><code class="n">parser</code><code class="p">)</code><code class="w"/>
+<code class="w">  </code><code class="p">{</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">free</code><code class="p">(</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">    </code><code class="k">if</code><code class="p">(</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">file_pointer</code><code class="p">)</code><code class="w"/>
+<code class="w">    </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">fclose</code><code class="p">(</code><code class="n">parser</code><code class="o">-&gt;</code><code class="n">file_pointer</code><code class="p">);</code><code class="w"/>
+<code class="w">    </code><code class="p">}</code><code class="w"/>
+<code class="w">    </code><code class="n">free</code><code class="p">(</code><code class="n">parser</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="p">}</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>In the code, there is no more <code>if</code> cascade in the main program flow. This makes the <code>parseFile</code> function a lot easier to read, debug, and maintain. The main function does not cope with resource allocation, resource deallocation, or error handling details anymore. Instead, those details are all put into separate functions, so each function has one responsibility.</p>
+<p>Have a look at the beauty of this final code example compared to the first code example. The applied patterns helped step-by-step to make the code easier to read and maintain. In each step, the nested <code>if</code> cascade was removed and the method of how to handle errors was improved.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Summary" data-type="sect1"><div class="sect1" id="idm45587932202736">
+<h1>Summary</h1>
+<p>This<a data-primary="error handling" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587932201440"/> chapter showed you how to perform error handling in C. Function Split tells you to split your functions into smaller parts to make error handling of these parts easier. A Guard Clause for your functions checks pre-conditions of your function and returns immediately if they are not met. This leaves fewer error-handling obligations for the rest of that function. Instead of returning from the function, you could also abort the program, adhering to the Samurai Principle. When it comes to more 
+<span class="keep-together">complex</span> error handling—particularly in combination with acquiring and releasing resources—you have several options. Goto Error Handling makes it possible to jump forward in your function to an error-handling section. Instead of jumping, Cleanup Record stores the info, which resources require cleanup, and performs it by the end of the function. A method of resource acquisition that is closer to object-oriented programming is Object-Based Error Handling, which uses separate initialization and cleanup functions similar to the concept of constructors and destructors.</p>
+<p>With these error-handling patterns in your repertoire, you now have the skill to write small programs that handle error situations in a way that ensures the code stays maintainable.</p>
+</div></section>
+<section data-pdf-bookmark="Further Reading" data-type="sect1"><div class="sect1" id="idm45587932243072">
+<h1>Further Reading</h1>
+<p>If<a data-primary="error handling" data-secondary="further reading on" data-type="indexterm" id="idm45587932241744"/> you’re ready for more, here are some resources that can help you further your knowledge of error handling.</p>
+<ul>
+<li>
+<p>The <a href="https://oreil.ly/qFLdA">Portland Pattern Repository</a> provides many patterns and discussions on error handling as well as other topics. Most of the error-handling patterns target exception handling or how to use assertions, but some C patterns are also 
+<span class="keep-together">presented.</span></p>
+</li>
+<li>
+<p>A comprehensive overview of error handling in general is provided in the master’s thesis “Error Handling in Structured and Object-Oriented Programming Languages” by Thomas Aglassinger (University of Oulu, 1999). This thesis describes how different kinds of errors arise; discusses error-handling mechanisms of the programming languages C, Basic, Java, and Eiffel; and provides best practices for error handling in these languages, such as reversing the cleanup order of resources compared to the order of their allocation. The thesis also mentions several third-party solutions in the form of C libraries providing enhanced error handling features for C, like exception handling by using the commands <code>setjmp</code> and <code>longjmp</code>.</p>
+</li>
+<li>
+<p>Fifteen object-oriented patterns on error handling tailored for business information systems are presented in the article <a href="https://oreil.ly/bQnfx">“Error Handling for Business Information Systems”</a> by Klaus Renzel, and most of the patterns can be applied for non-object-oriented domains as well. The presented patterns cover error detection, error logging, and error handling.</p>
+</li>
+<li>
+<p>Implementations including C code snippets for some Gang of Four design patterns are presented in the book <em>Patterns in C</em> by Adam Tornhill (Leanpub, 2014). The book further provides best practices in the form of C patterns, some of them covering error handling.</p>
+</li>
+<li>
+<p>A collection of patterns for error logging and error handling is presented in the articles “Patterns for Generation, Handling and Management of Errors” and “More Patterns for the Generation, Handling and Management of Errors” by <a href="https://oreil.ly/7Yj8h">Andy Longshaw and Eoin Woods</a>. Most of the patterns target exception-based error handling.</p>
+</li>
+</ul>
+</div></section>
+<section data-pdf-bookmark="Outlook" data-type="sect1"><div class="sect1" id="idm45587932231200">
+<h1>Outlook</h1>
+<p>The next chapter shows you how to handle errors when looking at larger programs that return error information across interfaces to other functions. The patterns tell you which kind of error information to return and how to return it.</p>
+</div></section>
+</div></section></div></body></html>

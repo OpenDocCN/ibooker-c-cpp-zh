@@ -1,0 +1,748 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Chapter 3. The Purpose of Design Patterns" data-type="chapter" epub:type="chapter"><div class="chapter" id="the_purpose_of_design_patterns">
+<h1><span class="label">Chapter 3. </span>The Purpose of Design Patterns</h1>
+<p><em>Visitor</em>, <em>Strategy</em>, <em>Decorator</em>. These<a data-primary="design patterns" data-secondary="basic guidelines for" data-type="indexterm" id="idm45043117889568"/> are all names of design patterns that we’ll deal with in the upcoming chapters. However, before taking a detailed look at each of
+these design patterns, I should give you an idea about the general purpose of a design
+pattern. Thus in this chapter, we will first take a look at the fundamental properties
+of design patterns, why you would want to know about them and use them.</p>
+<p>In <a data-type="xref" href="ch01.xhtml#understand_the_importance_of_software_design">“Guideline 1: Understand the Importance of 
+<span class="keep-together">Software Design</span>”</a>, I already used the term <em>design
+pattern</em> and explained on which level of software development you use them. However, I
+have not yet explained in detail what a design pattern <em>is</em>. That will be the topic of
+<a data-type="xref" href="#understand_the_purpose_of_design_patterns">“Guideline 11: Understand the Purpose of Design Patterns”</a>: you will understand that a design pattern
+has a name that expresses an intent, introduces an abstraction that helps to decouple
+software entities, and has been proven over the years.</p>
+<p>In <a data-type="xref" href="#beware_of_design_pattern_misconceptions">“Guideline 12: Beware of Design Pattern Misconceptions”</a>, I will focus on several
+misconceptions about design patterns and explain what a design pattern <em>is not</em>.
+I will try to convince you that design patterns are not about implementation details
+and do not represent language-specific solutions to common problems. I will also do
+my best to show you that they are not limited to object-oriented programming nor to dynamic polymorphism.</p>
+<p>In <a data-type="xref" href="#design_patterns_are_everywhere">“Guideline 13: Design Patterns Are Everywhere”</a>, I will demonstrate that it’s hard to avoid
+design patterns. They are everywhere! You will realize that the
+C++ Standard Library in particular is full of design patterns and makes good use
+of their strengths.</p>
+<p class="less_space pagebreak-before">In <a data-type="xref" href="#use_a_design_patterns_name_to_communicate_intent">“Guideline 14: Use a Design Pattern’s Name to Communicate Intent”</a>, I will make the point that part
+of the strength of a design pattern is the ability to communicate intent by using its
+name. Thus I will show you how much more information and meaning you can add to your
+code by using the name of a design pattern.</p>
+<section data-pdf-bookmark="Guideline 11: Understand the Purpose of Design Patterns" data-type="sect1"><div class="sect1" id="understand_the_purpose_of_design_patterns">
+<h1>Guideline 11: Understand the Purpose of Design Patterns</h1>
+<p>There’s<a data-primary="design patterns" data-secondary="characteristics of" data-type="indexterm" id="DPchar03"/> a good chance that you have heard about design patterns before and a fairly good
+chance that you’ve used some of them in your programming career. Design patterns are nothing
+new: they have been around at least since the<a data-primary="Gang of Four (GoF)" data-type="indexterm" id="idm45043117877136"/> Gang of Four (GoF) released their book on
+design patterns in 1994.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117876336" id="idm45043117876336-marker">1</a></sup> And while there are always critics, their special value has
+been acknowledged throughout the software industry. Yet, despite the long existence and
+importance of design patterns, despite all the knowledge and accumulated wisdom, there are many misconceptions
+about them, especially in the C++ community.</p>
+<p>To use design patterns productively, as a first step you need to understand what design
+patterns are. A design pattern:</p>
+<ul>
+<li>
+<p>Has a name</p>
+</li>
+<li>
+<p>Carries an intent</p>
+</li>
+<li>
+<p>Introduces an abstraction</p>
+</li>
+<li>
+<p>Has been proven</p>
+</li>
+</ul>
+<section data-pdf-bookmark="A Design Pattern Has a Name" data-type="sect2"><div class="sect2" id="idm45043117869648">
+<h2>A Design Pattern Has a Name</h2>
+<p>First of all, a design pattern has a name. While this sounds very
+obvious and necessary, it is indeed a fundamental property of a design pattern. Let’s
+assume that the two of us are working on a project together and are tasked with finding
+a solution to a problem. Imagine I told you, “I would use a <em>Visitor</em> for that.”<sup><a data-type="noteref" href="ch03.xhtml#idm45043117867680" id="idm45043117867680-marker">2</a></sup> Not only would this tell you what I
+understand to be the real problem, but it would also give you a precise idea about the kind
+of solution I’m proposing.</p>
+<p class="less_space pagebreak-before">The name of a design pattern allows us to communicate on a very high level and to exchange
+a lot of information with very few words:</p>
+<blockquote>
+<p>ME: I would use a Visitor for that.</p>
+<p>YOU: I don’t know. I thought of using a Strategy.</p>
+<p>ME: Yes, you may have a point there. But since we’ll have to extend operations fairly often, we probably should consider a Decorator as well.</p></blockquote>
+<p>By just using the names <em>Visitor</em>, <em>Strategy</em>, and <em>Decorator</em>, we’ve discussed the evolution
+of the codebase, and described how we expect things to change and to be extended in years to
+come.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117861184" id="idm45043117861184-marker">3</a></sup> Without these names, we would have a much harder time
+expressing our ideas:</p>
+<blockquote>
+<p>ME: I think we should create a system that allows us to extend the operations without the need to modify existing types again and again.</p>
+<p>YOU: I don’t know. Rather than new operations, I would expect new types to be added frequently. So I prefer a solution that allows me to add types easily. But to reduce coupling to the implementation details, which is to be expected, I would suggest a way to extract implementation details from existing types by introducing a variation point.</p>
+<p>ME: Yes, you may have a point there. But since we’ll have to extend operations fairly often, we probably should consider designing the system in such a way that we can build on and reuse a given implementation easily.</p></blockquote>
+<p>Do you see the difference? Do you <em>feel</em> the difference? Without names, we have to talk about a
+lot more details explicitly. Obviously this kind of precise communication is possible only if we
+share the same understanding of design patterns. That is why it’s so important to know about
+design patterns and to talk about them.</p>
+</div></section>
+<section data-pdf-bookmark="A Design Pattern Carries an Intent" data-type="sect2"><div class="sect2" id="idm45043117855824">
+<h2>A Design Pattern Carries an Intent</h2>
+<p>By using the name of a design pattern, you can express your intent concisely and limit
+possible misunderstandings. This leads to the second property of a design pattern: an
+intent. The <em>name</em> of a design pattern conveys its <em>intent</em>. If you use the name of a
+design pattern, you implicitly state what you consider to be the problem and what you
+see as a solution.</p>
+<p>Hopefully you realized that in our little conversion, we weren’t talking about any kind
+of implementation. We didn’t talk about implementation details, any features, or any particular
+C++ standard. We didn’t even talk about any particular programming language. And
+please don’t assume that by giving you the name of a design pattern I have implicitly told
+you how to implement the solution. That is not what a design pattern is about. On the contrary:
+the name should tell you about the structure that I propose, about how I plan to manage
+dependencies and about how I expect the system to evolve. That is the intent.</p>
+<p>In fact, many design patterns have a similar structure. In the GoF book, many of the design
+patterns look very much alike, which, of course, raises a lot of confusion and questions.
+For instance, structurally, there appears to be almost no difference between the
+Strategy, the <em>Command</em>, and the <em>Bridge</em> design patterns.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117851760" id="idm45043117851760-marker">4</a></sup> However, their intent is very different and you
+would therefore use them to solve different problems. As you will see in various examples
+in the following chapters, there are almost always many different implementations you can
+choose from.</p>
+</div></section>
+<section data-pdf-bookmark="A Design Pattern Introduces an Abstraction" data-type="sect2"><div class="sect2" id="idm45043117848048">
+<h2>A Design Pattern Introduces an Abstraction</h2>
+<p>A<a data-primary="abstractions" data-secondary="design patterns and" data-type="indexterm" id="Adespat03"/><a data-primary="dependencies" data-secondary="design patterns and" data-type="indexterm" id="DPdespat03"/> design pattern always provides some way to reduce dependencies by introducing some
+kind of abstraction. This means that a design pattern is always concerned with managing
+the interaction between software entities and decoupling pieces of your software. For example, consider the<a data-primary="Strategy design pattern" data-secondary="diagram of" data-type="indexterm" id="idm45043117843264"/> Strategy design pattern, one of the original GoF design
+patterns, in <a data-type="xref" href="#fig_strategy_original">Figure 3-1</a>. Without going into too much detail, the Strategy
+design pattern introduces an abstraction in the
+form of the <code>Strategy</code> base class. This base class decouples the <code>Strategy</code> user (the
+<code>Context</code> class in the high level of your architecture) from the implementation details
+of the concrete strategies (<code>Concrete​StrategyA</code> and <code>ConcreteStrategyB</code> in the low level
+of your architecture). As such, Strategy fulfills the properties of a design
+pattern.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117838768" id="idm45043117838768-marker">5</a></sup></p>
+<figure><div class="figure" id="fig_strategy_original">
+<img alt="The UML diagram of the GoF Strategy design pattern" height="486" src="assets/cpsd_0301.png" width="1429"/>
+<h6><span class="label">Figure 3-1. </span>The GoF Strategy design pattern</h6>
+</div></figure>
+<p>A similar example is the <em>Factory Method</em> design pattern (yet another GoF design pattern;
+see <a data-type="xref" href="#fig_factory_method_original">Figure 3-2</a>). The intent of <em>Factory Method</em> is to decouple from the
+creation of specific products. For that purpose, it introduces two abstractions in the form
+of the <code>Product</code> and <code>Creator</code> base classes, which architecturally reside in the high level.
+The implementation details, given by means of the <code>ConcreteProduct</code> and <code>Concrete​Crea⁠tor</code>
+classes, reside on the low level of the architecture. With this architectural structure,
+<a data-primary="design patterns" data-secondary="Factory Method" data-type="indexterm" id="idm45043117830960"/> <em>Factory Method</em> also qualifies as a design pattern: it has a name, the intent to decouple, and it introduces abstractions.</p>
+<figure><div class="figure" id="fig_factory_method_original">
+<img alt="The UML diagram of the GoF _Factory Method_ design pattern" height="484" src="assets/cpsd_0302.png" width="1424"/>
+<h6><span class="label">Figure 3-2. </span>The GoF <em>Factory Method</em> design pattern</h6>
+</div></figure>
+<p>Note that the abstraction introduced by a design pattern is not necessarily
+introduced by means of a base class. As I will show you in the following sections and
+chapters, this abstraction can be introduced in many different ways, for instance, by
+means of templates or simply by function overloading. Again, a design pattern does
+not imply any specific implementation.</p>
+<p>As a counter example, let us consider the <code>std::make_unique()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">namespace</code><code class="w"> </code><code class="nn">std</code><code class="w"> </code><code class="p">{</code><code class="w"/>
+
+<code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="w"> </code><code class="nc">T</code><code class="p">,</code><code class="w"> </code><code class="k">typename</code><code class="p">...</code><code class="w"> </code><code class="n">Args</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">T</code><code class="o">&gt;</code><code class="w"> </code><code class="n">make_unique</code><code class="p">(</code><code class="w"> </code><code class="n">Args</code><code class="o">&amp;&amp;</code><code class="p">...</code><code class="w"> </code><code class="n">args</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="p">}</code><code class="w"> </code><code class="c1">// namespace std</code></pre>
+<p>In the C++ community, we often talk about the <code>std::make_unique()</code> function 
+<span class="keep-together">as
+a<a data-primary="factory functions" data-type="indexterm" id="idm45043117781680"/> <em>factory function</em>.</span> It’s important to note that although the term <em>factory function</em>
+gives the impression that <code>std::make_unique()</code> is one example of the <em>Factory Method</em>
+design pattern, this impression is incorrect. A design pattern helps you to decouple
+by introducing an abstraction, which allows you to customize and defer implementation
+details. In particular, the intent of the <em>Factory Method</em> design pattern is to introduce
+a<a data-primary="customization points" data-type="indexterm" id="idm45043117750032"/> <em>customization point</em> for the purpose of object instantiation. <code>std::make_unique()</code> does
+not provide such a <em>customization point</em>: if you use <code>std::make_unique()</code>, you know that
+you will get a <code>std::unique_ptr</code> to the type you are asking for and that the instance will
+be created by means of <code>new</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">// This will create a 'Widget' by means of calling 'new'</code>
+<code class="k">auto</code><code class="w"> </code><code class="n">ptr</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Widget</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="cm">/* some Widget arguments */</code><code class="w"> </code><code class="p">);</code><code class="w"/></pre>
+<p>Since <code>std::make_unique()</code> doesn’t provide you with any way to customize that
+behavior, it can’t help to reduce coupling between entities, and thus it cannot serve
+the purpose of a design pattern.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117735120" id="idm45043117735120-marker">6</a></sup> Still, <code>std::make_unique()</code> is a recurring
+solution for a specific problem. In other words, it is a pattern. However, it isn’t a <em>design pattern</em> but an<a data-primary="implementation patterns" data-secondary="std::make_unique()" data-type="indexterm" id="idm45043117712240"/> <em>implementation pattern</em>. It is a popular solution
+to encapsulate implementation details (in this case, the generation of an instance
+of <code>Widget</code>), but it does not abstract from what you get or how it will be created.
+As such, it is part of the <em>Implementation Details</em> level but not the
+<em>Software Design</em> level (refer back to <a data-type="xref" href="ch01.xhtml#fig_level_overview">Figure 1-1</a>).</p>
+<p>The introduction of abstractions is the key to decoupling software entities from one another
+and to designing for change and extension. There is no abstraction in the <code>std::make_unique()</code>
+function template, and thus no way for you to extend the functionality (you cannot even
+properly overload or specialize). In contrast, the <em>Factory Method</em> design pattern
+<em>does</em> provide an abstraction from <em>what</em> is created and <em>how</em>
+this something is created (including actions before and after the instantiation). Due
+to that abstraction you’ll be able to write new factories at a later point, without
+having to change existing code. Therefore, the design pattern helps you decouple and
+extend your software, while <code>std::make_unique()</code> is only an <em>implementation pattern</em>.</p>
+</div></section>
+<section data-pdf-bookmark="A Design Pattern Has Been Proven" data-type="sect2"><div class="sect2" id="idm45043117847376">
+<h2>A Design Pattern Has Been Proven</h2>
+<p>Last but not least, a design pattern has been proven over the years. The Gang of Four did
+not collect all possible solutions, only solutions that were commonly used in different
+codebases to solve the same problem (although potentially with different implementations).
+Thus a solution has to demonstrate its value several times before it emerges as a pattern.</p>
+<p>To summarize: a design pattern is a proven, named solution, which expresses a very specific
+intent. It introduces some kind of abstraction, which helps to decouple software entities and
+thus helps to manage the interaction between software entities. Just as we should use the
+term <em>Design</em> to denote the art of managing dependencies and decoupling (see
+<a data-type="xref" href="ch01.xhtml#understand_the_importance_of_software_design">“Guideline 1: Understand the Importance of 
+<span class="keep-together">Software Design</span>”</a>), we should use the term <em>Design Pattern</em>
+accurately and on purpose.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043117701504">
+<h5>Guideline 11: Understand the Purpose of Design Patterns</h5>
+<ul>
+<li>
+<p>Understand that design patterns are proven, named solutions with an intent to decouple.</p>
+</li>
+<li>
+<p>Realize that design patterns introduce some kind of abstraction.</p>
+</li>
+<li>
+<p>Keep in mind that design patterns are targeted at software design, i.e., help to manage dependencies.</p>
+</li>
+<li>
+<p>Be aware of the difference between design patterns and implementation patterns.<a data-primary="" data-startref="DPchar03" data-type="indexterm" id="idm45043117696864"/><a data-primary="" data-startref="Adespat03" data-type="indexterm" id="idm45043117678080"/><a data-primary="" data-startref="DPdespat03" data-type="indexterm" id="idm45043117677232"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Guideline 12: Beware of Design Pattern Misconceptions" data-type="sect1"><div class="sect1" id="beware_of_design_pattern_misconceptions">
+<h1>Guideline 12: Beware of Design Pattern Misconceptions</h1>
+<p>The<a data-primary="design patterns" data-secondary="misconceptions about" data-type="indexterm" id="DPmiscon03"/> last section focused on explaining the purpose of a design pattern: the combination of a
+name, an intent, and some form of abstraction to decouple software entities. However, just as it’s important to understand what a design pattern <em>is</em>, it’s important to understand what a design
+pattern <em>is not</em>. Unfortunately, there are several common misconceptions about design patterns:</p>
+<ul>
+<li>
+<p>Some consider design patterns as a goal and as a guarantee for achieving good software quality.</p>
+</li>
+<li>
+<p>Some argue that design patterns are based on a particular implementation and thus are language-specific idioms.</p>
+</li>
+<li>
+<p>Some say that design patterns are limited to object-oriented programming and dynamic polymorphism.</p>
+</li>
+<li>
+<p>Some consider design patterns outdated or even obsolete.</p>
+</li>
+</ul>
+<p>These misconceptions come as no surprise since we rarely talk about design but instead
+focus on features and language mechanics (see <a data-type="xref" href="ch01.xhtml#understand_the_importance_of_software_design">“Guideline 1: Understand the Importance of 
+<span class="keep-together">Software Design</span>”</a>).
+For that reason, I will debunk the first three misconceptions in this guideline and will deal
+with the fourth one in the next section.</p>
+<section data-pdf-bookmark="Design Patterns Are Not a Goal" data-type="sect2"><div class="sect2" id="idm45043117666064">
+<h2>Design Patterns Are Not a Goal</h2>
+<p>Some developers love design patterns. They are so infatuated with them that they
+try to solve all their problems by means of design patterns, whether it is reasonable or
+not. Of course, this way of thinking potentially increases the complexity of code and decreases
+comprehensibility, which may prove to be counterproductive. Consequently, this
+overuse of design patterns may result in frustration in other developers, in a bad
+reputation of design patterns in general, or even in rejection of the general idea of
+patterns.</p>
+<p>To spell it out: design patterns are <em>not</em> a goal. They are a means to achieve a goal.
+They may be part of the solution. But they are not a goal. As Venkat Subramaniam would say:
+if you get up in the morning, thinking “What design pattern will I use today?”, then this
+is a telltale sign that you are missing the purpose of design patterns.⁠<sup><a data-type="noteref" href="ch03.xhtml#idm45043117663968" id="idm45043117663968-marker">7</a></sup> There is no reward, no medal, for using as many
+design patterns as possible.
+The use of a design pattern shouldn’t create complexity but, on the contrary, decrease
+complexity. The code should become simpler, more comprehensible, and easier to change and
+maintain, simply because the design pattern should help to resolve dependencies and
+create a better structure. If using a design pattern leads to higher complexity
+and creates problems for other developers, it apparently isn’t the right solution.</p>
+<p>Just to be clear: I’m not telling you not to use design patterns. I’m merely telling you
+not to overuse them, just as I would tell you not to overuse any other tool. It always
+depends on the problem. For instance, a hammer is a great tool, as long as your problem
+is nails. As soon as your problem changes to screws, a hammer becomes a somewhat inelegant
+tool.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117662480" id="idm45043117662480-marker">8</a></sup> To properly use
+design patterns, to know when to use them and when <em>not</em> to use them, it’s so
+important to have a firm grasp of them, to understand their intent and structural
+properties, and to apply them wisely.</p>
+</div></section>
+<section data-pdf-bookmark="Design Patterns Are Not About Implementation Details" data-type="sect2"><div class="sect2" id="idm45043117660960">
+<h2>Design Patterns Are Not About Implementation Details</h2>
+<p>One of the most common misconceptions about design patterns is that they are based on a specific
+implementation. This includes the opinion that design patterns are more or less language-specific
+idioms. This misconception is easy to understand, as many design patterns, in particular the GoF
+patterns, are usually presented in an<a data-primary="object-oriented programming (OOP)" data-secondary="versus implementation details" data-secondary-sortas="implementation details" data-type="indexterm" id="OOPimplem03"/> object-oriented setting and explained by means of
+object-oriented examples. In such a context, it’s easy to mistake the implementation details
+for a specific pattern and to assume that both are the same.</p>
+<p>Fortunately, it’s also easy to demonstrate that design patterns are <em>not</em> about implementation
+details, any particular language feature, or any C++ standard. Let’s take a look at
+different implementations of the same design pattern. And yes, we will start with the classic,
+object-oriented version of the design pattern.</p>
+<p>Consider the following scenario: we want to draw a given shape.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117656144" id="idm45043117656144-marker">9</a></sup> The code snippet demonstrates this by means of a circle, but of course it
+could be any other kind of shape, like a square or a triangle. For the purpose of drawing,
+the <code>Circle</code> class provides the <code>draw()</code> member function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">);</code><code class="w">  </code><code class="c1">// Implemented in terms of some graphics library</code>
+<code class="w">   </code><code class="c1">// ...</code>
+<code class="p">};</code><code class="w"/></pre>
+<p>It now appears self-evident that you need to implement the <code>draw()</code> function. Without further
+thought, you might do this by means of a common graphics library such as OpenGL, Metal,
+Vulcan, or any other graphics library. However, it would be a big design flaw if the <code>Circle</code> class
+provides an implementation of the <code>draw()</code> functionality itself: by implementing the <code>draw()</code>
+function directly, you would introduce a strong coupling to your chosen graphics library. This
+comes with a couple of downsides:</p>
+<ul>
+<li>
+<p>For every possible application of <code>Circle</code>, you would always need the graphics library to
+be available, even though you might not be interested in graphics but only need it as a
+geometric primitive.</p>
+</li>
+<li>
+<p>Every change to the graphics library might have an effect on the <code>Circle</code> class, resulting
+in necessary modifications, retesting, redeployment, etc.</p>
+</li>
+<li>
+<p>Switching to another library in the future would mean everything but a smooth transition.</p>
+</li>
+</ul>
+<p>These problems all have a common source: implementing the <code>draw()</code> function directly within the
+<code>Circle</code> class violates the <em>Single-Responsibility Principle</em> (SRP; see <a data-type="xref" href="ch01.xhtml#design_for_change">“Guideline 2: Design for Change”</a>).
+The class wouldn’t change for a single reason anymore and would strongly depend on that design
+decision.</p>
+<p>The classic object-oriented solution for this problem is to extract the decision about
+how to draw the circle and introduce an abstraction for that by means of a base class.
+Introducing such a<a data-primary="Strategy design pattern" data-secondary="variation points and" data-type="indexterm" id="idm45043117621040"/><a data-primary="variation points" data-secondary="in Strategy design pattern" data-secondary-sortas="Strategy design pattern" data-type="indexterm" id="idm45043117620064"/> <em>variation point</em> is the effect of the Strategy design pattern
+(see <a data-type="xref" href="#fig_strategy_shape_1">Figure 3-3</a>).<sup><a data-type="noteref" href="ch03.xhtml#idm45043117617504" id="idm45043117617504-marker">10</a></sup></p>
+<figure><div class="figure" id="fig_strategy_shape_1">
+<img alt="The UML diagram of the GoF _Strategy_ design pattern, applied to drawing shapes." height="486" src="assets/cpsd_0303.png" width="1070"/>
+<h6><span class="label">Figure 3-3. </span>The <em>Strategy</em> design pattern applied to drawing circles</h6>
+</div></figure>
+<p>The<a data-primary="Strategy design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043117612672"/><a data-primary="Strategy design pattern" data-secondary="diagram of" data-type="indexterm" id="idm45043117611664"/> intent of the Strategy design pattern is to define a family of algorithms and encapsulate
+each one, therefore making them interchangeable. Strategy lets the algorithm vary independently
+from clients that use it. By introducing the <code>DrawStrategy</code> base class, it becomes possible to
+easily vary the <code>draw()</code> implementation of the given 
+<span class="keep-together"><code>Circle</code></span>. This also enables everyone, not
+just you, to implement a new drawing behavior without modifying existing code and to inject it
+from the outside into the 
+<span class="keep-together"><code>Circle</code></span>. This is what we commonly call<a data-primary="dependency injection" data-type="indexterm" id="idm45043117579984"/> <em>dependency injection</em>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;OpenGLStrategy.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ...</code>
+
+<code class="w">   </code><code class="c1">// Creating the desired drawing strategy for a circle.</code>
+<code class="w">   </code><code class="k">auto</code><code class="w"> </code><code class="n">strategy</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">      </code><code class="n">std</code><code class="o">::</code><code class="n">make_unique_ptr</code><code class="o">&lt;</code><code class="n">OpenGLStrategy</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="cm">/* OpenGL-specific arguments */</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="w">   </code><code class="c1">// Injecting the strategy into the circle; the circle does not have to know</code>
+<code class="w">   </code><code class="c1">// about the specific kind of strategy, but can with blissful ignorance use</code>
+<code class="w">   </code><code class="c1">// it via the 'DrawStrategy' abstraction.</code>
+<code class="w">   </code><code class="n">Circle</code><code class="w"> </code><code class="n">circle</code><code class="p">(</code><code class="w"> </code><code class="mf">4.2</code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">move</code><code class="p">(</code><code class="n">strategy</code><code class="p">)</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="n">circle</code><code class="p">.</code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="w">   </code><code class="c1">// ...</code>
+
+<code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>This approach vastly increases the flexibility with respect to different drawing behavior: it
+factors out all dependencies on specific libraries and other implementation details and thus
+makes the code more changeable and extensible. For instance, it’s now easily possible to
+provide a special implementation for testing purposes (i.e., a <code>TestStrategy</code>). This
+demonstrates that the improved flexibility has a very positive impact on the testability
+of the design.</p>
+<p>The Strategy design pattern is one of the classic GoF design patterns. As such, it is often
+referred to as an<a data-primary="OOP" data-see="object-oriented programming" data-type="indexterm" id="idm45043117525824"/><a data-primary="object-oriented programming (OOP)" data-secondary="Strategy design pattern" data-type="indexterm" id="idm45043117524976"/> object-oriented design pattern and is often considered to require a base
+class. However, the intent of Strategy is not limited to object-oriented programming. Just
+as it’s possible to use a base class for the abstraction, it is just as easily possible to
+rely on a template parameter:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="w"> </code><code class="nc">DrawStrategy</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>In this form, deciding how to draw the circle happens at compile time: instead of writing
+a base class <code>DrawStrategy</code> and passing a pointer to a <code>DrawStrategy</code> at runtime, the
+implementation details for drawing are provided by means of the <code>DrawStrategy</code> template
+argument. Note that while the template parameter allows you to inject the implementation
+details from the outside, the <code>Circle</code> is still not depending on any implementation details.
+Therefore you have still decoupled the <code>Circle</code> class from the used graphics library. In
+comparison to the runtime approach, though, you will have to recompile every time the
+<code>DrawStrategy</code> changes.</p>
+<p>While it’s true that the template-based solution fundamentally changes the properties of
+the example (i.e., no base class and no virtual functions, no runtime decisions, no single
+<code>Circle</code> class, but one <code>Circle</code> type for every concrete <code>DrawStrategy</code>), it still
+implements the intent of the Strategy design pattern perfectly. Thus this demonstrates
+that a design pattern is not restricted to a particular implementation or a specific form
+of abstraction.<a data-primary="" data-startref="OOPimplem03" data-type="indexterm" id="idm45043117388544"/></p>
+</div></section>
+<section data-pdf-bookmark="Design Patterns Are Not Limited to Object-Oriented Programming or Dynamic Polymorphism" data-type="sect2"><div class="sect2" id="idm45043117660336">
+<h2>Design Patterns Are Not Limited to Object-Oriented Programming or Dynamic Polymorphism</h2>
+<p>Let’s consider another use case for the Strategy design pattern: the Standard Library
+<code>accumulate()</code> function template from the <code>&lt;numeric&gt;</code> header:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="kt">int</code><code class="o">&gt;</code><code class="w"> </code><code class="n">v</code><code class="p">{</code><code class="w"> </code><code class="mi">1</code><code class="p">,</code><code class="w"> </code><code class="mi">2</code><code class="p">,</code><code class="w"> </code><code class="mi">3</code><code class="p">,</code><code class="w"> </code><code class="mi">4</code><code class="p">,</code><code class="w"> </code><code class="mi">5</code><code class="w"> </code><code class="p">};</code><code class="w"/>
+<code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">sum</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">accumulate</code><code class="p">(</code><code class="w"> </code><code class="n">begin</code><code class="p">(</code><code class="n">v</code><code class="p">),</code><code class="w"> </code><code class="n">end</code><code class="p">(</code><code class="n">v</code><code class="p">),</code><code class="w"> </code><code class="kt">int</code><code class="p">{</code><code class="mi">0</code><code class="p">}</code><code class="w"> </code><code class="p">);</code><code class="w"/></pre>
+<p>By default, <code>std::accumulate()</code> sums up all elements in the given range. The third
+argument specifies the initial value for the sum. Since <code>std::accumulate()</code> uses the
+type of that argument as the return type, the type of the argument is explicitly highlighted
+as <code>int{0}</code> instead of just <code>0</code> to prevent subtle misunderstandings. However, summing up
+elements is only the tip of the iceberg: if you need to, you can specify how elements are
+accumulated by providing a fourth argument to 
+<span class="keep-together"><code>std::accumulate()</code></span>. For instance, you could
+use <code>std::plus</code> or <code>std::multiplies</code> from the 
+<span class="keep-together"><code>&lt;functional&gt;</code></span> header:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="kt">int</code><code class="o">&gt;</code><code class="w"> </code><code class="n">v</code><code class="p">{</code><code class="w"> </code><code class="mi">1</code><code class="p">,</code><code class="w"> </code><code class="mi">2</code><code class="p">,</code><code class="w"> </code><code class="mi">3</code><code class="p">,</code><code class="w"> </code><code class="mi">4</code><code class="p">,</code><code class="w"> </code><code class="mi">5</code><code class="w"> </code><code class="p">};</code><code class="w"/>
+<code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">sum</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">accumulate</code><code class="p">(</code><code class="w"> </code><code class="n">begin</code><code class="p">(</code><code class="n">v</code><code class="p">),</code><code class="w"> </code><code class="n">end</code><code class="p">(</code><code class="n">v</code><code class="p">),</code><code class="w"> </code><code class="kt">int</code><code class="p">{</code><code class="mi">0</code><code class="p">},</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">plus</code><code class="o">&lt;&gt;</code><code class="p">{}</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">product</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">accumulate</code><code class="p">(</code><code class="w"> </code><code class="n">begin</code><code class="p">(</code><code class="n">v</code><code class="p">),</code><code class="w"> </code><code class="n">end</code><code class="p">(</code><code class="n">v</code><code class="p">),</code><code class="w"> </code><code class="kt">int</code><code class="p">{</code><code class="mi">1</code><code class="p">},</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">multiplies</code><code class="o">&lt;&gt;</code><code class="p">{}</code><code class="w"> </code><code class="p">);</code><code class="w"/></pre>
+<p>By means of the fourth argument, <code>std::accumulate()</code> can be used for any kind 
+<span class="keep-together">of
+reduction operation,</span> and thus the fourth argument represents the implementation of the
+reduction operation. As such, it enables us to vary the implementation by injecting
+the details of how the reduction should work from the outside. 
+<span class="keep-together"><code>std::accumulate()</code></span>
+therefore does not depend on a single, specific implementation but can be customized
+by anyone to a specific purpose. This<a data-primary="Strategy design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043117185440"/> represents exactly the intent of the Strategy
+design pattern.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117184368" id="idm45043117184368-marker">11</a></sup></p>
+<p><code>std::accumulate()</code> draws its power from a generic form of the Strategy design pattern.
+Without the ability to change this behavior, it would be useful in only a very limited number
+of use cases. Due to the Strategy design pattern, the number of possible uses is
+endless.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117181696" id="idm45043117181696-marker">12</a></sup></p>
+<p>The example of <code>std::accumulate()</code> demonstrates that design patterns, even the classic
+GoF patterns, are not tied to one particular implementation and additionally are
+not limited to object-oriented programming. Clearly the intent of many of these patterns
+is also useful for other paradigms like functional or generic programming.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117179232" id="idm45043117179232-marker">13</a></sup> Therefore, design patterns are not limited to
+dynamic polymorphism, either. On the contrary: design patterns work equally well for
+static polymorphism and can therefore be used in combination with C++ templates.</p>
+<p>To further emphasize the point and to show you an additional example of the Strategy design
+pattern, consider the declarations for the <code>std::vector</code> and <code>std::set</code> class templates:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">namespace</code><code class="w"> </code><code class="nn">std</code><code class="w"> </code><code class="p">{</code><code class="w"/>
+
+<code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">T</code><code class="w"/>
+<code class="w">        </code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">Allocator</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">allocator</code><code class="o">&lt;</code><code class="n">T</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">class</code><code class="w"> </code><code class="nc">vector</code><code class="p">;</code><code class="w"/>
+
+<code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">Key</code><code class="w"/>
+<code class="w">        </code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">Compare</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">less</code><code class="o">&lt;</code><code class="n">Key</code><code class="o">&gt;</code><code class="w"/>
+<code class="w">        </code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">Allocator</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">allocator</code><code class="o">&lt;</code><code class="n">Key</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">class</code><code class="w"> </code><code class="nc">set</code><code class="p">;</code><code class="w"/>
+
+<code class="p">}</code><code class="w"> </code><code class="c1">// namespace std</code></pre>
+<p>All containers in the Standard Library (with the exception of <code>std::array</code>) provide you with
+the opportunity to specify a custom allocator. In the case of <code>std::vector</code> it’s the second
+template argument, and for <code>std::set</code> it’s the third argument. All memory requests from the
+container are handled via the given allocator.</p>
+<p>By exposing a template argument for the allocator, the Standard Library containers give
+you the opportunity to customize memory allocation from the outside. They enable you to
+define a family of algorithms (in earlier case, an algorithm for the memory acquisition) and encapsulate each one and therefore make them interchangeable. Consequently you’re
+able to vary this algorithm independently from clients (in this case, the containers) that
+use it.<sup><a data-type="noteref" href="ch03.xhtml#idm45043117095392" id="idm45043117095392-marker">14</a></sup></p>
+<p>Having read that description, you should recognize the Strategy design pattern. In this
+example, Strategy is again based on static polymorphism and implemented by means of a template
+argument. Clearly, Strategy is not limited to dynamic 
+<span class="keep-together">polymorphism.</span></p>
+<p>While<a data-primary="object-oriented programming (OOP)" data-secondary="alleviating problems in" data-type="indexterm" id="idm45043117092032"/> it’s obviously true that design patterns in general aren’t limited to object-oriented
+programming or dynamic polymorphism, I should still explicitly state that there are some design
+patterns whose intent is targeted to alleviate the usual problems in object-oriented programming
+(e.g., the <em>Visitor</em> and <em>Prototype</em> design patterns).⁠<sup><a data-type="noteref" href="ch03.xhtml#idm45043117018416" id="idm45043117018416-marker">15</a></sup> And of course there
+are also design patterns focused on functional programming or generic
+programming (e.g., the <em>Curiously Recurring Template Pattern</em> [CRTP] and <em>Expression Templates</em>).<sup><a data-type="noteref" href="ch03.xhtml#idm45043117014496" id="idm45043117014496-marker">16</a></sup> While most
+design patterns are not paradigm centric and their intention can be used in a variety of
+implementations, some are more specific.</p>
+<p>In the upcoming chapters, you’ll see examples for both categories. You will see design patterns
+that have a very general intent and are consequently of general usefulness. Additionally, you will
+see some design patterns that are more paradigm-specific and, due to that, will fail to be useful
+outside of their target domain. Still, they all have the main characteristics of design patterns
+in common: a name, an intent, and some form of abstraction.</p>
+<p>In summary: design patterns are not limited to object-oriented programming, nor are they
+limited to dynamic polymorphism. More specifically, design patterns are not about a particular
+implementation and they are not language-specific idioms. Instead, they are focused entirely
+on the intent to decouple software entities in a specific way.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043117009920">
+<h5>Guideline 12: Beware of Design Pattern Misconceptions</h5>
+<ul>
+<li>
+<p>Consider design patterns as a tool to solve a design problem, not as a goal.</p>
+</li>
+<li>
+<p>Be aware that design patterns are not limited to object-oriented programming.</p>
+</li>
+<li>
+<p>Bear in mind that design patterns are not limited to dynamic polymorphism.</p>
+</li>
+<li>
+<p>Understand that design patterns are not language-specific idioms.<a data-primary="" data-startref="DPmiscon03" data-type="indexterm" id="idm45043117004912"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Guideline 13: Design Patterns Are Everywhere" data-type="sect1"><div class="sect1" id="design_patterns_are_everywhere">
+<h1>Guideline 13: Design Patterns Are Everywhere</h1>
+<p>The<a data-primary="design patterns" data-secondary="relevance of" data-type="indexterm" id="DPrelevance03"/> previous section has demonstrated that design patterns are not limited to object-oriented programming or dynamic polymorphism, that they are not
+language-specific idioms, and that they are not about a particular implementation.
+Still, due to these common misconceptions and because we don’t consider C++
+as solely object-oriented programming language anymore, some people even claim
+that design patterns are outdated or obsolete.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116999904" id="idm45043116999904-marker">17</a></sup></p>
+<p>I imagine you’re now looking a little skeptical. “Obsolete? Isn’t that a little
+exaggerated?” you ask. Well, unfortunately not. To tell a little war story,
+in early 2021 I had the honor of giving a virtual talk about design patterns in a
+German C++ user group. My main objective was to explain what design
+patterns are and that they are very much in use today. During the talk, I felt good,
+invigorated in my mission to help people see all the benefits of design patterns,
+and I sure gave my best to make everybody see the light that knowledge about
+design patterns brings. Still, a few days after the publication of the talk
+on YouTube, a user commented on the talk with “Really? Design Patterns in 2021?”</p>
+<p>I very much hope that you are now shaking your head in disbelief. Yes, I could
+not believe it either, especially after having shown that there are hundreds of
+examples for design patterns in the C++ Standard Library. No, design
+patterns are neither outdated nor obsolete. Nothing could be further from the truth.
+To prove that design patterns are still very much alive and relevant, let’s
+consider the updated allocators facility in the C++ Standard Library.
+Take a look at the following code example that uses allocators from the
+<code>std::pmr</code> (<em>polymorphic memory resource</em>) namespace:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;array&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstddef&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory_resource&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;vector&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">array</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">byte</code><code class="p">,</code><code class="mi">1000</code><code class="o">&gt;</code><code class="w"> </code><code class="n">raw</code><code class="p">;</code><code class="w">  </code><code class="c1">// Note: not initialized!  </code><a class="co" href="#para_g13_1" id="code_g13_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="c1">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">monotonic_buffer_resource</code><code class="w">
+</code><code class="w">      </code><code class="n">buffer</code><code class="p">{</code><code class="w"> </code><code class="n">raw</code><code class="p">.</code><code class="n">data</code><code class="p">(</code><code class="p">)</code><code class="p">,</code><code class="w"> </code><code class="n">raw</code><code class="p">.</code><code class="n">size</code><code class="p">(</code><code class="p">)</code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">null_memory_resource</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g13_2" id="code_g13_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="o">&gt;</code><code class="w"> </code><code class="n">strings</code><code class="p">{</code><code class="w"> </code><code class="o">&amp;</code><code class="n">buffer</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g13_3" id="code_g13_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">strings</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">String longer than what SSO can handle</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">strings</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">Another long string that goes beyond SSO</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">strings</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">A third long string that cannot be handled by SSO</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="w">
+</code><code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>This example demonstrates how to use a
+<a href="https://oreil.ly/E40Dn"><code>std::pmr::monotonic_buffer_resource</code></a>
+as allocator to redirect all memory allocations into 
+<span class="keep-together">a predefined byte buffer.</span> Initially we
+are creating a buffer of 1,000 bytes in the form 
+<span class="keep-together">of a <code>std::array</code></span>
+(<a class="co" href="#code_g13_1" id="para_g13_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>). This
+buffer is provided as a source of memory to a 
+<span class="keep-together"><code>std::pmr::monotonic_buffer_resource</code></span> by means
+of passing a pointer to the first element (via <code>raw.data()</code>) and the size of the buffer
+(via <code>raw.size()</code>)
+(<a class="co" href="#code_g13_2" id="para_g13_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).</p>
+<p>The third argument to the <code>monotonic_buffer_resource</code> represents a backup allocator, which is
+used in case the <code>monotonic_buffer_resource</code> runs out of memory. Since we don’t need additional
+memory in this case, we use the <code>std::pmr::null​_mem⁠ory_resource()</code> function, which gives us a
+pointer to the standard allocator that always fails to allocate. That means that you can ask
+as nicely as you want, but the allocator returned by <code>std::pmr::null_memory_resource()</code> will
+always throw an exception when you ask for memory.</p>
+<p>The created buffer is passed as allocator to the <code>strings</code> vector, which will now acquire
+all its memory from the initial byte buffer
+(<a class="co" href="#code_g13_3" id="para_g13_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>).
+Furthermore, since the vector forwards the allocator to its elements, even the three
+strings, which we add by means of the <code>emplace_back()</code> function and which are all too
+long to rely on the<a data-primary="Small String Optimization (SSO)" data-type="indexterm" id="idm45043116831040"/><a data-primary="SSO (Small String Optimization)" data-type="indexterm" id="idm45043116756832"/> <em>Small String Optimization (SSO)</em>, will acquire all their memory
+from the byte buffer. Thus, no dynamic memory is used in the entire example; all memory
+will be taken from the byte array.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116755712" id="idm45043116755712-marker">18</a></sup></p>
+<p>At first glance, this example doesn’t look like it requires any design pattern to work.
+However, the allocator functionality used in this example uses at least four different
+design patterns: the Template Method design pattern, the Decorator design pattern,
+the Adapter design pattern, and (again) the Strategy design pattern.</p>
+<p>There are even five design pattern if you count the <em>Singleton</em> pattern: the
+<code>null​_mem⁠ory_resource()</code> function
+(<a class="co" href="#code_g13_2" id="para_g13_2_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>)
+is implemented in terms of the <em>Singleton</em> pattern:<sup><a data-type="noteref" href="ch03.xhtml#idm45043116749824" id="idm45043116749824-marker">19</a></sup> it returns a pointer to a static storage duration object,
+which is used to guarantee that there is at most one instance of this allocator.</p>
+<p>All C++ allocators from the <code>pmr</code> namespace, including the allocator returned
+by <code>null_memory_resource()</code> and the <code>monotonic_buffer_resource</code>, are derived from the
+<code>std::pmr::memory_resource</code> base class. The first design pattern becomes visible
+if you look at the <code>memory_resource</code> class definition:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">namespace</code><code class="w"> </code><code class="nn">std</code><code class="o">::</code><code class="nn">pmr</code><code class="w"> </code><code class="p">{</code><code class="w"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">memory_resource</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ... a virtual destructor, some constructors and assignment operators</code>
+
+<code class="w">   </code><code class="p">[[</code><code class="n">nodiscard</code><code class="p">]]</code><code class="w"> </code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">allocate</code><code class="p">(</code><code class="kt">size_t</code><code class="w"> </code><code class="n">bytes</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">alignment</code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">deallocate</code><code class="p">(</code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">p</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">bytes</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">alignment</code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="kt">bool</code><code class="w"> </code><code class="nf">is_equal</code><code class="p">(</code><code class="n">memory_resource</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">other</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">noexcept</code><code class="p">;</code><code class="w"/>
+
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">do_allocate</code><code class="p">(</code><code class="kt">size_t</code><code class="w"> </code><code class="n">bytes</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">alignment</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="nf">do_deallocate</code><code class="p">(</code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">p</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">bytes</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">alignment</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">bool</code><code class="w"> </code><code class="nf">do_is_equal</code><code class="p">(</code><code class="n">memory_resource</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">other</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">noexcept</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="p">}</code><code class="w"> </code><code class="c1">// namespace std::pmr</code></pre>
+<p>You may notice that the three functions in the <code>public</code> section of the class have a virtual
+counterpart in the <code>private</code> section of the class. Whereas the public <code>allocate()</code>,
+<code>deallocate()</code>, and <code>is_equal()</code> functions represent the user-facing interface of the class,
+the <code>do_allocate()</code>, <code>do_deallocate()</code>, and <code>do_is_equal()</code> functions represent the interface
+for derived classes. This separation of concerns is an example of the <em>Non-Virtual Interface
+(NVI)</em> idiom, which itself is an example of the<a data-primary="Template Method design pattern" data-type="indexterm" id="idm45043116660688"/><a data-primary="design patterns" data-secondary="Template Method" data-type="indexterm" id="idm45043116660048"/> <em>Template Method</em> design
+pattern.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116658560" id="idm45043116658560-marker">20</a></sup></p>
+<p>The second design pattern we implicitly use is the Decorator design pattern.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116657552" id="idm45043116657552-marker">21</a></sup>
+Decorator helps you to build a hierarchical layer of allocators and to wrap and extend the
+functionality of one allocator to another. This idea becomes clearer in this line:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="n">std</code><code class="o">::</code><code class="n">pmr</code><code class="o">::</code><code class="n">monotonic_buffer_resource</code><code class="w"/>
+<code class="w">   </code><code class="n">buffer</code><code class="p">{</code><code class="w"> </code><code class="n">raw</code><code class="p">.</code><code class="n">data</code><code class="p">(),</code><code class="w"> </code><code class="n">raw</code><code class="p">.</code><code class="n">size</code><code class="p">(),</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">pmr</code><code class="o">::</code><code class="n">null_memory_resource</code><code class="p">()</code><code class="w"> </code><code class="p">};</code><code class="w"/></pre>
+<p>By passing the allocator returned by the <code>null_memory_resource()</code> function to the
+<code>monotonic_buffer_resource</code>, we decorate its functionality. Whenever we ask the
+
+<span class="keep-together"><code>monotonic_buffer_resource</code></span> for memory via the <code>allocate()</code> function, it may forward the call to
+its backup allocator. This way, we can implement many different kinds of allocators, which in
+turn can be easily assembled to form a complete memory subsystem with different layers of
+allocation strategies. This kind of combining and reusing pieces of functionality is the
+strength of the Decorator design pattern.</p>
+<p>You may have noticed that in the example code we have used <code>std::pmr::vector</code> and
+<code>std::pmr::string</code>. I assume you remember that <code>std::string</code> is just a type alias to
+<code>std::basic_string&lt;char&gt;</code>. Knowing that, it probably comes as no surprise that the two types
+in the <code>pmr</code> namespace are also just type aliases:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">namespace</code><code class="w"> </code><code class="nn">std</code><code class="o">::</code><code class="nn">pmr</code><code class="w"> </code><code class="p">{</code><code class="w"/>
+
+<code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">CharT</code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">Traits</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">char_traits</code><code class="o">&lt;</code><code class="n">CharT</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">using</code><code class="w"> </code><code class="n">basic_string</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">basic_string</code><code class="o">&lt;</code><code class="w"> </code><code class="n">CharT</code><code class="p">,</code><code class="w"> </code><code class="n">Traits</code><code class="p">,</code><code class="w"/>
+<code class="w">                      </code><code class="n">std</code><code class="o">::</code><code class="n">pmr</code><code class="o">::</code><code class="n">polymorphic_allocator</code><code class="o">&lt;</code><code class="n">CharT</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="p">;</code><code class="w"/>
+
+<code class="k">template</code><code class="w"> </code><code class="o">&lt;</code><code class="k">class</code><code class="w"> </code><code class="nc">T</code><code class="o">&gt;</code><code class="w"/>
+<code class="k">using</code><code class="w"> </code><code class="n">vector</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="w"> </code><code class="n">T</code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">pmr</code><code class="o">::</code><code class="n">polymorphic_allocator</code><code class="o">&lt;</code><code class="n">T</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="p">;</code><code class="w"/>
+
+<code class="p">}</code><code class="w"> </code><code class="c1">// namespace std::pmr</code></pre>
+<p>These type aliases still refer to the regular <code>std::vector</code> and <code>std::basic_string</code> classes but
+do not expose a template parameter for an allocator anymore. Instead, they employ a
+<code>std::pmr::polymorphic_allocator</code> as allocator. This is an example of
+the<a data-primary="Adapter design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043116323600"/> Adapter design pattern.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116322624" id="idm45043116322624-marker">22</a></sup> The intent of an Adapter is to
+help you to glue two nonfitting interfaces together. In this case, the 
+<span class="keep-together"><code>polymorphic_allocator</code></span>
+helps to transmit between the classic, static interface required from the classic C++
+allocators and the new, dynamic allocator interface required by <code>std::pmr::memory_resource</code>.</p>
+<p>The<a data-primary="Strategy design pattern" data-secondary="static form of" data-type="indexterm" id="idm45043116319328"/> fourth and last design pattern used in our example is, again, the Strategy design pattern.
+By exposing a template argument for the allocator, Standard Library containers like <code>std::vector</code>
+and <code>std::string</code> give you the opportunity to customize memory allocation from outside. This is
+a static form of the Strategy design pattern and has the same intent as customizing algorithms
+(see also <a data-type="xref" href="#beware_of_design_pattern_misconceptions">“Guideline 12: Beware of Design Pattern Misconceptions”</a>).</p>
+<p>This example impressively demonstrates, that design patterns are far from being obsolete. On
+closer examination, we see them everywhere: any kind of abstraction and any attempt to decouple
+software entities and introduce flexibility and extensibility is very likely based on
+some design pattern. For that reason, it definitely helps to know about the different design
+patterns and to understand their intent to recognize them and apply them whenever
+it is necessary and appropriate.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043116315888">
+<h5>Guideline 13: Design Patterns Are Everywhere</h5>
+<ul>
+<li>
+<p>Understand that any kind of abstraction and any attempt to decouple likely represents a known design pattern.</p>
+</li>
+<li>
+<p>Learn about the different design patterns and understand their intent to 
+<span class="keep-together">decouple.</span></p>
+</li>
+<li>
+<p>Apply design patterns based on their intent whenever necessary.<a data-primary="" data-startref="DPrelevance03" data-type="indexterm" id="idm45043116311440"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+<section data-pdf-bookmark="Guideline 14: Use a Design Pattern’s Name to Communicate Intent" data-type="sect1"><div class="sect1" id="use_a_design_patterns_name_to_communicate_intent">
+<h1>Guideline 14: Use a Design Pattern’s Name to Communicate Intent</h1>
+<p>In<a data-primary="design patterns" data-secondary="naming" data-type="indexterm" id="DPname03"/> the last two sections, you learned what a design pattern is, what it’s not, and that design patterns are everywhere. You also learned that every design pattern has a name,
+which expresses a clear, concise, and unambiguous intent. Hence, the name carries
+meaning.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116307104" id="idm45043116307104-marker">23</a></sup> By using the name of a design pattern you can express what the problem is and
+which solution you’ve chosen to solve the problem, and you can describe how the code
+is expected to evolve.</p>
+<p>Consider, for instance, the Standard Library <code>accumulate()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">InputIt</code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">T</code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">BinaryOperation</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">constexpr</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="n">accumulate</code><code class="p">(</code><code class="w"> </code><code class="n">InputIt</code><code class="w"> </code><code class="n">first</code><code class="p">,</code><code class="w"> </code><code class="n">InputIt</code><code class="w"> </code><code class="n">last</code><code class="p">,</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="n">init</code><code class="p">,</code><code class="w"/>
+<code class="w">                        </code><code class="n">BinaryOperation</code><code class="w"> </code><code class="n">op</code><code class="w"> </code><code class="p">);</code><code class="w"/></pre>
+<p>The third template parameter is named <code>BinaryOperation</code>. While this does communicate the fact
+that the passed callable is required to take two arguments, the name does not communicate the
+intent of the parameter. To express the intent more clearly, consider calling it
+<code>BinaryReductionStrategy</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">InputIt</code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">T</code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">BinaryReductionStrategy</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">constexpr</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="n">accumulate</code><code class="p">(</code><code class="w"> </code><code class="n">InputIt</code><code class="w"> </code><code class="n">first</code><code class="p">,</code><code class="w"> </code><code class="n">InputIt</code><code class="w"> </code><code class="n">last</code><code class="p">,</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="n">init</code><code class="p">,</code><code class="w"/>
+<code class="w">                        </code><code class="n">BinaryReductionStrategy</code><code class="w"> </code><code class="n">op</code><code class="w"> </code><code class="p">);</code><code class="w"/></pre>
+<p>Both the term <em>Reduction</em> and the name <em>Strategy</em> carry meaning for every C++
+programmer. Therefore, you’ve now captured and expressed your intent much more clearly:
+the parameter enables <em>dependency injection</em> of a binary operation, which allows you to
+specify how the reduction operation works. Therefore, the parameter solves the problem
+of customization. Still, as you will see in <a data-type="xref" href="ch05.xhtml#the_strategy_and_command_design_patterns">Chapter 5</a>,
+the Strategy design pattern communicates that there are certain expectations for the
+operation. You can only specify how the reduction operation works; you cannot redefine
+what <code>accumulate()</code> does. If that’s what you want to express, you should use the name
+of the <em>Command</em> design pattern:<sup><a data-type="noteref" href="ch03.xhtml#idm45043116150400" id="idm45043116150400-marker">24</a></sup></p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">InputIt</code><code class="p">,</code><code class="w"> </code><code class="k">class</code><code class="w"> </code><code class="nc">UnaryCommand</code><code class="w"> </code><code class="o">&gt;</code><code class="w"/>
+<code class="k">constexpr</code><code class="w"> </code><code class="n">UnaryCommand</code><code class="w"/>
+<code class="w">   </code><code class="n">for_each</code><code class="p">(</code><code class="w"> </code><code class="n">InputIt</code><code class="w"> </code><code class="n">first</code><code class="p">,</code><code class="w"> </code><code class="n">InputIt</code><code class="w"> </code><code class="n">last</code><code class="p">,</code><code class="w"> </code><code class="n">UnaryCommand</code><code class="w"> </code><code class="n">f</code><code class="w"> </code><code class="p">);</code><code class="w"/></pre>
+<p>The <code>std::for_each()</code> algorithm allows you to apply any kind of unary operation to a range of
+elements. To express this intent, the second template parameter could be named <code>UnaryCommand</code>,
+which unambiguously expresses that there are (nearly) no expectations for the operation.</p>
+<p>Another example from the Standard Library shows how much value the name of a design pattern can
+bring to a piece of code:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;iostream&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;variant&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">struct</code><code class="w"> </code><code class="nc">Print</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">(</code><code class="p">)</code><code class="p">(</code><code class="kt">int</code><code class="w"> </code><code class="n">i</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="s">"</code><code class="s">int: </code><code class="s">"</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="n">i</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="sc">'</code><code class="sc">\n</code><code class="sc">'</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">(</code><code class="p">)</code><code class="p">(</code><code class="kt">double</code><code class="w"> </code><code class="n">d</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="s">"</code><code class="s">double: </code><code class="s">"</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="n">d</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="sc">'</code><code class="sc">\n</code><code class="sc">'</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">(</code><code class="p">)</code><code class="p">(</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">s</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="s">"</code><code class="s">string: </code><code class="s">"</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="n">s</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="sc">'</code><code class="sc">\n</code><code class="sc">'</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">variant</code><code class="o">&lt;</code><code class="kt">int</code><code class="p">,</code><code class="kt">double</code><code class="p">,</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="o">&gt;</code><code class="w"> </code><code class="n">v</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g14_1" id="code_g14_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">v</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="s">"</code><code class="s">C++ Variant example</code><code class="s">"</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g14_2" id="code_g14_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">visit</code><code class="p">(</code><code class="n">Print</code><code class="p">{</code><code class="p">}</code><code class="p">,</code><code class="w"> </code><code class="n">v</code><code class="p">)</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g14_3" id="code_g14_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>In the <code>main()</code> function, we create a <code>std::variant</code> for the three alternatives <code>int</code>,
+
+<span class="keep-together"><code>double</code></span>, and <code>std::string</code>
+(<a class="co" href="#code_g14_1" id="para_g14_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>).
+In the next line, we assign a C-style string literal, which will be converted to a
+<code>std::string</code> inside the variant
+(<a class="co" href="#code_g14_2" id="para_g14_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).
+Then we print the content of the variant via the <code>std::visit()</code> function and the <code>Print</code>
+function object
+(<a class="co" href="#code_g14_3" id="para_g14_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>).</p>
+<p>Notice the name of the <code>std::visit()</code> function. The name directly refers to the <em>Visitor</em> design
+pattern and therefore clearly expresses its intent: you’re able to apply any operation to the
+closed set of types contained in the variant instance.<sup><a data-type="noteref" href="ch03.xhtml#idm45043115722672" id="idm45043115722672-marker">25</a></sup> Also, you can extend the set of operations nonintrusively.</p>
+<p>You see that using the name of a design pattern carries more information than using an
+arbitrary name. Still, this shouldn’t imply that naming is easy.<sup><a data-type="noteref" href="ch03.xhtml#idm45043116055552" id="idm45043116055552-marker">26</a></sup> A name should primarily
+help you understand the code in a specific context. If the name of a design pattern can help
+with that, then consider including the design pattern name to express your intent.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043116053824">
+<h5>Guideline 14: Use a Design Pattern’s Name to Communicate Intent</h5>
+<ul>
+<li>
+<p>Use the name of a design pattern to communicate the intent of a solution.</p>
+</li>
+<li>
+<p>Use the name of a design pattern to improve readability.<a data-primary="" data-startref="DPname03" data-type="indexterm" id="idm45043116051056"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+<div data-type="footnotes"><p data-type="footnote" id="idm45043117876336"><sup><a href="ch03.xhtml#idm45043117876336-marker">1</a></sup> The Gang of Four, or simply GoF, is a commonly used reference to the four authors Erich Gamma, Richard Helm, Ralph E. Johnson, and John Vlissides and their book on design patterns: <em>Design Patterns: Elements of Reusable Object-Oriented Software</em> (Prentice Hall). The GoF book still is, after several decades, <em>the</em> reference on design patterns. Throughout the rest of this book, I will refer to either the GoF book, the GoF patterns, or the characteristic, object-oriented GoF style.</p><p data-type="footnote" id="idm45043117867680"><sup><a href="ch03.xhtml#idm45043117867680-marker">2</a></sup> If you do not know the <em>Visitor</em> design pattern yet, don’t worry. I will introduce the pattern in <a data-type="xref" href="ch04.xhtml#the_visitor_design_pattern">Chapter 4</a>.</p><p data-type="footnote" id="idm45043117861184"><sup><a href="ch03.xhtml#idm45043117861184-marker">3</a></sup> The Strategy design pattern will be explained in detail in <a data-type="xref" href="ch05.xhtml#the_strategy_and_command_design_patterns">Chapter 5</a>, the Decorator design pattern in <a data-type="xref" href="ch09.xhtml#the_decorator_design_pattern">Chapter 9</a>.</p><p data-type="footnote" id="idm45043117851760"><sup><a href="ch03.xhtml#idm45043117851760-marker">4</a></sup> I mention only the design patterns that I will explain in later chapters (see the Strategy and <em>Command</em> design patterns in <a data-type="xref" href="ch05.xhtml#the_strategy_and_command_design_patterns">Chapter 5</a> and the <em>Bridge</em> design pattern in <a data-type="xref" href="ch07.xhtml#build_bridges_to_remove_physical_dependencies">“Guideline 28: Build Bridges to Remove 
+<span class="keep-together">Physical Dependencies</span>”</a>). There are a few more design patterns that share the same structure.</p><p data-type="footnote" id="idm45043117838768"><sup><a href="ch03.xhtml#idm45043117838768-marker">5</a></sup> If you are unfamiliar with the Strategy design pattern, rest assured that <a data-type="xref" href="ch05.xhtml#the_strategy_and_command_design_patterns">Chapter 5</a> will provide much more information, including several code examples.</p><p data-type="footnote" id="idm45043117735120"><sup><a href="ch03.xhtml#idm45043117735120-marker">6</a></sup> This may be a controversial example. Since I know the C++ community, I know that you may have a different opinion. However, I stand by mine: due to its definition, <code>std::make_unique()</code> is incapable of decoupling software entities and therefore does not play a role on the level of software design. It’s merely an implementation detail (but a valuable and useful one).</p><p data-type="footnote" id="idm45043117663968"><sup><a href="ch03.xhtml#idm45043117663968-marker">7</a></sup> Venkat Subramaniam and Andrew Hunt, <em>Practices of an Agile Developer</em> (The Pragmatic Programmers, LLC, 2017).</p><p data-type="footnote" id="idm45043117662480"><sup><a href="ch03.xhtml#idm45043117662480-marker">8</a></sup> Well, it works, in some definition of “works.”</p><p data-type="footnote" id="idm45043117656144"><sup><a href="ch03.xhtml#idm45043117656144-marker">9</a></sup> I know what you’re thinking: “You cannot be serious! There is so many interesting examples out there, but you select the oldest and most boring example in the book!” OK, I admit that might not be the most exciting example to pick. But, still, I have two good reasons to use this example. First, the scenario is so well known that I can assume that no one has trouble understanding it. That means that everyone should be able to follow my arguments about software design. And second, let’s agree that it’s kind of a tradition in computer science to start with a shape or an animal example. And, of course, I do not want to disappoint traditionalists.</p><p data-type="footnote" id="idm45043117617504"><sup><a href="ch03.xhtml#idm45043117617504-marker">10</a></sup> <a data-type="xref" href="ch05.xhtml#the_strategy_and_command_design_patterns">Chapter 5</a> will provide a complete and thorough introduction of the <em>Strategy</em> design pattern.</p><p data-type="footnote" id="idm45043117184368"><sup><a href="ch03.xhtml#idm45043117184368-marker">11</a></sup> You may (correctly) observe that even without the fourth argument you could change how the accumulation works by providing a custom addition operator (i.e., <code>operator+()</code>) for the given type. However, that is only of limited use. While you can provide a custom addition operator for user-defined types, you cannot provide a custom addition operator for fundamental types (such as the <code>int</code> in the example). Also, it’s very questionable to define <code>operator+()</code> for anything other than an addition operation (or related operations like the concatenation of strings). Thus, relying on the addition operator would be limiting technically and semantically.</p><p data-type="footnote" id="idm45043117181696"><sup><a href="ch03.xhtml#idm45043117181696-marker">12</a></sup> In his CppCon 2016 talk <a href="https://oreil.ly/P8qpA">“std::accumulate: Exploring an Algorithmic Empire”</a>, Ben Deane has impressively demonstrated how powerful <code>std::accumulate()</code> is thanks to that fourth argument.</p><p data-type="footnote" id="idm45043117179232"><sup><a href="ch03.xhtml#idm45043117179232-marker">13</a></sup> For more information about STL algorithms and their functional programming heritage, see Ivan Cukic’s excellent introduction to <em>Functional Programming in C++</em> (Manning).</p><p data-type="footnote" id="idm45043117095392"><sup><a href="ch03.xhtml#idm45043117095392-marker">14</a></sup> Another commonly used name for that form of the Strategy design pattern is <em>Policy-Based Design</em>; see <a data-type="xref" href="ch05.xhtml#use_strategy_to_isolate_how_things_are_done">“Guideline 19: Use Strategy to Isolate How Things Are Done”</a>.</p><p data-type="footnote" id="idm45043117018416"><sup><a href="ch03.xhtml#idm45043117018416-marker">15</a></sup> I will explain the <em>Visitor</em> design pattern in <a data-type="xref" href="ch04.xhtml#the_visitor_design_pattern">Chapter 4</a> and the <em>Prototype</em> design pattern in <a data-type="xref" href="ch07.xhtml#apply_prototype_for_abstract_copy_operations">“Guideline 30: Apply Prototype for Abstract Copy Operations”</a>.</p><p data-type="footnote" id="idm45043117014496"><sup><a href="ch03.xhtml#idm45043117014496-marker">16</a></sup> Again, I’m referring you to Ivan Cukic’s introduction to <em>Functional Programming in C++</em>. The <em>CRTP</em> design pattern will be the topic of <a data-type="xref" href="ch06.xhtml#use_crtp_to_introduce_static_type_categories">“Guideline 26: Use CRTP to Introduce Static Type Categories”</a>. For information on <em>Expression Templates</em>, a template-based pattern, refer to <em>the</em> C++ template reference: David Vandevoorde, Nicolai Josuttis, and Douglas Gregor’s <em>C++ Templates: The Complete Guide</em> (Addison-Wesley).</p><p data-type="footnote" id="idm45043116999904"><sup><a href="ch03.xhtml#idm45043116999904-marker">17</a></sup> I would argue that C++ has been a multiparadigm programming language since the moment the first implementation of templates was added to the language in 1989. The impact of templates on the language became clear with the addition of part of the Standard Template Library (STL) to the Standard Library in 1994. Since then, C++ has provided object-oriented, functional, and generic capabilities.</p><p data-type="footnote" id="idm45043116755712"><sup><a href="ch03.xhtml#idm45043116755712-marker">18</a></sup> The <em>Small String Optimization (SSO)</em> is a common optimization for small strings. Instead of allocating dynamic memory on the heap via the provided allocator, the string would store the small number of characters directly into the stack part of the string. Since a string usually occupies between 24 and 32 bytes on the stack (which is not a C++ standard requirement but a property of common implementations of <code>std::string</code>), anything beyond 32 bytes will require a heap allocation. That is the case with the three given strings.</p><p data-type="footnote" id="idm45043116749824"><sup><a href="ch03.xhtml#idm45043116749824-marker">19</a></sup> <em>Singleton</em> is one of the original 23 GoF design patterns. But I will do my best in <a data-type="xref" href="ch10.xhtml#treat_singleton_as_an_implementation_pattern_not_a_design_pattern">“Guideline 37: Treat Singleton as an Implementation Pattern, Not a Design Pattern”</a> to convince you that <em>Singleton</em> is not  <span class="keep-together">actually a</span> design pattern but an implementation detail. For that reason, I will refer to <em>Singleton</em> not as a design pattern but simply as an implementation pattern.</p><p data-type="footnote" id="idm45043116658560"><sup><a href="ch03.xhtml#idm45043116658560-marker">20</a></sup> Unfortunately, I won’t cover the <em>Template Method</em> design pattern in this book. This isn’t because it’s not important but simply due to a lack of available pages. Please refer to the GoF book for more details.</p><p data-type="footnote" id="idm45043116657552"><sup><a href="ch03.xhtml#idm45043116657552-marker">21</a></sup> I will give a complete introduction of the<a data-primary="Decorator design pattern" data-secondary="purpose of" data-type="indexterm" id="idm45043116657024"/> Decorator design pattern in <a data-type="xref" href="ch09.xhtml#the_decorator_design_pattern">Chapter 9</a>.</p><p data-type="footnote" id="idm45043116322624"><sup><a href="ch03.xhtml#idm45043116322624-marker">22</a></sup> The Adapter design pattern will be the topic of <a data-type="xref" href="ch06.xhtml#use_adapters_to_standardize_interfaces">“Guideline 24: Use Adapters to Standardize Interfaces”</a>.</p><p data-type="footnote" id="idm45043116307104"><sup><a href="ch03.xhtml#idm45043116307104-marker">23</a></sup> Good names always carry meaning. This is why they are so fundamentally important.</p><p data-type="footnote" id="idm45043116150400"><sup><a href="ch03.xhtml#idm45043116150400-marker">24</a></sup> I will explain the <em>Command</em> design pattern alongside the Strategy design pattern in <a data-type="xref" href="ch05.xhtml#the_strategy_and_command_design_patterns">Chapter 5</a>.</p><p data-type="footnote" id="idm45043115722672"><sup><a href="ch03.xhtml#idm45043115722672-marker">25</a></sup> The <em>Visitor</em> design pattern, including the modern implementation with <code>std::variant</code>, will be our focus in <a data-type="xref" href="ch04.xhtml#the_visitor_design_pattern">Chapter 4</a>.</p><p data-type="footnote" id="idm45043116055552"><sup><a href="ch03.xhtml#idm45043116055552-marker">26</a></sup> Naming is hard, as Kate Gregory aptly remarks in her highly recommended talk <a href="https://oreil.ly/nyeOv">“Naming Is Hard: Let’s Do Better”</a> at CppCon 2019.</p></div></div></section></div></body></html>

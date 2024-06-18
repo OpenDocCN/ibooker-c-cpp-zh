@@ -1,0 +1,406 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="chapter" epub:type="chapter" data-pdf-bookmark="Chapter 12. Next Next Steps"><div class="chapter" id="smallerc-CHP-12">
+<h1><span class="label">Chapter 12. </span>Next Next Steps</h1>
+
+
+<p>First off, congratulations for making it this far! We have toured a pretty impressive
+breadth of the C programming language and the Arduino microcontroller ecosystem.
+Remember that first “Hello, World” program or that first blinking LED?
+You know a lot more about both worlds now, and I hope you’re eager to continue
+expanding your skills.</p>
+
+<p>In this final chapter, we’ll look at one last project that connects your Arduino
+skills to the Internet of Things. The world of IoT is growing daily and will provide
+plenty of opportunities to try out new things, but we’ll also cover a few other
+topics you might look into next.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Intermediate and Advanced Topics"><div class="sect1" id="smallerc-CHP-12-SECT-1">
+<h1>Intermediate and Advanced Topics</h1>
+
+<p>There are so many paths you can take from here. The array of sensors and displays
+available these days is truly astonishing. Go exploring! You’ll find your
+own inspirations and projects to tackle, which will lead to more exploring and more inspiration.
+My most enjoyable adventures have come from specific project ideas. I wanted an
+animated LED hourglass for part of a Halloween costume, so I found a capable,
+wearable microcontroller and some dense LED strips.<sup><a data-type="noteref" id="idm45018711193992-marker" href="ch12.xhtml#idm45018711193992">1</a></sup> I had such fun with
+the LEDs on that project that I decided to create some weatherproof lighting for my
+backyard. With WiFi available to makers like us on small budgets, I could even
+let guests pick the colors and other effects. The success of the WiFi feature in
+turn propelled me to create a miniature weather station to feed my inner
+meteorologist.</p>
+
+<p>The key to success for all those projects was picking a fairly focused goal. For example, in the next section we’ll dip our toes into the world of IoT with a simple project that takes a temperature reading from the TMP36 components we’ve used already and reports it to a cloud service over WiFi. If you really
+want to cement the new knowledge and skills you’ve gained through the projects
+and examples in this book, pick your own mini project and make it a reality!</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="IoT and Arduino"><div class="sect2" id="smallerc-CHP-12-SECT-1.1">
+<h2>IoT and Arduino</h2>
+
+<p>It <a data-type="indexterm" data-primary="Arduino microcontrollers" data-secondary="IoT and" id="ardmicro-iot"/><a data-type="indexterm" data-primary="IoT (Internet of Things), Arduino and" id="iot-arduino"/><a data-type="indexterm" data-primary="weather station example (IoT)" id="weather-station"/><a data-type="indexterm" data-primary="temperature output example" data-secondary="for IoT (Internet of Things)" data-secondary-sortas="IoT (Internet of Things)" id="temp-iot"/>wouldn’t do to have a chapter with no code, so let’s look at
+one last project that introduces some really fun avenues you can explore on the way
+to creating your own gadgets. The Internet of
+Things is exploding, and Arduino is perfectly suited for playing in that space.
+Let’s look at a simplified version of my weather station project.
+We’ll use a WiFi-capable microcontroller to report sensor data to a cloud API.</p>
+
+<p>The circuit for this project is fairly simple. We need a WiFi-capable microcontroller
+or a WiFi breakout that you can connect to your controller like we did with the RF
+breakout in <a data-type="xref" href="ch11.xhtml#smallerc-CHP-11-SECT-3">“Importing Custom Libraries”</a>. I chose the
+<a href="https://oreil.ly/aySPa">HUZZAH32 Feather</a> from Adafruit. It has some
+impressive specs like more than 500KB of SRAM and 4MB of flash in addition to the
+integrated WiFi support. The sensor is the same TMP36 we used in <a data-type="xref" href="ch09.xhtml#smallerc-CHP-9-SECT-2.1">“Sensors and Analog Input”</a>.
+I also added an OLED display so I could watch the output without being tied to a computer
+to access the Serial Monitor, but this display is definitely optional.
+<a data-type="xref" href="#smallerc-CHP-12-FIG-iot-wiring-pic">Figure 12-1</a> shows the wiring diagram and my
+actual “station” up and running on a breadboard.</p>
+
+<figure><div id="smallerc-CHP-12-FIG-iot-wiring-pic" class="figure">
+<img src="Images/smac_1201.png" alt="smac 1201" width="5321" height="2000"/>
+<h6><span class="label">Figure 12-1. </span>Connecting the HUZZAH32, TMP36, and OLED</h6>
+</div></figure>
+
+<p>The OLED uses a library <a data-type="indexterm" data-primary="Adafruit" data-secondary="library management" id="idm45018711175960"/><a data-type="indexterm" data-primary="libraries" data-secondary="Arduino" data-tertiary="importing" id="idm45018711174984"/><a data-type="indexterm" data-primary="Arduino IDE" data-secondary="libraries" data-tertiary="importing" id="idm45018711173768"/><a data-type="indexterm" data-primary="importing Arduino libraries" id="idm45018711172552"/>provided by Adafruit that you can import through the Manage Libraries
+dialog of the IDE. Enter <strong><code>SSD1306</code></strong> in the search field and look for the “Adafruit
+SSD1306” library. It should be close to the top.</p>
+
+<p>We also need to pick a cloud service provider and find a library for
+communicating with them. I use <a href="https://io.adafruit.com">Adafruit.io</a> for these types of
+projects, but any IoT cloud service will likely work. AWS, Google, and Azure all have
+IoT solutions, for example.</p>
+
+<p>For Adafruit.io, we can use the Library Manager to find our communication library.
+Search for “adafruit io arduino” and then scroll down
+a bit to find the actual library called “Adafruit IO Arduino.”
+Installing this library requires quite a few dependencies, such as the HTTP and message queue
+libraries, but the Library Manager
+will handle that for you automatically and prompt you to install those dependencies. You
+might have some of the listed dependencies like the NeoPixel library already,
+but the Library Manager isn’t
+quite smart enough to show only the missing ones. When you do install the dependencies,
+though, only those that are missing will be added.</p>
+
+<p>I won’t go through the details of signing up, but once you have an account with your
+chosen provider, you’ll almost certainly need a few credentials to configure the library.
+Adafruit.io, for example, requires a unique username and access key.
+Let’s put this cloud service information in a separate
+<a href="https://oreil.ly/t6UO6"><em>config.h</em></a>
+file where we can also include our WiFi details:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include "AdafruitIO_WiFi.h"</code>
+
+<code class="cp">#define IO_USERNAME  "userNameGoesHere"</code>
+<code class="cp">#define IO_KEY       "ioKeyGoesHere"</code>
+<code class="cp">#define WIFI_SSID    "HomeWifi"</code>
+<code class="cp">#define WIFI_PASS    "password"</code></pre>
+
+<p>Happily, that library also contains a more generic WiFi library as a dependency.
+That double duty is nice for us—we don’t have to go through separate
+steps to configure both the WiFi and our access to the cloud. But we do still have to
+do a little bit of setup work to make sure we can communicate with the cloud. We’ll
+add that code in with the stuff necessary to use our nifty OLED display in the <code>setup()</code>
+function. As always, feel free to type this in yourself, or grab
+<a href="https://oreil.ly/muYAu"><em>ch12/temp_web/temp_web.ino</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#</code><code class="cp">include &lt;SPI.h&gt;                                       </code><a class="co" id="co_next_next_steps_CO1-1" href="#callout_next_next_steps_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a><code class="cp">
+</code><code class="cp">#</code><code class="cp">include &lt;Wire.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include &lt;Adafruit_GFX.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include &lt;Adafruit_SSD1306.h&gt;</code><code class="cp">
+</code><code>
+</code><code class="c1">// Use credentials from config.h to set up our feed
+</code><code class="cp">#</code><code class="cp">include "config.h"                                    </code><a class="co" id="co_next_next_steps_CO1-2" href="#callout_next_next_steps_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a><code class="cp">
+</code><code class="n">AdafruitIO_WiFi</code><code> </code><code class="nf">io</code><code class="p">(</code><code class="n">IO_USERNAME</code><code class="p">,</code><code> </code><code class="n">IO_KEY</code><code class="p">,</code><code> </code><code class="n">WIFI_SSID</code><code class="p">,</code><code> </code><code class="n">WIFI_PASS</code><code class="p">)</code><code class="p">;</code><code>
+</code><code class="n">AdafruitIO_Feed</code><code> </code><code class="o">*</code><code class="n">smallerc</code><code> </code><code class="o">=</code><code> </code><code class="n">io</code><code class="p">.</code><code class="n">feed</code><code class="p">(</code><code class="s">"</code><code class="s">smallerc</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>
+</code><code class="c1">// Set up our OLED
+</code><code class="cp">#</code><code class="cp">define SCREEN_WIDTH 128 </code><code class="c1">// OLED width, in pixels
+</code><code class="cp">#</code><code class="cp">define SCREEN_HEIGHT 32 </code><code class="c1">// OLED height, in pixels
+</code><code class="cp">#</code><code class="cp">define OLED_RESET     4 </code><code class="c1">// Reset pin #
+</code><code class="cp">#</code><code class="cp">define SCREEN_ADDRESS 0x3C </code><code class="c1">// 128x32 screen
+</code><code class="n">Adafruit_SSD1306</code><code> </code><code class="nf">display</code><code class="p">(</code><code class="n">SCREEN_WIDTH</code><code class="p">,</code><code> </code><code class="n">SCREEN_HEIGHT</code><code class="p">,</code><code>  </code><a class="co" id="co_next_next_steps_CO1-3" href="#callout_next_next_steps_CO1-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a><code>
+    </code><code class="o">&amp;</code><code class="n">Wire</code><code class="p">,</code><code> </code><code class="n">OLED_RESET</code><code class="p">)</code><code class="p">;</code><code>
+</code><code class="kt">char</code><code> </code><code class="n">statusline</code><code class="p">[</code><code class="mi">22</code><code class="p">]</code><code> </code><code class="o">=</code><code> </code><code class="s">"</code><code class="s">Starting...</code><code class="s">"</code><code class="p">;</code><code>
+</code><code>
+</code><code class="c1">// A few things for keeping an average temperature reading
+</code><code class="cp">#</code><code class="cp">define ADJUST 3.33 </code><code class="cm">/* my office reads about 3 degrees C cold */</code><code class="cp">
+</code><code class="kt">float</code><code> </code><code class="n">total</code><code> </code><code class="o">=</code><code> </code><code class="mf">0.0</code><code class="p">;</code><code>
+</code><code class="kt">int</code><code>   </code><code class="n">count</code><code> </code><code class="o">=</code><code> </code><code class="mi">0</code><code class="p">;</code><code>
+</code><code>
+</code><code class="kt">void</code><code> </code><code class="nf">setup</code><code class="p">(</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>  </code><code class="n">Serial</code><code class="p">.</code><code class="n">begin</code><code class="p">(</code><code class="mi">115200</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="c1">// SSD1306_SWITCHCAPVCC = generate voltage from 3.3V internally
+</code><code>  </code><code class="k">if</code><code class="p">(</code><code class="o">!</code><code class="n">display</code><code class="p">.</code><code class="n">begin</code><code class="p">(</code><code class="n">SSD1306_SWITCHCAPVCC</code><code class="p">,</code><code> </code><code class="n">SCREEN_ADDRESS</code><code class="p">)</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="n">Serial</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="n">F</code><code class="p">(</code><code class="s">"</code><code class="s">SSD1306 allocation failed</code><code class="s">"</code><code class="p">)</code><code class="p">)</code><code class="p">;</code><code>    </code><a class="co" id="co_next_next_steps_CO1-4" href="#callout_next_next_steps_CO1-4"><img src="Images/4.png" alt="4" width="12" height="12"/></a><code>
+    </code><code class="k">for</code><code class="p">(</code><code class="p">;</code><code class="p">;</code><code class="p">)</code><code class="p">;</code><code> </code><code class="c1">// Don't proceed, loop forever
+</code><code>  </code><code class="p">}</code><code>
+</code><code>
+</code><code>  </code><code class="c1">// Show Adafruit splash screen initialized by the display library
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">display</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>
+</code><code>  </code><code class="c1">// Now set up the connection to adafruit.io
+</code><code>  </code><code class="n">Serial</code><code class="p">.</code><code class="n">print</code><code class="p">(</code><code class="s">"</code><code class="s">Connecting to Adafruit IO</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="n">io</code><code class="p">.</code><code class="n">connect</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>                                        </code><a class="co" id="co_next_next_steps_CO1-5" href="#callout_next_next_steps_CO1-5"><img src="Images/5.png" alt="5" width="12" height="12"/></a><code>
+  </code><code class="c1">// wait for a connection
+</code><code>  </code><code class="k">while</code><code class="p">(</code><code class="n">io</code><code class="p">.</code><code class="n">status</code><code class="p">(</code><code class="p">)</code><code> </code><code class="o">&lt;</code><code> </code><code class="n">AIO_CONNECTED</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="n">Serial</code><code class="p">.</code><code class="n">print</code><code class="p">(</code><code class="s">"</code><code class="s">.</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">delay</code><code class="p">(</code><code class="mi">500</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="p">}</code><code>
+</code><code>
+</code><code>  </code><code class="c1">// we are connected
+</code><code>  </code><code class="n">Serial</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="n">Serial</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="n">io</code><code class="p">.</code><code class="n">statusText</code><code class="p">(</code><code class="p">)</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>
+</code><code>  </code><code class="c1">// Set up our display for simple (if small) text
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">clearDisplay</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">setTextSize</code><code class="p">(</code><code class="mi">1</code><code class="p">)</code><code class="p">;</code><code>      </code><code class="c1">// Normal 1:1 pixel scale
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">setTextColor</code><code class="p">(</code><code class="n">SSD1306_WHITE</code><code class="p">)</code><code class="p">;</code><code> </code><code class="c1">// Draw white text
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">setCursor</code><code class="p">(</code><code class="mi">0</code><code class="p">,</code><code> </code><code class="mi">0</code><code class="p">)</code><code class="p">;</code><code>     </code><code class="c1">// Start at top-left corner
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">cp437</code><code class="p">(</code><code class="nb">true</code><code class="p">)</code><code class="p">;</code><code>         </code><code class="c1">// Use 'Code Page 437' font
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="n">statusline</code><code class="p">)</code><code class="p">;</code><code> </code><code class="c1">// Show our starting status
+</code><code>  </code><code class="n">display</code><code class="p">.</code><code class="n">display</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>           </code><code class="c1">// Update the actual display
+</code><code class="p">}</code><code>
+</code><code>
+</code><code class="kt">void</code><code> </code><code class="nf">loop</code><code class="p">(</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>  </code><code class="c1">// put your main code here, to run repeatedly:
+</code><code>  </code><code class="kt">int</code><code> </code><code class="n">reading</code><code> </code><code class="o">=</code><code> </code><code class="n">analogRead</code><code class="p">(</code><code class="n">A2</code><code class="p">)</code><code class="p">;</code><code>                        </code><a class="co" id="co_next_next_steps_CO1-6" href="#callout_next_next_steps_CO1-6"><img src="Images/6.png" alt="6" width="12" height="12"/></a><code>
+  </code><code class="kt">float</code><code> </code><code class="n">voltage</code><code> </code><code class="o">=</code><code> </code><code class="n">reading</code><code> </code><code class="o">/</code><code> </code><code class="mf">1024.0</code><code class="p">;</code><code>
+</code><code>  </code><code class="k">if</code><code> </code><code class="p">(</code><code class="n">count</code><code> </code><code class="o">=</code><code class="o">=</code><code> </code><code class="mi">0</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="n">total</code><code> </code><code class="o">=</code><code> </code><code class="n">voltage</code><code class="p">;</code><code>
+</code><code>  </code><code class="p">}</code><code> </code><code class="k">else</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="n">total</code><code> </code><code class="o">+</code><code class="o">=</code><code> </code><code class="n">voltage</code><code class="p">;</code><code>
+</code><code>  </code><code class="p">}</code><code>
+</code><code>  </code><code class="n">count</code><code class="o">+</code><code class="o">+</code><code class="p">;</code><code>
+</code><code>  </code><code class="kt">float</code><code> </code><code class="n">avg</code><code> </code><code class="o">=</code><code> </code><code class="n">total</code><code> </code><code class="o">/</code><code> </code><code class="n">count</code><code class="p">;</code><code>
+</code><code>  </code><code class="kt">float</code><code> </code><code class="n">tempC</code><code> </code><code class="o">=</code><code> </code><code class="p">(</code><code class="n">avg</code><code> </code><code class="o">-</code><code> </code><code class="mf">0.5</code><code class="p">)</code><code> </code><code class="o">*</code><code> </code><code class="mi">100</code><code class="p">;</code><code>
+</code><code>  </code><code class="kt">float</code><code> </code><code class="n">tempF</code><code> </code><code class="o">=</code><code> </code><code class="n">tempC</code><code> </code><code class="o">*</code><code> </code><code class="mf">1.8</code><code> </code><code class="o">+</code><code> </code><code class="mi">32</code><code class="p">;</code><code>
+</code><code>  </code><code class="k">if</code><code> </code><code class="p">(</code><code class="n">count</code><code> </code><code class="o">%</code><code> </code><code class="mi">100</code><code> </code><code class="o">=</code><code class="o">=</code><code> </code><code class="mi">0</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="c1">// Update our display every 10 seconds             </code><a class="co" id="co_next_next_steps_CO1-7" href="#callout_next_next_steps_CO1-7"><img src="Images/7.png" alt="7" width="12" height="12"/></a><code class="c1">
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">clearDisplay</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">setCursor</code><code class="p">(</code><code class="mi">0</code><code class="p">,</code><code> </code><code class="mi">0</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="n">statusline</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">print</code><code class="p">(</code><code class="n">reading</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">print</code><code class="p">(</code><code class="s">"</code><code class="s">  </code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="n">voltage</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">print</code><code class="p">(</code><code class="n">tempC</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="s">"</code><code class="se">\370</code><code class="s"> C</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">print</code><code class="p">(</code><code class="n">tempF</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">println</code><code class="p">(</code><code class="s">"</code><code class="se">\370</code><code class="s"> F</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">display</code><code class="p">.</code><code class="n">display</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">strcpy</code><code class="p">(</code><code class="n">statusline</code><code class="p">,</code><code> </code><code class="s">"</code><code class="s">Reading...</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="p">}</code><code>
+</code><code>  </code><code class="k">if</code><code> </code><code class="p">(</code><code class="n">count</code><code> </code><code class="o">%</code><code> </code><code class="mi">600</code><code> </code><code class="o">=</code><code class="o">=</code><code> </code><code class="mi">0</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="c1">// Update our IoT feed every minute
+</code><code>    </code><code class="n">smallerc</code><code class="o">-</code><code class="o">&gt;</code><code class="n">save</code><code class="p">(</code><code class="n">tempF</code><code class="p">)</code><code class="p">;</code><code>                             </code><a class="co" id="co_next_next_steps_CO1-8" href="#callout_next_next_steps_CO1-8"><img src="Images/8.png" alt="8" width="12" height="12"/></a><code>
+    </code><code class="n">strcpy</code><code class="p">(</code><code class="n">statusline</code><code class="p">,</code><code> </code><code class="s">"</code><code class="s">Feed updated</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="p">}</code><code>
+</code><code>  </code><code class="n">delay</code><code class="p">(</code><code class="mi">100</code><code class="p">)</code><code class="p">;</code><code>
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_next_next_steps_CO1-1" href="#co_next_next_steps_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a></dt>
+<dd><p>Include the various header files needed to communicate with the libraries that draw on our OLED.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-2" href="#co_next_next_steps_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a></dt>
+<dd><p>With the credentials from <em>config.h</em>, create an I/O object (<code>io</code>) and establish a connection to the
+Adafruit IO service, then specify which feed we will update.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-3" href="#co_next_next_steps_CO1-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a></dt>
+<dd><p>Instantiate our <code>display</code> object using constants and referencing the <code>Wire</code> library.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-4" href="#co_next_next_steps_CO1-4"><img src="Images/4.png" alt="4" width="12" height="12"/></a></dt>
+<dd><p>Attempt to connect to the display. If that fails, print an error message and do not continue. If you do get
+stuck here, it’s likely a problem in your wiring. Double-check the connections and make sure your display also has power.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-5" href="#co_next_next_steps_CO1-5"><img src="Images/5.png" alt="5" width="12" height="12"/></a></dt>
+<dd><p>Make sure we can use the feed from <img src="Images/2.png" alt="2" width="12" height="12"/>. Wait (potentially forever) until it’s ready.
+If you can’t connect, you might try using your credentials in a browser to verify the combination of user and
+key works. You can also test out your WiFi connection with a separate project. Under the File menu in the IDE,
+look for the Examples submenu, find your board, and pick something simple like <em>HTTPClient</em>.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-6" href="#co_next_next_steps_CO1-6"><img src="Images/6.png" alt="6" width="12" height="12"/></a></dt>
+<dd><p>Read the current analog value from our TMP36 sensor and update the average, running temperature.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-7" href="#co_next_next_steps_CO1-7"><img src="Images/7.png" alt="7" width="12" height="12"/></a></dt>
+<dd><p>Update our display with some nice text on the temperature and the current cloud status. The API for
+this display is similar to the functions we use with <code>Serial</code>.</p></dd>
+<dt><a class="co" id="callout_next_next_steps_CO1-8" href="#co_next_next_steps_CO1-8"><img src="Images/8.png" alt="8" width="12" height="12"/></a></dt>
+<dd><p>Once a minute, report the simple temperature in Fahrenheit to our feed. The next time through
+<code>loop()</code>, we’ll note the update in our status line on the OLED.</p></dd>
+</dl>
+
+<p>You can certainly turn controllers like the HUZZAH32 into their own web servers and just
+get readings directly in your browser, but services like Adafuit.io make it easy to get fancier
+reports, such as the small graph of temperatures over a few minutes shown in <a data-type="xref" href="#smallerc-CHP-12-FIG-iot-graph">Figure 12-2</a>.
+These services typically support connecting to yet more services as well. For example,
+<a href="https://ifttt.com">If This Then That (IFTTT)</a> allows you to use events reported to Adafruit.io
+to trigger actions like sending an email or turning on smart home devices.</p>
+
+<figure><div id="smallerc-CHP-12-FIG-iot-graph" class="figure">
+<img src="Images/smac_1202.png" alt="smac 1202" width="1287" height="849"/>
+<h6><span class="label">Figure 12-2. </span>Graph of our reported temperatures</h6>
+</div></figure>
+
+<p>This little project is just the briefest of introductions to the Internet of Things. Heck, just the fun combinations possible through IFTTT could fill their own book. IoT books and blog posts abound, covering everything from user interface design for small devices to enterprise mesh configurations. This is a fun, dynamic area, and you certainly have the skills to dive in if you’re curious to <a data-type="indexterm" data-primary="Arduino microcontrollers" data-secondary="IoT and" data-startref="ardmicro-iot" id="idm45018710742136"/><a data-type="indexterm" data-primary="IoT (Internet of Things), Arduino and" data-startref="iot-arduino" id="idm45018710492760"/><a data-type="indexterm" data-primary="weather station example (IoT)" data-startref="weather-station" id="idm45018710491752"/><a data-type="indexterm" data-primary="temperature output example" data-secondary="for IoT (Internet of Things)" data-secondary-sortas="IoT (Internet of Things)" data-startref="temp-iot" id="idm45018710490792"/>learn more.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Arduino Source Code"><div class="sect2" id="smallerc-CHP-12-SECT-1.2">
+<h2>Arduino Source Code</h2>
+
+<p>There are so <a data-type="indexterm" data-primary="Arduino IDE" data-secondary="source code, accessing" id="idm45018710520840"/><a data-type="indexterm" data-primary="source code, accessing" id="idm45018711012424"/><a data-type="indexterm" data-primary="accessing" data-secondary="Arduino source code" id="idm45018711011752"/>many neat Arduino projects out there and so many of their authors are
+doing it for the joy of creating. They put their hardware specs and source code online
+and actively participate in the <a href="https://forum.arduino.cc">Arduino forums</a>.
+I heartily encourage you to read some of that source code. You have the skills to
+understand the code in those projects now, and
+seeing how other programmers tackle problems can help you learn new tricks.</p>
+
+<p>You can also access
+the <a href="https://oreil.ly/ekC2v">source code</a> behind the many boards supported out of
+the gate by the Arduino IDE. The various ArduinoCore packages
+cover the C and <span class="keep-together">C++</span> content that goes into the Arduino “language” we
+discussed in <a data-type="xref" href="ch09.xhtml#smallerC-CHP-9-SECT-1">“The Arduino Environment”</a>. It’ll be dense reading, to be sure, but
+you might be surprised how much of the basics you can pick up.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Other Microcontrollers"><div class="sect1" id="smallerc-CHP-12-SECT-2">
+<h1>Other Microcontrollers</h1>
+
+<p>Of course, <a data-type="indexterm" data-primary="Davis, Mitchel" id="idm45018710488120"/>Arduino isn’t the only microcontroller game in town. Mitchel Davis
+has a really
+<a href="https://oreil.ly/iN1Fj">enjoyable series</a>
+on YouTube documenting his journey from programming
+on Arduino to more limited controllers like the STM8. His examples are often in
+C, and you can see some of the more arcane topics we covered like bit-wise operators
+on full display.</p>
+
+<p>Going the other direction toward <a data-type="indexterm" data-primary="microcontrollers" data-secondary="Raspberry Pi" id="idm45018710485928"/><a data-type="indexterm" data-primary="Raspberry Pi" id="idm45018710478744"/>more powerful controllers,
+the <a href="https://raspberrypi.org">Raspberry Pi</a> platform deserves a mention as well.
+These tiny computers are full-fledged desktop systems capable of running a complete
+Linux distribution—including running all of the developer tools like <em>gcc</em>.
+What’s more, Pis come with the same kinds of GPIO (general purpose I/O) connections
+as the microcontrollers we’ve worked with in this book. You can use the same
+types of sensors and outputs and write C programs to drive them. And you get to compile
+those programs right on the hardware where the peripherals are attached! You can take
+some of the really clever projects, such as the <a href="https://oreil.ly/p4emq">MagicMirror</a>,
+and add motion detectors so the mirror lights up only when someone is nearby to make use of it,
+making it even more magical.</p>
+
+<p>If nothing else, I hope this book has given you the confidence to try tackling these
+types of projects. It’s a gratifying world that lends itself to mastery. Unlike
+enterprise engineering projects that literally span the globe, you can concentrate on
+really learning the details of something like the Metro Mini controller from so many
+of our examples. You don’t need eight different toolchains to get that LED
+blinking. You don’t need a dozen programmers to debug a photoresistor night-light.
+As one of the reviewers for this book, Alex Faber, put it, there’s no cruft to
+get in the way of the craft. I couldn’t agree more.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Industry C/C++"><div class="sect1" id="smallerc-CHP-12-SECT-3">
+<h1>Industry C/C++</h1>
+
+<p>You also<a data-type="indexterm" data-primary="C programming language" data-secondary="jobs using" id="idm45018710496024"/><a data-type="indexterm" data-primary="jobs using C" id="idm45018710495016"/><a data-type="indexterm" data-primary="careers using C" id="idm45018710448488"/> aren’t limited to tinkering with C at home.
+Arthur C. Clarke’s many futures (<em>2001: A Space Odyssey</em>, <em>2010: Odyssey Two</em>) are now our past, but computers and
+artificial intelligence figure quite prominently in our present. If you are interested
+in pursuing C programming as a career, search any
+tech job site and you will find hundreds of jobs for C programmers from entry level
+positions to senior architects. You can intern with a Linux kernel group or help
+program embedded controllers. You can get a job working on tiny toy drones or program sensors that keep the world’s largest factories running.</p>
+
+<p>Legacy code maintenance still requires good C programmers and pays well enough for
+said programmers to build a nice financial legacy for their progeny. Gaming 
+<span class="keep-together">systems</span>
+need really, <em>really</em> fast code for both the game engines and the consoles they
+
+<span class="keep-together">run on.</span></p>
+
+<p>Supercomputers and microcontrollers both make use of C in a variety of environments.
+While it might be more obvious that microcontrollers need efficient code, massive
+supercomputers want every possible cycle of CPU (or, these days, GPU) time to go
+toward completing their calculations. C excels at providing that level of control,
+and companies know they need programmers who excel at making their expensive
+machines go fast. Just about any field you can think of these days is computerized, and anywhere they are pushing the limits of hardware (the tiniest, the deepest,
+the coldest, the fastest, etc.), you can find C programmers helping push those
+boundaries.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Back to the Future"><div class="sect1" id="smallerc-CHP-12-SECT-4">
+<h1>Back to the Future</h1>
+
+<p>Many<a data-type="indexterm" data-primary="C programming language" data-secondary="compatibility with other languages" id="idm45018710455304"/> languages have cropped up since C was first developed in the 1970s. Many more languages
+will undoubtedly appear in the years and decades to come.
+C remains so relevant precisely because of that extra control and speed it provides.
+Many more “advanced” languages like Java retain the ability to load native
+libraries written in C with the same kinds of header files we wrote for Arduino. Go
+can also call C functions. Working on embedded systems with Rust, but that one component only has
+C support? Rust can pull in C as well.</p>
+
+<p>Just about everywhere you go in the computer programming world these days, you will find C. From its ubiquitous control statements to integration via native libraries, knowing
+C connects you to so much more of this world than you probably imagined. All I can say in
+closing is that I hope you keep imagining. Imagine new projects. Imagine new libraries.
+And then get that imagination running on hardware. C is a great tool for reifying those
+digital dreams. After working through this book, I hope you feel confident using it.</p>
+</div></section>
+
+
+
+
+
+
+
+<div data-type="footnotes"><p data-type="footnote" id="idm45018711193992"><sup><a href="ch12.xhtml#idm45018711193992-marker">1</a></sup> Again from Adafruit, I used the <a href="https://oreil.ly/ZQ5JB">Gemma M0</a> and carved up one of their <a href="https://oreil.ly/HlJGk">144 LED/meter</a> RGBW strips to sew the hourglass onto a shirt. I powered the whole thing with a <a href="https://oreil.ly/2fpE0">USB battery pack</a> and barely dented the charge after more than four hours of continuous operation.</p></div></div></section></div></body></html>

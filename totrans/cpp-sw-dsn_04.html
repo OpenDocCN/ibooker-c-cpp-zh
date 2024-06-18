@@ -1,0 +1,1626 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Chapter 4. The Visitor Design Pattern" data-type="chapter" epub:type="chapter"><div class="chapter" id="the_visitor_design_pattern">
+<h1><span class="label">Chapter 4. </span>The Visitor Design Pattern</h1>
+<p>This<a data-primary="Visitor design pattern" data-secondary="basic guidelines for" data-type="indexterm" id="idm45043116047792"/> entire chapter is focused on the <em>Visitor</em> design pattern. If you’ve already
+heard about the Visitor design pattern or even used it in your own designs, you
+might be wondering why I have chosen Visitor as the first design pattern to explain
+in detail. Yes, Visitor is definitely not one of the most glamorous design patterns.
+However, it will definitely serve as a great example to demonstrate the many options
+you have when implementing a design pattern and how different these implementations
+can be. It will also serve as an effective example of advertising the advantages of
+modern C++.</p>
+<p>In <a data-type="xref" href="#design_for_the_addition_of_types_or_operations">“Guideline 15: Design for the Addition of 
+<span class="keep-together">Types or Operations</span>”</a>, we 
+<span class="keep-together">first talk</span> about the
+fundamental design decision you’ll need to make when walking in the realm of
+dynamic polymorphism: focus on either types or operations. In that guideline, we
+will also talk about the intrinsic strengths and weaknesses of programming paradigms.</p>
+<p>In <a data-type="xref" href="#use_visitors_to_extend_operations">“Guideline 16: Use Visitor to Extend Operations”</a>, I will introduce you to
+the Visitor design pattern. I will explain its intent to extend operations instead
+of types, and show you both the advantages and the shortcomings of the classic Visitor
+pattern.</p>
+<p>In <a data-type="xref" href="#consider_std_variant_for_implementing_visitors">“Guideline 17: Consider std::variant for 
+<span class="keep-together">Implementing Visitor</span>”</a>, you 
+<span class="keep-together">will
+make</span> the acquaintance of the modern implementation of the Visitor design pattern.
+I will introduce you to <code>std::variant</code> and explain the many advantages of that
+particular implementation.</p>
+<p>In <a data-type="xref" href="#beware_the_performance_of_acyclic_visitors">“Guideline 18: Beware the Performance of Acyclic Visitor”</a>, I will introduce you to the <em>Acyclic
+Visitor</em>. At first glance, this approach appears to resolve some fundamental problems
+of the Visitor pattern, but on closer inspection we will find that the runtime
+overhead may disqualify this implementation.</p>
+<section data-pdf-bookmark="Guideline 15: Design for the Addition of &#10;Types or Operations" data-type="sect1"><div class="sect1" id="design_for_the_addition_of_types_or_operations">
+<h1>Guideline 15: Design for the Addition of 
+<span class="keep-together">Types or Operations</span></h1>
+<p>To<a data-primary="dynamic polymorphism" data-type="indexterm" id="idm45043116036000"/><a data-primary="Visitor design pattern" data-secondary="adding types or operations" data-type="indexterm" id="VDPtypes04"/> you, the term <em>dynamic polymorphism</em> may sound like a lot of freedom. It may feel similar to when you were still a kid: endless possibilities, no limitations! Well, you have grown older and faced reality: you can’t have everything,
+and there is always a choice to be made. Unfortunately, it’s similar with dynamic
+polymorphism. Despite the fact that it sounds like complete freedom, there is a
+limiting choice: do you want to extend types or operations?</p>
+<p>To see what I mean, let’s return to the scenario from <a data-type="xref" href="ch03.xhtml#the_purpose_of_design_patterns">Chapter 3</a>:
+we want to draw a given shape.<sup><a data-type="noteref" href="ch04.xhtml#idm45043116032320" id="idm45043116032320-marker">1</a></sup> We stick to dynamic polymorphism, and for our initial try, we implement
+this problem with good old procedural programming.</p>
+<section data-pdf-bookmark="A Procedural Solution" data-type="sect2"><div class="sect2" id="idm45043116030496">
+<h2>A Procedural Solution</h2>
+<p>The<a data-primary="Visitor design pattern" data-secondary="adding types or operations" data-tertiary="procedural solution" data-type="indexterm" id="idm45043116028480"/> first header file <code>Point.h</code> provides a fairly simple <code>Point</code> class. This will
+mainly serve to make the code complete, but also gives us the idea that we’re dealing with 2D
+shapes:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Point.h&gt; ----------------</code>
+
+<code class="k">struct</code><code class="w"> </code><code class="nc">Point</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">x</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">y</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>The second conceptual header file <code>Shape.h</code> proves to be much more interesting:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Shape.h&gt; ----------------
+</code><code class="w">
+</code><code class="k">enum</code><code class="w"> </code><code class="nc">ShapeType</code><code class="w">  </code><a class="co" href="#para_g15_1" id="code_g15_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">circle</code><code class="p">,</code><code class="w">
+</code><code class="w">   </code><code class="n">square</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Shape</code><code class="w">  </code><a class="co" href="#para_g15_2" id="code_g15_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">protected</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Shape</code><code class="p">(</code><code class="w"> </code><code class="n">ShapeType</code><code class="w"> </code><code class="n">type</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">type_</code><code class="p">(</code><code class="w"> </code><code class="n">type</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g15_5" id="code_g15_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">Shape</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g15_3" id="code_g15_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">ShapeType</code><code class="w"> </code><code class="nf">getType</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">type_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">  </code><a class="co" href="#para_g15_6" id="code_g15_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">ShapeType</code><code class="w"> </code><code class="n">type_</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g15_4" id="code_g15_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>First, we introduce the enumeration <code>ShapeType</code>, which currently lists the two
+enumerators, <code>circle</code> and <code>square</code>
+(<a class="co" href="#code_g15_1" id="para_g15_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>).
+Apparently, we are initially dealing with only circles and squares. Second, we introduce
+the class <code>Shape</code>
+(<a class="co" href="#code_g15_2" id="para_g15_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).
+Given the protected constructor and the virtual destructor
+(<a class="co" href="#code_g15_3" id="para_g15_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>),
+you can anticipate that <code>Shape</code> is supposed to work as a base class. But that’s not the
+surprising detail about <code>Shape</code>: <code>Shape</code> has a data member of type <code>ShapeType</code>
+(<a class="co" href="#code_g15_4" id="para_g15_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a>).
+This data member is initialized via the constructor
+(<a class="co" href="#code_g15_5" id="para_g15_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a>)
+and can be queried via the <code>getType()</code> member function
+(<a class="co" href="#code_g15_6" id="para_g15_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a>).
+Apparently, a <code>Shape</code> stores its type in the form of the <code>ShapeType</code> enumeration.</p>
+<p>One example of the use of the <code>Shape</code> base class is the <code>Circle</code> class:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Circle.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Point.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">  </code><a class="co" href="#para_g15_7" id="code_g15_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Circle</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">Shape</code><code class="p">(</code><code class="w"> </code><code class="n">circle</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g15_8" id="code_g15_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">radius_</code><code class="p">(</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given radius is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p><code>Circle</code> publicly inherits from <code>Shape</code>
+(<a class="co" href="#code_g15_7" id="para_g15_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a>),
+and for that reason, and due to the lack of a default constructor in <code>Shape</code>, needs to
+initialize the base class
+(<a class="co" href="#code_g15_8" id="para_g15_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a>).
+Since it’s a circle, it uses the <code>circle</code> enumerator as an argument to the base class
+constructor.</p>
+<p>As stated before, we want to draw shapes. We therefore introduce the <code>draw()</code> function
+for circles. Since we don’t want to couple too strongly to any implementation details of
+drawing, the <code>draw()</code> function is declared in the conceptual header file 
+<span class="keep-together"><code>DrawCircle.h</code></span>
+and defined in the corresponding source file:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;DrawCircle.h&gt; ----------------</code>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="p">;</code><code class="w"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">draw</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+
+<code class="c1">//---- &lt;DrawCircle.cpp&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;DrawCircle.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp"/>
+<code class="cp">#include </code><code class="cm">/* some graphics library */</code><code class="cp"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">draw</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">c</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ... Implementing the logic for drawing a circle</code>
+<code class="p">}</code><code class="w"/></pre>
+<p>Of course, there are not only circles. As indicated by the <code>square</code> enumerator, there
+is also a <code>Square</code> class:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Square.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Point.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Square</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">  </code><a class="co" href="#para_g15_9" id="code_g15_9"><img alt="9" height="12" src="assets/9.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Square</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">Shape</code><code class="p">(</code><code class="w"> </code><code class="n">square</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g15_10" id="code_g15_10"><img alt="10" height="12" src="assets/10.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">side_</code><code class="p">(</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given side length is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w">  </code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">  </code><code class="c1">// Or any corner, if you prefer
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;DrawSquare.h&gt; ----------------
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Square</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">draw</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;DrawSquare.cpp&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;DrawSquare.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include </code><code class="cm">/* some graphics library */</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">draw</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">s</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ... Implementing the logic for drawing a square
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>The <code>Square</code> class looks very similar to the <code>Circle</code> class
+(<a class="co" href="#code_g15_9" id="para_g15_9"><img alt="9" height="12" src="assets/9.png" width="12"/></a>).
+The major difference is that a <code>Square</code> initializes its base class with the
+<code>square</code> enumerator
+(<a class="co" href="#code_g15_10" id="para_g15_10"><img alt="10" height="12" src="assets/10.png" width="12"/></a>).</p>
+<p>With both circles and squares available, we now want to draw an entire vector
+of different shapes. For that reason, we introduce the <code>drawAllShapes()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;DrawAllShapes.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;vector&gt;</code><code class="cp">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Shape</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="o">&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g15_11" id="code_g15_11"><img alt="11" height="12" src="assets/11.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;DrawAllShapes.cpp&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;DrawAllShapes.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="o">&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="k">for</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">switch</code><code class="p">(</code><code class="w"> </code><code class="n">shape</code><code class="o">-</code><code class="o">&gt;</code><code class="n">getType</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g15_12" id="code_g15_12"><img alt="12" height="12" src="assets/12.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">case</code><code class="w"> </code><code class="no">circle</code><code class="p">:</code><code class="w">
+</code><code class="w">            </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="k">static_cast</code><code class="o">&lt;</code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="n">shape</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w">
+</code><code class="w">         </code><code class="k">case</code><code class="w"> </code><code class="no">square</code><code class="p">:</code><code class="w">
+</code><code class="w">            </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="k">static_cast</code><code class="o">&lt;</code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="n">shape</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p><code>drawAllShapes()</code> takes a vector of shapes in the form of <code>std::unique_ptr&lt;Shape&gt;</code>
+(<a class="co" href="#code_g15_11" id="para_g15_11"><img alt="11" height="12" src="assets/11.png" width="12"/></a>).
+The pointer to the base class is necessary to hold different kinds of concrete
+shapes, and the <code>std::unique_ptr</code> in particular to automatically manage the shapes
+via the <em>RAII idiom</em>. Inside the function, we start by traversing the vector in
+order to draw every shape. Unfortunately, all we have at this point are <code>Shape</code>
+pointers. Therefore, we have to ask every shape nicely by means of the <code>getType()</code>
+function
+(<a class="co" href="#code_g15_12" id="para_g15_12"><img alt="12" height="12" src="assets/12.png" width="12"/></a>):
+what kind of shape are you? If the shape replies with <code>circle</code>, we know that we
+have to draw it as a <code>Circle</code> and perform the corresponding <code>static_cast</code>. If the
+shape replies with <code>square</code>, we draw it as a <code>Square</code>.</p>
+<p>I can feel that you’re not particularly happy about this solution. But before talking about
+the shortcomings, let’s consider the <code>main()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Main.cpp&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;DrawAllShapes.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;vector&gt;</code><code class="cp"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="k">using</code><code class="w"> </code><code class="n">Shapes</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">::</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;&gt;</code><code class="p">;</code><code class="w"/>
+
+<code class="w">   </code><code class="c1">// Creating some shapes</code>
+<code class="w">   </code><code class="n">Shapes</code><code class="w"> </code><code class="n">shapes</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">2.3</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Square</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">1.2</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">4.1</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="w">   </code><code class="c1">// Drawing all shapes</code>
+<code class="w">   </code><code class="n">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>It works! With this <code>main()</code> function, the code compiles and draws three shapes (two circles
+and a square). Isn’t that great? It is, but it won’t stop you from going into a rant:
+“What a primitive solution! Not only is the <code>switch</code> a bad choice for distinguishing between
+different kinds of shapes, but it also doesn’t have a default case! And who had this crazy idea to encode the type of the shapes by
+means of an unscoped enumeration?”<sup><a data-type="noteref" href="ch04.xhtml#idm45043114704048" id="idm45043114704048-marker">2</a></sup> You’re looking
+suspiciously in my direction…</p>
+<p>Well, I can understand your reaction. But let’s analyze the problem in a little more
+detail. Let me guess: you remember <a data-type="xref" href="ch01.xhtml#design_for_extension">“Guideline 5: Design for Extension”</a>. And you now imagine what
+you would have to do to add a third kind of shape. First, you would have to extend the
+enumeration. For instance, we would have to add the new enumerator <code>triangle</code>
+(<a class="co" href="#code_g15_13" id="para_g15_13"><img alt="13" height="12" src="assets/13.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="k">enum</code><code class="w"> </code><code class="nc">ShapeType</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">circle</code><code class="p">,</code><code class="w">
+</code><code class="w">   </code><code class="n">square</code><code class="p">,</code><code class="w">
+</code><code class="w">   </code><code class="n">triangle</code><code class="w">  </code><a class="co" href="#para_g15_13" id="code_g15_13"><img alt="13" height="12" src="assets/13.png" width="12"/></a><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>Note that this addition would have an impact not only on the <code>switch</code> statement in the
+<code>drawAllShapes()</code> function (it is now truly incomplete), but also on all classes derived from
+<code>Shape</code> (<code>Circle</code> and <code>Square</code>). These classes depend on the enumeration since they
+depend on the <code>Shape</code> base class and also use the enumeration directly. Therefore, changing
+the enumeration would result in a recompilation of <em>all</em> your source files.</p>
+<p>That should strike you as a serious issue. And it is indeed. The heart of the problem is
+the direct dependency of all shape classes and functions on the enumeration. Any change to
+the enumeration results in a ripple effect that requires the dependent files to be
+recompiled. Obviously, this directly violates the Open-Closed Principle (OCP) (see
+<a data-type="xref" href="ch01.xhtml#design_for_extension">“Guideline 5: Design for Extension”</a>). This doesn’t seem right: adding a <code>Triangle</code> shouldn’t
+result in a recompilation of the <code>Circle</code> and <code>Square</code> classes.</p>
+<p>There is more, though. In addition to actually writing a <code>Triangle</code> class (something that
+I leave to your imagination), you have to update the <code>switch</code> statement to handle triangles
+(<a class="co" href="#code_g15_14" id="para_g15_14"><img alt="14" height="12" src="assets/14.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="o">&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="k">for</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">switch</code><code class="p">(</code><code class="w"> </code><code class="n">shape</code><code class="o">-</code><code class="o">&gt;</code><code class="n">getType</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">case</code><code class="w"> </code><code class="no">circle</code><code class="p">:</code><code class="w">
+</code><code class="w">            </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="k">static_cast</code><code class="o">&lt;</code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="n">shape</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w">
+</code><code class="w">         </code><code class="k">case</code><code class="w"> </code><code class="no">square</code><code class="p">:</code><code class="w">
+</code><code class="w">            </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="k">static_cast</code><code class="o">&lt;</code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="n">shape</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w">
+</code><code class="w">         </code><code class="k">case</code><code class="w"> </code><code class="no">triangle</code><code class="p">:</code><code class="w">  </code><a class="co" href="#para_g15_14" id="code_g15_14"><img alt="14" height="12" src="assets/14.png" width="12"/></a><code class="w">
+</code><code class="w">            </code><code class="n">draw</code><code class="p">(</code><code class="w"> </code><code class="k">static_cast</code><code class="o">&lt;</code><code class="n">Triangle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="n">shape</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">            </code><code class="k">break</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>I can imagine your outcry: “Copy-and-paste! Duplication!” Yes, in this situation it is very likely
+that a developer will use copy-and-paste to implement the new logic. It’s just so convenient
+because the new case is so similar to the previous two cases. And indeed, this is an indication
+that the design could be improved. However, I see a far more serious flaw: I would assume that
+in a larger codebase, this is not the only <code>switch</code> statement. On the contrary, there will be
+others that need to be updated as well. How many are there? A dozen? Fifty? Over a hundred?
+And how do you find all of these? OK, so you argue that the compiler would help you with this
+task. Perhaps with the switches, yes, but what if there are also if-else-if cascades? And
+then, after this update marathon, when you think you are done, how do you guarantee that you
+have truly updated all the necessary sections?</p>
+<p>Yes, I can understand your reaction and why you prefer not to have this kind of code: this
+explicit handling of types is a maintenance nightmare. To quote Scott Meyers:<sup><a data-type="noteref" href="ch04.xhtml#idm45043114533408" id="idm45043114533408-marker">3</a></sup></p>
+<blockquote>
+<p>This kind of type-based programming has a long history in C, and one of the things we know
+about it is that it yields programs that are essentially unmaintainable.</p></blockquote>
+</div></section>
+<section data-pdf-bookmark="An Object-Oriented Solution" data-type="sect2"><div class="sect2" id="idm45043116029584">
+<h2>An Object-Oriented Solution</h2>
+<p>So<a data-primary="object-oriented programming (OOP)" data-secondary="adding types or operations" data-type="indexterm" id="OOPtypes04"/><a data-primary="Visitor design pattern" data-secondary="adding types or operations" data-tertiary="object-oriented solution" data-type="indexterm" id="idm45043114388896"/> let me ask: what would you have done? How would you have implemented the drawing of shapes?
+Well, I can imagine you would have used an object-oriented approach.
+That means you would scratch the enumeration and add a pure virtual <code>draw()</code> function to the
+<code>Shape</code> base class. This way, <code>Shape</code> doesn’t have to remember its type anymore:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Shape.h&gt; ----------------</code>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Shape</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Shape</code><code class="p">()</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w"/>
+
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">Shape</code><code class="p">()</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w"/>
+
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="nf">draw</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>Given this base class, derived classes now would have to implement only the <code>draw()</code> member
+function
+(<a class="co" href="#code_g15_15" id="para_g15_15"><img alt="15" height="12" src="assets/15.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Circle.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Point.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Circle</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">radius_</code><code class="p">(</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given radius is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">draw</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g15_15" id="code_g15_15"><img alt="15" height="12" src="assets/15.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Circle.cpp&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include </code><code class="cm">/* some graphics library */</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">Circle::draw</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ... Implementing the logic for drawing a circle
+</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Square.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Point.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Square</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Square</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">side_</code><code class="p">(</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given side length is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w">  </code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">draw</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g15_15" id="code_g15_15_2"><img alt="15" height="12" src="assets/15.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Square.cpp&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include </code><code class="cm">/* some graphics library */</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">Square::draw</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ... Implementing the logic for drawing a square
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>Once the virtual <code>draw()</code> function is in place and implemented by all derived classes,
+it can be used to refactor the <code>drawAllShapes()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;DrawAllShapes.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;vector&gt;</code><code class="cp"/>
+<code class="k">class</code><code class="w"> </code><code class="nc">Shape</code><code class="p">;</code><code class="w"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+
+<code class="c1">//---- &lt;DrawAllShapes.cpp&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;DrawAllShapes.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="k">for</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">shape</code><code class="o">-&gt;</code><code class="n">draw</code><code class="p">();</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>I can see you relax and start smiling again. This is so much nicer, so much cleaner. While I
+understand that you prefer this solution and that you would like to stay in this
+comfort zone a little while longer, I unfortunately have to point out a flaw.
+Yes, this solution might also come with a disadvantage.</p>
+<p>As indicated in the introduction to this section, with an object-oriented approach, we are
+now able to add new types very easily. All we have to do is write a new derived class. We
+don’t have to modify or recompile any exiasting code (with the exception of the <code>main()</code>
+function). That<a data-primary="Open-Closed Principle (OCP)" data-type="indexterm" id="idm45043113738048"/> perfectly fulfills the OCP. However, did
+you notice that we are not able to easily add operations anymore? For instance, let’s
+assume we need a virtual <code>serialize()</code> function to convert a <code>Shape</code> into bytes. How
+can we add this without modifying existing code? How can anyone easily add this operation
+without having to touch the <code>Shape</code> base class?</p>
+<p>Unfortunately, that isn’t possible anymore. We are now dealing with a <em>closed set</em> of operations,
+which means that we violate the OCP in relation to addition operations. To add a
+virtual function, the base class needs to be modified, and all derived classes (circles,
+squares, etc.) need to implement the new function, even though the function might never be
+called. In summary, the object-oriented solution fulfills the OCP with respect to adding
+types but violates it in relation to operations.</p>
+<p>I know you thought we left the procedural solution behind for good, but let’s
+take a second look. In the procedural approach, adding a new operation was actually very
+simple. New operations could be added in the form of free functions or separate classes, for
+instance. It wasn’t necessary to modify the <code>Shape</code> base class or any of the derived classes.
+Thus in the procedural solution, we have fulfilled the OCP with respect to adding operations.
+But as we’ve seen, the procedural solution violates the OCP in relation to adding types.
+Thus, it appears to be an inversion of the object-oriented solution, which is the other way around.<a data-primary="" data-startref="OOPtypes04" data-type="indexterm" id="idm45043113734368"/></p>
+</div></section>
+<section data-pdf-bookmark="Be Aware of the Design Choice in Dynamic Polymorphism" data-type="sect2"><div class="sect2" id="idm45043113733136">
+<h2>Be Aware of the Design Choice in Dynamic Polymorphism</h2>
+<p>The<a data-primary="Visitor design pattern" data-secondary="adding types or operations" data-tertiary="dynamic polymorphism and" data-type="indexterm" id="idm45043113731696"/><a data-primary="dynamic polymorphism" data-type="indexterm" id="idm45043113730480"/> takeaway of this example is that there is a design choice when using dynamic polymorphism:
+either you can add types easily by fixing the number of operations or you can add operations
+easily by fixing the number of types. Thus, the OCP has two dimensions: when designing software,
+you have to make a conscious decision about which kind of extension you expect.</p>
+<p>The<a data-primary="object-oriented programming (OOP)" data-secondary="strengths and weaknesses of" data-type="indexterm" id="idm45043113729072"/> strength of object-oriented programming is the easy addition of new types, but its weakness
+is that the addition of operations becomes much more difficult. The strength of procedural
+programming is the easy addition of operations, but adding types is a real pain (<a data-type="xref" href="#table_strengths_and_weaknesses">Table 4-1</a>). It depends
+on your project: if you expect new types will be added frequently, rather than operations,
+you should strive for an OCP solution, which treats operations as a<a data-primary="closed sets" data-type="indexterm" id="idm45043113727232"/> <em>closed set</em> and types
+as an<a data-primary="open sets" data-type="indexterm" id="idm45043113726016"/> <em>open set</em>. If you expect operations will be added, you should strive for
+a procedural solution, which treats types as a <em>closed set</em> and operations as an <em>open set</em>.
+If you make the right choice, you will economize your time and the time of your colleagues, and
+extensions will feel natural and easy.<sup><a data-type="noteref" href="ch04.xhtml#idm45043113723744" id="idm45043113723744-marker">4</a></sup></p>
+<table id="table_strengths_and_weaknesses">
+<caption><span class="label">Table 4-1. </span>Strengths and weaknesses of different programming paradigms</caption>
+<thead>
+<tr>
+<th>Programming paradigm</th>
+<th>Strength</th>
+<th>Weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>Procedural programming</p></td>
+<td><p>Addition of operations</p></td>
+<td><p>Addition of (polymorphic) types</p></td>
+</tr>
+<tr>
+<td><p>Object-oriented programming</p></td>
+<td><p>Addition of (polymorphic) types</p></td>
+<td><p>Addition of operations</p></td>
+</tr>
+</tbody>
+</table>
+<p>Be<a data-primary="procedural programming" data-type="indexterm" id="idm45043113713424"/> aware of these strengths: based on your expectation on how a codebase will evolve, choose the
+right approach to design for extensions. Do not ignore the weaknesses, and do not put yourself
+in an unfortunate maintenance hell.</p>
+<p>I assume that at this point you’re wondering if it’s possible to have two <em>open sets</em>. Well,
+to the best of my knowledge, this is not impossible but it’s usually impractical. As an example, in
+<a data-type="xref" href="#beware_the_performance_of_acyclic_visitors">“Guideline 18: Beware the Performance of Acyclic Visitor”</a>, I will show you that performance might take
+a significant hit.</p>
+<p>Since you might be a fan of template-based programming and similar compile time endeavors,
+I should also make the explicit note that static polymorphism does not have the same limitations.
+While in dynamic polymorphism, one of the design axes (types and operations) needs to be fixed,
+in static polymorphism, both pieces of information are available at compile-time. Therefore, both
+aspects can be extended easily (if you do it properly).<sup><a data-type="noteref" href="ch04.xhtml#idm45043113710320" id="idm45043113710320-marker">5</a></sup></p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043113709632">
+<h5>Guideline 15: Design for the Addition of Types or Operations</h5>
+<ul>
+<li>
+<p>Be aware of the strengths and weaknesses of different programming paradigms.</p>
+</li>
+<li>
+<p>Exploit the strengths of a paradigm, but avoid the weaknesses.</p>
+</li>
+<li>
+<p>Understand the choice between the addition of types or operations in dynamic polymorphism.</p>
+</li>
+<li>
+<p>Prefer an object-oriented solution when you primarily want to add types.</p>
+</li>
+<li>
+<p>Prefer a procedural/functional solution when you primarily want to add 
+<span class="keep-together">operations</span>.<a data-primary="" data-startref="VDPtypes04" data-type="indexterm" id="idm45043113703248"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Guideline 16: Use Visitor to Extend Operations" data-type="sect1"><div class="sect1" id="use_visitors_to_extend_operations">
+<h1>Guideline 16: Use Visitor to Extend Operations</h1>
+<p>In<a data-primary="Visitor design pattern" data-secondary="extending operations" data-type="indexterm" id="VDPextend04"/><a data-primary="object-oriented programming (OOP)" data-secondary="Visitor design pattern" data-type="indexterm" id="idm45043113698928"/> the previous section, you saw that the strength of object-oriented programming (OOP) is the
+addition of types and its weakness is the addition of operations. Of course, OOP has an
+answer to that weakness: the Visitor design pattern.</p>
+<p>The Visitor design pattern is one of the classic design patterns described by the Gang of
+Four (GoF). Its focus is on allowing you to frequently add operations instead of types. Allow
+me to explain the Visitor design pattern using the previous toy example: the drawing
+of shapes.</p>
+<p>In <a data-type="xref" href="#fig_shape_hierarchy">Figure 4-1</a>, you see the <code>Shape</code> hierarchy. The <code>Shape</code> class is again the base
+class for a certain number of concrete shapes. In this example, there are only the two classes,
+<code>Circle</code> and <code>Square</code>, but of course it’s possible to have more shapes. In addition, you
+might imagine <code>Triangle</code>, <code>Rectangle</code>, or <code>Ellipse</code> classes.</p>
+<figure><div class="figure" id="fig_shape_hierarchy">
+<img alt="" height="486" src="assets/cpsd_0401.png" width="701"/>
+<h6><span class="label">Figure 4-1. </span>The UML representation of a shape hierarchy with two derived classes (
+<span class="keep-together"><code>Circle</code></span> and <code>Square</code>)</h6>
+</div></figure>
+<section data-pdf-bookmark="Analyzing the Design Issues" data-type="sect2"><div class="sect2" id="idm45043113689408">
+<h2>Analyzing the Design Issues</h2>
+<p>Let’s<a data-primary="Visitor design pattern" data-secondary="extending operations" data-tertiary="analyzing design issues" data-type="indexterm" id="idm45043113687904"/> assume you are certain that you already have all the shapes you’ll ever
+need. That is, you consider the set of shapes a <em>closed set</em>. What you are missing, though,
+are additional operations. For instance, you’re missing an operation to rotate the shapes.
+Also, you would like to serialize shapes, i.e., you would like to convert the instance of a
+shape into bytes. And of course, you want to draw shapes. In addition, you want to enable
+anybody to add new operations. Therefore, you expect an <em>open set</em> of 
+<span class="keep-together">operations</span>.<sup><a data-type="noteref" href="ch04.xhtml#idm45043113684976" id="idm45043113684976-marker">6</a></sup></p>
+<p>Every new operation now requires you to insert a new virtual function into the base
+class. Unfortunately, that can be troublesome in different ways. Most obviously, not everyone
+is able to add a virtual function to the <code>Shape</code> base class. I, for instance, can’t simply
+go ahead and change your code. Therefore, this approach would not meet the expectation that
+everyone can add operations. While you can already see this as a final negative verdict,
+let’s still analyze the problem of virtual functions in more detail.</p>
+<p>If you decide to use a pure virtual function, you would have to implement the function in
+every derived class. For your own derived types, you could shrug this off as just a little
+bit of extra effort. But you might also cause extra work for other people who have
+created a shape by inheriting from the <code>Shape</code> base class.<sup><a data-type="noteref" href="ch04.xhtml#idm45043113680528" id="idm45043113680528-marker">7</a></sup> And that
+is very much expected, since this is the strength of OOP: anyone can add new types easily.
+Since this is to be expected, it may be a reason to not use a pure virtual function.</p>
+<p>As an alternative, you could introduce a regular virtual function, i.e., a virtual function
+with a default implementation. While a default behavior for a <code>rotate()</code> function sounds
+like a very reasonable idea, a default implementation for a <code>serialize()</code> function doesn’t
+sound easy at all. I admit that I would have to think hard about how to implement
+such a function. You might now suggest just throwing an exception as the default. However,
+this means that derived classes must again implement the missing behavior, and
+it would be a pure virtual function in disguise, or a clear violation of the
+Liskov Substitution Principle (see <a data-type="xref" href="ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions">“Guideline 6: Adhere to the Expected Behavior of Abstractions”</a>).</p>
+<p>Either way, adding a new operation into the <code>Shape</code> base class is difficult or not even
+possible at all. The underlying reason is that adding virtual functions violates the
+OCP. If you really need to add new operations frequently,
+then you should design so that the extension of operations is easy. That is
+what the Visitor design pattern tries to achieve.</p>
+</div></section>
+<section data-pdf-bookmark="The Visitor Design Pattern Explained" data-type="sect2"><div class="sect2" id="idm45043113676032">
+<h2>The Visitor Design Pattern Explained</h2>
+<p>The intent of the Visitor design pattern is to enable the addition of operations.</p>
+<div data-type="tip"><h1>The Visitor Design Pattern</h1>
+<p>Intent: “Represent<a data-primary="Visitor design pattern" data-secondary="extending operations" data-tertiary="pattern intent" data-type="indexterm" id="idm45043113672816"/> an operation to be performed on the elements of an object structure.
+Visitor lets you define a new operation without changing the classes of the elements
+on which it operates.”<sup><a data-type="noteref" href="ch04.xhtml#idm45043113671408" id="idm45043113671408-marker">8</a></sup></p>
+</div>
+<p>In<a data-primary="Visitor design pattern" data-secondary="extending operations" data-tertiary="pattern structure" data-type="indexterm" id="idm45043113669696"/> addition to the <code>Shape</code> hierarchy, I now introduce the <code>ShapeVisitor</code> hierarchy on
+the lefthand side of <a data-type="xref" href="#fig_visitor_shape">Figure 4-2</a>. The <code>ShapeVisitor</code> base class represents an
+
+<span class="keep-together">abstraction</span> of shape operations. For that reason, you could argue that <code>ShapeOperation</code>
+might be a better name for that class. It is beneficial, however, to apply
+<a data-type="xref" href="ch03.xhtml#use_a_design_patterns_name_to_communicate_intent">“Guideline 14: Use a Design Pattern’s Name to Communicate Intent”</a>. The name
+Visitor will help others understand the design.</p>
+<figure><div class="figure" id="fig_visitor_shape">
+<img alt="" height="842" src="assets/cpsd_0402.png" width="1442"/>
+<h6><span class="label">Figure 4-2. </span>The UML representation of the Visitor design pattern</h6>
+</div></figure>
+<p>The<a data-primary="Visitor design pattern" data-secondary="extending operations" data-tertiary="UML diagram" data-type="indexterm" id="idm45043113661984"/> <code>ShapeVisitor</code> base class comes with one pure virtual <code>visit()</code> function for every
+concrete shape in the <code>Shape</code> hierarchy:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="k">class</code><code class="w"> </code><code class="nc">ShapeVisitor</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">ShapeVisitor</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="nf">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="p">,</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g16_1" id="code_g16_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="nf">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="p">,</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g16_2" id="code_g16_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="c1">// Possibly more visit() functions, one for each concrete shape
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>In this example, there is one <code>visit()</code> function for <code>Circle</code>
+(<a class="co" href="#code_g16_1" id="para_g16_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>)
+and one for <code>Square</code>
+(<a class="co" href="#code_g16_2" id="para_g16_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).
+Of course, there could be more <code>visit()</code> functions—for instance, one for 
+<span class="keep-together"><code>Triangle</code></span>,
+one for <code>Rectangle</code>, and one for <code>Ellipse</code>—given that these are also classes
+derived from the <code>Shape</code> base class.</p>
+<p>With the <code>ShapeVisitor</code> base class in place, you can now add new operations easily.
+All you have to do to add an operation is add a new derived class. For instance,
+to enable rotating shapes, you can introduce the <code>Rotate</code> class and implement all <code>visit()</code>
+functions. To enable drawing shapes, all you have to do is introduce a <code>Draw</code>
+class:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">class</code><code class="w"> </code><code class="nc">Draw</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">ShapeVisitor</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">c</code><code class="p">,</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">s</code><code class="p">,</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="c1">// Possibly more visit() functions, one for each concrete shape</code>
+<code class="p">};</code><code class="w"/></pre>
+<p>And you can think about introducing multiple <code>Draw</code> classes, one for each graphics
+library you need to support. You can do that easily, because you don’t have to modify any
+<em>existing code</em>. It is only necessary to extend the <code>ShapeVisitor</code> hierarchy by adding
+<em>new code</em>. Therefore, this design fulfills the OCP with respect to adding 
+<span class="keep-together">operations.</span></p>
+<p>To completely understand the software design characteristics of Visitor, it is
+important to understand why the Visitor design pattern is able to fulfill the OCP. The
+initial problem was that every new operation required a change to the <code>Shape</code> base
+class. Visitor identifies the addition of operations as a<a data-primary="variation points" data-secondary="in Visitor design pattern" data-secondary-sortas="Visitor design pattern" data-type="indexterm" id="idm45043113434784"/> <em>variation point</em>. By extracting
+this variation point, i.e., by making this a separate class, you follow the
+Single-Responsibility Principle (SRP): <code>Shape</code> does not have to change for every new
+operation. This avoids frequent modifications of the <code>Shape</code> hierarchy and enables the
+easy addition of new operations. The  SRP therefore acts as an enabler for the OCP.</p>
+<p>To use visitors (classes derived from the <code>ShapeVisitor</code> base
+class) on shapes, you now have to add one last function to the <code>Shape</code> hierarchy: the
+<code>accept()</code> function
+(<a class="co" href="#code_g16_3" id="para_g16_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>):⁠<sup><a data-type="noteref" href="ch04.xhtml#idm45043113428544" id="idm45043113428544-marker">9</a></sup></p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="k">class</code><code class="w"> </code><code class="nc">Shape</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">Shape</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="nf">accept</code><code class="p">(</code><code class="w"> </code><code class="n">ShapeVisitor</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">v</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g16_3" id="code_g16_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>The <code>accept()</code> function is introduced as a pure virtual function in the base class
+and therefore has to be implemented in every derived class
+(<a class="co" href="#code_g16_4" id="para_g16_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a> and
+<a class="co" href="#code_g16_5" id="para_g16_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Circle</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">radius_</code><code class="p">(</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given radius is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">accept</code><code class="p">(</code><code class="w"> </code><code class="n">ShapeVisitor</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">v</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">override</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="n">v</code><code class="p">.</code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="k">this</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">  </code><a class="co" href="#para_g16_4" id="code_g16_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Square</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Square</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">side_</code><code class="p">(</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given side length is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">accept</code><code class="p">(</code><code class="w"> </code><code class="n">ShapeVisitor</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">v</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">override</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="n">v</code><code class="p">.</code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="k">this</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">  </code><a class="co" href="#para_g16_5" id="code_g16_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>The implementation of <code>accept()</code> is easy; however, it merely needs to call the corresponding
+<code>visit()</code> function on the given visitor based on the type of the concrete <code>Shape</code>.
+This is achieved by passing the <code>this</code> pointer as an argument to <code>visit()</code>. Thus,
+the implementation of <code>accept()</code> is the same in each derived class, but due to a
+different type of the <code>this</code> pointer, it will trigger a different overload of the <code>visit()</code>
+function in the given visitor. Therefore, the <code>Shape</code> base class cannot provide a
+default implementation.</p>
+<p>This <code>accept()</code> function can now be used where you need to perform an operation.
+For instance, the <code>drawAllShapes()</code> function uses <code>accept()</code> to draw all shapes in a given
+vector of shapes:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">::</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="k">for</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">shape</code><code class="o">-&gt;</code><code class="n">accept</code><code class="p">(</code><code class="w"> </code><code class="n">Draw</code><code class="p">{}</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>With the addition of the <code>accept()</code> function, you are now able to extend your <code>Shape</code>
+hierarchy easily with operations. You have now designed for an <em>open set</em> of operations.
+Amazing! However, there is no silver bullet, and there is no design that always
+works. Every design comes with advantages, but also disadvantages. So before you start
+to celebrate, I should tell you about the shortcomings of the Visitor design pattern to
+give you the complete picture.</p>
+</div></section>
+<section data-pdf-bookmark="Analyzing the Shortcomings of the Visitor Design Pattern" data-type="sect2"><div class="sect2" id="idm45043113675088">
+<h2>Analyzing the Shortcomings of the Visitor Design Pattern</h2>
+<p>The<a data-primary="Visitor design pattern" data-secondary="extending operations" data-tertiary="Visitor shortcomings" data-type="indexterm" id="idm45043113004896"/> Visitor design pattern is unfortunately far from perfect. This should be expected,
+considering Visitor is a workaround for an intrinsic OOP weakness, instead of
+building on OOP strengths.</p>
+<p>The first disadvantage is a low implementation flexibility.
+It becomes obvious if you consider the implementation of a <code>Translate</code> visitor. The
+<code>Translate</code> visitor needs to move the center point of each shape by a given offset. For
+that, <code>Translate</code> needs to implement a <code>visit()</code> function for every concrete <code>Shape</code>.
+Especially for <code>Translate</code>, you can imagine that the implementation of these <code>visit()</code>
+functions would be very similar, if not identical: there is nothing different about
+translating a <code>Circle</code> from translating a <code>Square</code>. Still, you will need to write all
+<code>visit()</code> functions. Of course, you would extract the logic from the <code>visit()</code>
+functions and implement this in a third, separate function to minimize
+duplication according to the DRY principle.<sup><a data-type="noteref" href="ch04.xhtml#idm45043112966976" id="idm45043112966976-marker">10</a></sup> But unfortunately, the strict
+requirements imposed by the base class do not give you the freedom to implement
+these <code>visit()</code> functions as one. The result is some boilerplate code:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">class</code><code class="w"> </code><code class="nc">Translate</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">ShapeVisitor</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="c1">// Where is the difference between translating a circle and translating</code>
+<code class="w">   </code><code class="c1">// a square? Still you have to implement all virtual functions...</code>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">c</code><code class="p">,</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">s</code><code class="p">,</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="c1">// Possibly more visit() functions, one for each concrete shape</code>
+<code class="p">};</code><code class="w"/></pre>
+<p>A similar implementation inflexibility is the return type of the <code>visit()</code> functions. The
+decision on what the function returns is made in the <code>ShapeVisitor</code> base class. Derived classes
+cannot change that. The usual approach is to store the result in the visitor and access
+it later.</p>
+<p>The second disadvantage is that with the Visitor design pattern in place, it becomes
+difficult to add new types. Previously, we made the assumption that you’re certain
+you have all the shapes you will ever need. This assumption has now become a restriction.
+Adding a new shape in the <code>Shape</code> hierarchy would require the entire <code>ShapeVisitor</code> hierarchy
+to be updated: you would have to add a new pure virtual function to the <code>ShapeVisitor</code>
+base class, and this virtual function would have to be implemented by all derived classes.
+Of course, this comes with all the disadvantages we’ve discussed before. In particular,
+you would force other developers to update their operations.<sup><a data-type="noteref" href="ch04.xhtml#idm45043112860032" id="idm45043112860032-marker">11</a></sup> Thus, the Visitor design pattern
+requires a <em>closed set</em> of types and in exchange provides an <em>open set</em> of operations.</p>
+<p>The underlying reason for this restriction is that there is a cyclic dependency among
+the <code>ShapeVisitor</code> base class, the concrete shapes (<code>Circle</code>, <code>Square</code>, etc.), and
+the <code>Shape</code> base class (see <a data-type="xref" href="#fig_visitor_dependency_graph">Figure 4-3</a>).</p>
+<figure><div class="figure" id="fig_visitor_dependency_graph">
+<img alt="" height="991" src="assets/cpsd_0403.png" width="1439"/>
+<h6><span class="label">Figure 4-3. </span>Dependency graph for the Visitor design pattern</h6>
+</div></figure>
+<p>The <code>ShapeVisitor</code> base
+class depends on the concrete shapes, since it provides a <code>visit()</code> function for each
+of these shapes. The concrete shapes depend on the <code>Shape</code> base class, since they have
+to fulfill all the expectations and requirements of the base class. And the <code>Shape</code> base
+class depends on the <code>ShapeVisitor</code> base class due to the <code>accept()</code> function. Because
+of this cyclic dependency, we are now able to add new operations easily (on a lower level
+of our architecture because of a dependency inversion), but we cannot add types easily
+anymore (because that would have to happen on the high level of our architecture). For
+that reason, we call the classic Visitor design pattern<a data-primary="design patterns" data-secondary="Cyclic Visitor" data-type="indexterm" id="idm45043112850208"/><a data-primary="Cyclic Visitor design pattern" data-type="indexterm" id="idm45043112849360"/> <em>Cyclic Visitor</em>.</p>
+<p>The<a data-primary="Visitor design pattern" data-secondary="extending operations" data-tertiary="dependency graph" data-type="indexterm" id="idm45043112847760"/> third disadvantage is the intrusive nature of a visitor. To add a visitor
+to an existing hierarchy, you need to add the virtual <code>accept()</code> to the base class of
+that hierarchy. While this is often possible, it still suffers from the usual problem
+of adding a pure virtual function to an existing hierarchy (see
+<a data-type="xref" href="#design_for_the_addition_of_types_or_operations">“Guideline 15: Design for the Addition of 
+<span class="keep-together">Types or Operations</span>”</a>). If, however, it’s not possible
+to add the <code>accept()</code> function, this form of Visitor is not an option. If that’s
+the case, don’t worry: we will see another, nonintrusive form of the Visitor design pattern in
+<a data-type="xref" href="#consider_std_variant_for_implementing_visitors">“Guideline 17: Consider std::variant for 
+<span class="keep-together">Implementing Visitor</span>”</a>.</p>
+<p>A fourth, albeit admittedly more obscure, disadvantage is that the <code>accept()</code> function
+is inherited by deriving classes. If someone later adds another layer of derived
+classes (and that someone might be you) and forgets to override the
+<code>accept()</code> function, the visitor will be applied to the wrong type. And unfortunately,
+you would not get any warning about this. This is just more evidence that adding new
+types has become more difficult. A possible solution for this would be to declare the
+<code>Circle</code> and <code>Square</code> classes as <code>final</code>, which would, however, limit future extensions.</p>
+<p>“Wow, that’s a lot of disadvantages. Are there any more?” Yes, unfortunately there are
+two more. The fifth disadvantage is obvious when we consider that for every operation,
+we’re now required to call two virtual functions. Initially, we don’t know about
+either the type of operation or the type of shape. The first virtual function
+is the <code>accept()</code> function, which is passed an abstract <code>ShapeVisitor</code>. The <code>accept()</code>
+function now resolves the concrete type of shape. The second virtual function is the
+<code>visit()</code> function, which is passed a concrete type of <code>Shape</code>. The <code>visit()</code> function
+now resolves the concrete type of the operation. This so-called <em>double dispatch</em> is
+unfortunately not free. On the contrary, performance-wise, you should consider the
+Visitor design pattern as rather slow. I will provide some performance numbers
+in the next guideline.</p>
+<p>While talking about performance, I should also mention two other aspects that have a negative
+impact on performance. First, we usually allocate every single shape and visitor individually.
+Consider the following <code>main()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="k">using</code><code class="w"> </code><code class="n">Shapes</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="w"> </code><code class="o">&gt;</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Shapes</code><code class="w"> </code><code class="n">shapes</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">2.3</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g16_6" id="code_g16_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Square</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">1.2</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g16_7" id="code_g16_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">4.1</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g16_8" id="code_g16_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="w">
+</code><code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>In this <code>main()</code> function, all allocations happen by means of <code>std::make_unique()</code>
+(<a class="co" href="#code_g16_6" id="para_g16_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a>,
+<a class="co" href="#code_g16_7" id="para_g16_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a>, and
+<a class="co" href="#code_g16_8" id="para_g16_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a>).
+These many, small allocations cost runtime on their own and will in the long run cause
+memory fragmentation.<sup><a data-type="noteref" href="ch04.xhtml#idm45043112718640" id="idm45043112718640-marker">12</a></sup> Also, the memory may be laid out in an unfavorable, cache-unfriendly
+way. As a consequence, we usually
+use pointers to work with the resulting shapes and visitors. The resulting indirections
+make it much harder for a compiler to perform any kind of optimization and will show up
+in performance benchmarks. However, to be honest, this is not a Visitor-specific problem,
+but these two aspects are quite common to OOP in general.</p>
+<p>The last disadvantage of the Visitor design pattern is that experience has proven this
+design pattern to be rather hard to fully understand and maintain. This is a rather
+subjective disadvantage, but the complexity of the intricate interplay of the two
+hierarchies often feels more like a burden than a real solution.</p>
+<p>In summary, the Visitor design pattern is the OOP solution to allow for the easy
+extension of operations instead of types. That is achieved by introducing an abstraction
+in the form of the <code>ShapeVisitor</code> base class, which enables you to add operations on another
+set of types. While this is a unique strength of Visitor, it unfortunately comes with
+several deficiencies: implementation inflexibilities in both inheritance hierarchies due
+to a strong coupling to the requirements of the base classes, rather bad performance,
+and the intrinsic complexity of Visitor make it a rather unpopular design pattern.</p>
+<p>If you’re now undecided whether or not to use a classic Visitor, take the time to
+read the next section. I will show you a different way to implement a Visitor—a
+solution that will much more likely be to your satisfaction.</p>
+<aside class="less_space pagebreak-before" data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043112715488">
+<h5>Guideline 16: Use Visitor to Extend Operations</h5>
+<ul>
+<li>
+<p>Keep in mind that it’s difficult to add a new operation in an existing inheritance hierarchy.</p>
+</li>
+<li>
+<p>Apply the Visitor design pattern with the intent of enabling the easy addition of operations.</p>
+</li>
+<li>
+<p>Be aware of the shortcomings of the Visitor design pattern.<a data-primary="" data-startref="VDPextend04" data-type="indexterm" id="idm45043112653040"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Guideline 17: Consider std::variant for &#10;Implementing Visitor" data-type="sect1"><div class="sect1" id="consider_std_variant_for_implementing_visitors">
+<h1>Guideline 17: Consider std::variant for 
+<span class="keep-together">Implementing Visitor</span></h1>
+<p>In<a data-primary="Visitor design pattern" data-secondary="std::variant implementation" data-type="indexterm" id="VDPstdvariant04"/> <a data-type="xref" href="#use_visitors_to_extend_operations">“Guideline 16: Use Visitor to Extend Operations”</a>, I introduced you to the
+Visitor design pattern. I imagine that you did not immediately fall in love: while
+Visitor most certainly has a couple of unique properties, it is also a rather complex
+design pattern with some strong internal coupling and performance deficiencies. No,
+definitely not love! However, don’t worry, the classic form is not the only way you
+can implement the Visitor design pattern. In this section, I would like to introduce
+you to a different way to implement Visitor. And I am certain that this approach will
+be much more to your liking.</p>
+<section data-pdf-bookmark="Introduction to std::variant" data-type="sect2"><div class="sect2" id="idm45043112646816">
+<h2>Introduction to std::variant</h2>
+<p>At<a data-primary="Visitor design pattern" data-secondary="std::variant implementation" data-tertiary="introduction to" data-type="indexterm" id="idm45043112645216"/> the beginning of this chapter, we talked about the strengths and weaknesses of the
+different paradigms (OOP versus procedural programming). In particular, we talked about
+the fact that procedural programming was particularly good at adding new operations
+to an existing set of types. So instead of trying to find workarounds in OOP, how
+about we exploit the strength of procedural programming? No, don’t worry; of course
+I’m not suggesting a return to our initial solution. That approach was just too
+error prone. Instead I’m talking about <code>std::variant</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;iostream&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;variant&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">struct</code><code class="w"> </code><code class="nc">Print</code><code class="w">  </code><a class="co" href="#para_g17_10" id="code_g17_10"><img alt="10" height="12" src="assets/10.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">(</code><code class="p">)</code><code class="p">(</code><code class="w"> </code><code class="kt">int</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="s">"</code><code class="s">int: </code><code class="s">"</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="sc">'</code><code class="sc">\n</code><code class="sc">'</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">(</code><code class="p">)</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="s">"</code><code class="s">double: </code><code class="s">"</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="sc">'</code><code class="sc">\n</code><code class="sc">'</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">(</code><code class="p">)</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="s">"</code><code class="s">string: </code><code class="s">"</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="o">&lt;</code><code class="o">&lt;</code><code class="w"> </code><code class="sc">'</code><code class="sc">\n</code><code class="sc">'</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="c1">// Creates a default variant that contains an 'int' initialized to 0
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">variant</code><code class="o">&lt;</code><code class="kt">int</code><code class="p">,</code><code class="kt">double</code><code class="p">,</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="o">&gt;</code><code class="w"> </code><code class="n">v</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g17_1" id="code_g17_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">v</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">42</code><code class="p">;</code><code class="w">        </code><code class="c1">// Assigns the 'int' 42 to the variant  </code><a class="co" href="#para_g17_2" id="code_g17_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="c1">
+</code><code class="w">   </code><code class="n">v</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mf">3.14</code><code class="p">;</code><code class="w">      </code><code class="c1">// Assigns the 'double' 3.14 to the variant  </code><a class="co" href="#para_g17_3" id="code_g17_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="c1">
+</code><code class="w">   </code><code class="n">v</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mf">2.71F</code><code class="p">;</code><code class="w">     </code><code class="c1">// Assigns a 'float', which is promoted to 'double'  </code><a class="co" href="#para_g17_4" id="code_g17_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a><code class="c1">
+</code><code class="w">   </code><code class="n">v</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="s">"</code><code class="s">Bjarne</code><code class="s">"</code><code class="p">;</code><code class="w">  </code><code class="c1">// Assigns the string literal 'Bjarne' to the variant  </code><a class="co" href="#para_g17_5" id="code_g17_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a><code class="c1">
+</code><code class="w">   </code><code class="n">v</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">43</code><code class="p">;</code><code class="w">        </code><code class="c1">// Assigns the 'int' 43 to the variant  </code><a class="co" href="#para_g17_6" id="code_g17_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a><code class="c1">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">int</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">i</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">get</code><code class="o">&lt;</code><code class="kt">int</code><code class="o">&gt;</code><code class="p">(</code><code class="n">v</code><code class="p">)</code><code class="p">;</code><code class="w">  </code><code class="c1">// Direct access to the value  </code><a class="co" href="#para_g17_7" id="code_g17_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a><code class="c1">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">pi</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">get_if</code><code class="o">&lt;</code><code class="kt">int</code><code class="o">&gt;</code><code class="p">(</code><code class="o">&amp;</code><code class="n">v</code><code class="p">)</code><code class="p">;</code><code class="w">  </code><code class="c1">// Direct access to the value  </code><a class="co" href="#para_g17_8" id="code_g17_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a><code class="c1">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Print</code><code class="p">{</code><code class="p">}</code><code class="p">,</code><code class="w"> </code><code class="n">v</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">  </code><code class="c1">// Applying the Print visitor  </code><a class="co" href="#para_g17_9" id="code_g17_9"><img alt="9" height="12" src="assets/9.png" width="12"/></a><code class="c1">
+</code><code class="w">
+</code><code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>Since you might not have had the pleasure of being introduced to the C++17
+<code>std::variant</code> yet, allow me to give you an introduction in a nutshell, just in case. A
+variant represents one of several alternatives. The variant at the beginning of the <code>main()</code>
+function in the code example can contain an <code>int</code>, a <code>double</code>, or an <code>std::string</code>
+(<a class="co" href="#code_g17_1" id="para_g17_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>).
+Note that I said <em>or</em>: a variant can contain only one of these three alternatives. It is
+never several of them, and under usual circumstances, it should never contain nothing. For
+that reason, we call a variant a <em>sum type</em>: the set of possible states is the sum of
+possible states of the alternatives.</p>
+<p>A default variant is also not empty. It is initialized to the default value of the first
+alternative. In the example, a default variant contains an integer of value
+0. Changing the value of a variant is simple: you can just assign new values. For instance,
+we can assign the value 42, which now means that the variant stores an integer of value 42
+(<a class="co" href="#code_g17_2" id="para_g17_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).
+If we subsequently assign the <code>double</code> 3.14, then the variant will store a <code>double</code> of
+value 3.14
+(<a class="co" href="#code_g17_3" id="para_g17_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>).
+If you ever want to assign a value of a type that is not one of the possible
+alternatives, the usual conversion rules apply. For instance, if you want to assign a
+<code>float</code>, based on the regular conversion rules it would be promoted to a <code>double</code>
+(<a class="co" href="#code_g17_4" id="para_g17_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a>).</p>
+<p>To store the alternatives, the variant provides just enough internal buffer
+to hold the largest of the alternatives. In our case, the largest alternative is the
+<code>std::string</code>, which is usually between 24 and 32 bytes (depending on the used
+implementation of the Standard Library). Thus, when you assign the string literal
+<code>"Bjarne"</code>, the variant will first clean up the previous value (there isn’t much to
+do; it’s just a <code>double</code>) and then, since it is the only alternative that works,
+construct the <code>std::string</code> in place inside its own buffer
+(<a class="co" href="#code_g17_5" id="para_g17_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a>).
+When you change your mind and assign the integer 43
+(<a class="co" href="#code_g17_6" id="para_g17_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a>),
+the variant will properly destroy the <code>std::string</code> by means of its destructor and reuse
+the internal buffer for the integer. Marvelous, is it not? The variant is type safe
+and always properly initialized. What more could we ask for?</p>
+<p>Well, of course you want to do something with the values inside the variant. It would not
+be of any use if we just store the value. Unfortunately, you cannot simply assign a
+variant to any other value, e.g., an <code>int</code>, to get your value back. No, accessing the value
+is a little more complicated. There are several ways to access the stored values, the
+most direct approach being <code>std::get()</code>
+(<a class="co" href="#code_g17_7" id="para_g17_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a>).
+With <code>std::get()</code> you can query for a value of a particular type. If the variant
+contains a value of that type, it returns a reference to it. If it does not, it throws
+the <code>std::bad_variant_exception</code>. That seems to be a pretty rude response, given that you
+have asked nicely. But we should probably be happy that the variant does not pretend
+to hold some value when it indeed does not. At least it is honest. There is a nicer
+way in the form of <code>std::get_if()</code>
+(<a class="co" href="#code_g17_8" id="para_g17_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a>).
+In comparison to <code>std::get()</code>, <code>std::get_if()</code> does not return a reference but a
+pointer. If you request a type that the <code>std::variant</code> currently does not
+hold, it doesn’t throw an exception but instead returns a <code>nullptr</code>.
+However, there is a third way, a way that is particularly interesting for our purposes: <code>std::visit()</code>
+(<a class="co" href="#code_g17_9" id="para_g17_9"><img alt="9" height="12" src="assets/9.png" width="12"/></a>).
+<code>std::visit()</code> allows you to perform any operation on the stored value. Or more precisely,
+it allows you to pass a custom visitor to perform any operation on the stored value
+of a <em>closed set</em> of types. Sound familiar?</p>
+<p>The <code>Print</code> visitor
+(<a class="co" href="#code_g17_10" id="para_g17_10"><img alt="10" height="12" src="assets/10.png" width="12"/></a>)
+that we pass as the first argument must provide a function call operator (<code>operator()</code>)
+for every possible alternative. In this example, that is fulfilled by providing three
+<code>operator()</code>s: one for <code>int</code>, one for <code>double</code>, and one for <code>std::string</code>. It is
+particularly noteworthy that <code>Print</code> does not have to inherit from any base class, and it does not have any virtual functions. Therefore, there is no strong coupling to
+any requirements. If we wanted to, we could also collapse the function call operators
+for <code>int</code> and <code>double</code> into one, since an <code>int</code> can be converted to a <code>double</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">Print</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">()(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;&lt;</code><code class="w"> </code><code class="s">"int or double: "</code><code class="w"> </code><code class="o">&lt;&lt;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="o">&lt;&lt;</code><code class="w"> </code><code class="sc">'\n'</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">()(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">string</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">cout</code><code class="w"> </code><code class="o">&lt;&lt;</code><code class="w"> </code><code class="s">"string: "</code><code class="w"> </code><code class="o">&lt;&lt;</code><code class="w"> </code><code class="n">value</code><code class="w"> </code><code class="o">&lt;&lt;</code><code class="w"> </code><code class="sc">'\n'</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>While the question about which version we should prefer is not of particular interest for
+us at this moment, you’ll notice that we have a lot of implementation flexibility. There is
+only a very loose coupling based on the convention that for every alternative there needs
+to be an <code>operator()</code>, regardless of the exact form. We do not have a 
+<span class="keep-together"><code>Visitor</code></span> base class
+anymore that forces us to do things in a very specific way. We also do not have any base
+class for the alternatives: we are free to use fundamental types such as <code>int</code> and <code>double</code>,
+as well as arbitrary class types such as <code>std::string</code>. And perhaps most importantly,
+anyone can easily add new operations. No existing code needs to be modified. With this,
+we can argue that this is a procedural solution, just much more elegant than the initial
+enum-based approach, which used a base class to hold a discriminator.</p>
+</div></section>
+<section data-pdf-bookmark="Refactoring the Drawing of Shapes as a Value-Based, &#10;Nonintrusive Solution" data-type="sect2"><div class="sect2" id="idm45043112646224">
+<h2>Refactoring the Drawing of Shapes as a Value-Based, 
+<span class="keep-together">Nonintrusive Solution</span></h2>
+<p>With<a data-primary="Visitor design pattern" data-secondary="std::variant implementation" data-tertiary="value-based, nonintrusive solution" data-type="indexterm" id="idm45043112484112"/> these properties, <code>std::variant</code> is perfectly suited for our drawing example. Let’s
+re-implement the drawing of shapes with <code>std::variant</code>. First, we refactor the
+<code>Circle</code> and <code>Square</code> classes:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Circle.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Point.h&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Circle</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">radius_</code><code class="p">(</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="cm">/* Checking that the given radius is valid */</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{};</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+
+<code class="c1">//---- &lt;Square.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Point.h&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Square</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Square</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">side_</code><code class="p">(</code><code class="w"> </code><code class="n">side</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="cm">/* Checking that the given side length is valid */</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side</code><code class="w">  </code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">side_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{};</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>Both <code>Circle</code> and <code>Square</code> are significantly simplified: no more <code>Shape</code> base class, no more
+need to implement any virtual functions—in particular the <code>accept()</code> function. Thus, this
+Visitor approach is nonintrusive: this form of Visitor can be easily added to existing
+types! And there is no need to prepare these classes for any upcoming operations. We can focus
+entirely on implementing these two classes as what they are: geometric primitives.</p>
+<p>The most beautiful part of the refactoring, however, is the actual use of 
+<span class="keep-together"><code>std::variant</code></span>:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Shape.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;variant&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">using</code><code class="w"> </code><code class="n">Shape</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">variant</code><code class="o">&lt;</code><code class="n">Circle</code><code class="p">,</code><code class="n">Square</code><code class="o">&gt;</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g17_11" id="code_g17_11"><img alt="11" height="12" src="assets/11.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Shapes.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;vector&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">using</code><code class="w"> </code><code class="n">Shapes</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">Shape</code><code class="o">&gt;</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g17_12" id="code_g17_12"><img alt="12" height="12" src="assets/12.png" width="12"/></a><code class="w">
+</code></pre>
+<p>Since our <em>closed set</em> of types is a set of shapes, variant will now contain either a
+<code>Circle</code> or <code>Square</code>. And what is a good name for an abstraction of a set of types that
+represent shapes? Well…<code>Shape</code>
+(<a class="co" href="#code_g17_11" id="para_g17_11"><img alt="11" height="12" src="assets/11.png" width="12"/></a>).
+Instead of a base class that abstracts from the actual
+type of shape, <code>std::variant</code> now acquires this task. If this is the first time you’ve seen
+that, you are probably completely amazed. But wait, there is more: this also means that we
+can now turn our back on <code>std::unique_ptr</code>. Remember: the only reason we used (smart)
+pointers was to enable us to store different kinds of shapes in the same vector. But now
+that <code>std::variant</code> enables us to do the same, we can simply store variant objects inside
+a single vector
+(<a class="co" href="#code_g17_12" id="para_g17_12"><img alt="12" height="12" src="assets/12.png" width="12"/></a>).</p>
+<p>With this functionality in place, we can write custom operations on shapes.
+We’re still interested in drawing shapes. For that purpose, we now implement the <code>Draw</code>
+<span class="keep-together">visitor</span>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Draw.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Shape.h&gt;</code><code class="cp"/>
+<code class="cp">#include </code><code class="cm">/* some graphics library */</code><code class="cp"/>
+
+<code class="k">struct</code><code class="w"> </code><code class="nc">Draw</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">()(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">c</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="cm">/* ... Implementing the logic for drawing a circle ... */</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">operator</code><code class="p">()(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">s</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="cm">/* ... Implementing the logic for drawing a square ... */</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>Again, we are following the expectation to implement one <code>operator()</code> for every
+alternative: one for <code>Circle</code> and one for <code>Square</code>. But this time we have a choice.
+There is no need to implement any base class, and for that reason, no need to override
+any virtual function. Therefore, there is no need to implement exactly one <code>operator()</code>
+for every alternative. While in this example it feels reasonable to have two functions,
+we have the option to combine the two <code>operator()</code>s into one function. We also have a
+choice with respect to the return type of the operation. We can locally decide what
+we should return, and it is not a base class that, independent from the specific
+operation, makes a global decision. Implementation flexibility. Loose coupling.
+Amazing!</p>
+<p>The last piece of the puzzle is the <code>drawAllShapes()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;DrawAllShapes.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Shapes.h&gt;</code><code class="cp"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">Shapes</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+
+<code class="c1">//---- &lt;DrawAllShapes.cpp&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;DrawAllShapes.h&gt;</code><code class="cp"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">Shapes</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="k">for</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="n">std</code><code class="o">::</code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Draw</code><code class="p">{},</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>The <code>drawAllShapes()</code> function is refactored to make use of <code>std::visit()</code>. In this
+function, we now apply the <code>Draw</code> visitor onto all variants stored in a vector.</p>
+<p>The job of <code>std::visit()</code> is to perform the necessary type dispatch for you. If the
+given <code>std::variant</code> contains a <code>Circle</code>, it will call the <code>Draw::operator()</code> for circles.
+Otherwise it will call the <code>Draw::operator()</code> for squares. If you wanted to, you could
+manually implement the same dispatch with <code>std::get_if()</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">Shapes</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="k">for</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">shape</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="o">*</code><code class="w"> </code><code class="n">circle</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">get_if</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="p">(</code><code class="o">&amp;</code><code class="n">shape</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w"/>
+<code class="w">         </code><code class="c1">// ... Drawing a circle</code>
+<code class="w">      </code><code class="p">}</code><code class="w"/>
+<code class="w">      </code><code class="k">else</code><code class="w"> </code><code class="k">if</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="o">*</code><code class="w"> </code><code class="n">square</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">get_if</code><code class="o">&lt;</code><code class="n">Square</code><code class="o">&gt;</code><code class="p">(</code><code class="o">&amp;</code><code class="n">shape</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w"/>
+<code class="w">         </code><code class="c1">// ... Drawing a square</code>
+<code class="w">      </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>I know what you’re thinking: “Nonsense! Why would I ever want to do that? That would result
+in the same maintenance nightmare as an enum-based solution.” I completely agree with
+you: from a software design perspective, this would be a terrible idea. Still, and I have to
+say that this is difficult to admit in the context of this book, there may be a good reason to
+do that (sometimes): performance. I know, now I’ve piqued your interest, but since we are
+almost ready to talk about performance anyway, allow me to defer this discussion for just a
+few paragraphs. I will come back to this, I promise!</p>
+<p>With all of these details in place, we can finally refactor the <code>main()</code> function. But
+there isn’t a lot of work to do: instead of creating circles and squares by means of
+<code>std::make_unique()</code>, we simply create circles and squares directly, and add them to the
+vector. This works thanks to the nonexplicit constructor of variant, which allows
+implicit conversion of any of the alternatives:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Main.cpp&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Shapes.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;DrawAllShapes.h&gt;</code><code class="cp"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="n">Shapes</code><code class="w"> </code><code class="n">shapes</code><code class="p">;</code><code class="w"/>
+
+<code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="p">{</code><code class="w"> </code><code class="mf">2.3</code><code class="w"> </code><code class="p">}</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="p">{</code><code class="w"> </code><code class="mf">1.2</code><code class="w"> </code><code class="p">}</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="w">   </code><code class="n">shapes</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="p">{</code><code class="w"> </code><code class="mf">4.1</code><code class="w"> </code><code class="p">}</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="w">   </code><code class="n">drawAllShapes</code><code class="p">(</code><code class="w"> </code><code class="n">shapes</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+<code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>The end result of this value-based solution is stunningly fascinating: no base classes
+anywhere. No virtual functions. No pointers. No manual memory allocations. Things are as
+straightforward as they could be, and there is very little boilerplate code. Additionally,
+despite the fact that the code looks very different from the previous 
+<span class="keep-together">solutions,</span> the
+architectural properties are identical: everyone is able to add new operations without
+the need to modify existing code<a data-primary="Visitor design pattern" data-secondary="std::variant implementation" data-tertiary="dependency graph" data-type="indexterm" id="idm45043111296272"/> (see <a data-type="xref" href="#fig_variant_dependency_graph">Figure 4-4</a>). Therefore, we
+still fulfill the OCP in respect to adding operations.</p>
+<figure><div class="figure" id="fig_variant_dependency_graph">
+<img alt="" height="871" src="assets/cpsd_0404.png" width="1439"/>
+<h6><span class="label">Figure 4-4. </span>Dependency graph for the <code>std::variant</code> solution</h6>
+</div></figure>
+<p>As already mentioned, this Visitor approach is nonintrusive.
+From an architectural point of view, this gives you another, significant advantage
+compared to the classic Visitor. If you compare the dependency graph of the classic
+Visitor (see <a data-type="xref" href="#fig_visitor_dependency_graph">Figure 4-3</a>) to the dependency graph of the
+<code>std::variant</code> solution (see <a data-type="xref" href="#fig_variant_dependency_graph">Figure 4-4</a>), you will see that
+the dependency graph for the <code>std::variant</code> solution has a second architectural
+boundary. This means that there is no cyclic dependency between <code>std::variant</code> and its
+alternatives. I should repeat that to emphasize its significance: there is <em>no</em> cyclic
+dependency between <code>std::variant</code> and its alternatives! What may look like a little
+detail is actually a huge architectural advantage. HUGE! As an example, you could
+create an abstraction based on <code>std::variant</code> on the fly:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Shape.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;variant&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">using</code><code class="w"> </code><code class="n">Shape</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">variant</code><code class="o">&lt;</code><code class="n">Circle</code><code class="p">,</code><code class="n">Square</code><code class="o">&gt;</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g17_13" id="code_g17_13"><img alt="13" height="12" src="assets/13.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;SomeHeader.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Circle.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Ellipse.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;variant&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">using</code><code class="w"> </code><code class="n">RoundShapes</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">variant</code><code class="o">&lt;</code><code class="n">Circle</code><code class="p">,</code><code class="n">Ellipse</code><code class="o">&gt;</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g17_14" id="code_g17_14"><img alt="14" height="12" src="assets/14.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;SomeOtherHeader.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Square.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Rectangle.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;variant&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">using</code><code class="w"> </code><code class="n">AngularShapes</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">variant</code><code class="o">&lt;</code><code class="n">Square</code><code class="p">,</code><code class="n">Rectangle</code><code class="o">&gt;</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g17_15" id="code_g17_15"><img alt="15" height="12" src="assets/15.png" width="12"/></a><code class="w">
+</code></pre>
+<p>In addition to the <code>Shape</code> abstraction we have already created
+(<a class="co" href="#code_g17_13" id="para_g17_13"><img alt="13" height="12" src="assets/13.png" width="12"/></a>),
+you can create the <code>std::variant</code> for all round shapes
+(<a class="co" href="#code_g17_14" id="para_g17_14"><img alt="14" height="12" src="assets/14.png" width="12"/></a>),
+and you can create a <code>std::variant</code> for all angular shapes
+(<a class="co" href="#code_g17_15" id="para_g17_15"><img alt="15" height="12" src="assets/15.png" width="12"/></a>),
+both possibly far away from the <code>Shape</code> abstraction. You can easily do this because there
+is no need to derive from multiple Visitor base classes. On the contrary, the shape
+classes would be unaffected. Thus, the fact that the <code>std::variant</code> solution is nonintrusive
+is of the highest architectural value!</p>
+</div></section>
+<section data-pdf-bookmark="Performance Benchmarks" data-type="sect2"><div class="sect2" id="idm45043112485968">
+<h2>Performance Benchmarks</h2>
+<p>I<a data-primary="Visitor design pattern" data-secondary="std::variant implementation" data-tertiary="performance benchmarks" data-type="indexterm" id="idm45043111097984"/> know how you feel right now. Yes, that’s what love at first sight feels like. But
+believe it or not, there’s more. There is one topic that we haven’t discussed yet,
+a topic that is dear to every C++ developer, and that is, of course,
+performance. While this is not really a book about performance, it’s still worth
+mentioning that you do not have to worry about the performance of <code>std::variant</code>. I
+can already promise you that it’s fast.</p>
+<p>Before I show you the benchmark results, however, allow me a couple of comments about
+the benchmarks. Performance—<em>sigh</em>. Unfortunately, performance is always a difficult
+topic. There is always someone who complains about performance. For that reason, I
+would gladly just skip this topic entirely. But then there are other people who
+complain about the missing performance numbers. <em>Sigh</em>. Well, as it appears that
+there will always be some complaints, and since the results are just too good to
+miss, I will show you a couple of benchmark results. But there are two conditions:
+first, you will not consider them to be quantitative values that represent the
+absolute truth but only qualitative values that point in the right direction.
+And second, you will not launch a protest in front of my house because I didn’t use your favorite compiler, or compilation flag, or IDE. Promise?</p>
+<p>You: nodding and vowing to not complain about trivial things!</p>
+<p>OK,<a data-primary="object-oriented programming (OOP)" data-secondary="Visitor design pattern" data-type="indexterm" id="idm45043111040240"/> great, then <a data-type="xref" href="#table_cyclic_visitor_benchmark_results">Table 4-2</a> gives you the benchmark results.</p>
+<table id="table_cyclic_visitor_benchmark_results">
+<caption><span class="label">Table 4-2. </span>Benchmark results for different Visitor implementations</caption>
+<thead>
+<tr>
+<th>Visitor implementation</th>
+<th>GCC 11.1</th>
+<th>Clang 11.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>Classic Visitor design pattern</p></td>
+<td><p>1.6161 s</p></td>
+<td><p>1.8015 s</p></td>
+</tr>
+<tr>
+<td><p>Object-oriented solution</p></td>
+<td><p>1.5205 s</p></td>
+<td><p>1.1480 s</p></td>
+</tr>
+<tr>
+<td><p>Enum solution</p></td>
+<td><p>1.2179 s</p></td>
+<td><p>1.1200 s</p></td>
+</tr>
+<tr>
+<td><p><code>std::variant</code> (with <code>std::visit()</code>)</p></td>
+<td><p>1.1992 s</p></td>
+<td><p>1.2279 s</p></td>
+</tr>
+<tr>
+<td><p><code>std::variant</code> (with <code>std::get_if()</code>)</p></td>
+<td><p>1.0252 s</p></td>
+<td><p>0.6998 s</p></td>
+</tr>
+</tbody>
+</table>
+<p>To make sense of these numbers, I should give you a little more background.
+To make the scenario a little more realistic, I used not only circles and squares
+but also rectangles and ellipses. Then I ran 25,000 operations on 10,000 randomly
+created shapes. Instead of drawing these shapes, I updated the center point by random
+vectors.<sup><a data-type="noteref" href="ch04.xhtml#idm45043111022096" id="idm45043111022096-marker">13</a></sup> This is because this translate operation is very cheap and allows me to better
+show the intrinsic overhead of all these solutions (such as indirections and the overhead
+of virtual function calls). An expensive operation, such as <code>draw()</code>, would
+obscure these details and might give the impression that all approaches are pretty similar.
+I used both GCC 11.1 and Clang 11.1, and for both compilers I added only the
+<code>-O3</code> and <code>-DNDEBUG</code> compilation flags. The platform I used was macOS Big Sur
+(version 11.4) on an 8-Core Intel Core i7 with 3.8 GHz and 64 GB of main memory.</p>
+<p>The most obvious takeaway from the benchmark results is that the variant solution is far
+more efficient than the classic Visitor solution. This should not come as a surprise: due
+to the double dispatch, the classic Visitor implementation contains a lot of indirection
+and therefore is also hard to optimize. Also, the memory layout of the shape objects is
+perfect: in comparison to all other solutions, including the enum-based solution, all shapes
+are stored contiguously in memory, which is the most cache-friendly layout you could choose.
+The second takeaway is that <code>std::variant</code> is indeed pretty efficient, if not surprisingly
+efficient. However, it is surprising that efficiency heavily depends on whether we use
+<code>std::get_if()</code> or <code>std::visit()</code> (I promised to get back to this). Both GCC and Clang produce
+much slower code when using <code>std::visit()</code>. I assume that <code>std::visit()</code> is not perfectly
+implemented and optimized at that point. But, as I said before, performance is always
+difficult, and I don’t try to venture any deeper into this mystery.<sup><a data-type="noteref" href="ch04.xhtml#idm45043111016176" id="idm45043111016176-marker">14</a></sup></p>
+<p>Most importantly, the beauty of <code>std::variant</code> is not messed up by bad performance numbers.
+On the contrary: the performance results help intensify your newfound relationship with
+<code>std::variant</code>.</p>
+</div></section>
+<section data-pdf-bookmark="Analyzing the Shortcomings of the std::variant Solution" data-type="sect2"><div class="sect2" id="idm45043111011616">
+<h2>Analyzing the Shortcomings of the std::variant Solution</h2>
+<p>While<a data-primary="Visitor design pattern" data-secondary="std::variant implementation" data-tertiary="shortcomings of" data-type="indexterm" id="idm45043111010048"/> I don’t want to endanger this relationship, I consider it my duty to also point
+out a couple of disadvantages that you will have to deal with if you use the solution based
+on <code>std::variant</code>.</p>
+<p>First, I should again point out the obvious: as a solution similar to the Visitor design
+pattern and based on procedural programming, <code>std::variant</code> is also focused on providing an
+<em>open set</em> of operations. The downside is that you will have to deal with a
+<em>closed set</em> of types. Adding new types will cause problems very similar to the problems
+we experienced with the enum-based solution in
+<a data-type="xref" href="#design_for_the_addition_of_types_or_operations">“Guideline 15: Design for the Addition of 
+<span class="keep-together">Types or Operations</span>”</a>. First of all,
+you would have to update the variant itself, which might trigger a recompilation of all code
+using the variant type (remember updating the enum?). Also, you would have to update all
+operations and add the potentially missing <code>operator()</code> for the new alternative(s). The good thing is that the compiler would complain if one of these operators is missing. The
+bad thing is that the compiler will not produce a nice, legible error message,
+but something that is a little closer to the mother of all template-related error messages.
+Altogether it really feels pretty much like our previous experience with the enum-based
+solution.</p>
+<p>A second potential problem that you should keep in mind is that you should avoid
+putting types of very different sizes inside a variant. If at least one of the alternatives
+is much bigger than the others, you might waste a lot of space storing many of the
+small alternatives. This would negatively affect performance. A solution
+would be to not store large alternatives directly but to store them
+behind pointers, via <em>Proxy</em> objects, or by using the <em>Bridge</em> design pattern.<sup><a data-type="noteref" href="ch04.xhtml#idm45043111003840" id="idm45043111003840-marker">15</a></sup>
+Of course, this would introduce an indirection, which also costs performance. Whether this
+is a disadvantage in terms of performance in comparison to storing values of different size
+is something that you will have to benchmark.</p>
+<p>Last but not least, you should always be aware of the fact that a variant can reveal a
+lot of information. While it represents a runtime abstraction, the contained types are
+still plainly visible. This can create physical dependencies on the variant, i.e., when
+modifying one of the alternative types, you might have to recompile any depending code.
+The solution would, again, be to store pointers or <em>Proxy</em> objects instead, which would
+hide implementation details. Unfortunately, that would also impact performance,
+since a lot of the performance gains come from the compiler knowing about the details
+and optimizing for them accordingly. Thus, there is always a compromise between
+performance and encapsulation.</p>
+<p>Despite these shortcomings, in summary, <code>std::variant</code> proves to be a wonderful
+replacement for the OOP-based Visitor design pattern. It simplifies the code a lot,
+removes almost all boilerplate code and encapsulates the ugly and maintenance-intensive
+parts, and comes with superior performance. In addition, <code>std::variant</code> proves to be
+another great example of the fact that a design pattern is about an intent, not
+about implementation details.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043110998912">
+<h5>Guideline 17: Consider std::variant for Implementing Visitor</h5>
+<ul>
+<li>
+<p>Understand the architectural similarity between the classic Visitor and 
+<span class="keep-together"><code>std::variant</code>.</span></p>
+</li>
+<li>
+<p>Be aware of the advantages of <code>std::variant</code> in comparison to an object-oriented Visitor solution.</p>
+</li>
+<li>
+<p>Use the nonintrusive nature of <code>std::variant</code> to create abstractions on the fly.</p>
+</li>
+<li>
+<p>Keep in mind the shortcomings of <code>std::variant</code> and avoid it when it’s not 
+<span class="keep-together">appropriate</span>.<a data-primary="" data-startref="VDPstdvariant04" data-type="indexterm" id="idm45043110991072"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Guideline 18: Beware the Performance of Acyclic Visitor" data-type="sect1"><div class="sect1" id="beware_the_performance_of_acyclic_visitors">
+<h1>Guideline 18: Beware the Performance of Acyclic Visitor</h1>
+<p>As<a data-primary="Visitor design pattern" data-secondary="Acyclic Visitor variation" data-type="indexterm" id="VDPacyclic04"/><a data-primary="Acyclic Visitor design pattern" data-type="indexterm" id="acvidp04"/><a data-primary="design patterns" data-secondary="Acyclic visitor variation" data-type="indexterm" id="DPvariation04"/> you saw in <a data-type="xref" href="#design_for_the_addition_of_types_or_operations">“Guideline 15: Design for the Addition of 
+<span class="keep-together">Types or Operations</span>”</a>, you have to make a
+decision when using dynamic polymorphism: you can
+support an open set of <em>types</em> or an open set of <em>operations</em>. You cannot have both. Well,
+I specifically said that, to my best knowledge, having both is not actually 
+<span class="keep-together">impossible</span>
+but usually impractical. To demonstrate, allow me to introduce you to yet
+another variation of the Visitor design pattern: the <em>Acyclic Visitor</em>.<sup><a data-type="noteref" href="ch04.xhtml#idm45043110980400" id="idm45043110980400-marker">16</a></sup></p>
+<p>In <a data-type="xref" href="#use_visitors_to_extend_operations">“Guideline 16: Use Visitor to Extend Operations”</a>, you saw that there is a
+cyclic dependency among the key players of the Visitor design pattern: the 
+<span class="keep-together"><code>Visitor</code></span>
+base class depends on the concrete types of shapes (<code>Circle</code>, <code>Square</code>, etc.), the concrete
+types of shapes depend on the <code>Shape</code> base class, and the <code>Shape</code> base class depends on the
+<code>Visitor</code> base class. Due to that cyclic dependency, which locks all those key players onto
+one level in the architecture, it is hard to add new types to a Visitor. The idea of the
+Acyclic Visitor is to break this dependency.</p>
+<p><a data-type="xref" href="#fig_acyclic_visitor_shape">Figure 4-5</a> shows a UML diagram for the Acyclic Visitor. In comparison
+to the GoF Visitor, while there are only small differences on the righthand side of the
+picture, there are some fundamental changes on the lefthand side. Most importantly, the
+
+<span class="keep-together"><code>Visitor</code></span> base class has been split into several base classes: the <code>AbstractVisitor</code> base
+class and one base class for each concrete type of shape (in this example, <code>Circle​Visi⁠tor</code>
+and <code>SquareVisitor</code>). All visitors have to inherit from the <code>AbstractVisitor</code> base class
+but now also have the option to inherit from the shape-specific visitor base classes. If
+an operation wants to support circles, it inherits from the <code>Circle​Visi⁠tor</code> base class
+and implements the <code>visit()</code> function for <code>Circle</code>. If it does not want to support circles,
+it simply does not inherit from <code>CircleVisitor</code>.</p>
+<figure><div class="figure" id="fig_acyclic_visitor_shape">
+<img alt="" height="873" src="assets/cpsd_0405.png" width="1444"/>
+<h6><span class="label">Figure 4-5. </span>The UML representation of an Acyclic Visitor</h6>
+</div></figure>
+<p>The following code snippet shows a possible implementation of the <code>Visitor</code> base classes:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;AbstractVisitor.h&gt; ----------------
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">AbstractVisitor</code><code class="w">  </code><a class="co" href="#para_g18_1" id="code_g18_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">AbstractVisitor</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Visitor.h&gt; ----------------
+</code><code class="w">
+</code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="w"> </code><code class="nc">T</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Visitor</code><code class="w">  </code><a class="co" href="#para_g18_2" id="code_g18_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">protected</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="o">~</code><code class="n">Visitor</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="kt">void</code><code class="w"> </code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>The <code>AbstractVisitor</code> base class is nothing but an empty base class with a virtual
+destructor
+(<a class="co" href="#code_g18_1" id="para_g18_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>).
+No other function is necessary. As you will see, <code>AbstractVisitor</code> serves only as a general
+tag to identify visitors and doesn’t have to provide any operation itself. In C++
+we tend to implement the shape-specific visitor base classes in the form of a class template
+(<a class="co" href="#code_g18_2" id="para_g18_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).
+The <code>Visitor</code> class template is parameterized on a specific shape type and introduces the
+pure virtual <code>visit()</code> for that particular shape.</p>
+<p>In the implementation of our <code>Draw</code> visitor, we would now inherit from three base classes:
+the <code>AbstractVisitor</code>, from <code>Visitor&lt;Circle&gt;</code> and <code>Visitor&lt;Square&gt;</code>, since we want to
+support both <code>Circle</code> and <code>Square</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">class</code><code class="w"> </code><code class="nc">Draw</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">AbstractVisitor</code><code class="w"/>
+<code class="w">           </code><code class="p">,</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Visitor</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="w"/>
+<code class="w">           </code><code class="p">,</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Visitor</code><code class="o">&lt;</code><code class="n">Square</code><code class="o">&gt;</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Circle</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">c</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="cm">/* ... Implementing the logic for drawing a circle ... */</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="n">Square</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">s</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w"/>
+<code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="cm">/* ... Implementing the logic for drawing a square ... */</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>This choice of implementation breaks the cyclic dependency. As
+<a data-type="xref" href="#fig_acyclic_visitor_dependency_graph">Figure 4-6</a> demonstrates, the high level of the architecture
+does not depend on the concrete shape types anymore. Both the shapes (<code>Circle</code> and <code>Square</code>)
+and the operations are now on the low level of the architectural boundary. We
+can now add both types and operations.</p>
+<p>At this point, you’re looking very suspiciously, almost accusingly, in my direction. Didn’t
+I say that having both would not be possible? Obviously, it is possible, right? Well, once
+again, I didn’t claim that it was impossible. I rather said that this might be impractical.
+Now that you’ve seen the advantage of an Acyclic Visitor, let me show you the downsides
+of this approach.</p>
+<figure><div class="figure" id="fig_acyclic_visitor_dependency_graph">
+<img alt="" height="1166" src="assets/cpsd_0406.png" width="1439"/>
+<h6><span class="label">Figure 4-6. </span>Dependency graph for the Acyclic Visitor</h6>
+</div></figure>
+<p>First, let’s take a look at the implementation of the <code>accept()</code> function in <code>Circle</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Circle.h&gt; ----------------
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Circle</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Shape</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Circle</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">radius_</code><code class="p">(</code><code class="w"> </code><code class="n">radius</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="cm">/* Checking that the given radius is valid */</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="n">accept</code><code class="p">(</code><code class="w"> </code><code class="n">AbstractVisitor</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">v</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">override</code><code class="w"> </code><code class="p">{</code><code class="w">  </code><a class="co" href="#para_g18_3" id="code_g18_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="w"> </code><code class="k">auto</code><code class="w"> </code><code class="k">const</code><code class="o">*</code><code class="w"> </code><code class="n">cv</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">dynamic_cast</code><code class="o">&lt;</code><code class="n">Visitor</code><code class="o">&lt;</code><code class="n">Circle</code><code class="o">&gt;</code><code class="w"> </code><code class="k">const</code><code class="o">*</code><code class="o">&gt;</code><code class="p">(</code><code class="o">&amp;</code><code class="n">v</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w">  </code><a class="co" href="#para_g18_4" id="code_g18_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a><code class="w">
+</code><code class="w">         </code><code class="n">cv</code><code class="o">-</code><code class="o">&gt;</code><code class="n">visit</code><code class="p">(</code><code class="w"> </code><code class="o">*</code><code class="k">this</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g18_5" id="code_g18_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w">  </code><code class="n">center</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">center_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">radius_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Point</code><code class="w"> </code><code class="n">center_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>You might have noticed the one small change in the <code>Shape</code> hierarchy: the
+virtual <code>accept()</code> function now accepts an <code>AbstractVisitor</code>
+(<a class="co" href="#code_g18_3" id="para_g18_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>).
+You also remember that the
+<code>AbstractVisitor</code> does not implement any operation on its own. Therefore, instead of calling
+a <code>visit()</code> function on the <code>AbstractVisitor</code>, the <code>Circle</code> determines if the given visitor
+supports circles by performing a <code>dynamic_cast</code> to 
+<span class="keep-together"><code>Visitor&lt;Circle&gt;</code></span>
+(<a class="co" href="#code_g18_4" id="para_g18_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a>).
+Note that it performs a pointer conversion, which means that the <code>dynamic_cast</code> returns either a valid pointer to a <code>Visitor&lt;Circle&gt;</code> or a <code>nullptr</code>. If it returns a valid
+pointer to a <code>Visitor&lt;Circle&gt;</code>, it calls the corresponding <code>visit()</code> function
+(<a class="co" href="#code_g18_5" id="para_g18_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a>).</p>
+<p>While this approach most certainly works and is part of breaking the cyclic dependency
+of the Visitor design pattern, a <code>dynamic_cast</code> always leaves a bad feeling. A
+<code>dynamic_cast</code> should always feel a little suspicious, because, if used badly, it
+can break an architecture. That would happen if we perform a cast from within the
+high level of the architecture to something that resides in the low level of the
+architecture.⁠<sup><a data-type="noteref" href="ch04.xhtml#idm45043110457632" id="idm45043110457632-marker">17</a></sup> In our case, it’s actually
+OK to use it, since the use happens on the low level of our architecture. Thus, we do
+not break the architecture by inserting knowledge about a lower level into the high
+level.</p>
+<p>The real deficiency lies in the runtime penalty. When running the same benchmark as
+in <a data-type="xref" href="#consider_std_variant_for_implementing_visitors">“Guideline 17: Consider std::variant for 
+<span class="keep-together">Implementing Visitor</span>”</a> for an
+Acyclic Visitor, you realize that the runtime is almost one order of magnitude
+above the runtime of a Cyclic Visitor (see <a data-type="xref" href="#table_acyclic_visitor_benchmark_results">Table 4-3</a>).
+The reason is that a <code>dynamic_cast</code> is slow. Very slow. And it is particularly slow
+for this application. What<a data-primary="object-oriented programming (OOP)" data-secondary="Visitor design pattern" data-type="indexterm" id="idm45043110453040"/> we’re doing here is a cross-cast. We aren’t simply
+casting down to a particular derived class, but we are casting into another
+branch of the inheritance hierarchy. This cross cast, followed by a virtual
+function call, is significantly more costly than a simple downcast.</p>
+<table id="table_acyclic_visitor_benchmark_results">
+<caption><span class="label">Table 4-3. </span>Performance results for different Visitor implementations</caption>
+<thead>
+<tr>
+<th>Visitor implementation</th>
+<th>GCC 11.1</th>
+<th>Clang 11.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>Acyclic Visitor</p></td>
+<td><p>14.3423 s</p></td>
+<td><p>7.3445 s</p></td>
+</tr>
+<tr>
+<td><p>Cyclic Visitor</p></td>
+<td><p>1.6161 s</p></td>
+<td><p>1.8015 s</p></td>
+</tr>
+<tr>
+<td><p>Object-oriented solution</p></td>
+<td><p>1.5205 s</p></td>
+<td><p>1.1480 s</p></td>
+</tr>
+<tr>
+<td><p>Enum solution</p></td>
+<td><p>1.2179 s</p></td>
+<td><p>1.1200 s</p></td>
+</tr>
+<tr>
+<td><p><code>std::variant</code> (with <code>std::visit()</code>)</p></td>
+<td><p>1.1992 s</p></td>
+<td><p>1.2279 s</p></td>
+</tr>
+<tr>
+<td><p><code>std::variant</code> (with <code>std::get()</code>)</p></td>
+<td><p>1.0252 s</p></td>
+<td><p>0.6998 s</p></td>
+</tr>
+</tbody>
+</table>
+<p>While architecturally, an Acylic Visitor is a very interesting alternative, from a practical
+point of view, these performance results might disqualify it. This does not mean that you
+shouldn’t use it, but at least be aware that the bad performance might be a very strong
+argument for another solution.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043110433136">
+<h5>Guideline 18: Beware the Performance of Acyclic Visitor</h5>
+<ul>
+<li>
+<p>Understand the architectural advantages of an Acyclic Visitor.</p>
+</li>
+<li>
+<p>Be aware of the significant performance disadvantages of that solution.<a data-primary="" data-startref="VDPacyclic04" data-type="indexterm" id="idm45043110430304"/><a data-primary="" data-startref="acvidp04" data-type="indexterm" id="idm45043110429248"/><a data-primary="" data-startref="DPvariation04" data-type="indexterm" id="idm45043110428304"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+<div data-type="footnotes"><p data-type="footnote" id="idm45043116032320"><sup><a href="ch04.xhtml#idm45043116032320-marker">1</a></sup> I can see you rolling your eyes! “Oh, that boring example again!” But do consider readers who skipped <a data-type="xref" href="ch03.xhtml#the_purpose_of_design_patterns">Chapter 3</a>. They’re now happy that they can read this section without a lengthy explanation about the scenario.</p><p data-type="footnote" id="idm45043114704048"><sup><a href="ch04.xhtml#idm45043114704048-marker">2</a></sup> Since C++11, we have <a href="https://oreil.ly/EP4eR">scoped enumerations</a>, sometimes also called <em>class enumerations</em> because of the syntax <code>enum class</code>, at our disposal. This would, for instance, help the compiler to better warn about incomplete <code>switch</code> statements. If you spotted this imperfection, you’ve earned yourself a bonus point!</p><p data-type="footnote" id="idm45043114533408"><sup><a href="ch04.xhtml#idm45043114533408-marker">3</a></sup> Scott Meyers, <em>More Effective C++: 35 New Ways to Improve Your Programs and Designs</em>, Item 31 (Addison-Wesley, 1995).</p><p data-type="footnote" id="idm45043113723744"><sup><a href="ch04.xhtml#idm45043113723744-marker">4</a></sup> Note that the mathematical notion of <a href="https://oreil.ly/nt4f4">open and closed sets</a> is something completely  <span class="keep-together">different</span>.</p><p data-type="footnote" id="idm45043113710320"><sup><a href="ch04.xhtml#idm45043113710320-marker">5</a></sup> As an example of design with static polymorphism, consider the algorithms from the Standard Template Library (STL). You can easily add new operations, i.e., algorithms, but also easily add new types that can be copied, sorted, etc.</p><p data-type="footnote" id="idm45043113684976"><sup><a href="ch04.xhtml#idm45043113684976-marker">6</a></sup> It’s always hard to make predictions. But we usually have a pretty good idea about how our codebase will evolve. In case you have no idea how things will move along, you should wait for the first change or extension, learn from that, and make a more informed decision. This philosophy is part of the commonly known <a href="https://oreil.ly/stXoI">YAGNI principle</a>, which warns you about overengineering; see also <a data-type="xref" href="ch01.xhtml#design_for_change">“Guideline 2: Design for Change”</a>.</p><p data-type="footnote" id="idm45043113680528"><sup><a href="ch04.xhtml#idm45043113680528-marker">7</a></sup> I wouldn’t be happy about it—perhaps I would even be seriously unhappy—but I probably wouldn’t get angry. But your other colleagues? Worst case, you might be excluded from the next team barbecue.</p><p data-type="footnote" id="idm45043113671408"><sup><a href="ch04.xhtml#idm45043113671408-marker">8</a></sup> Erich Gamma et al., <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>.</p><p data-type="footnote" id="idm45043113428544"><sup><a href="ch04.xhtml#idm45043113428544-marker">9</a></sup> <code>accept()</code> is the name used in the GoF book. It is the traditional name in the context of the Visitor design pattern. Of course, you are free to use any other name, such as <code>apply()</code>. But before you rename, consider the advice from <a data-type="xref" href="ch03.xhtml#use_a_design_patterns_name_to_communicate_intent">“Guideline 14: Use a Design Pattern’s Name to Communicate Intent”</a>.</p><p data-type="footnote" id="idm45043112966976"><sup><a href="ch04.xhtml#idm45043112966976-marker">10</a></sup> It really is advisable to extract the logic into a single function. The reason is change: if you have to update the implementation later, you don’t want to perform the change multiple times. That is the idea of the DRY (Don’t Repeat Yourself) principle. So please remember <a data-type="xref" href="ch01.xhtml#design_for_change">“Guideline 2: Design for Change”</a>.</p><p data-type="footnote" id="idm45043112860032"><sup><a href="ch04.xhtml#idm45043112860032-marker">11</a></sup> Consider the risk: this might exclude you from team barbecues for life!</p><p data-type="footnote" id="idm45043112718640"><sup><a href="ch04.xhtml#idm45043112718640-marker">12</a></sup> Memory fragmentation is much more likely when you use <code>std::make_unique()</code>, which encapsulates a call to <code>new</code>, instead of some special-purpose allocation schemes.</p><p data-type="footnote" id="idm45043111022096"><sup><a href="ch04.xhtml#idm45043111022096-marker">13</a></sup> I am indeed using random vectors, created by means of <code>std::mt19937</code> and <code>std::uniform_real_distribution</code>, but only after proving to myself that the performance does not change for GCC 11.1, and only slightly for Clang 11.1. Apparently, creating random numbers is not particularly expensive in itself (at least on my machine). Since you promised to consider these as qualitative results, we should be good.</p><p data-type="footnote" id="idm45043111016176"><sup><a href="ch04.xhtml#idm45043111016176-marker">14</a></sup> There are other open source alternative implementations of <code>variant</code>. The <a href="https://www.boost.org">Boost library</a> provides two implementations: <a href="https://oreil.ly/FTtxY">Abseil</a> provides a variant implementation, and it pays to take a look at the implementation of <a href="https://oreil.ly/EXCYj">Michael Park</a>.</p><p data-type="footnote" id="idm45043111003840"><sup><a href="ch04.xhtml#idm45043111003840-marker">15</a></sup> The <em>Proxy</em> pattern is another one of the GoF design patterns, which I unfortunately do not cover in this book because of limited pages. I will, however, go into detail about the <em>Bridge</em> design pattern; see <a data-type="xref" href="ch07.xhtml#build_bridges_to_remove_physical_dependencies">“Guideline 28: Build Bridges to Remove 
+<span class="keep-together">Physical Dependencies</span>”</a>.</p><p data-type="footnote" id="idm45043110980400"><sup><a href="ch04.xhtml#idm45043110980400-marker">16</a></sup> For more information on the Acyclic Visitor pattern by its inventor, see Robert C. Martin, <em>Agile Software Development: Principles, Patterns, and Practices</em> (Pearson).</p><p data-type="footnote" id="idm45043110457632"><sup><a href="ch04.xhtml#idm45043110457632-marker">17</a></sup> Please refer to <a data-type="xref" href="ch02.xhtml#pay_attention_to_the_ownership_of_abstractions">“Guideline 9: Pay Attention to the Ownership of Abstractions”</a> for a definition of the terms <em>high level</em> and <em>low level</em>.</p></div></div></section></div></body></html>

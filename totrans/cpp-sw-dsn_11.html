@@ -1,0 +1,168 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Chapter 11. The Last Guideline" data-type="chapter" epub:type="chapter"><div class="chapter" id="the_last_guideline">
+<h1><span class="label">Chapter 11. </span>The Last Guideline</h1>
+<p>There<a data-primary="design patterns" data-secondary="advice on" data-type="indexterm" id="idm45043069794256"/> is only one more guideline, one more piece of advice that I can bestow upon you.
+So here it is: the last guideline.</p>
+<section data-pdf-bookmark="Guideline 39: Continue to Learn About Design Patterns" data-type="sect1"><div class="sect1" id="continue_to_learn_about_design_patterns">
+<h1>Guideline 39: Continue to Learn About Design Patterns</h1>
+<p>“That’s it? This is all you’ve got? Come on, there are so many more design patterns out there.
+We barely touched the surface!” you say. Well, honestly, you are completely correct;
+there is nothing I can add to that. But in my defense, I was
+planning for many more patterns until reality struck me: there is only so much information
+that you can fit into a book with 400 pages. But don’t fret: in these 400 pages I’ve taken
+you on a journey through the<a data-primary="software design" data-secondary="advice on" data-type="indexterm" id="idm45043069791216"/> most important pieces of advice for any design that you will
+need anywhere, anytime in your software development career:</p>
+<dl>
+<dt>Minimize dependencies</dt>
+<dd>
+<p>  Dealing with dependencies is the core of software design. And
+whatever kind of software you write, if you are seriously interested in making it last, you
+will have to deal with dependencies: the necessary ones, but primarily the artificial ones.
+Of course, your major goal is to reduce dependencies and hopefully even minimize them.
+To achieve this goal, you will inevitably deal with design patterns.</p>
+</dd>
+<dt>Separate concerns</dt>
+<dd>
+<p>  This may be the most important, central design guideline that
+you can take away from this book. Separate concerns and your software structures will
+detangle and become easier to understand, change, and test. All
+design patterns, without exception, provide you with some way to separate concerns. The
+major difference between patterns is the way they separate concerns, their
+<em>intent</em>. Although design patterns may be structurally similar, their intent is always
+unique.</p>
+</dd>
+<dt>Prefer composition to inheritance</dt>
+<dd>
+<p>  While inheritance is a powerful feature, the true
+strength of many design patterns stems from building on composition. For instance, the
+Strategy design pattern, one of the patterns that is used <em>everywhere</em> (and hopefully
+this has become obvious by now), primarily builds on composition to separate concerns,
+but then also offers you the option to use inheritance to extend the functionality.
+The same is true for Bridge, Adapter, Decorator, External Polymorphism, and
+Type Erasure.</p>
+</dd>
+<dt>Prefer a nonintrusive design</dt>
+<dd>
+<p>  True flexibility and extendibility arise when it isn’t
+necessary to modify existing code but possible to just add new code. Therefore, any
+design that is nonintrusive is preferable to design that intrusively modifies existing
+code. Hence, design patterns such as Decorator, Adapter, External Polymorphism, and
+Type Erasure are such valuable additions to your design pattern toolbox.</p>
+</dd>
+<dt>Prefer <em>value semantics</em> over <em>reference semantics</em></dt>
+<dd>
+<p>  To keep code simple,
+understandable, and away from dark corners such as nullptrs, dangling pointers, lifetime
+dependencies, etc., you should prefer to employ values instead of pointers and references.
+And C++ is a wonderful language to use for that purpose, as C++ takes
+value semantics seriously. It allows you, the developer, to live a happy life in the
+realm of value semantics. Surprisingly, as we have seen with <code>std::variant</code> and
+Type Erasure, this philosophy does not necessarily have a negative performance impact
+but may even increase performance.</p>
+</dd>
+</dl>
+<p>In<a data-primary="design patterns" data-secondary="characteristics of" data-type="indexterm" id="idm45043069780736"/> addition to these general pieces of advice about software design, you have gained
+insight into the purpose of design patterns. Now you know what a design pattern is.</p>
+<p>A design pattern:</p>
+<ul>
+<li>
+<p>Has a name</p>
+</li>
+<li>
+<p>Carries an intent</p>
+</li>
+<li>
+<p>Introduces an abstraction</p>
+</li>
+<li>
+<p>Has been proven</p>
+</li>
+</ul>
+<p>Equipped<a data-primary="Implementation Details level" data-type="indexterm" id="idm45043069774416"/><a data-primary="design patterns" data-secondary="versus implementation details" data-secondary-sortas=" implementation details" data-type="indexterm" id="idm45043069773712"/> with this information, you will no longer fall for false claims about some
+implementation detail being a design pattern (as I have been confronted with multiple
+times in my career), for instance, the claim that smart pointers (<code>std::unique_ptr</code>,
+<code>std::shared_ptr</code>, etc.) or factory functions such as <code>std::make_unique()</code> are implementations
+of design patterns. Also, you are now familiar with several of the<a data-primary="design patterns" data-secondary="overview of important" data-type="indexterm" id="idm45043069771152"/> most important and
+useful design patterns, which will prove to be useful again and again:</p>
+<dl>
+<dt><em>Visitor</em></dt>
+<dd>
+<p>  To<a data-primary="Visitor design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069767792"/> extend operations on a closed set of types, reach for the
+Visitor design pattern (possibly realized by <code>std::variant</code>).</p>
+</dd>
+<dt><em>Strategy</em></dt>
+<dd>
+<p>  To<a data-primary="Strategy design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069764576"/> configure the behavior and “inject” it from
+outside, pick the Strategy design pattern (aka policy-based design).</p>
+</dd>
+<dt><em>Command</em></dt>
+<dd>
+<p>  To<a data-primary="Command design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069761904"/> abstract from different kinds of operations, possibly
+undoable operations, utilize the Command design pattern.</p>
+</dd>
+<dt><em>Observer</em></dt>
+<dd>
+<p>To<a data-primary="Observer design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069759232"/> observe state change in some entities, choose the Observer design pattern.</p>
+</dd>
+<dt><em>Adapter</em></dt>
+<dd>
+<p>To<a data-primary="Adapter design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069756688"/> adapt one interface to another one, nonintrusively, without changing code, use the Adapter design pattern.</p>
+</dd>
+<dt><em>CRTP</em></dt>
+<dd>
+<p>  For<a data-primary="CRTP (Curiously Recurring Template Pattern) design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069754016"/> a static abstraction, free of virtual functions (and you can’t
+employ C++20 concepts yet), then apply the CRTP design pattern.
+CRTP might also prove to be useful to create compile-time mixin classes.</p>
+</dd>
+<dt><em>Bridge</em></dt>
+<dd>
+<p>To<a data-primary="Bridge design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069751280"/> hide implementation details and reduce physical dependencies, make use of the Bridge design pattern.</p>
+</dd>
+<dt><em>Prototype</em></dt>
+<dd>
+<p>  To<a data-primary="Prototype design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069748624"/> create a virtual copy, the Prototype design pattern
+is the right choice.</p>
+</dd>
+<dt><em>External Polymorphism</em></dt>
+<dd>
+<p>  To<a data-primary="External Polymorphism design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043069746016"/> promote loose coupling by adding polymorphic
+behavior externally, remember the External Polymorphism design pattern.</p>
+</dd>
+<dt><em>Type Erasure</em></dt>
+<dd>
+<p>  For the power of External Polymorphism in combination with
+the advantages of value semantics, consider the Type Erasure design pattern.</p>
+</dd>
+<dt><em>Decorator</em></dt>
+<dd>
+<p>To nonintrusively add responsibilities to an object, opt for the benefits of the Decorator design pattern.</p>
+</dd>
+</dl>
+<p>However, there are more<a data-primary="design patterns" data-secondary="continuing to learn about" data-type="indexterm" id="idm45043069741552"/><a data-primary="software development, levels of" data-see="also software design" data-type="indexterm" id="idm45043069740608"/><a data-primary="unit tests" data-see="also testability" data-type="indexterm" id="idm45043069739664"/><a data-primary="white box tests" data-see="also testability" data-type="indexterm" id="idm45043069738720"/><a data-primary="black box tests" data-see="also testability" data-type="indexterm" id="idm45043069737776"/><a data-primary="design patterns" data-see="also individual  patterns: Adapter; Bridge; Command; CRTP; Decorator; External Polymorphism; Observer; Prototype; Singleton, Strategy; Type Erasure; Visitor" data-type="indexterm" id="idm45043069736832"/> design patterns. Many more! Also a lot of important and useful
+design patterns. Therefore, you should continue to learn about design patterns. And there are
+two ways to do that. First is getting to know more patterns: learn about their intent and about
+their similarities and differences compared to other design 
+<span class="keep-together">patterns</span>. Also, don’t forget that
+design patterns are about a dependency structure, not about
+implementation details. Second, you should also get a better understanding about each
+pattern and experience their advantages and shortcomings. For that purpose,
+keep an eye out for design patterns used in the codebases you work on. I promise you, you
+will find many of them: any attempt to manage and reduce dependencies is very likely proof
+of a design pattern. So yes, design patterns are 
+<span class="keep-together">everywhere</span>!</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043069734448">
+<h5>Guideline 39: Continue to Learn About Design Patterns</h5>
+<ul>
+<li>
+<p>Get to know more design patterns and understand their intent.</p>
+</li>
+<li>
+<p>Learn more about the advantages and disadvantages of each design pattern.</p>
+</li>
+<li>
+<p>Find design patterns in the wild to experience them hands-on.</p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section></div></body></html>

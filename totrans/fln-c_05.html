@@ -1,0 +1,662 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Chapter 4. Returning Data from C Functions" data-type="chapter" epub:type="chapter"><div class="chapter" id="chapter_returning_data">
+<h1><span class="label">Chapter 4. </span>Returning Data from C Functions</h1>
+<p>Returning data<a data-primary="C functions, returning data from" data-secondary="challenges of" data-type="indexterm" id="idm45587925589280"/> from a function call is a task you are faced with when writing any kind of code that is longer than 10 lines and that you intend to be maintainable. Returning data is a simple task—you simply have to pass the data you want to share between two functions—and in C you only have the option to directly return a value or to return data via emulated “by-reference” parameters. There are not many choices and there is not much guidance to give—right? Wrong! Even the simple task of returning data from C functions is already tricky, and there are many routes you can take to structure your program and your function parameters.</p>
+<p>Especially in C, where you have to manage the memory allocation and deallocation on your own, passing complex data between functions becomes tricky because there is no destructor or garbage collector to help you clean up the data. You have to ask yourself: should the data be put on the stack, or should it be allocated? Who should allocate—the caller or the callee?</p>
+<p>This chapter provides best practices on how to share data between functions. These patterns help C programming beginners to understand techniques for returning data in C, and they help advanced C programmers to better understand why these different techniques are applied.</p>
+<p><a data-type="xref" href="#fig_returning_data">Figure 4-1</a> shows an overview of the patterns discussed in this chapter and their relationships, and <a data-type="xref" href="#tab_returning_data">Table 4-1</a> provides a summary of the patterns.</p>
+<figure><div class="figure" id="fig_returning_data">
+<img alt="Patterns for Returning Information" height="626" src="assets/fluc_0401.png" width="1443"/>
+<h6><span class="label">Figure 4-1. </span>Overview of patterns for returning information</h6>
+</div></figure>
+<table id="tab_returning_data">
+<caption><span class="label">Table 4-1. </span>Patterns for returning information</caption>
+<thead>
+<tr>
+<th/>
+<th>Pattern name</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td/>
+<td><p>Return Value</p></td>
+<td><p>The<a data-primary="C functions, returning data from" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587925577328"/> function parts you want to split are not independent from one another. As usual in procedural programming, some part delivers a result that is then needed by some other part. The function parts that you want to split need to share some data. Therefore, simply use the one C mechanism intended to retrieve information about the result of a function call: the Return Value. The mechanism to return data in C copies the function result and provides the caller access to this copy.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Out-Parameters</p></td>
+<td><p>C only supports returning a single type from a function call, which makes it complicated to return multiple pieces of information. Therefore, return all the data with a single function call by emulating by-reference arguments with pointers.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Aggregate Instance</p></td>
+<td><p>C only supports returning a single type from a function call, which makes it complicated to return multiple pieces of information. Therefore, put all data that is related into a newly defined type. Define this Aggregate Instance to contain all the related data that you want to share. Define it in the interface of your component to let the caller directly access all the data stored in the instance.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Immutable Instance</p></td>
+<td><p>You want to provide information held in large pieces of immutable data from your component to a caller. Therefore, have an instance (for example, a <code>struct</code>) containing the data to share in static memory. Provide this data to users who want to access it and make sure that they cannot modify it.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Caller-Owned Buffer</p></td>
+<td><p>You want to provide complex or large data of known size to the caller, and that data is not immutable (it changes at runtime). Therefore, require the caller to provide a buffer and its size to the function that returns the large, complex data. In the function implementation, copy the required data into the buffer if the buffer size is large enough.</p></td>
+</tr>
+<tr>
+<td/>
+<td><p>Callee Allocates</p></td>
+<td><p>You want to provide complex or large data of unknown size to the caller, and that data is not immutable (it changes at runtime). Therefore, allocate a buffer with the required size inside the function that provides the large, complex data. Copy the required data into the buffer and return a pointer to that buffer.</p></td>
+</tr>
+</tbody>
+</table>
+<section data-pdf-bookmark="Running Example" data-type="sect1"><div class="sect1" id="idm45587925564624">
+<h1>Running Example</h1>
+<p>You<a data-primary="C functions, returning data from" data-secondary="running example" data-type="indexterm" id="idm45587925563088"/> want to implement the functionality to display diagnostic information for an Ethernet driver to the user. First, you simply add this functionality directly into the file with the Ethernet driver implementation and directly access the variables that contain the required information:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">driver</code><code class="p">.</code><code class="n">internal_data</code><code class="p">.</code><code class="n">rec</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">driver</code><code class="p">.</code><code class="n">internal_data</code><code class="p">.</code><code class="n">snd</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>Later on, you realize that the functionality to display diagnostic information for your Ethernet driver will quite likely grow, so you decide to put it into a separate implementation file in order to keep your code clean. Now you need some simple way to transport the information from your Ethernet driver component to your diagnostics component.</p>
+<p>One solution would be to use global variables to transport this information, but if you use global variables, then the effort to split the implementation file will have been useless. You split the files because you want to show that these code parts are not tightly coupled—with global variables you would bring that tight coupling back in.</p>
+<p>A much better and very simple solution is the following: let your Ethernet component have getter-functions that provide the desired information as a Return Value.</p>
+</div></section>
+<section data-pdf-bookmark="Return Value" data-type="sect1"><div class="sect1" id="pattern_return_value">
+<h1>Return Value</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587925171696">
+<h2>Context</h2>
+<p>You<a data-primary="C functions, returning data from" data-secondary="Return Value pattern" data-type="indexterm" id="Cretvapat"/><a data-primary="Return Value pattern" data-type="indexterm" id="retvalpat"/><a data-primary="functions" data-secondary="splitting into separate" data-type="indexterm" id="idm45587925167872"/> want to split your code into separate functions, as having everything in one function and in one implementation file is bad practice because it gets difficult to read and to debug the code.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587925166544">
+<h2>Problem</h2>
+<p><strong>The<a data-primary="data storage" data-secondary="sharing data" data-type="indexterm" id="idm45587925155472"/> function parts you want to split are not independent from one another. As usual in procedural programming, some part delivers a result that is then needed by some other part. The function parts that you want to split need to share some data.</strong></p>
+<p>You want to have a mechanism for sharing data that makes your code easy to understand. You want to make it explicit in your code that data is shared between functions, and you want to make sure that functions don’t communicate over side-channels not clearly visible in the code. Thus, using<a data-primary="global variables" data-type="indexterm" id="idm45587925153808"/> global variables to return information to a caller is not a good solution for you because global variables can be accessed and modified from any other part of the code. Also, it is not clear from the function signature which exact global variable is used for returning data.</p>
+<p>Global variables also have the drawback that they can be used to store state information, which could lead to different results for identical function calls. This makes the code more difficult to understand. Aside from that, code using global variables for returning information would not be reentrant, and it would not be safe to use in a multithreaded environment.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587925152272">
+<h2>Solution</h2>
+<p><strong>Simply use the one C mechanism intended to retrieve information about the result of a function call: the Return Value. The mechanism to return data in C copies the function result and provides the caller access to this copy.</strong></p>
+<p><a data-type="xref" href="#fig_return_value">Figure 4-2</a> and the following code show how to implement the Return Value.</p>
+<figure><div class="figure" id="fig_return_value">
+<img alt="Return Value Sketch" height="708" src="assets/fluc_0402.png" width="875"/>
+<h6><span class="label">Figure 4-2. </span>Return Value</h6>
+</div></figure>
+<p><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="n">my_data</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">getData</code><code class="p">();</code><code class="w"/>
+<code class="cm">/* use my_data */</code><code class="w"/></pre>
+<p><br/><em>Callee’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="nf">getData</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">requested_data</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="cm">/* .... */</code><code class="w"/>
+<code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">requested_data</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587925084480">
+<h2>Consequences</h2>
+<p>A Return Value allows the caller to retrieve a copy of the function result. No other code apart from the function implementation can modify this value, and, as it is a copy, this value is solely used by the calling function. Compared to using global variables, it is more clearly defined which code influences the data retrieved from the function call.</p>
+<p>Also, by not using global variables and using the copy of the function result instead, the function can be reentrant, and it can safely be used in a multithreaded 
+<span class="keep-together">environment.</span></p>
+<p>However, for built-in C types, a function can return only a single object of the type specified in the function signature.	It is not possible to define a function with multiple return types. You cannot, for example, have a function that returns three different <code>int</code> objects. If you want to return more information than contained in just one simple, scalar C type, then you have to use an Aggregate Instance or Out-Parameters.</p>
+<p>Also, if you want to return data from an array, then the Return Value is not what you want because it does not copy the content of the array, but only the pointer to the array. The caller might then end up with a pointer to data that ran out of scope. For returning arrays, you have to use other mechanisms like a Caller-Owned Buffer or like when the Callee Allocates.</p>
+<p>Remember that whenever the simple Return Value mechanism is sufficient, then you should always take this most simple option to return data. You should not go for more powerful, but also more complex, patterns like Out-Parameters, Aggregate Instance, Caller-Owned Buffer, or Callee Allocates.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587925079360">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>You can find this pattern everywhere. Any non-<code>void</code> function returns data in this way.</p>
+</li>
+<li>
+<p>Every C program has a <code>main</code> function that already provides a return value to its caller (such as the operating system).</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587925074352">
+<h2>Applied to Running Example</h2>
+<p>Applying<a data-primary="C functions, returning data from" data-secondary="Return Value pattern" data-startref="Cretvapat" data-type="indexterm" id="idm45587925072112"/><a data-primary="Return Value pattern" data-startref="retvalpat" data-type="indexterm" id="idm45587925070864"/> Return Value was simple. Now you have a new diagnostic component in an implementation file separate from the Ethernet driver, and this component obtains the diagnostic information from the Ethernet driver as shown in the following code:</p>
+<p class="pagebreak-before"><em>Ethernet driver API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="cm">/* Returns the number of total received packets*/</code><code class="w"/>
+<code class="kt">int</code><code class="w"> </code><code class="nf">ethernetDriverGetTotalReceivedPackets</code><code class="p">();</code><code class="w"/>
+
+<code class="cm">/* Returns the number of total sent packets*/</code><code class="w"/>
+<code class="kt">int</code><code class="w"> </code><code class="nf">ethernetDriverGetTotalSentPackets</code><code class="p">();</code><code class="w"/></pre>
+<p><br/><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">received_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetTotalReceivedPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">sent_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetTotalSentPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>This code is easy to read, and if you want to add additional information, you can simply add additional functions to obtain this information. And that is exactly what you want to do next. You want to show more information about the sent packets. You want to show the user how many packets were successfully sent and how many failed. Your first attempt is to write the following code:</p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">received_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetTotalReceivedPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">total_sent_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetTotalSentPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">successfully_sent_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetSuccesscullySentPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">failed_sent_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetFailedPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">total_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets successfully sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">successfully_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets failed to send</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>With this code, you eventually realize that sometimes, different from what you expected, <code>successfully_sent_packets</code> plus <code>failed_sent_packets</code> results in a number higher than  <code>total_sent_packets</code>.
+This is because your Ethernet driver runs in a separate thread, and between your function calls to obtain the information, the Ethernet driver continues working and updates its packet information. So, if, for example, the Ethernet driver successfully sends a packet between your <code>ethernetDriverGet​To⁠tal​SentPackets</code> call and <code>ethernetDriverGetSuccesscullySentPackets</code>, then the information that you show to the user is not consistent.</p>
+<p>A possible solution would be to make sure that the Ethernet driver is not working while you call the functions to obtain the packet information. You could, for example, use a Mutex or a Semaphore to make sure of this, but for such a simple task like obtaining packet statistics, you’d expect that you are not the one who has to cope with this issue.</p>
+<p>As a much easier alternative, you can return multiple pieces of information from one function call by using Out-Parameters.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Out-Parameters" data-type="sect1"><div class="sect1" id="pattern_out_parameters">
+<h1>Out-Parameters</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587924862352">
+<h2>Context</h2>
+<p>You<a data-primary="C functions, returning data from" data-secondary="Out-Parameters pattern" data-type="indexterm" id="Coutpapat"/><a data-primary="Out-Parameters pattern" data-type="indexterm" id="outparpat"/><a data-primary="functions" data-secondary="returning multiple pieces of information" data-type="indexterm" id="idm45587924796096"/> want to provide data that represents related pieces of information from your component to a caller, and these pieces of information may change between separate function calls.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587924794672">
+<h2>Problem</h2>
+<p><strong>C only supports returning a single type from a function call, which makes it complicated to return multiple pieces of information.</strong></p>
+<p>Using<a data-primary="global variables" data-type="indexterm" id="idm45587924792384"/> global variables to transport the data representing your pieces of information is not a good solution because code using global variables for returning information would not be reentrant, and it would not be safe to use in a multithreaded environment. Aside from that, global variables can be accessed and modified from any other part of the code, and when using global variables, it is not clear from the function signature which exact global variables are used for returning the data. Thus, global variables would make your code hard to understand and maintain. Also, using the Return Values of multiple functions is not a good option because the data you want to return is related, so splitting it across multiple function calls makes the code 
+<span class="keep-together">less readable.</span></p>
+<p>Because the pieces of data are related, the caller wants to retrieve a consistent snapshot of all this data. That becomes an issue when using multiple Return Values in a multithreaded environment because the data can change at runtime. In that case, you would have to make sure that the data does not change between the caller’s multiple function calls. But you cannot know whether the caller already finished reading all the data or whether there will be another piece of information that the caller wants to retrieve with another function call. Because of that, you cannot make sure that the data is not modified between the caller’s function calls. If you are using multiple functions to provide related information, then you don’t know the timespan during which the data must not change. Thus, with this approach, you cannot guarantee that the caller will retrieve a consistent snapshot of the information.</p>
+<p>Having multiple functions with Return Values also might not be a good solution if a lot of preparation work is required for calculating the related pieces of data. If, for example, you want to return the home and mobile telephone number for a specified person from an address book and you have separate functions to retrieve the 
+<span class="keep-together">numbers,</span> you’d have to search through the address book entry of this person separately for each of the function calls. This requires unnecessary computation time and resources.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587924788800">
+<h2>Solution</h2>
+<p><strong>Return all the data with one function call by<a data-primary="by-reference arguments" data-type="indexterm" id="idm45587924786704"/> emulating by-reference arguments with pointers.</strong></p>
+<p>C does not support returning multiple types using the Return Value, nor does C natively support by-reference arguments, but by-reference arguments can be emulated as shown in <a data-type="xref" href="#fig_out">Figure 4-3</a> and the following code.</p>
+<figure><div class="figure" id="fig_out">
+<img alt="Out-Parameters Sketch" height="829" src="assets/fluc_0403.png" width="968"/>
+<h6><span class="label">Figure 4-3. </span>Out-Parameters</h6>
+</div></figure>
+<p><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">int</code><code class="w"> </code><code class="n">x</code><code class="p">,</code><code class="n">y</code><code class="p">;</code><code class="w"/>
+<code class="n">getData</code><code class="p">(</code><code class="o">&amp;</code><code class="n">x</code><code class="p">,</code><code class="o">&amp;</code><code class="n">y</code><code class="p">);</code><code class="w"/>
+<code class="cm">/* use x,y */</code><code class="w"/></pre>
+<p><br/><em>Callee’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">getData</code><code class="p">(</code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="n">x</code><code class="p">,</code><code class="w"> </code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="n">y</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="o">*</code><code class="n">x</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">42</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="o">*</code><code class="n">y</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">78</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>Have a single function with many pointer arguments. In the function implementation, dereference the pointers and copy the data you want to return to the caller into the instance pointed to. In the function implementation, make sure that the data does not change while copying. This can be achieved by mutual exclusion.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45587924715744">
+<h5>Multithreaded Environments</h5>
+<p>In modern systems, it is common to work in a multithreaded environment<a data-primary="multithreaded environments" data-type="indexterm" id="idm45587924684448"/>. To avoid<a data-primary="synchronization issues" data-type="indexterm" id="idm45587924683680"/> synchronization issues in such environments, it is best to either have immuatble data or to not share the data or functions (see the video <a href="https://oreil.ly/SI1ta">“Thinking Outside the Synchronisation Quadrant”</a> by Kevlin Henney). But this is not possible in all cases, and things become difficult because you have to implement your functions in a way that they can safely be called by multiple threads in arbitrary order or even at the same time.</p>
+<p>That requires your functions to be reentrant, which means that the function still works properly if it is interrupted at any time and continued later on. When working on shared resources such as global variables, you have to make sure to protect these resources from simultaneous access by other threads. This can be done with synchronization primitives such as Mutex or Semaphores.</p>
+<p>This book does not focus on such synchronization primitives or how to use them, but the book <em>Real-Time Design Patterns: Robust Scalable Architecture for Real-Time Systems</em> by Bruce P. Douglass (Addison-Wesley, 2002) does; it also provides C patterns on concurrency and resource management.</p>
+</div></aside>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587924679696">
+<h2>Consequences</h2>
+<p>Now all data that represents related pieces of information are returned in one single function call and can be kept consistent (for example, by copying data protected by Mutex or Semaphores). The function is reentrant and can safely be used in a multi-threaded environment.</p>
+<p>For each additional data item, an additional pointer is passed to the function. This has the drawback that if you want to return a lot of data, the function’s parameter list becomes longer and longer. Having many parameters for one function is a code smell because it makes the code unreadable. That is why multiple Out-Parameters are rarely used for a function and instead, to clean up the code, related pieces of information are returned with an Aggregate Instance.</p>
+<p>Also, for each piece of data, the caller has to pass a pointer to the function. This means that for each piece of data, an additional pointer has to be put onto the stack. If the caller’s stack memory is very limited, that might become an issue.</p>
+<p>Out-Parameters have the disadvantage that when only looking at the function signature, they cannot clearly be identified as Out-Parameters. From the function 
+<span class="keep-together">signature</span>, callers can only guess whenever they see a pointer that it might be an Out-Parameter. But such a pointer parameter could also be an input for the function. Thus, it has to be clearly described in the API documentation which parameters are for input and which are for output.</p>
+<p class="fix-tracking">For simple, scalar C types the caller can simply pass the pointer to a variable as a function argument. For the function implementation all the information to interpret the pointer is specified because of the specified pointer type. To return data with complex types, like arrays, either a Caller-Owned Buffer has to be provided, or the Callee Allocates and additional information about the data, like its size, has to be 
+<span class="keep-together">communicated.</span></p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587924663536">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>The Windows <code>RegQueryInfoKey</code> function returns information about a registry key via the function’s Out-Parameters.
+The caller provides <code>unsigned long</code> pointers, and the function writes, among other pieces of information,
+the number of subkeys and the size of the key’s value into the <code>unsigned long</code> variables being pointed to.</p>
+</li>
+<li>
+<p>Apple’s Cocoa API for C programs uses an additional <code>NSError</code> parameter to store errors occurring during the function calls.</p>
+</li>
+<li>
+<p>The function <code>userAuthenticate</code> of the real-time operating system VxWorks uses Return Values to return information, in this case whether a provided password is correct for a provided login name. Additionally, the function takes an Out-Parameter to return the user ID associated with the provided login name.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587924656080">
+<h2>Applied to Running Example</h2>
+<p>By<a data-primary="C functions, returning data from" data-secondary="Out-Parameters pattern" data-startref="Coutpapat" data-type="indexterm" id="idm45587924654176"/><a data-primary="Out-Parameters pattern" data-startref="outparpat" data-type="indexterm" id="idm45587924652928"/> applying Out-Parameters you’ll get the following code:</p>
+<p><em>Ethernet driver API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="cm">/* Returns driver status information via out-parameters.
+   total_sent_packets   --&gt; number of packets tried to send (success and fail)
+   successfully_sent_packets --&gt; number of packets successfully sent
+   failed_sent_packets  --&gt; number of packets failed to send */</code><code class="w">
+</code><code class="kt">void</code><code class="w"> </code><code class="nf">ethernetDriverGetStatistics</code><code class="p">(</code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="n">total_sent_packets</code><code class="p">,</code><code class="w">
+</code><code class="w">      </code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="n">successfully_sent_packets</code><code class="p">,</code><code class="w"> </code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="n">failed_sent_packets</code><code class="p">)</code><code class="p">;</code><code class="w"> </code><a class="co" href="#callout_returning_data_from_c_functions_CO1-1" id="co_returning_data_from_c_functions_CO1-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></pre>
+<dl class="calloutlist">
+<dt><a class="co" href="#co_returning_data_from_c_functions_CO1-1" id="callout_returning_data_from_c_functions_CO1-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></dt>
+<dd><p>To retrieve information about sent packets, you have only one function call to the Ethernet driver, and the Ethernet driver can make sure that the data delivered within this call is consistent.</p></dd>
+</dl>
+<p class="pagebreak-before"><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">total_sent_packets</code><code class="p">,</code><code class="w"> </code><code class="n">successfully_sent_packets</code><code class="p">,</code><code class="w"> </code><code class="n">failed_sent_packets</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="n">ethernetDriverGetStatistics</code><code class="p">(</code><code class="o">&amp;</code><code class="n">total_sent_packets</code><code class="p">,</code><code class="w"> </code><code class="o">&amp;</code><code class="n">successfully_sent_packets</code><code class="p">,</code><code class="w"/>
+<code class="w">                              </code><code class="o">&amp;</code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">total_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets successfully sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">successfully_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets failed to send</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">received_packets</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetTotalReceivedPackets</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>You consider also retrieving the <code>received_packets</code> in the same function call with the sent packets, but you realize that the one function call becomes more and more complicated. Having one function call with three Out-Parameters is already complicated to write and read. When calling the functions, the parameter order could easily be mixed up. Adding a fourth parameter wouldn’t make the code better.</p>
+<p>To make the code more readable, an Aggregate Instance can be used.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Aggregate Instance" data-type="sect1"><div class="sect1" id="pattern_aggregate_instance">
+<h1>Aggregate Instance</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587924513904">
+<h2>Context</h2>
+<p>You<a data-primary="functions" data-secondary="returning multiple pieces of information" data-type="indexterm" id="idm45587924512272"/><a data-primary="C functions, returning data from" data-secondary="Aggregate Instance pattern" data-type="indexterm" id="Caginspat"/><a data-primary="Aggregate Instance pattern" data-type="indexterm" id="agginspat"/> want to provide data that represents related pieces of information from your component to a caller, and these pieces of information may change between separate function calls.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587924508704">
+<h2>Problem</h2>
+<p><strong>C only supports returning a single type from a function call, which makes it complicated to return multiple pieces of information.</strong></p>
+<p class="fix-tracking">Using<a data-primary="global variables" data-type="indexterm" id="idm45587924506080"/> global variables to transport the data representing your pieces of information is not a good solution because code using global variables for returning information would not be reentrant, and it would not be safe to use in a multithreaded environment. Aside from that, global variables can be accessed and modified from any other part of the code, and when using global variables, it is not clear from the function signature which exact global variables are used for returning the data. Thus, global variables would make your code hard to understand and maintain. Also, using the Return Values of multiple functions is not a good option because the data you want to return is related, so splitting it across multiple function calls makes the code less readable.</p>
+<p class="pagebreak-before">Having a single function with many Out-Parameters is also not a good idea because if you have many such Out-Parameters, it gets easy to mix them up and your code becomes unreadable. Also, you want to show that the parameters are closely related, and you might even need the same set of parameters to be provided to or returned by other functions. When explicitly doing that with function parameters, you’d have to modify each such function in case additional parameters are added later on.</p>
+<p>Because the pieces of data are related, the caller wants to retrieve a consistent snapshot of all this data. That becomes an issue when using multiple Return Values in a multithreaded environment because the data can change at runtime. In that case, you would have to make sure that the data does not change between the caller’s multiple function calls. But you cannot know whether the caller already finished reading all the data or whether there will be another piece of information that the caller wants to retrieve with another function call. Because of that, you cannot make sure that the data is not modified between the caller’s function calls. If you are using multiple functions to provide related information, then you don’t know the timespan during which the data must not change. Thus, with this approach, you cannot guarantee that the caller will retrieve a consistent snapshot of the information.</p>
+<p>Having multiple functions with Return Values also might not be a good solution if a lot of preparation work is required for calculating the related pieces of data. If, for example, you want to return the home and mobile telephone number for a specified person from an address book and you have separate functions to retrieve the numbers, you’d have to search through the address book entry of this person separately for each of the function calls. This requires unnecessary computation time and resources.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587924457600">
+<h2>Solution</h2>
+<p><strong>Put all data that is related into a newly defined type. Define this Aggregate Instance to contain all the related data that you want to share. Define it in the interface of your component to let the caller directly access all the data stored in the instance.</strong></p>
+<p>To implement this, define a <code>struct</code> in your header file and define all types to be returned from the called function as members of this <code>struct</code>. In the function implementation, copy the data to be returned into the <code>struct</code> members as shown in <a data-type="xref" href="#fig_aggregate">Figure 4-4</a>. In the function implementation, make sure that the data does not change while copying. This can be achieved by mutual exclusion via Mutex or Semaphores.</p>
+<figure><div class="figure" id="fig_aggregate">
+<img alt="Aggregate Instance Sketch" height="787" src="assets/fluc_0404.png" width="875"/>
+<h6><span class="label">Figure 4-4. </span>Aggregate Instance</h6>
+</div></figure>
+<p>To actually return the <code>struct</code> to the caller, there are two main options:</p>
+<ul class="fix-tracking">
+<li>
+<p>Pass the whole <code>struct</code> as a Return Value. C allows not only built-in types to be passed as a Return Value of functions but also user-defined types such as a <code>struct</code>.</p>
+</li>
+<li>
+<p>Pass a pointer to the <code>struct</code> using an Out-Parameter. However, when only passing pointers, the issue arises of who provides and owns the memory being pointed to. That issue is addressed in Caller-Owned Buffer and Callee Allocates. Instead of passing a pointer and letting the caller directly access the Aggregate Instance, you could consider hiding the <code>struct</code> from the caller by using a 
+<span class="keep-together">Handle.</span></p>
+</li>
+</ul>
+<p>The following code shows the variant with passing the whole <code>struct</code>:</p>
+<p><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">AggregateInstance</code><code class="w"> </code><code class="n">my_instance</code><code class="p">;</code><code class="w"/>
+<code class="n">my_instance</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">getData</code><code class="p">();</code><code class="w"/>
+<code class="cm">/* use my_instance.x</code>
+<code class="cm">   use my_instance.y, ... */</code><code class="w"/></pre>
+<p><br/><em>Callee’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">AggregateInstance</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">x</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">y</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="k">struct</code><code class="w"> </code><code class="nc">AggregateInstance</code><code class="w"> </code><code class="n">getData</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">AggregateInstance</code><code class="w"> </code><code class="n">inst</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="cm">/* fill inst.x and inst.y */</code><code class="w">
+</code><code class="w">  </code><code class="k">return</code><code class="w"> </code><code class="n">inst</code><code class="p">;</code><code class="w"> </code><a class="co" href="#callout_returning_data_from_c_functions_CO2-1" id="co_returning_data_from_c_functions_CO2-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" href="#co_returning_data_from_c_functions_CO2-1" id="callout_returning_data_from_c_functions_CO2-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></dt>
+<dd><p>When returning, the content of <code>inst</code> is copied (even though it is a <code>struct</code>), and the caller can access the copied content even after <code>inst</code> runs out of scope.</p></dd>
+</dl>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587924356528">
+<h2>Consequences</h2>
+<p>Now the caller can retrieve multiple data that represent related pieces of information via the Aggregate Instance with a single function call. The function is reentrant and can safely be used in a multithreaded environment.</p>
+<p>This provides the caller with a consistent snapshot of the related pieces of information. It also makes the caller’s code clean because they don’t have to call multiple functions or one function with many Out-Parameters.</p>
+<p>When passing data between functions without pointers by using Return Values, all this data is put on the stack. When passing one <code>struct</code> to 10 nested functions, this <code>struct</code> is on the stack 10 times. In some cases this is not a problem, but in other cases it is—especially if the <code>struct</code> is too large and you don’t want to waste stack memory by copying the whole <code>struct</code> onto the stack every time. Because of this, quite often instead of directly passing or returning a <code>struct</code>, a pointer to that <code>struct</code> is passed or returned.</p>
+<p>When passing pointers to the <code>struct</code>, or if the <code>struct</code> contains pointers, you have to keep in mind that C does not perform the work of doing a deep copy for you. C only copies the pointer values and does not copy the instances they point to. That might not be what you want, so you have to keep in mind that as soon as pointers come into play, you have to deal with providing and cleaning up the memory being pointed to. This issue is addressed in Caller-Owned Buffer and Callee Allocates.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587924314944">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>The article <a href="https://oreil.ly/VlCgm">“Patterns of Argument Passing”</a> by Uwe Zdun describes this pattern, including C++ examples, as Context Object, and the book <em>Refactoring: Improving the Design of Existing Code</em> by Martin Fowler (Addison-Wesley, 1999) describes it as Parameter Object.</p>
+</li>
+<li>
+<p>The code of the game NetHack stores monster-attributes in Aggregate Instances and provides a function for retrieving this information.</p>
+</li>
+<li>
+<p>The implementation of the text editor sam copies <code>structs</code> when passing them to functions and when returning them from functions in order to keep the code simpler.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587924308032">
+<h2>Applied to Running Example</h2>
+<p>With the Aggregate Instance, you’ll get the following code:</p>
+<p><em>Ethernet driver API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverStat</code><code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">received_packets</code><code class="p">;</code><code class="w">         </code><code class="cm">/* Number of received packets */</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">total_sent_packets</code><code class="p">;</code><code class="w">       </code><code class="cm">/* Number of sent packets (success and fail)*/</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">successfully_sent_packets</code><code class="p">;</code><code class="cm">/* Number of successfully sent packets */</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">failed_sent_packets</code><code class="p">;</code><code class="w">      </code><code class="cm">/* Number of packets failed to send */</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="cm">/* Returns statistics information of the Ethernet driver */</code><code class="w"/>
+<code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverStat</code><code class="w"> </code><code class="n">ethernetDriverGetStatistics</code><code class="p">();</code><code class="w"/></pre>
+<p><br/><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverStat</code><code class="w"> </code><code class="n">eth_stat</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetStatistics</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">total_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets successfully sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="n">eth_stat</code><code class="p">.</code><code class="n">successfully_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets failed to send</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>Now you have one single call to the Ethernet driver, and the Ethernet driver can make sure that the data delivered within this call is consistent. Also, your code looks cleaned up because the data that belongs together is now collected in a single <code>struct</code>.</p>
+<p>Next, you want to show more information about the Ethernet driver to your user. You want to show the user to which Ethernet interface the packet statistics information belongs to, and thus you want to show the driver name including a textual description of the driver. Both are contained in a string stored in the Ethernet driver component. The string is quite long and you don’t exactly know how long it is. Luckily,<a data-primary="C functions, returning data from" data-secondary="Aggregate Instance pattern" data-startref="Caginspat" data-type="indexterm" id="idm45587924115760"/><a data-primary="Aggregate Instance pattern" data-startref="agginspat" data-type="indexterm" id="idm45587924114672"/> the string does not change during runtime, so you can access an Immutable Instance.</p>
+</div></section>
+</div></section>
+<section class="pagebreak-before" data-pdf-bookmark="Immutable Instance" data-type="sect1"><div class="sect1" id="pattern_immutable_instance">
+<h1>Immutable Instance</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587924111824">
+<h2>Context</h2>
+<p>Your<a data-primary="data storage" data-secondary="providing large pieces of immutable data" data-type="indexterm" id="idm45587924110192"/><a data-primary="C functions, returning data from" data-secondary="Immutable Instance pattern" data-type="indexterm" id="cimminpat"/><a data-primary="Immutable Instance pattern" data-type="indexterm" id="imminspat"/> component contains a lot of data, and another component wants to access this data.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587924106624">
+<h2>Problem</h2>
+<p><strong>You want to provide information held in large pieces of immutable data from your component to a caller.</strong></p>
+<p>Copying the data for each and every caller would be a waste of memory, so providing all the data by returning an Aggregate Instance or by copying all the data into Out-Parameters is not an option due to stack memory limitations.</p>
+<p>Usually, simply returning a pointer to such data is tricky. You’d have the problem that with a pointer, such data can be modified, and as soon as multiple callers read and write the same data, you have to come up with mechanisms to ensure that the data you want to access is consistent and up-to-date. Luckily, in your situation the data you want to provide to the caller is fixed at compile time or at boot time and does not change at runtime.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587924103680">
+<h2>Solution</h2>
+<p><strong>Have an instance (for example, a <code>struct</code>) containing the data to share in static memory. Provide this data to users who want to access it and make sure that they cannot modify it.</strong></p>
+<p>Write the data to be contained in the instance at compile time or at boot time and do not change it at runtime anymore. You can either directly write the data hardcoded in your program, or you can initialize it at program startup (see <a data-type="xref" href="ch05.xhtml#pattern_software_module_with_global_state">“Software-Module with Global State”</a> for initialization variants and <a data-type="xref" href="ch03.xhtml#pattern_eternal_memory">“Eternal Memory”</a> for storage variants). As shown in <a data-type="xref" href="#fig_immutable">Figure 4-5</a>, even if multiple callers (and multiple threads) access the instance at the same time, they don’t have to worry about each other because the instance does not change and is thus always in a consistent state and contains the required information.</p>
+<p>Implement a function that returns a pointer to the data. Alternatively, you could even directly make the variable containing the data global and put it into your API because the data does not change at runtime anyway. But still, the getter-function is better because compared to global variables, it makes writing unit tests easier, and in case of future behavior changes of your code (if your data is not immutable anymore), you’d not have to change your interface.</p>
+<figure><div class="figure" id="fig_immutable">
+<img alt="Immutable Instance Sketch" height="708" src="assets/fluc_0405.png" width="848"/>
+<h6><span class="label">Figure 4-5. </span>Immutable Instance</h6>
+</div></figure>
+<p>To make sure that the caller does not modify the data, when returning a pointer to the data, make the data being pointed to <code>const</code> as shown in the following code:</p>
+<p><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">const</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">ImmutableInstance</code><code class="o">*</code><code class="w"> </code><code class="n">my_instance</code><code class="p">;</code><code class="w">
+</code><code class="n">my_instance</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">getData</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w"> </code><a class="co" href="#callout_returning_data_from_c_functions_CO3-1" id="co_returning_data_from_c_functions_CO3-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="cm">/* use my_instance-&gt;x,
+   use my_instance-&gt;y, ... */</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" href="#co_returning_data_from_c_functions_CO3-1" id="callout_returning_data_from_c_functions_CO3-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></dt>
+<dd><p>The caller obtains a reference but doesn’t get ownership of the memory.</p></dd>
+</dl>
+<p><br/><em>Callee API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">ImmutableInstance</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">x</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">y</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p><br/><em>Callee Implementation</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">static</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">ImmutableInstance</code><code class="w"> </code><code class="n">inst</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="p">{</code><code class="mi">12</code><code class="p">,</code><code class="w"> </code><code class="mi">42</code><code class="p">};</code><code class="w"/>
+<code class="k">const</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">ImmutableInstance</code><code class="o">*</code><code class="w"> </code><code class="n">getData</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="o">&amp;</code><code class="n">inst</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587924103088">
+<h2>Consequences</h2>
+<p>The caller can call one simple function to get access to even complex or large data and does not have to care about where this data is stored. The caller does not have to provide buffers in which this data can be stored, does not have to clean up memory, and does not have to care about the lifetime of the data—it simply always exists.</p>
+<p>The caller can read all data via the retrieved pointer. The simple function for retrieving the pointer is reentrant and can safely be used in multithreaded environments. Also the data can safely be accessed in multithreaded environments because it does not change at runtime, and multiple threads that only read the data are no problem.</p>
+<p>However, the data cannot be changed at runtime without taking further measures. If it is necessary for the caller to be able to change the data, then something like copy-on-write can be implemented. If the data in general can change at runtime, then an Immutable Instance isn’t an option and instead, for sharing complex and large data, a Caller-Owned Buffer has to be used or the Callee Allocates.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587923957872">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>In his article <a href="https://oreil.ly/cVY9N">“Patterns in Java: Patterns of Value”</a>, Kevlin Henney describes the similar Immutable Object pattern in detail and provides C++ code examples.</p>
+</li>
+<li>
+<p>The code of the game NetHack stores immutable monster-attributes in an Immutable Instance and provides a function for retrieving this information.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587923953024">
+<h2>Applied to Running Example</h2>
+<p>Usually, returning<a data-primary="Immutable Instance pattern" data-startref="imminspat" data-type="indexterm" id="idm45587923951056"/><a data-primary="C functions, returning data from" data-secondary="Immutable Instance pattern" data-startref="cimminpat" data-type="indexterm" id="idm45587923926832"/> a pointer to access data stored within a component is tricky. This is because if multiple callers access (and maybe write) this data, then a plain pointer isn’t the solution for you because you never know if the pointer you have is still valid and if the data contained in this pointer is consistent. But in this case we are lucky because we have an Immutable Instance. The driver name and description are both information that is determined at compile time and does not change afterwards. Thus, we can simply retrieve a constant pointer to this data:</p>
+<p><em>Ethernet driver API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverInfo</code><code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="w"> </code><code class="n">name</code><code class="p">[</code><code class="mi">64</code><code class="p">];</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="w"> </code><code class="n">description</code><code class="p">[</code><code class="mi">1024</code><code class="p">];</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="cm">/* Returns the driver name and description */</code><code class="w"/>
+<code class="k">const</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverInfo</code><code class="o">*</code><code class="w"> </code><code class="n">ethernetDriverGetInfo</code><code class="p">();</code><code class="w"/></pre>
+<p><br/><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverStat</code><code class="w"> </code><code class="n">eth_stat</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetStatistics</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">total_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets successfully sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="n">eth_stat</code><code class="p">.</code><code class="n">successfully_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets failed to send</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="k">const</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverInfo</code><code class="o">*</code><code class="w"> </code><code class="n">eth_info</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetInfo</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Driver name: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_info</code><code class="o">-&gt;</code><code class="n">name</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Driver description: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_info</code><code class="o">-&gt;</code><code class="n">description</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>As a next step, in addition to the name and description of the Ethernet interface, you also want to show the user the currently configured IP address and subnet mask. The addresses are stored as a string in the Ethernet driver. Both addresses are information that might change during runtime, so you cannot simply return a pointer to an Immutable Instance.</p>
+<p>While it would be possible to have the Ethernet driver pack these strings into an Aggregate Instance and simply return this instance (arrays in a <code>struct</code> are copied when returning the <code>struct</code>), such a solution is rather uncommon for large amounts of data because it consumes a lot of stack memory. Usually, pointers are used instead.</p>
+<p>Using pointers is the exact solution you are looking for: use a Caller-Owned Buffer.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Caller-Owned Buffer" data-type="sect1"><div class="sect1" id="pattern_caller_owned_buffer">
+<h1>Caller-Owned Buffer</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587923725424">
+<h2>Context</h2>
+<p>You<a data-primary="data storage" data-secondary="sharing data" data-type="indexterm" id="idm45587923705376"/><a data-primary="C functions, returning data from" data-secondary="Caller-Owned Buffer pattern" data-type="indexterm" id="Ccaowbupat"/><a data-primary="Caller-Owned Buffer pattern" data-type="indexterm" id="caowbupat"/> have large data that you want to share between different components.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587923702128">
+<h2>Problem</h2>
+<p><strong>You want to provide complex or large data of known size to the caller, and that data is not immutable (it changes at runtime).</strong></p>
+<p>Because the data changes at runtime (maybe because you provide the callers with functions to write the data), you cannot simply provide the caller with a pointer to static data (as is the case with an Immutable Instance). If you simply provide the callers with such a pointer, you’d run into the problem that the data one caller reads might be inconsistent (partially overwritten) because, in a multithreaded environment, another caller might simultaneously write that data.</p>
+<p>Simply copying all the data into an Aggregate Instance and passing it via the Return Value to the caller is not an option because, as the data is large, it cannot be passed via the stack, which only has very limited memory.</p>
+<p>When instead only returning a pointer to the Aggregate Instance, there would be no problem with stack memory limitations anymore, but you have to keep in mind that C does not do the work of performing a deep copy for you. C only returns the pointer. You have to make sure that the data (stored in an Aggregate Instance or in an array) being pointed to is still valid after the function call. For example, you cannot store the data in auto-variables within your function and provide a pointer to these variables because after the function call, the variables run out of scope.</p>
+<p>Now the question arises of where the data should be stored. It has to be clarified whether the caller or the callee should provide the required memory and which one is then responsible for managing and cleaning up the memory.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587923698464">
+<h2>Solution</h2>
+<p><strong>Require<a data-primary="buffers" data-type="indexterm" id="idm45587923696368"/> the caller to provide a buffer and its size to the function that returns the large, complex data. In the function implementation, copy the required data into the buffer if the buffer size is large enough.</strong></p>
+<p>Make sure that the data does not change while copying. This can be achieved by mutual exclusion via Mutex or Semaphores. The caller then has a snapshot of the data in the buffer, is the sole owner of this snapshot, and thus can consistently access this snapshot even if the original data changes in the meantime.</p>
+<p>The caller can provide the buffer and its size each as a separate function parameter, or the caller can pack the buffer and its size into an Aggregate Instance and pass a pointer to the Aggregate Instance to the function.</p>
+<p>As the caller has to provide the buffer and its size to the function, the caller has to know the size beforehand. To let the caller know what size the buffer has to be, the size requirement has to be present in the API. This can be implemented by defining the size as a macro or by defining a <code>struct</code> containing a buffer of the required size in the API.</p>
+<p><a data-type="xref" href="#fig_caller_buffer">Figure 4-6</a> and the following code show the concept of a Caller-Owned Buffer.</p>
+<figure><div class="figure" id="fig_caller_buffer">
+<img alt="Caller-Owned Buffer Sketch" height="837" src="assets/fluc_0406.png" width="960"/>
+<h6><span class="label">Figure 4-6. </span>Caller-Owned Buffer</h6>
+</div></figure>
+<p><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">Buffer</code><code class="w"> </code><code class="n">buffer</code><code class="p">;</code><code class="w"/>
+
+<code class="n">getData</code><code class="p">(</code><code class="o">&amp;</code><code class="n">buffer</code><code class="p">);</code><code class="w"/>
+<code class="cm">/* use buffer.data */</code><code class="w"/></pre>
+<p><br/><em>Callee’s API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="cp">#define BUFFER_SIZE 256</code>
+<code class="k">struct</code><code class="w"> </code><code class="nc">Buffer</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="w"> </code><code class="n">data</code><code class="p">[</code><code class="n">BUFFER_SIZE</code><code class="p">];</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="kt">void</code><code class="w"> </code><code class="nf">getData</code><code class="p">(</code><code class="k">struct</code><code class="w"> </code><code class="nc">Buffer</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="p">);</code><code class="w"/></pre>
+<p><br/><em>Callee’s implementation</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">getData</code><code class="p">(</code><code class="k">struct</code><code class="w"> </code><code class="nc">Buffer</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="p">)</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="n">memcpy</code><code class="p">(</code><code class="n">buffer</code><code class="o">-&gt;</code><code class="n">data</code><code class="p">,</code><code class="w"> </code><code class="n">some_data</code><code class="p">,</code><code class="w"> </code><code class="n">BUFFER_SIZE</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587923608480">
+<h2>Consequences</h2>
+<p>The large, complex data can be consistently provided to the caller with a single function call. The function is reentrant and can safely be used in a multithreaded environment. Also, the caller can safely access the data in multithreaded environments because the caller is the sole owner of the buffer.</p>
+<p>The caller provides a buffer of the expected size and can even decide the kind of memory for that buffer. The caller can put the buffer on the stack (see <a data-type="xref" href="ch03.xhtml#pattern_stack_first">“Stack First”</a>) and benefit from the advantage that stack memory will be cleaned up after the variable runs out of scope. Alternatively, the caller can put the memory on the heap to determine the lifetime of the variable or to not waste stack memory. Also, the calling function might only have a reference to a buffer obtained by its calling function. In this case this buffer can simply be passed on and there is no need to have multiple buffers.</p>
+<p>The time-intensive operation of allocating and freeing memory is not performed during the function call. The caller can determine when these operations take place, and thus the function call becomes quicker and more deterministic.</p>
+<p>From the API it is absolutely clear that the caller has Dedicated Ownership of the buffer. The caller has to provide the buffer and clean it up afterwards. If the caller allocated the buffer, then the caller is the one responsible for freeing it afterwards.</p>
+<p>The caller has to know the size of the buffer beforehand and because this size is known, the function can safely operate in the buffer. But in some cases the caller might not know the exact size required, and it would be better if instead the Callee Allocates.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587923557472">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>The NetHack code uses this pattern to provide the information about a savegame to the component that then actually stores the game progress on the disk.</p>
+</li>
+<li>
+<p>The B&amp;R Automation Runtime operating system uses this pattern for a function to retrieve the IP address.</p>
+</li>
+<li>
+<p>The C stdlib function <code>fgets</code> reads input from a stream and stores it in a provided buffer.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587923552000">
+<h2>Applied to Running Example</h2>
+<p>You<a data-primary="C functions, returning data from" data-secondary="Caller-Owned Buffer pattern" data-startref="Ccaowbupat" data-type="indexterm" id="idm45587923532752"/><a data-primary="Caller-Owned Buffer pattern" data-startref="caowbupat" data-type="indexterm" id="idm45587923531664"/> now provide a Caller-Owned Buffer to the Ethernet driver function, and the function copies its data into this buffer. You have to know beforehand how large the buffer has to be. In the case of obtaining the IP address string, this is not a problem because the string has a fixed size. So you can simply put the buffer for the IP address on the stack and provide this stack variable to the Ethernet driver. Alternatively, it would have been possible to allocate the buffer on the heap, but in this case that is not required because the size of the IP address is known and the size of the data is small enough to fit on the stack:</p>
+<p><em>Ethernet driver API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">IpAddress</code><code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="w"> </code><code class="n">address</code><code class="p">[</code><code class="mi">16</code><code class="p">];</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="w"> </code><code class="n">subnet</code><code class="p">[</code><code class="mi">16</code><code class="p">];</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="cm">/* Stores the IP information into 'ip', which has to be provided</code>
+<code class="cm">   by the caller*/</code><code class="w"/>
+<code class="kt">void</code><code class="w"> </code><code class="nf">ethernetDriverGetIp</code><code class="p">(</code><code class="k">struct</code><code class="w"> </code><code class="nc">IpAddress</code><code class="o">*</code><code class="w"> </code><code class="n">ip</code><code class="p">);</code><code class="w"/></pre>
+<p><br/><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverStat</code><code class="w"> </code><code class="n">eth_stat</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetStatistics</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">total_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets successfully sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="n">eth_stat</code><code class="p">.</code><code class="n">successfully_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets failed to send</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="k">const</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverInfo</code><code class="o">*</code><code class="w"> </code><code class="n">eth_info</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetInfo</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Driver name: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_info</code><code class="o">-&gt;</code><code class="n">name</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Driver description: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_info</code><code class="o">-&gt;</code><code class="n">description</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">IpAddress</code><code class="w"> </code><code class="n">ip</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="n">ethernetDriverGetIp</code><code class="p">(</code><code class="o">&amp;</code><code class="n">ip</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"IP address: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">ip</code><code class="p">.</code><code class="n">address</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>Next, you want to extend your diagnostic component to also print a dump of the last received packet. This is now a piece of information that is too large to put on the stack, and because Ethernet packets have variable size, you cannot know beforehand how large the buffer for the packet has to be. Therefore, Caller-Owned Buffer isn’t an option for you.</p>
+<p>You could, of course, simply have functions <code>EthernetDriverGetPacketSize()</code> and <code>EthernetDriverGetPacket(buffer)</code>, but here again you’d have the problem that you’d have to call two functions. Between the two function calls the Ethernet driver could receive another packet, which would make your data inconsistent. Also, this solution is not very elegant because you’d have to call two different functions to achieve one purpose. Instead, it is much easier if the Callee Allocates.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Callee Allocates" data-type="sect1"><div class="sect1" id="pattern_callee_allocates">
+<h1>Callee Allocates</h1>
+<section class="notoc" data-pdf-bookmark="Context" data-type="sect2"><div class="sect2" id="idm45587923374720">
+<h2>Context</h2>
+<p>You<a data-primary="data storage" data-secondary="sharing data" data-type="indexterm" id="idm45587923373088"/><a data-primary="C functions, returning data from" data-secondary="Callee Allocates pattern" data-type="indexterm" id="Ccalalpat"/><a data-primary="Callee Allocates pattern" data-type="indexterm" id="calallpat"/> have large data that you want to share between different components.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Problem" data-type="sect2"><div class="sect2" id="idm45587923369536">
+<h2>Problem</h2>
+<p><strong>You want to provide complex or large data of unknown size to the caller, and that data is not immutable (it changes at runtime).</strong></p>
+<p>The data changes at runtime (maybe because you provide the callers with functions to write the data), so you cannot simply provide the caller with a pointer to static data (as is the case with an Immutable Instance). If you simply provide the callers with such a pointer, you’d run into the problem that the data one caller reads might be inconsistent (partially overwritten) because, in a multithreaded environment, another caller might simultaneously write that data.</p>
+<p>Simply copying all the data into an Aggregate Instance and passing it via the Return Value to the caller is not an option. With the Return Value you can only pass data of known size, and because the data is large, it cannot be passed via the stack, which only has very limited memory.</p>
+<p>When instead only returning a pointer to the Aggregate Instance, there would be no problem with stack memory limitations anymore, but you have to keep in mind that C does not do the work of performing a deep copy for you. C only returns the pointer. You have to make sure that the data (stored in an Aggregate Instance or in an array) being pointed to is still valid after the function call. For example, you cannot store the data in auto-variables within your function and provide a pointer to these variables because after the function call, the variables run out of scope and are being cleaned up.</p>
+<p>Now the problem arises of where the data should be stored. It has to be clarified whether the caller or the callee should provide the required memory and which one is then responsible for managing and cleaning up the memory.</p>
+<p>The amount of data you want to provide is not fixed at compile time. For example, you want to return a string of previously unknown size. That makes using a Caller-Owned Buffer impractical because the caller does not know the size of the buffer beforehand. The caller could beforehand ask for the required buffer size (for example, with a <code>getRequiredBufferSize()</code> function), but that is also impractical because in order to retrieve one piece of data, the caller would have to make multiple function calls. Also, the data you want to provide could potentially change between those function calls, and then the caller would again provide a buffer of the wrong size.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Solution" data-type="sect2"><div class="sect2" id="idm45587923364192">
+<h2>Solution</h2>
+<p><strong>Allocate a buffer with the required size inside the function that provides the large, complex data. Copy the required data into the buffer and return a pointer to that buffer.</strong></p>
+<p>Provide the pointer to the buffer and its size to the caller as Out-Parameters. After the function call, the caller can operate on the buffer, knows its size, and has the sole ownership of the buffer. The caller determines its lifetime and thus is responsible for cleaning it up as shown in <a data-type="xref" href="#fig_callee_allocates">Figure 4-7</a> and the following code.</p>
+<figure><div class="figure" id="fig_callee_allocates">
+<img alt="Callee Allocates Sketch" height="754" src="assets/fluc_0407.png" width="1368"/>
+<h6><span class="label">Figure 4-7. </span>Callee Allocates</h6>
+</div></figure>
+<p><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">char</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="p">;</code><code class="w"/>
+<code class="kt">int</code><code class="w"> </code><code class="n">size</code><code class="p">;</code><code class="w"/>
+<code class="n">getData</code><code class="p">(</code><code class="o">&amp;</code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="o">&amp;</code><code class="n">size</code><code class="p">);</code><code class="w"/>
+<code class="cm">/* use buffer */</code><code class="w"/>
+<code class="n">free</code><code class="p">(</code><code class="n">buffer</code><code class="p">);</code><code class="w"/></pre>
+<p><em>Callee’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">getData</code><code class="p">(</code><code class="kt">char</code><code class="o">*</code><code class="o">*</code><code class="w"> </code><code class="n">buffer</code><code class="p">,</code><code class="w"> </code><code class="kt">int</code><code class="o">*</code><code class="w"> </code><code class="n">size</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">  </code><code class="o">*</code><code class="n">size</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">data_size</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="o">*</code><code class="n">buffer</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">malloc</code><code class="p">(</code><code class="n">data_size</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">  </code><code class="cm">/* write data to buffer */</code><code class="w"> </code><a class="co" href="#callout_returning_data_from_c_functions_CO4-1" id="co_returning_data_from_c_functions_CO4-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" href="#co_returning_data_from_c_functions_CO4-1" id="callout_returning_data_from_c_functions_CO4-1"><img alt="1" height="12" src="assets/1.png" width="12"/></a></dt>
+<dd><p>When copying the data into that buffer, make sure that it does not change in the meantime. This can be achieved by mutual exclusion via Mutex or Semaphores.</p></dd>
+</dl>
+<p>Alternatively, the pointer to the buffer and the size can be put into an Aggregate Instance provided as a Return Value. To make it clearer for the caller that there is a pointer in the Aggregate Instance that has to be freed, the API can provide an additional function for cleaning it up. When also providing a function to clean up, the API already looks very similar to an API with a Handle, which would bring the additional benefit of flexibility while maintaining API compatibility.</p>
+<p>No matter whether the called function provides the buffer via an Aggregate Instance or via Out-Parameters, it has to be made clear to the caller that the caller owns the buffer and is responsible for freeing it. That Dedicated Ownership has to be well documented in the API.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Consequences" data-type="sect2"><div class="sect2" id="idm45587923363568">
+<h2>Consequences</h2>
+<p>The caller can retrieve the buffer of previously unknown size with a single function call. The function is reentrant, can safely be used in multithreaded environments, and provides the caller with consistent information about the buffer and its size. Knowing the size, the caller can safely operate on the data. For example, the caller can even handle unterminated strings transported via such buffers.</p>
+<p>The caller has ownership of the buffer, determines its lifetime, and is responsible for freeing it (just like would be the case with a Handle). From looking at the interface, it has to be made very clear that the caller has to do this. One way of making this clear is to document it in the API. Another approach is to have an explicit cleanup function to make it more obvious that something has to be cleaned up. Such a cleanup function has the additional advantage that the same component that allocates the memory also frees it. This is important if the two involved components are compiled with different compilers or if they run on different platforms—in such cases the functions for allocating and freeing memory could differ between the components, which makes it mandatory that the same component that allocates also frees.</p>
+<p>The caller cannot determine which kind of memory should be used for the buffer—that would have been possible with a Caller-Owned Buffer. Now the caller must use the kind of memory that is allocated inside the function call.</p>
+<p>Allocating takes time, which means that compared to Caller-Owned Buffer, the function call becomes slower and less deterministic.</p>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Known Uses" data-type="sect2"><div class="sect2" id="idm45587923160368">
+<h2>Known Uses</h2>
+<p>The following examples show applications of this pattern:</p>
+<ul>
+<li>
+<p>The <code>malloc</code> function does exactly that. It allocates some memory and provides it to the caller.</p>
+</li>
+<li>
+<p>The <code>strdup</code> function takes a string as input, allocates the duplicated string, and returns it.</p>
+</li>
+<li>
+<p>The <code>getifaddrs</code> Linux function provides information about configured IP addresses. The data holding this information is stored in a buffer allocated by the function.</p>
+</li>
+<li>
+<p>The NetHack code uses this pattern to retrieve buffers.</p>
+</li>
+</ul>
+</div></section>
+<section class="notoc" data-pdf-bookmark="Applied to Running Example" data-type="sect2"><div class="sect2" id="idm45587923119760">
+<h2>Applied to Running Example</h2>
+<p>The<a data-primary="C functions, returning data from" data-secondary="Callee Allocates pattern" data-startref="Ccalalpat" data-type="indexterm" id="idm45587923118016"/><a data-primary="Callee Allocates pattern" data-startref="calallpat" data-type="indexterm" id="idm45587923116800"/> following final code of your diagnostic component retrieves the packet data in a buffer that the Callee Allocates:</p>
+<p><em>Ethernet driver API</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="k">struct</code><code class="w"> </code><code class="nc">Packet</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="kt">char</code><code class="w"> </code><code class="n">data</code><code class="p">[</code><code class="mi">1500</code><code class="p">];</code><code class="w"> </code><code class="cm">/* maximum 1500 byte per packet */</code><code class="w"/>
+<code class="w">  </code><code class="kt">int</code><code class="w"> </code><code class="n">size</code><code class="p">;</code><code class="w">        </code><code class="cm">/* actual size of data in the packet */</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="cm">/* Returns a pointer to a packet that has to be freed by the caller */</code><code class="w"/>
+<code class="k">struct</code><code class="w"> </code><code class="nc">Packet</code><code class="o">*</code><code class="w"> </code><code class="n">ethernetDriverGetPacket</code><code class="p">();</code><code class="w"/></pre>
+<p><br/><em>Caller’s code</em></p>
+<pre data-code-language="c" data-type="programlisting"><code class="kt">void</code><code class="w"> </code><code class="nf">ethShow</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverStat</code><code class="w"> </code><code class="n">eth_stat</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetStatistics</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets received</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">received_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">total_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets successfully sent</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="n">eth_stat</code><code class="p">.</code><code class="n">successfully_sent_packets</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"%i packets failed to send</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_stat</code><code class="p">.</code><code class="n">failed_sent_packets</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="k">const</code><code class="w"> </code><code class="k">struct</code><code class="w"> </code><code class="nc">EthernetDriverInfo</code><code class="o">*</code><code class="w"> </code><code class="n">eth_info</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetInfo</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Driver name: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_info</code><code class="o">-&gt;</code><code class="n">name</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Driver description: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">eth_info</code><code class="o">-&gt;</code><code class="n">description</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">IpAddress</code><code class="w"> </code><code class="n">ip</code><code class="p">;</code><code class="w"/>
+<code class="w">  </code><code class="n">ethernetDriverGetIp</code><code class="p">(</code><code class="o">&amp;</code><code class="n">ip</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"IP address: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="n">ip</code><code class="p">.</code><code class="n">address</code><code class="p">);</code><code class="w"/>
+
+<code class="w">  </code><code class="k">struct</code><code class="w"> </code><code class="nc">Packet</code><code class="o">*</code><code class="w"> </code><code class="n">packet</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">ethernetDriverGetPacket</code><code class="p">();</code><code class="w"/>
+<code class="w">  </code><code class="n">printf</code><code class="p">(</code><code class="s">"Packet Dump:"</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">fwrite</code><code class="p">(</code><code class="n">packet</code><code class="o">-&gt;</code><code class="n">data</code><code class="p">,</code><code class="w"> </code><code class="mi">1</code><code class="p">,</code><code class="w"> </code><code class="n">packet</code><code class="o">-&gt;</code><code class="n">size</code><code class="p">,</code><code class="w"> </code><code class="n">stdout</code><code class="p">);</code><code class="w"/>
+<code class="w">  </code><code class="n">free</code><code class="p">(</code><code class="n">packet</code><code class="p">);</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>With this final version of the diagnostic component, we can see all the presented ways of how to retrieve information from another function. Mixing all these ways in one piece of code might not be what you actually want to do because it gets a bit confusing to have one piece of data on the stack and another piece of data on the heap. As soon as you allocate buffers, you don’t want to mix different approaches, so using Caller-Owned Buffer and Callee Allocates in a single function might not be what you want to do. Instead, pick the one approach that suits all your needs and stick to that within one function or component. This makes your code more uniform and easier to understand.</p>
+<p>However, if you have to obtain just a single piece of data from another component and you have the choice to use the easier alternatives to retrieve data (the patterns covered earlier in this chapter), then always do that to keep your code simple. For example, if you have the option of putting buffers on the stack, then do that, because it saves you the effort to free the buffer.</p>
+</div></section>
+</div></section>
+<section data-pdf-bookmark="Summary" data-type="sect1"><div class="sect1" id="idm45587923061744">
+<h1>Summary</h1>
+<p>This<a data-primary="C functions, returning data from" data-secondary="overview of patterns for" data-type="indexterm" id="idm45587923060544"/> chapter showed different ways of how to return data from functions and how to handle buffers in C. The simplest way is to use Return Value to return a single piece of data, but if multiple pieces of related data have to be returned, then instead use Out-Parameters or, even better, Aggregate Instance. If the data to be returned does not change at runtime, Immutable Instance can be used. When returning data in a buffer, Caller-Owned Buffer can be used if the size of the buffer is known beforehand, and Callee Allocates can be used if the size is unknown beforehand.</p>
+<p>With the patterns from this chapter, a C programmer has some basic tools and guidance on how to transport data between functions and how to cope with returning, allocating, and freeing buffers.</p>
+</div></section>
+<section data-pdf-bookmark="Outlook" data-type="sect1"><div class="sect1" id="idm45587922849792">
+<h1>Outlook</h1>
+<p>The next chapter covers how larger programs are organized into software-modules and how lifetime and ownership of data is handled by these software-modules. These patterns give an overview of the building blocks that are used to construct larger pieces of C code.</p>
+</div></section>
+</div></section></div></body></html>

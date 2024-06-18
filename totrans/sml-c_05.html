@@ -1,0 +1,1364 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="chapter" epub:type="chapter" data-pdf-bookmark="Chapter 5. Functions"><div class="chapter" id="smallerc-CHP-5">
+<h1><span class="label">Chapter 5. </span>Functions</h1>
+
+
+<p>With the various assignment statements and flow of control options
+we’ve seen so far, you are now primed to solve just about any
+problem meant for computers. But solving a problem turns out to be
+only about half of the, uh, problem. Whether you are coding for work
+or for fun, you invariably need to go back to code you have already
+written. You might be fixing a small bug or adding a missing feature.
+You may be using a previous project as a starting point for a new one.
+In all of these moments, the maintainability of your code becomes
+almost as important as the initial effort to get the code working.
+Breaking up a problem to make it manageable while you are solving it
+can have a beneficial effect on the code you end up writing—which
+also has a beneficial effect on its readability and maintainability.</p>
+
+<p>Core to this idea of tackling smaller problems on the way to tackling the
+whole one is the <a data-type="indexterm" data-primary="procedures" data-see="functions" id="idm45018727725832"/><a data-type="indexterm" data-primary="routines" data-see="functions" id="idm45018727724856"/><a data-type="indexterm" data-primary="functions" data-secondary="purpose of" id="idm45018727723912"/>use of <em>functions</em> or <em>procedures</em>. Functions help
+you encapsulate logic—the statements and control structures you
+are learning to code. In C, you can write and call as many functions as you
+need.<sup><a data-type="noteref" id="idm45018727721800-marker" href="ch05.xhtml#idm45018727721800">1</a></sup>
+C doesn’t really distinguish between the word “function”
+and the word “procedure,” although some languages do. (In those
+languages, the difference is often whether or not a piece of code returns
+a value or simply executes a set of statements.) I’ll mostly
+use the term <em>function</em>, but if you see discussions of a procedure
+(or <em>routine</em>, same idea) here or
+in any of your other reading, it still refers to a block of code
+you can call from some other block of code.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Familiar Functions"><div class="sect1" id="smallerc-CHP-5-SECT-1">
+<h1>Familiar Functions</h1>
+
+<p>We’ve actually been using functions all along. The <code>main()</code> block
+of code is a function. In our very first “Hello, World” program, we used
+the <code>printf()</code> function to produce some output. We use the <code>scanf()</code>
+function to get input from the user. Both of those functions come from
+the <code>stdio.h</code> library we include in our programs.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Function Flow"><div class="sect1" id="smallerc-CHP-5-SECT-1.1">
+<h1>Function Flow</h1>
+
+<p>What <a data-type="indexterm" data-primary="flow of control" data-secondary="in functions" data-secondary-sortas="functions" id="flow-functions"/><a data-type="indexterm" data-primary="functions" data-secondary="calling" id="functions-calling"/><a data-type="indexterm" data-primary="calling" data-secondary="functions" id="calling-functions"/>is going on inside these functions? What does it mean to “call”
+them? Functions and procedures are another form of flow control. They allow
+you to jump between chunks of code in an orderly way—and return to where
+you came from when you’re done. <a data-type="xref" href="#smallerc-CHP-5-FIG-function-basics">Figure 5-1</a> illustrates this
+flow a little more formally.</p>
+
+<figure><div id="smallerc-CHP-5-FIG-function-basics" class="figure">
+<img src="Images/smac_0501.png" alt="smac 0501" width="673" height="902"/>
+<h6><span class="label">Figure 5-1. </span>Following the flow of control through a function</h6>
+</div></figure>
+
+<p>This flow is what I mean by <em>calling</em> a function. You go from your current
+statement to the first statement of the function. You work your way through
+the function (which, by the way, can contain calls to other functions) and
+then come back. On your way back, you can bring along a result, but that’s
+optional. For example, we don’t use any return value from our <code>printf()</code>
+and <code>scanf()</code> calls. (There is one, but we can safely ignore it.) We do,
+however, rely on the return value from many functions to know things like
+whether two strings match, or if a character is a numeric digit, or what the
+square root of some number is.</p>
+
+<p>We’ll look at many of the functions that make up the “standard
+library” of C in <a data-type="xref" href="ch07.xhtml#smallerc-CHP-7">Chapter 7</a>. But we don’t have to rely
+solely on the standard functions, either. C allows
+us to create our own functions. <a data-type="xref" href="#smallerc-CHP-5-FIG-function-layout">Figure 5-2</a> shows
+the basic structure of a function.</p>
+
+<figure><div id="smallerc-CHP-5-FIG-function-layout" class="figure">
+<img src="Images/smac_0502.png" alt="smac 0502" width="1305" height="429"/>
+<h6><span class="label">Figure 5-2. </span>The basic parts of a C function</h6>
+</div></figure>
+
+<p>We’ll work through all the variations on these key parts of a function in <a data-type="indexterm" data-primary="flow of control" data-secondary="in functions" data-secondary-sortas="functions" data-startref="flow-functions" id="idm45018727699832"/><a data-type="indexterm" data-primary="functions" data-secondary="calling" data-startref="functions-calling" id="idm45018727698312"/><a data-type="indexterm" data-primary="calling" data-secondary="functions" data-startref="calling-functions" id="idm45018727697096"/>this chapter.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Simple Functions"><div class="sect1" id="smallerc-CHP-5-SECT-2">
+<h1>Simple Functions</h1>
+
+<p>The <a data-type="indexterm" data-primary="functions" data-secondary="void type" id="functions-void"/><a data-type="indexterm" data-primary="void type (functions)" id="void"/>simplest form of a C function is one where we only jump to the function,
+execute its statements, and jump back. We don’t pass any information in and
+we don’t expect any information back. This might sound a little boring or
+even wasteful, but it can be incredibly useful for breaking up large programs
+into manageable pieces. It also makes it possible to reuse popular chunks of
+code. For example, your program might come with some helpful instructions.
+Anywhere the user gets stuck, you print those to the screen to help get them
+unstuck. You can put those instructions in a function:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">print_help</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"This program prints a friendly greeting.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"When prompted, you can type in a name </code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"and hit the return key. Max length is 24.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>Note the type of our function; it’s a new one. This <em>void</em> type tells the compiler
+this function does not have a return value. C’s default is to return an <code>int</code>
+like our <code>main()</code> function, but functions can return any type of value that C
+supports—including no value at all, like we do here.</p>
+
+<p>Function names <a data-type="indexterm" data-primary="functions" data-secondary="naming" id="idm45018727678376"/><a data-type="indexterm" data-primary="naming" data-secondary="functions" id="idm45018727677368"/>in C follow the same rules as variable names. You have to start
+with a letter or the underscore, and then you can have any number of following
+letters, numbers, or underscores. Also, like variables, you cannot use any of
+the reserved words from <a data-type="xref" href="ch02.xhtml#smallerc-CHP-2-TAB-c-keywords">Table 2-4</a>.</p>
+
+<p class="pagebreak-before less_space">We can then call this function anytime we need to nudge the user or if they
+ask for help. Here’s the rest of the program,
+<a href="https://oreil.ly/LilAh"><em>ch05/help_demo.c</em></a>.
+We’ll print the help
+information when the program starts, and if the user simply hits the Return key
+when prompted for a name, we’ll print it again.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">void</code> <code class="nf">print_help</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"This program prints a friendly greeting.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"When prompted, you can type in a name </code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"and hit the return key. Max length is 24.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">name</code><code class="p">[</code><code class="mi">25</code><code class="p">];</code>
+
+  <code class="k">do</code> <code class="p">{</code>
+    <code class="c1">// Call our newly minted help function!</code>
+    <code class="n">print_help</code><code class="p">();</code>
+
+    <code class="c1">// Now prompt the user, but if they enter an 'h',</code>
+    <code class="c1">// start over with the help message</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a name: "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%s"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">while</code> <code class="p">(</code><code class="n">name</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="o">==</code> <code class="sc">'h'</code> <code class="o">&amp;&amp;</code> <code class="n">name</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code> <code class="o">==</code> <code class="sc">'\0'</code><code class="p">);</code>
+
+  <code class="c1">// Ok, we must have a name to greet!</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Hello, %s!</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>And here’s the output:</p>
+
+<pre data-type="programlisting">ch05$ gcc help_demo.c
+ch05$ ./a.out
+This program prints a friendly greeting.
+When prompted, you can type in a name
+and hit the return key. Max length is 24.
+Please enter a name: h
+This program prints a friendly greeting.
+When prompted, you can type in a name
+and hit the return key. Max length is 24.
+Please enter a name: joe
+Hello, joe!</pre>
+
+<p>Notice that in reusing our simple <code>print_help()</code> function, we did not save much
+by way of lines of code. Sometimes, using a function is more about consistency
+than reducing space or complexity. If we end up changing how our program works,
+say, asking the user for their name and address, for example,
+we can update just this one function and everywhere it gets used
+will automatically benefit from the new <a data-type="indexterm" data-primary="functions" data-secondary="void type" data-startref="functions-void" id="idm45018727330472"/><a data-type="indexterm" data-primary="void type (functions)" data-startref="void" id="idm45018727329256"/>content.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Sending Information to Functions"><div class="sect1" id="smallerc-CHP-5-SECT-3">
+<h1>Sending Information to Functions</h1>
+
+<p>While <a data-type="indexterm" data-primary="functions" data-secondary="parameters" data-tertiary="purpose of" id="idm45018727326248"/><a data-type="indexterm" data-primary="parameters" data-secondary="purpose of" id="idm45018727324968"/><a data-type="indexterm" data-primary="arguments" data-secondary="purpose of" id="idm45018727324024"/><a data-type="indexterm" data-primary="functions" data-secondary="arguments" data-tertiary="purpose of" id="idm45018727323080"/>there are a surprising number of times where simple functions such as
+our <code>print_help()</code> come in handy, more often you’ll need to
+pass some information that the function can use to do its work. Think back
+to our second iteration of saying hello to the user. We prompted them to
+enter their name and then printed a personalized greeting. We can create a
+function that has that same tailoring capacity. To do that, we’ll
+specify a function <em>parameter</em>.</p>
+
+<p>Parameters go inside the pair of parentheses and look a lot like variable
+declarations. In a very real sense, they are variable declarations. But there are a few key differences between <a data-type="indexterm" data-primary="variables" data-secondary="parameters versus" id="idm45018727319912"/>parameters and variables. First, you must supply a type for each parameter. You can’t “piggyback” on another parameter’s type, even though the second type is the same. Secondly, you cannot initialize a parameter. Parameters get their initial value from the <em>arguments</em> you supply when you call the function. Here are
+a few valid and invalid examples:</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="c1">// Correct and valid parameter declarations:</code>
+<code class="kt">void</code> <code class="nf">average</code><code class="p">(</code><code class="kt">double</code> <code class="n">v1</code><code class="p">,</code> <code class="kt">double</code> <code class="n">v2</code><code class="p">,</code> <code class="kt">double</code> <code class="n">v3</code><code class="p">)</code> <code class="p">{</code> <code class="p">...</code>
+<code class="kt">void</code> <code class="n">plot</code><code class="p">(</code><code class="kt">int</code> <code class="n">x</code><code class="p">,</code> <code class="kt">int</code> <code class="n">y</code><code class="p">)</code> <code class="p">{</code> <code class="p">...</code>
+<code class="kt">void</code> <code class="n">printUser</code><code class="p">(</code><code class="kt">char</code> <code class="o">*</code><code class="n">name</code><code class="p">,</code> <code class="kt">long</code> <code class="n">id</code><code class="p">)</code> <code class="p">{</code> <code class="p">...</code>
+
+<code class="c1">// Incorrect declarations:</code>
+<code class="kt">void</code> <code class="n">bad_average</code><code class="p">(</code><code class="kt">double</code> <code class="n">v1</code><code class="p">,</code> <code class="n">v2</code><code class="p">,</code> <code class="n">v3</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// every parameter needs a type</code>
+<code class="kt">void</code> <code class="n">bad_plot</code><code class="p">(</code><code class="kt">int</code> <code class="n">x</code><code class="p">;</code> <code class="kt">int</code> <code class="n">y</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// separate parameters with commas</code>
+<code class="kt">void</code> <code class="n">bad_print</code><code class="p">(</code><code class="kt">char</code> <code class="o">*</code><code class="n">name</code><code class="p">,</code> <code class="kt">long</code> <code class="n">id</code> <code class="o">=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// do not initialize a parameter</code>
+</pre>
+
+<p>The names “parameter” and “argument” are just programmer-speak for variables and values. But it’s useful to have distinct names
+when talking about the structure of your program with other developers. When
+you say “parameter,” other programmers know you are talking about defining a
+function and its inputs. By contrast, when you talk about arguments, it is
+clear you mean the values passed to an already defined function that you are
+calling. Knowing this terminology can also help you ask better questions when
+you search online for help.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Passing Simple Types"><div class="sect2" id="smallerc-CHP-5-SECT-3.1">
+<h2>Passing Simple Types</h2>
+
+<p>Let’s try<a data-type="indexterm" data-primary="functions" data-secondary="arguments" data-tertiary="passing" id="functions-arguments-passing"/><a data-type="indexterm" data-primary="arguments" data-secondary="passing" id="arguments-passing"/><a data-type="indexterm" data-primary="passing" data-secondary="arguments" id="passing-arguments"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="passing to functions" id="variables-types-passing"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="passing to functions" id="types-passing"/> passing some things to a function and using them. A canonical
+function with parameters is one that calculates a numeric average. We can
+define a function that accepts two floating point numbers and prints out
+the average like this:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">print_average</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The average of %.2f and %.2f is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">a</code><code class="p">,</code> <code class="n">b</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p class="pagebreak-before less_space">We can now call <code>print_average()</code> from some other part of our program
+like this:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="kt">float</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter two numbers separated by a space: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%f %f"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num1</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num2</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">);</code></pre>
+
+<p>Notice that our parameters, <code>a</code> and <code>b</code>, do not share a name with the
+variables we use as arguments, <code>num1</code> and <code>num2</code>. It is not the names
+of things that tie arguments to parameters, it is their position. The
+first argument, whether it is a literal value, a variable, or even an
+expression, must match the type of the first parameter and will be used
+to give that first parameter its starting value. The second argument
+goes with the second parameter, and so on. All of the following calls
+to <code>print_average()</code> are valid:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="kt">float</code> <code class="n">x</code> <code class="o">=</code> <code class="mf">17.17</code><code class="p">;</code>
+  <code class="kt">float</code> <code class="n">y</code> <code class="o">=</code> <code class="mf">6.2</code><code class="p">;</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="mf">3.1415</code><code class="p">,</code> <code class="mf">2.71828</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">x</code><code class="p">,</code> <code class="n">y</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">x</code> <code class="o">*</code> <code class="n">x</code><code class="p">,</code> <code class="n">y</code> <code class="o">*</code> <code class="n">y</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">x</code><code class="p">,</code> <code class="mf">3.1415</code><code class="p">);</code></pre>
+
+<p>Passing arguments to functions is fundamental to C programming. We
+won’t go through the output here, but take a look at <a href="https://oreil.ly/v9VLq"><em>ch05/averages.c</em></a>. Run it and see if you get the output you expect. Try adding some of your own variables or
+use <code>scanf()</code> to get more input, and then print some more averages.
+This is definitely a case where practice will<a data-type="indexterm" data-primary="functions" data-secondary="arguments" data-tertiary="passing" data-startref="functions-arguments-passing" id="idm45018727072360"/><a data-type="indexterm" data-primary="arguments" data-secondary="passing" data-startref="arguments-passing" id="idm45018727070968"/><a data-type="indexterm" data-primary="passing" data-secondary="arguments" data-startref="passing-arguments" id="idm45018727069752"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="passing to functions" data-startref="variables-types-passing" id="idm45018727068536"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="passing to functions" data-startref="types-passing" id="idm45018727067048"/> pay off!</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Passing Strings to Functions"><div class="sect2" id="smallerc-CHP-5-SECT-3.2">
+<h2>Passing Strings to Functions</h2>
+
+<p>But <a data-type="indexterm" data-primary="functions" data-secondary="strings, passing to" id="functions-strings-passing"/><a data-type="indexterm" data-primary="strings" data-secondary="passing to functions" id="strings-passing"/><a data-type="indexterm" data-primary="passing" data-secondary="strings" id="passing-strings"/><a data-type="indexterm" data-primary="arrays" data-secondary="passing to functions" id="arrays-passing"/>what about our personalized greeting function? We can pass strings
+(again, really just an array of <code>char</code>) more or less like we pass other
+types. As with other parameters, we do not give array parameters an initial
+value, so the square brackets are always empty:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">greet</code><code class="p">(</code><code class="kt">char</code> <code class="n">name</code><code class="p">[])</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Hello, %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>When we go to call <code>greet()</code>, we’ll use the whole array as
+the argument, similar to how we pass string variables to the <code>scanf()</code>
+function. We reused the variable <code>name</code> because it makes
+sense for our program and our <code>greet()</code> function.
+It is not required that arguments and parameters match like this. In fact,
+such alignment is rare. We’ll look at this distinction between the
+parameters in a function and the arguments passed to it in
+<a data-type="xref" href="#smallerc-CHP-5-SECT-6">“Variable Scope”</a>.</p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>You will often see array parameters declared with a “*”
+prefix rather than the “[]” bracket suffix (e.g.,
+<code>void greet(char *name)</code>). This is valid notation centering on
+the use of pointers. We’ll tackle pointers
+in <a data-type="xref" href="ch06.xhtml#smallerc-CHP-6">Chapter 6</a> where I’ll cover how array variables
+work in more detail, both in terms of their memory allocation
+and using them with functions.</p>
+</div>
+
+<p>Here’s a complete program,
+<a href="https://oreil.ly/FTudJ"><em>ch05/greeting.c</em></a>
+that defines and uses <code>greet()</code>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">void</code> <code class="nf">print_help</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"This program prints a friendly greeting.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"When prompted, you can type in a name </code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"and hit the return key. Max length is 24.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">void</code> <code class="nf">greet</code><code class="p">(</code><code class="kt">char</code> <code class="n">name</code><code class="p">[])</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Hello, %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">name</code><code class="p">[</code><code class="mi">25</code><code class="p">];</code>
+
+  <code class="c1">// First, tell them how to use the program</code>
+  <code class="n">print_help</code><code class="p">();</code>
+
+  <code class="c1">// Now, prompt them for a name (just the once)</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter your name: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%s"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+
+  <code class="c1">// Finally, call our new greeting function with our name argument</code>
+  <code class="n">greet</code><code class="p">(</code><code class="n">name</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>And here is the output of a few runs:</p>
+
+<pre data-type="programlisting">ch05$ gcc greeting.c
+ch05$ ./a.out
+This program prints a friendly greeting.
+When prompted, you can type in a name
+and hit the return key. Max length is 24.
+Please enter your name: Brian
+Hello, Brian
+ch05$ ./a.out
+This program prints a friendly greeting.
+When prompted, you can type in a name
+and hit the return key. Max length is 24.
+Please enter your name: Vivienne
+Hello, Vivienne</pre>
+
+<p>Hopefully, nothing too surprising there. As noted above,
+we’ll revisit passing arrays as arguments in
+<a data-type="xref" href="ch06.xhtml#smallerc-CHP-6">Chapter 6</a>. There’s nothing wrong with how we specify our <code>char[]</code>
+parameter in this example, but it isn’t the only way <a data-type="indexterm" data-primary="functions" data-secondary="strings, passing to" data-startref="functions-strings-passing" id="idm45018726893832"/><a data-type="indexterm" data-primary="strings" data-secondary="passing to functions" data-startref="strings-passing" id="idm45018726892616"/><a data-type="indexterm" data-primary="passing" data-secondary="strings" data-startref="passing-strings" id="idm45018726891400"/><a data-type="indexterm" data-primary="arrays" data-secondary="passing to functions" data-startref="arrays-passing" id="idm45018726890184"/>to do it.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Multiple Types"><div class="sect2" id="smallerc-CHP-5-SECT-3.3">
+<h2>Multiple Types</h2>
+
+<p>It might<a data-type="indexterm" data-primary="functions" data-secondary="parameters" data-tertiary="multiple types" id="idm45018726887032"/><a data-type="indexterm" data-primary="parameters" data-secondary="multiple types" id="idm45018726885752"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="multiple in parameters" id="idm45018726884808"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="multiple in parameters" id="idm45018726883592"/> be obvious, but I want to point out that the parameter list in a
+function definition can mix and match types. You are not restricted to one
+type. For example, we can write a <code>repeat()</code> function that takes a string
+to print and a <code>count</code> to tell us how many times to print the string:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">repeat</code><code class="p">(</code><code class="kt">char</code> <code class="n">thing</code><code class="p">[],</code> <code class="kt">int</code> <code class="n">count</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="n">count</code><code class="p">;</code> <code class="n">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"%d: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">i</code><code class="p">,</code> <code class="n">thing</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Neat! If we call <code>repeat()</code> with the word “Dennis” and the
+number 5, we will get the following output:</p>
+
+<pre data-type="programlisting">// repeat("Dennis", 5);
+0: Dennis
+1: Dennis
+2: Dennis
+3: Dennis
+4: Dennis</pre>
+<div data-type="tip"><h6>Tip</h6>
+<p>Well, the answer to this little quiz is a tip, at least. :)
+Can you think of a way to print the index numbers in the output
+above so that they start at 1 and go to 5 instead of the less human-friendly
+0 to 4 that we have now?</p>
+</div>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Exiting a Function"><div class="sect2" id="smallerc-CHP-5-SECT-3.4">
+<h2>Exiting a Function</h2>
+
+<p>A <a data-type="indexterm" data-primary="functions" data-secondary="exiting" id="functions-exiting"/><a data-type="indexterm" data-primary="exiting functions" id="exiting-functions"/><a data-type="indexterm" data-primary="return statement" data-secondary="exiting functions early" id="return-exit"/>common problem every programmer faces is making sure that the inputs to
+functions are appropriate. In the case of our nifty <code>repeat()</code> function, for example, we want a <code>count</code> that is a positive number so that we actually get some output. What do we do if we get a bad number and don’t want to finish the rest of the function? Fortunately, C provides a way to exit a function at any time: the <code>return</code> statement.</p>
+
+<p>We can upgrade <code>repeat()</code> to check for a good <code>count</code> before trying to run
+the printing loop:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">repeat</code><code class="p">(</code><code class="kt">char</code> <code class="n">thing</code><code class="p">[],</code> <code class="kt">int</code> <code class="n">count</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">count</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Invalid count: %d. Skipping.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">count</code><code class="p">);</code>
+    <code class="k">return</code><code class="p">;</code>
+  <code class="p">}</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="n">count</code><code class="p">;</code> <code class="n">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"%d: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">i</code><code class="p">,</code> <code class="n">thing</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Much better. The first version of <code>repeat()</code> wouldn’t crash or anything
+if a negative count was supplied, but the user would not see any output and
+would not know why. Testing for legal or expected values is usually a good
+idea—especially if you are writing code that other people might also
+end up <a data-type="indexterm" data-primary="functions" data-secondary="exiting" data-startref="functions-exiting" id="idm45018726790408"/><a data-type="indexterm" data-primary="exiting functions" data-startref="exiting-functions" id="idm45018726721160"/><a data-type="indexterm" data-primary="return statement" data-secondary="exiting functions early" data-startref="return-exit" id="idm45018726720216"/>using.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Returning Information"><div class="sect1" id="smallerc-CHP-5-SECT-4">
+<h1>Returning Information</h1>
+
+<p>Functions <a data-type="indexterm" data-primary="functions" data-secondary="returned values" data-tertiary="explained" id="idm45018726716680"/><a data-type="indexterm" data-primary="returned values (functions)" data-secondary="explained" id="idm45018726715400"/><a data-type="indexterm" data-primary="return statement" data-secondary="explained" id="idm45018726714488"/>can also return information. You specify one of the data types,
+such as <code>int</code> or <code>float</code>, in the definition, and then use the <code>return</code>
+statement to send back an actual value. When you call such a function, you
+can store that returned value in a variable or use it anywhere a value or
+an expression is allowed.</p>
+
+<p>For example, we could take <code>print_average()</code> and turn it into
+a function that calculates the average and simply returns it, rather than
+printing anything out. That way you are free to print the average yourself
+with a custom message. Or you can use the average in some other calculation.</p>
+
+<p>Here’s a simple version of such a function:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="nf">calc_average</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="k">return</code> <code class="n">average</code><code class="p">;</code>
+<code class="p">}</code></pre>
+
+<p>Instead of <code>void</code> for a type, we now have <code>float</code>. So our <code>return</code> statement
+should include a float value, variable, or expression. In this example, we
+calculate the average and store it in a temporary variable called <code>average</code>. We then use that variable with the <code>return</code>. It’s important to note
+that what gets returned is a <em>value</em>. The <code>average</code> variable disappears
+when we’re done with the function, but its final value is sent
+back.</p>
+
+<p>Since we do return a value, it is common for functions like <code>calc_average()</code>
+to skip the temporary variables. You can perform this simple calculation
+right with the <code>return</code> like so:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="nf">calc_average</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">return</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+<code class="p">}</code></pre>
+
+<p>You don’t lose any readability here, but that is probably because this
+is such a straightforward calculation. For larger or more complex functions,
+feel free to use whichever approach is more comfortable or seems more
+maintainable.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Using Returned Values"><div class="sect2" id="smallerc-CHP-5-SECT-4.1">
+<h2>Using Returned Values</h2>
+
+<p>To <a data-type="indexterm" data-primary="functions" data-secondary="returned values" data-tertiary="using" id="functions-return-using"/><a data-type="indexterm" data-primary="returned values (functions)" data-secondary="using" id="return-values-using"/>capture that average, we put the call to the <code>calc_average()</code> function
+somewhere we would normally see a literal or expression. We can assign it to
+a variable. We could use it in a <code>printf()</code> statement. We could include it
+inside a larger calculation. Its type is <code>float</code>, so anywhere you could use
+a floating point value or variable, you can call <code>calc_average()</code>.</p>
+
+<p>Here are a few examples from
+<a href="https://oreil.ly/ALwA3"><em>ch05/averages2.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">avg</code> <code class="o">=</code> <code class="n">calc_average</code><code class="p">(</code><code class="mf">12.34</code><code class="p">,</code> <code class="mf">56.78</code><code class="p">);</code>
+<code class="kt">float</code> <code class="n">triple</code> <code class="o">=</code> <code class="mi">3</code> <code class="o">*</code> <code class="n">calc_average</code><code class="p">(</code><code class="mf">3.14</code><code class="p">,</code> <code class="mf">1.414</code><code class="p">);</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"The first average is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">avg</code><code class="p">);</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"Our tripled average is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">triple</code><code class="p">);</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"A direct average: %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">calc_average</code><code class="p">(</code><code class="mi">8</code><code class="p">,</code> <code class="mi">12</code><code class="p">));</code></pre>
+
+<p>In each of these statements, you can see how <code>calc_average()</code> gets used in
+place of a <code>float</code> value. <a data-type="xref" href="#smallerc-CHP-5-FIG-function-flow">Figure 5-3</a> illustrates the
+flow of that first assignment statement.</p>
+
+<figure><div id="smallerc-CHP-5-FIG-function-flow" class="figure">
+<img src="Images/smac_0503.png" alt="smac 0503" width="1017" height="858"/>
+<h6><span class="label">Figure 5-3. </span>Flow of a call to <code>calc_average()</code></h6>
+</div></figure>
+<dl class="calloutlist">
+<dt><img src="Images/1.png" alt="1" width="12" height="12"/></dt>
+<dd><p>Call to <code>calc_average()</code> transfers control to the function; its parameters are initialized from the arguments.</p></dd>
+<dt><img src="Images/2.png" alt="2" width="12" height="12"/></dt>
+<dd><p>Once the function completes its work, return control to the main function along
+with the result to be stored in <code>avg</code>.</p></dd>
+<dt><img src="Images/3.png" alt="3" width="12" height="12"/></dt>
+<dd><p>Resume processing statements in the original function.</p></dd>
+</dl>
+
+<p>If you build your own program with the <code>calc_average()</code> function
+and the previous snippet, you should see something like this output:</p>
+
+<pre data-type="programlisting">ch05$ gcc averages2.c
+ch05$ ./a.out
+The first average is 34.56
+Our tripled average is 6.83
+A direct average: 10.00</pre>
+
+<p>You can create your own file, or compile and run <em>averages2.c</em> if you
+would like to try these examples. As an exercise, how could you expand
+the <code>calc_average()</code> function to produce the average of three<a data-type="indexterm" data-primary="functions" data-secondary="returned values" data-tertiary="using" data-startref="functions-return-using" id="idm45018726504280"/><a data-type="indexterm" data-primary="returned values (functions)" data-secondary="using" data-startref="return-values-using" id="idm45018726502760"/> inputs?</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Ignoring Returned Values"><div class="sect2" id="smallerc-CHP-5-SECT-4.2">
+<h2>Ignoring Returned Values</h2>
+
+<p>You <a data-type="indexterm" data-primary="functions" data-secondary="returned values" data-tertiary="ignoring" id="idm45018726499400"/><a data-type="indexterm" data-primary="returned values (functions)" data-secondary="ignoring" id="idm45018726498120"/><a data-type="indexterm" data-primary="ignoring returned values" id="idm45018726497208"/>are not required to make use of a return value in C if it isn’t
+useful. I didn’t mention this when introducing the <code>printf()</code> function,
+but it actually returns an <code>int</code>: the count of how many bytes were written out.
+Don’t believe it? Try it! I dropped this snippet in
+<a href="https://oreil.ly/rDKBc"><em>ch05/printf_bytes.c</em></a> if
+you don’t want to write it up yourself:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="n">printf</code><code class="p">(</code><code class="s">"This is a typical print statement.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="kt">int</code> <code class="n">total_bytes</code> <code class="o">=</code> <code class="n">printf</code><code class="p">(</code><code class="s">"This is also a print statement.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"The previous printf displayed %d bytes.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">total_bytes</code><code class="p">);</code></pre>
+
+<p>This snippet would produce the following output:</p>
+
+<pre data-type="programlisting">ch05$ gcc printf_bytes.c
+ch05$ ./a.out
+This is a typical print statement.
+This is also a print statement.
+The previous printf displayed 32 bytes.</pre>
+
+<p>C is happy with all three of those calls to <code>printf()</code>. The first and the
+third call also return a count, but we ignore it (with no ill effect). We
+grab the count from the second call just to show that <code>printf()</code> does
+in fact return a value. Usually, you call a function that returns a value
+precisely because you want that returned value. Some functions, however,
+come with side effects that are the real target, rather than the returned
+value. <code>printf()</code> is just such
+a function. It is occasionally useful to keep track of how many bytes your
+program has written (a microcontroller that reports sensor readings to a
+cloud service, for example, might have a daily or monthly limit it cannot
+surpass), but you probably used <code>printf()</code> because you wanted
+some text to show up on the screen.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" class="pagebreak-before less_space" data-pdf-bookmark="Nested Calls and Recursion"><div class="sect1" id="smallerc-CHP-5-SECT-5">
+<h1>Nested Calls and Recursion</h1>
+
+<p>If you<a data-type="indexterm" data-primary="functions" data-secondary="calling" data-tertiary="nested calls" id="functions-calling-nested"/><a data-type="indexterm" data-primary="calling" data-secondary="functions" data-tertiary="nested calls" id="calling-functions-nested"/><a data-type="indexterm" data-primary="nesting" data-secondary="functions" id="nesting-functions"/> look at any of the complete program files for this chapter like
+<a href="https://oreil.ly/fBCrG"><em>ch05/greeting.c</em></a> or
+<a href="https://oreil.ly/BPwIl"><em>ch05/averages2.c</em></a>,
+you will likely notice that we follow a simple
+pattern: define a function, define the <code>main()</code> function, and call our first
+function from inside <code>main()</code>. But that is not the only valid arrangement.
+As I’ll show you in <a data-type="xref" href="ch11.xhtml#smallerc-CHP-11">Chapter 11</a>, with just a little extra code,
+you could swap the position of <code>main()</code> and <code>calc_average()</code>, for example.</p>
+
+<p>We also have the freedom to call our functions from inside yet other
+functions. We could create a new program that reproduces the same
+exact output as the original <code>print_average()</code> function from <em>averages.c</em>,
+but do it using the <code>calc_average()</code> function from <em>averages2.c</em> to get
+the actual average value.</p>
+
+<p>Here’s the complete
+<a href="https://oreil.ly/c3Ssi"><em>ch05/averages3.c</em></a>
+so you can see where we place the
+different functions and where those functions are called:</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">float</code> <code class="nf">calc_average</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">return</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="kt">void</code> <code class="nf">print_average</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="n">calc_average</code><code class="p">(</code><code class="n">a</code><code class="p">,</code> <code class="n">b</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The average of %.2f and %.2f is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">a</code><code class="p">,</code> <code class="n">b</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter two numbers separated by a space: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%f %f"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num1</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num2</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">);</code>
+
+  <code class="kt">float</code> <code class="n">x</code> <code class="o">=</code> <code class="mf">17.17</code><code class="p">;</code>
+  <code class="kt">float</code> <code class="n">y</code> <code class="o">=</code> <code class="mf">6.2</code><code class="p">;</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="mf">3.1415</code><code class="p">,</code> <code class="mf">2.71828</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">x</code><code class="p">,</code> <code class="n">y</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">x</code> <code class="o">*</code> <code class="n">x</code><code class="p">,</code> <code class="n">y</code> <code class="o">*</code> <code class="n">y</code><code class="p">);</code>
+  <code class="n">print_average</code><code class="p">(</code><code class="n">x</code><code class="p">,</code> <code class="mf">3.1415</code><code class="p">);</code>
+<code class="p">}</code>
+</pre>
+
+<p>If you run it, the output will be similar to the first example back in
+<a data-type="xref" href="#smallerc-CHP-5-SECT-3.1">“Passing Simple Types”</a>:</p>
+
+<pre data-type="programlisting">ch05$ gcc averages3.c
+ch05$ ./a.out
+Please enter two numbers separated by a space: 12.34 56.78
+The average of 12.34 and 56.78 is 34.56
+The average of 3.14 and 2.72 is 2.93
+The average of 17.17 and 6.20 is 11.68
+The average of 294.81 and 38.44 is 166.62
+The average of 17.17 and 3.14 is 10.16</pre>
+
+<p>Clever. We’ve actually been relying on this feature all along. In our
+very first “Hello, World” program, we call the <code>printf()</code> function—which is indeed a real function, just one defined by the built-in standard I/O library—from within our <code>main()</code> function.</p>
+
+<p>All C programs out there solving real-world problems
+will use this basic pattern. Functions are written to tackle some small portion
+of a bigger problem. Other functions call those functions to assemble the small
+answers into a bigger whole. Some problems are so large that you will have several
+layers of functions that call functions that call functions. But we’re
+getting ahead of ourselves. We’ll keep practicing with simpler functions.
+As you get comfortable defining and calling them, you’ll naturally start
+to build more complex hierarchies as you solve more complex <a data-type="indexterm" data-primary="functions" data-secondary="calling" data-tertiary="nested calls" data-startref="functions-calling-nested" id="idm45018726274152"/><a data-type="indexterm" data-primary="calling" data-secondary="functions" data-tertiary="nested calls" data-startref="calling-functions-nested" id="idm45018726272616"/><a data-type="indexterm" data-primary="nesting" data-secondary="functions" data-startref="nesting-functions" id="idm45018726271112"/>problems.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Recursive Functions"><div class="sect2" id="smallerc-CHP-5-SECT-5.1">
+<h2>Recursive Functions</h2>
+
+<p>It<a data-type="indexterm" data-primary="functions" data-secondary="calling" data-tertiary="recursive calls" id="functions-calling-recursive"/><a data-type="indexterm" data-primary="calling" data-secondary="functions" data-tertiary="recursive calls" id="calling-functions-recursive"/><a data-type="indexterm" data-primary="recursive functions" id="recursive-functions"/> may not be obvious unless you have worked with other languages, but a C
+function is allowed to call itself, too. This is called <em>recursion</em> and such a
+self-calling function is known as a <em>recursive</em> function. If you’ve
+spent any time around programmers, perhaps you have heard the surprisingly
+accurate joke about the definition of recursion: “I looked up
+recursion in the dictionary. It said: ‘See recursion.’”
+Who says nerds don’t have a sense of humor? ;-)</p>
+
+<p>But the joke definition does hint at exactly how you write a recursive
+function in C. There is just one big caveat: you need to have a way to
+stop the recursion. If the subject in the joke were a computer, it would be in an
+endless cycle of looking up the word only to be told to look up the word
+only to be told to look up the word, etc., etc., ad infinitum. If you
+write such a function in C, eventually the program will consume all the
+memory in your computer and crash.</p>
+
+<p>To avoid that crash, recursive functions have at least two branches.
+One branch, <a data-type="indexterm" data-primary="base cases" id="idm45018726260680"/>a <em>base case</em>, terminates. It produces a concrete value and
+completes. The other branch does some sort of calculation and recurses.
+That “some sort of calculation” must eventually lead to
+the base case. If that sounds a little confusing, don’t panic!<sup><a data-type="noteref" id="idm45018726259176-marker" href="ch05.xhtml#idm45018726259176">2</a></sup> We can
+better illustrate this process with actual code.</p>
+
+<p>Perhaps one of the most famous recursive algorithms is one that
+calculates the <a data-type="indexterm" data-primary="Fibonacci numbers" id="Fibonacci"/>Fibonacci numbers. You may recall these from high school
+math. Named for a 13th century Italian mathematician, they are part of a
+sequence that builds up from a simple starting point of two numbers,
+either a zero and a one, or two ones. You add those two numbers to produce
+the third. You add the second and the third to produce the fourth, and
+so on. So the nth Fibonacci number is the sum of the previous number, and
+the previous previous number. A more formal way to say that goes like this:</p>
+
+<pre data-type="programlisting">F(n) = F(n - 1) + F(n - 2)</pre>
+
+<p>Here, the function <em>F()</em> is defined in terms of the function <em>F()</em>. Aha!
+Recursion! So what does this look like in C? Let’s take a look.</p>
+
+<p>We’ll start by defining a function that takes one <code>int</code> as a
+parameter and returns an <code>int</code>. If the value passed to us is a zero or a one,
+we return a zero or a one, respectively, as part of the definition of the
+sequence. (So <code>F(0) == 0</code> and <code>F(1) == 1</code>, more formally.) That sounds
+pretty easy:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="nf">fibonacci</code><code class="p">(</code><code class="kt">int</code> <code class="n">n</code><code class="p">)</code> <code class="p">{</code>
+  <code class="c1">// Base case 0</code>
+  <code class="c1">// We'll cheat and return zero for negative numbers as well</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">n</code> <code class="o">&lt;=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="p">}</code>
+  <code class="c1">// Base case 1</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">n</code> <code class="o">==</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">1</code><code class="p">;</code>
+  <code class="p">}</code>
+  <code class="c1">// recursive call will go here</code>
+<code class="p">}</code></pre>
+
+<p>We have the critical part: the base case (or cases, like our 0 and 1) that
+has a definite answer. If we get some integer greater than one, we will fall
+to the recursive call. What does that look like? Just like any other function
+call. What makes it special is that we call the function we are in the middle
+of defining, <code>fibonacci()</code> in our case. The “some sort of calculation”
+we mentioned when introducing recursion is the <code>n - 1</code> and <code>n - 2</code> elements from our formal definition:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="c1">// recursive call</code>
+  <code class="k">return</code> <code class="nf">fibonacci</code><code class="p">(</code><code class="n">n</code> <code class="o">-</code> <code class="mi">1</code><code class="p">)</code> <code class="o">+</code> <code class="n">fibonacci</code><code class="p">(</code><code class="n">n</code> <code class="o">-</code> <code class="mi">2</code><code class="p">);</code></pre>
+
+<p>Let’s put that all together in a complete program
+(<a href="https://oreil.ly/8xBXV"><em>ch05/fib.c</em></a>)
+that prints a few sample Fibonacci numbers:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">fibonacci</code><code class="p">(</code><code class="kt">int</code> <code class="n">n</code><code class="p">)</code> <code class="p">{</code>
+  <code class="c1">// Base case 0</code>
+  <code class="c1">// We'll lazily return zero for negative numbers as well</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">n</code> <code class="o">&lt;=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="p">}</code>
+  <code class="c1">// Base case 1</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">n</code> <code class="o">==</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">1</code><code class="p">;</code>
+  <code class="p">}</code>
+
+  <code class="c1">// recurring call</code>
+  <code class="k">return</code> <code class="p">(</code><code class="n">fibonacci</code><code class="p">(</code><code class="n">n</code><code class="o">-</code><code class="mi">1</code><code class="p">)</code> <code class="o">+</code> <code class="n">fibonacci</code><code class="p">(</code><code class="n">n</code><code class="o">-</code><code class="mi">2</code><code class="p">));</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The 6th Fibonnaci number is: %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">fibonacci</code><code class="p">(</code><code class="mi">6</code><code class="p">));</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The 42nd Fibonnaci number is: %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">fibonacci</code><code class="p">(</code><code class="mi">42</code><code class="p">));</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The first 10 Fibonacci numbers are:</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">f</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">f</code> <code class="o">&lt;</code> <code class="mi">10</code><code class="p">;</code> <code class="n">f</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  %d"</code><code class="p">,</code> <code class="n">fibonacci</code><code class="p">(</code><code class="n">f</code><code class="p">));</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>If we run it, we’ll get the following output:</p>
+
+<pre data-type="programlisting">ch05$ gcc fib.c
+ch05$ ./a.out
+The 6th Fibonnaci number is: 8
+The 42nd Fibonnaci number is: 267914296
+The first 10 Fibonacci numbers are:
+  0  1  1  2  3  5  8  13  21  34</pre>
+
+<p>Very cool. But how does it work? It would seem impossible to assign
+a value coming from a function that needs that very same function to
+calculate the value! <a data-type="xref" href="#smallerc-CHP-5-FIG-recursive-calls">Figure 5-4</a> shows
+what’s happening inside <code>fibonacci()</code> using the tiny value of 4.</p>
+
+<figure><div id="smallerc-CHP-5-FIG-recursive-calls" class="figure">
+<img src="Images/smac_0504.png" alt="smac 0504" width="1071" height="729"/>
+<h6><span class="label">Figure 5-4. </span>A recursive call stack</h6>
+</div></figure>
+
+<p>If this process still seems a little convoluted, give it time. The more
+you work with functions in general, the easier it will become to read
+(and create!) more interesting functions like our <a data-type="indexterm" data-primary="Fibonacci numbers" data-startref="Fibonacci" id="idm45018725963848"/>recursive Fibonacci
+example.</p>
+
+<p>But it <em>is</em> convoluted for the computer. Recursion can go too deep
+and cause the computer to run out of memory. Even if your recursive
+code doesn’t go that deep, it can still take quite a while
+to process. Try changing the program to show the 50th Fibonacci
+number instead of the 42nd. Notice it pause at that step? If not,
+congrats on your powerful system! Try bumping it up to 60 or 70.
+You will eventually go high enough that the sheer number of function
+calls will clog your CPU. Just remember that recursion is best in
+moderation.</p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>It is also worth pointing out that most recursive algorithms have
+counterparts that use more mundane tricks like loops. But sometimes
+using loops turns out to be much more complex than the recursive
+option. In the right circumstances, recursion makes solving some
+problems simpler by literally breaking them into smaller problems. The
+Fast Fourier Transform (FFT), so common in processing audio and video streams,
+for example, is a fairly complex algorithm that has a recursive solution
+that is easier to understand and<a data-type="indexterm" data-primary="functions" data-secondary="calling" data-tertiary="recursive calls" data-startref="functions-calling-recursive" id="idm45018725959832"/><a data-type="indexterm" data-primary="calling" data-secondary="functions" data-tertiary="recursive calls" data-startref="calling-functions-recursive" id="idm45018725958248"/><a data-type="indexterm" data-primary="recursive functions" data-startref="recursive-functions" id="idm45018725956744"/> implement.</p>
+</div>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Variable Scope"><div class="sect1" id="smallerc-CHP-5-SECT-6">
+<h1>Variable Scope</h1>
+
+<p>I didn’t<a data-type="indexterm" data-primary="variables" data-secondary="scope" data-tertiary="local" id="variables-scope-local"/><a data-type="indexterm" data-primary="scope of variables" data-secondary="local" id="scope-local"/><a data-type="indexterm" data-primary="local variables" id="local-scope"/><a data-type="indexterm" data-primary="functions" data-secondary="local variables" id="functions-local"/> highlight this detail explicitly in our average-calculating
+functions, but you can declare any variables of any type you need inside a
+function. These are often referred to as <em>local</em> variables because they are
+located inside a function and are removed when the function finishes.
+Let’s revisit that first <code>print_average()</code> function we wrote in
+<a data-type="xref" href="#smallerc-CHP-5-SECT-3.1">“Passing Simple Types”</a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">print_average</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The average of %.2f and %.2f is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">a</code><code class="p">,</code> <code class="n">b</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>Here, the variables <code>a</code> and <code>b</code> are the function’s parameters, and
+<code>average</code> is a local 
+<span class="keep-together">variable</span>. There’s nothing terribly special
+about local variables, but because they are kept inside the function
+where they are defined, you can reuse names between different functions.
+Consider two functions that calculate the average for two and three
+
+<span class="keep-together">parameters</span>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">void</code> <code class="nf">print_average_2</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The two numbers average out to %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">void</code> <code class="nf">print_average_3</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">,</code> <code class="kt">float</code> <code class="n">c</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code> <code class="o">+</code> <code class="n">c</code><code class="p">)</code> <code class="o">/</code> <code class="mi">3</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The three numbers average out to %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>Both functions declare a local variable named <code>average</code>, but they are
+two wholly separate variables. Even though they share a name, the compiler
+never confuses them. Indeed, even if the calling function also has an
+<code>average</code> variable, they won’t be confused. Each local variable is
+contained entirely within its function:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="nf">calc_average_2</code><code class="p">(</code><code class="kt">float</code> <code class="n">a</code><code class="p">,</code> <code class="kt">float</code> <code class="n">b</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">a</code> <code class="o">+</code> <code class="n">b</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="k">return</code> <code class="n">average</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">avg1</code> <code class="o">=</code> <code class="n">calc_average_2</code><code class="p">(</code><code class="mf">18.5</code><code class="p">,</code> <code class="mf">21.1</code><code class="p">);</code>
+  <code class="kt">float</code> <code class="n">avg2</code> <code class="o">=</code> <code class="n">calc_average_2</code><code class="p">(</code><code class="mf">16.3</code><code class="p">,</code> <code class="mf">19.4</code><code class="p">);</code>
+  <code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="n">calc_average_2</code><code class="p">(</code><code class="n">avg1</code><code class="p">,</code> <code class="n">avg2</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"The average of the two averages is: %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>Wonderful. That means we can concentrate on using names appropriate to
+whatever work we’re doing in a given function. We don’t have
+to keep track of what variables were used in other functions or even in
+<code>main()</code>. That makes our job as programmers much<a data-type="indexterm" data-primary="variables" data-secondary="scope" data-tertiary="local" data-startref="variables-scope-local" id="idm45018725757464"/><a data-type="indexterm" data-primary="scope of variables" data-secondary="local" data-startref="scope-local" id="idm45018725639768"/><a data-type="indexterm" data-primary="local variables" data-startref="local-scope" id="idm45018725638552"/><a data-type="indexterm" data-primary="functions" data-secondary="local variables" data-startref="functions-local" id="idm45018725637608"/> easier.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Global Variables"><div class="sect2" id="smallerc-CHP-5-SECT-6.1">
+<h2>Global Variables</h2>
+
+<p>As <a data-type="indexterm" data-primary="variables" data-secondary="scope" data-tertiary="global" id="variables-scope-global"/><a data-type="indexterm" data-primary="scope of variables" data-secondary="global" id="scope-global"/><a data-type="indexterm" data-primary="global variables" id="global-scope"/>a programmer, though, you will undoubtedly encounter <em>global</em> variables
+as well as local ones. A global variable is sort of the opposite of a local variable.
+Where local variables are contained inside a function or a loop block,
+global variables are visible everywhere. Where local variables disappear
+when the loop or function is done, global variables persist.</p>
+
+<p>This visibility and persistence can make global variables very attractive
+for any value that is shared or reused in several functions. But it is
+frustratingly easy to corrupt a global variable precisely because any function
+can see it—and modify it. Here’s an example
+(<a href="https://oreil.ly/5tgaO"><em>ch05/globals.c</em></a>)
+with a global variable that we use inside a function and inside <code>main()</code>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">char</code> <code class="n">buffer</code><code class="p">[</code><code class="mi">30</code><code class="p">];</code>
+
+<code class="kt">void</code> <code class="nf">all_caps</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">diff</code> <code class="o">=</code> <code class="sc">'a'</code> <code class="o">-</code> <code class="sc">'A'</code><code class="p">;</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">b</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">b</code> <code class="o">&lt;</code> <code class="mi">30</code> <code class="o">&amp;&amp;</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">!=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">b</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&gt;=</code> <code class="sc">'a'</code> <code class="o">&amp;&amp;</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;=</code> <code class="sc">'z'</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// We have a lowercase letter, so change this slot</code>
+      <code class="c1">// in the char array to its uppercase cousin</code>
+      <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">-=</code> <code class="n">diff</code><code class="p">;</code>
+    <code class="p">}</code>
+  <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a name or phrase: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%[^</code><code class="se">\n</code><code class="s">]s"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Before all_caps(): %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+  <code class="n">all_caps</code><code class="p">();</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"After all_caps(): %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>And here’s the output from running the program:</p>
+
+<pre data-type="programlisting">ch05$ gcc globals.c
+ch05$ ./a.out
+Please enter a name or phrase: This is a test.
+Before all_caps(): This is a test.
+After all_caps(): THIS IS A TEST.</pre>
+
+<p>Notice that we never alter the value of the variable in <code>main()</code>, but
+we see (and can print) the changes that were made inside the <code>all_caps()</code>
+function.</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>The <a data-type="indexterm" data-primary="format strings" id="idm45018725491432"/><a data-type="indexterm" data-primary="newline character" id="idm45018725490696"/><a data-type="indexterm" data-primary="strings" data-secondary="white space in" id="idm45018725490024"/><a data-type="indexterm" data-primary="white space in strings" id="idm45018725489080"/>format string I use in <em>globals.c</em> probably looks strange. On its own,
+<code>scanf("%s", buffer)</code> would stop scanning for a string at the first bit of
+white space. In the sample output, that would mean only the word “This”
+would be captured into <code>buffer</code>. The <code>[^\n]</code> qualifier borrows some syntax
+from the world of <a href="https://oreil.ly/3A61l">regular expressions</a>
+and means “any character except a newline.” This allows us to
+type in a phrase with spaces and capture every word up to the newline as a
+single string.</p>
+</div>
+
+<p>Sometimes working with a global variable is legitimately useful. Especially on
+smaller systems like the Arduino, this arrangement can occasionally save you a
+few bytes. But you really do have to be careful. If too many functions
+use and alter a global variable, debugging what is happening when things
+go wrong gets really messy. If you don’t have a compelling reason
+to use a global variable, I recommend passing shared values as
+parameters to any function that needs them.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Masking global variables"><div class="sect3" id="smallerc-CHP-5-SECT-6.1.1">
+<h3>Masking global variables</h3>
+
+<p>One <a data-type="indexterm" data-primary="masking global variables" id="mask-global"/><a data-type="indexterm" data-primary="variables" data-secondary="scope" data-tertiary="local" id="idm45018725481464"/><a data-type="indexterm" data-primary="scope of variables" data-secondary="local" id="idm45018725480248"/><a data-type="indexterm" data-primary="local variables" id="idm45018725479304"/><a data-type="indexterm" data-primary="functions" data-secondary="local variables" id="idm45018725478632"/>other important gotcha with respect to global variables is that
+you can still declare a local variable inside a function with the same
+name as the global variable. Such a local variable is said to <em>mask</em>
+the global variable. Any printing or calculating or manipulating you
+do inside the function only affects the <em>local</em> variable. And if
+you also need to access the global one, you are out of luck. Look at
+<a href="https://oreil.ly/KO8Fe"><em>ch05/globals2.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">char</code> <code class="n">buffer</code><code class="p">[</code><code class="mi">30</code><code class="p">];</code>
+
+<code class="kt">void</code> <code class="nf">all_caps</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">buffer</code><code class="p">[</code><code class="mi">30</code><code class="p">]</code> <code class="o">=</code> <code class="s">"This is a local buffer!"</code><code class="p">;</code>
+  <code class="kt">char</code> <code class="n">diff</code> <code class="o">=</code> <code class="sc">'a'</code> <code class="o">-</code> <code class="sc">'A'</code><code class="p">;</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">b</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">b</code> <code class="o">&lt;</code> <code class="mi">30</code> <code class="o">&amp;&amp;</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">!=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">b</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&gt;=</code> <code class="sc">'a'</code> <code class="o">&amp;&amp;</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;=</code> <code class="sc">'z'</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// We have a lowercase letter, so change this slot</code>
+      <code class="c1">// in the char array to its uppercase cousin</code>
+      <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">-=</code> <code class="n">diff</code><code class="p">;</code>
+    <code class="p">}</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Inside all_caps(): %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a name or phrase: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%[^</code><code class="se">\n</code><code class="s">]s"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Before all_caps(): %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+  <code class="n">all_caps</code><code class="p">();</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"After all_caps(): %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>And compare the output from the previous <em>globals.c</em> to this output:</p>
+
+<pre data-type="programlisting">ch05$ gcc globals2.c
+ch05$ ./a.out
+Please enter a name or phrase: A second global test.
+Before all_caps(): A second global test.
+Inside all_caps(): THIS IS A LOCAL BUFFER!
+After all_caps(): A second global test.</pre>
+
+<p>You can see here that back in the <code>main()</code> method, the global <code>buffer</code>
+variable was not updated, even though that may have been what we wanted.
+Again, I don’t recommend using global variables unless it is
+necessary. Sometimes their convenience will win you over, and that’s
+fine. Just be vigilant and<a data-type="indexterm" data-primary="masking global variables" data-startref="mask-global" id="idm45018725327192"/><a data-type="indexterm" data-primary="variables" data-secondary="scope" data-tertiary="global" data-startref="variables-scope-global" id="idm45018725326248"/><a data-type="indexterm" data-primary="scope of variables" data-secondary="global" data-startref="scope-global" id="idm45018725324760"/><a data-type="indexterm" data-primary="global variables" data-startref="global-scope" id="idm45018725323544"/> deliberate.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="The main() Function"><div class="sect1" id="smallerc-CHP-5-SECT-7">
+<h1>The main() Function</h1>
+
+<p>We’ve<a data-type="indexterm" data-primary="functions" data-secondary="main()" id="idm45018725320680"/><a data-type="indexterm" data-primary="main() function" id="idm45018725319672"/> mentioned the <code>main()</code> function a number of times in this chapter
+as we expand our knowledge of C functions. <code>main()</code> is indeed a real, regular
+C function with the main (ha!) distinction of being the function where an
+executable C program starts. Since it is “just a function,” can
+we return a value from it? Can we pass it parameters? If so, where would the arguments
+used to fill those parameters come from? You can indeed return values and declare
+parameters. This last section covers <code>main()</code> in more detail if you’re
+interested. Luckily, the simple <code>main()</code> we’ve
+been using so far will continue to suffice for our lean examples.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Return values and main()"><div class="sect2" id="smallerc-CHP-5-SECT-7.1">
+<h2>Return values and main()</h2>
+
+<p>But<a data-type="indexterm" data-primary="functions" data-secondary="main()" data-tertiary="return values" id="functions-main-return"/><a data-type="indexterm" data-primary="main() function" data-secondary="return values" id="main-return"/><a data-type="indexterm" data-primary="returned values (functions)" data-secondary="from main() function" data-secondary-sortas="main() function" id="return-values-main"/> we haven’t really dug into the details of our <code>main()</code> declarations.
+You may have already been wondering about the fact that we give a type (<code>int</code>)
+to the <code>main()</code> function although we have never written a <code>return</code> statement
+in that function. But it turns out we could!</p>
+
+<p>Most operating systems use some mechanism for determining whether a program you run has completed successfully or failed for some reason. Unix and its derivatives, as well as MS DOS, use numeric values for this purpose. A return value of zero is generally considered success and anything else a failure. “Anything else” leaves a pretty wide range of failure options, which some programs do use. If you write shell scripts or DOS batch files, you may have used these return values to suss out exactly why a particular command failed, and mitigate the problem if possible.</p>
+
+<p>I have not included a <code>return</code> in the <code>main()</code> function in any of our examples so far. So what has been
+going on? The compiler has simply built a program that implicitly provides <code>0</code>
+as the <code>int</code> return value. Let’s take a look by checking the exit status
+of our very first program, <em>hello.c</em>.</p>
+
+<p>First, let’s compile and run the program. Now we can follow up and ask the operating
+system about that return value. On Unix/Linux and macOS systems, you check the
+<code>$?</code> special variable:</p>
+
+<pre data-type="programlisting">ch01$ gcc -o hello hello.c
+ch01$ ./hello
+Hello, world
+ch01$ echo $?
+0</pre>
+
+<p>On Windows systems, you can check the <code>%ERRORLEVEL%</code> variable:</p>
+
+<pre data-type="programlisting">C:\Users\marc\Documents\smallerc&gt; gcc -o hello.exe hello.c
+
+C:\Users\marc\Documents\smallerc&gt; hello
+Hello world
+
+C:\Users\marc\Documents\smallerc&gt;echo %ERRORLEVEL%
+0</pre>
+
+<p>But that “0” might feel a little unconvincing since that is a
+common value for undefined or uninitialized variables. Let’s write
+a new program,
+<a href="https://oreil.ly/vHOfd"><em>ch05/exitcode.c</em></a>,
+that returns an explicit, non-zero value to prove something
+is being returned.</p>
+
+<p>We’ll prompt the user to see if they want to succeed or fail. It’s
+a silly prompt, but it allows you to try the two options without recompiling:</p>
+<pre data-type="programlisting" data-code-language="c" class="pagebreak-before">
+<code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">answer</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Would you like to succeed (s) or fail (f)? "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">answer</code><code class="p">);</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">answer</code> <code class="o">==</code> <code class="sc">'s'</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">answer</code> <code class="o">==</code> <code class="sc">'f'</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">1</code><code class="p">;</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"You supplied an unsupported answer: %c</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">answer</code><code class="p">);</code>
+    <code class="k">return</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="p">}</code>
+<code class="p">}</code>
+</pre>
+
+<p>Let’s compile and run this one with a few different answers to see
+what we get when checking the exit code via the operating system. (For
+brevity, I’ll just show the Linux output, but both macOS and Windows
+would be similar.)</p>
+
+<pre data-type="programlisting">ch05$ gcc exitcode.c
+ch05$ ./a.out
+Would you like to succeed (s) or fail (f)? s
+ch05$ echo $?
+0
+ch05$ ./a.out
+Would you like to succeed (s) or fail (f)? f
+ch05$ echo $?
+1
+ch05$ ./a.out
+Would you like to succeed (s) or fail (f)? invalid
+You supplied an unsupported answer: i
+ch05$ echo $?
+2</pre>
+
+<p>This simple program hints at how more complex programs might use these exit
+codes to provide more details on what happened. Notice, though, that in the
+end the program still exited. These values are optional but can be useful
+if you plan to write utilities that will end up in <a data-type="indexterm" data-primary="functions" data-secondary="main()" data-tertiary="return values" data-startref="functions-main-return" id="idm45018725254648"/><a data-type="indexterm" data-primary="main() function" data-secondary="return values" data-startref="main-return" id="idm45018725160776"/><a data-type="indexterm" data-primary="returned values (functions)" data-secondary="from main() function" data-secondary-sortas="main() function" data-startref="return-values-main" id="idm45018725159560"/>scripts.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Command-Line Arguments and main()"><div class="sect2" id="smallerc-CHP-5-SECT-7.2">
+<h2>Command-Line Arguments and main()</h2>
+
+<p>What <a data-type="indexterm" data-primary="functions" data-secondary="main()" data-tertiary="command-line arguments" id="functions-main-arguments"/><a data-type="indexterm" data-primary="main() function" data-secondary="command-line arguments" id="main-arguments"/><a data-type="indexterm" data-primary="arguments" data-secondary="for main() function" data-secondary-sortas="main() function" id="arguments-main"/>about passing arguments to <code>main()</code>? Happily, you can use the command
+line and a second option for
+defining main that helps with that exact task. This alternate version
+looks like this:</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="kt">int</code> <code class="nf">main</code><code class="p">(</code><code class="kt">int</code> <code class="n">argc</code><code class="p">,</code> <code class="kt">char</code> <code class="o">*</code><code class="n">argv</code><code class="p">[])</code> <code class="p">{</code> <code class="c1">// ...</code>
+</pre>
+
+<p>The <code>argc</code> parameter is the “argument count,” and the <code>argv</code>
+string array is the list of “argument values.” The asterisk in the type
+of <code>argv</code> might be a little surprising. The <code>argv</code> variable is indeed
+an array of character arrays, similar to the two-dimensional <code>char</code>
+arrays in <a data-type="xref" href="ch04.xhtml#smallerc-CHP-4-SECT-2">“Multidimensional Arrays”</a>, but this is a more flexible version.
+It is an array of <code>char</code> <em>pointers</em> (denoted by that askterisk). We’ll cover pointers next in
+<a data-type="xref" href="ch06.xhtml#smallerc-CHP-6">Chapter 6</a>, where we can dive into details. For now, think of <code>argv</code>
+as an array of strings.</p>
+
+<p>You stock the <code>argv</code> array from the command line when you start your
+program. Everything comes in as a string, but you can convert them to
+other things (well, numbers or characters) if that’s what you
+need. Here’s a short program,
+<a href="https://oreil.ly/1SiYk"><em>ch05/argv.c</em></a>,
+to illustrate accessing the
+arguments with a common check for a “help flag.” If
+the first command-line argument is <code>-h</code>, we’ll print
+a help message and ignore the rest of the arguments. Otherwise we’ll
+list them all out, one per line:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">void</code> <code class="nf">print_help</code><code class="p">(</code><code class="kt">char</code> <code class="o">*</code><code class="n">program_name</code><code class="p">)</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"You can enter several command-line arguments like this:</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%s this is four words</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">program_name</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">(</code><code class="kt">int</code> <code class="n">argc</code><code class="p">,</code> <code class="kt">char</code> <code class="o">*</code><code class="n">argv</code><code class="p">[])</code> <code class="p">{</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">argc</code> <code class="o">==</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Only the name of the program '%s' was given.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">argv</code><code class="p">[</code><code class="mi">0</code><code class="p">]);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">argc</code> <code class="o">==</code> <code class="mi">2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Might be a request for help</code>
+    <code class="kt">int</code> <code class="n">len</code> <code class="o">=</code> <code class="k">sizeof</code><code class="p">(</code><code class="n">argv</code><code class="p">[</code><code class="mi">1</code><code class="p">]);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="n">len</code> <code class="o">&gt;=</code> <code class="mi">2</code> <code class="o">&amp;&amp;</code> <code class="n">argv</code><code class="p">[</code><code class="mi">1</code><code class="p">][</code><code class="mi">0</code><code class="p">]</code> <code class="o">==</code> <code class="sc">'-'</code> <code class="o">&amp;&amp;</code> <code class="n">argv</code><code class="p">[</code><code class="mi">1</code><code class="p">][</code><code class="mi">1</code><code class="p">]</code> <code class="o">==</code> <code class="sc">'h'</code><code class="p">)</code> <code class="p">{</code>
+      <code class="n">print_help</code><code class="p">(</code><code class="n">argv</code><code class="p">[</code><code class="mi">0</code><code class="p">]);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"Found one, non-help argument: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">argv</code><code class="p">[</code><code class="mi">1</code><code class="p">]);</code>
+    <code class="p">}</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Found %c command-line arguments:</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">argc</code><code class="p">);</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="n">argc</code><code class="p">;</code> <code class="n">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"  %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">argv</code><code class="p">[</code><code class="n">i</code><code class="p">]);</code>
+    <code class="p">}</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>When you run <em>argv.c</em> with a few random words, you should see them
+listed out:</p>
+
+<pre data-type="programlisting">ch05$ gcc argv.c
+ch05$ ./a.out this is a test!
+Found  command-line arguments:
+  ./a.out
+  this
+  is
+  a
+  test!</pre>
+
+<p class="pagebreak-before less_space">But if you use just the special <code>-h</code> argument, you should get our
+help message:</p>
+
+<pre data-type="programlisting">ch05$ ./a.out -h
+You can enter several command-line arguments like this:
+./a.out this is four words
+ch05$ gcc -o argv argv.c
+ch05$ ./argv -h
+You can enter several command-line arguments like this:
+./argv this is four words</pre>
+
+<p>Try running it a few times yourself. If you want to try a fairly advanced
+exercise, create a function that converts a string of digits to an integer.
+Then use that function to add up all of the numbers you pass on the
+command line. Here’s an example of the expected output:</p>
+
+<pre data-type="programlisting">./sum 22 154 6 73
+The sum of these 4 numbers is 255</pre>
+
+<p>You can check my solution in the <em>sum.c</em> file if you want to see how I
+tackled it.</p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>You might <a data-type="indexterm" data-primary="strings" data-secondary="converting to numbers" id="idm45018724913304"/><a data-type="indexterm" data-primary="numbers" data-secondary="converting strings to" id="idm45018724911960"/><a data-type="indexterm" data-primary="converting strings to numbers" id="idm45018724911016"/><a data-type="indexterm" data-primary="atoi() function" id="idm45018724910328"/><a data-type="indexterm" data-primary="functions" data-secondary="atoi()" id="idm45018724909656"/>suppose converting strings to numbers is a common
+task and that C would already have a function for it, and you’d
+mostly be right. There is a function called <code>atoi()</code> (ascii to integer)
+that is part of the standard library, <em>stdlib.h</em>. We’ll look into
+libraries in <a data-type="xref" href="ch07.xhtml#smallerc-CHP-7">Chapter 7</a>, but this small addition saves a lot of
+manual labor. If you are up for another quick exercise, try including
+the <code>stdlib.h</code> header and use the <code>atoi()</code> function to complete an
+alternate variation. Or feel free to just peek at my <a data-type="indexterm" data-primary="functions" data-secondary="main()" data-tertiary="command-line arguments" data-startref="functions-main-arguments" id="idm45018724905816"/><a data-type="indexterm" data-primary="main() function" data-secondary="command-line arguments" data-startref="main-arguments" id="idm45018724904232"/><a data-type="indexterm" data-primary="arguments" data-secondary="for main() function" data-secondary-sortas="main() function" data-startref="arguments-main" id="idm45018724903016"/>solution in <em>sum2.c</em>.</p>
+</div>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Next Steps"><div class="sect1" id="smallerc-CHP-5-SECT-8">
+<h1>Next Steps</h1>
+
+<p>We’ve got all of the biggest building blocks out of the way now.
+You can start building some really interesting programs to solve real-world
+problems with the various control structures from previous chapters
+and the functions we covered here. But C can do more,
+and as we start to look forward to working
+on microcontrollers, some of that “more” will be critical.</p>
+
+<p>In the next two chapters, we’ll tackle pointers and using libraries to
+round out our C skills. Then we can dive into the world of Arduino and
+have a world of fun!</p>
+</div></section>
+
+
+
+
+
+
+
+<div data-type="footnotes"><p data-type="footnote" id="idm45018727721800"><sup><a href="ch05.xhtml#idm45018727721800-marker">1</a></sup> Within reason, of course. Or rather, within your computer’s resource limits. Desktop systems have so much memory these days, it would be difficult to write too many functions. On our microcontrollers, though, we do have to be more careful.</p><p data-type="footnote" id="idm45018726259176"><sup><a href="ch05.xhtml#idm45018726259176-marker">2</a></sup> If you want to experience the pinnacle of nerdy humor, check out <em>The Hitchhiker’s Guide to the Galaxy</em> by Douglas Adams. The words “Don’t Panic” feature prominently in large, friendly letters.</p></div></div></section></div></body></html>

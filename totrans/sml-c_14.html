@@ -1,0 +1,278 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="appendix" epub:type="appendix" data-pdf-bookmark="Appendix B. printf() Format Specifier Details"><div class="appendix" id="smallerc-APP-B">
+<h1><span class="label">Appendix B. </span>printf() Format Specifier Details</h1>
+
+
+<p>The <a data-type="indexterm" data-primary="functions" data-secondary="printf()" id="functions-printf-format-specs"/><a data-type="indexterm" data-primary="printf() function" id="printf-format-specs"/><a data-type="indexterm" data-primary="format specifiers" id="format-specifier-printf"/>formats supported by the <code>printf()</code> function almost comprise their
+own language. While not an exhaustive list, this appendix details all of the
+options I use throughout this book. I also describe how the options work
+with the different types of output, even if I do not use a given combination.
+As with so much of programming, it is useful to try stuff out yourself to see
+how the pieces fit together.</p>
+
+<p>The code examples include a simple C program that goes through the more popular
+combinations of flags, widths, precisions, and types. You can compile and run
+<em>popular_formats.c</em> as is, or you can edit it to tweak some of the lines and
+test your own combinations.</p>
+
+<p>If you want to know even more about the things you can specify in <code>printf()</code>,
+including nonstandard and implementation-specific options,
+I recommend the Wikipedia page devoted to
+<a href="https://oreil.ly/Adirl">just this topic</a>.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Specifier Syntax"><div class="sect1" id="smallerc-APP-B-SECT-1">
+<h1>Specifier Syntax</h1>
+
+<p>The specifier as I use it throughout this book contains three optional
+elements and one required type arranged like so:</p>
+
+<pre data-type="programlisting">% flag(s) width . precision type</pre>
+
+<p>Again, the flag (or flags), width, and precision are not required.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Specifier Types"><div class="sect2" id="smallerc-APP-B-SECT-1.1">
+<h2>Specifier Types</h2>
+
+<p>How <code>printf()</code> interprets<a data-type="indexterm" data-primary="type specifiers for printf() function" id="type-spec"/> a given value to print depends on the type specifier
+you use. The value 65, for example, would print as the letter “A”
+with <code>%c</code> (characters) but as “41” with <code>%x</code> (hexadecimal integers).
+<a data-type="xref" href="#smallerc-APP-B-TAB-printf-types">Table B-1</a> summarizes the types we have used throughout
+this book, although it is not an exhaustive list.</p>
+<table id="smallerc-APP-B-TAB-printf-types">
+<caption><span class="label">Table B-1. </span>Format specifier types for <code>printf()</code></caption>
+<thead>
+<tr>
+<th>Specifier</th>
+<th>Type(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>%c</code></p></td>
+<td><p><code>char</code></p></td>
+<td><p>Print out a single character</p></td>
+</tr>
+<tr>
+<td><p><code>%d</code></p></td>
+<td><p><code>char, int, short, long</code></p></td>
+<td><p>Print signed integer values in decimal (base 10)</p></td>
+</tr>
+<tr>
+<td><p><code>%f</code></p></td>
+<td><p><code>float, double</code></p></td>
+<td><p>Print floating point values</p></td>
+</tr>
+<tr>
+<td><p><code>%i</code></p></td>
+<td><p><code>char, int, short</code></p></td>
+<td><p>Print integer values in base 10 (same as <code>%d</code> for output)</p></td>
+</tr>
+<tr>
+<td><p><code>%o</code></p></td>
+<td><p><code>int, short, long</code></p></td>
+<td><p>Print integer values in octal (base 8)</p></td>
+</tr>
+<tr>
+<td><p><code>%p</code></p></td>
+<td><p>address</p></td>
+<td><p>Print pointers (as hexadecimal address)</p></td>
+</tr>
+<tr>
+<td><p><code>%s</code></p></td>
+<td><p><code>char[]</code></p></td>
+<td><p>Print a string (array of char) as text</p></td>
+</tr>
+<tr>
+<td><p><code>%u</code></p></td>
+<td><p><code>unsigned (char, int, short)</code></p></td>
+<td><p>Print unsigned integer values in decimal</p></td>
+</tr>
+<tr>
+<td><p><code>%x</code></p></td>
+<td><p><code>char, int, short, long</code></p></td>
+<td><p>Print integer values in hexadecimal (base 16)</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>The <code>%i</code> and <code>%u</code> integer types<a data-type="indexterm" data-primary="% (percent sign), printf specifiers" id="idm45018711076904"/><a data-type="indexterm" data-primary="percent sign (%), printf specifiers" id="idm45018711076200"/> can use length modifiers. <code>l</code> or <code>ll</code> (e.g., <code>%li</code> or <code>%llu</code>)
+tell <code>printf()</code> to expect <code>long</code> or <code>long long</code> length arguments. For floating point types,
+<code>L</code> can be used (e.g., <code>%Ld</code>) to indicate <a data-type="indexterm" data-primary="type specifiers for printf() function" data-startref="type-spec" id="idm45018711071496"/>a <code>long double</code> argument.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Specifier Flags"><div class="sect2" id="smallerc-APP-B-SECT-1.2">
+<h2>Specifier Flags</h2>
+
+<p>Each type<a data-type="indexterm" data-primary="flags for printf() function" id="idm45018711068232"/> you specify can be modified with one or more flags. <a data-type="xref" href="#smallerc-APP-B-TAB-printf-flags">Table B-2</a> lists the specifier flags. Not all flags have an effect on every
+type, and all flags are optional.</p>
+<table id="smallerc-APP-B-TAB-printf-flags">
+<caption><span class="label">Table B-2. </span>Format specifier flags for <code>printf()</code></caption>
+<thead>
+<tr>
+<th>Specifier</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>-</code></p></td>
+<td><p>Left-align output within its field</p></td>
+</tr>
+<tr>
+<td><p><code>+</code></p></td>
+<td><p>Force plus sign (<code>+</code>) prefix on positive numeric values</p></td>
+</tr>
+<tr>
+<td><p><code>(space)</code></p></td>
+<td><p>Force space prefix on positive numeric values (as opposed to no prefix at all)</p></td>
+</tr>
+<tr>
+<td><p><code>0</code></p></td>
+<td><p>Pad left of numeric values with 0s (if they do not fill a field where width is specified)</p></td>
+</tr>
+<tr>
+<td><p><code>#</code></p></td>
+<td><p>Print a prefix (<code>0</code>, <code>0x</code>, or <code>0X</code>) when used with <code>o</code>, <code>x</code>, or <code>X</code> types</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You see these flags used more often when you have numeric, columnar output, although flags like
+the “-” can be used on strings as well.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Width and Precision"><div class="sect2" id="smallerc-APP-B-SECT-1.3">
+<h2>Width and Precision</h2>
+
+<p>For any<a data-type="indexterm" data-primary="width for format specifiers" id="idm45018710417736"/> specifier, you can supply a minimum width for the output field. (The minimum qualifier
+means that no truncation occurs for values that are larger than the given width.) The default
+is to align output to the right, but that can be changed with the <code>-</code> flag noted in
+<a data-type="xref" href="#smallerc-APP-B-TAB-printf-flags">Table B-2</a>.</p>
+
+<p>You can also supply a precision, which can<a data-type="indexterm" data-primary="precision for format specifiers" id="idm45018710414952"/> affect the maximum width for output. For floating
+point types, it dictates the number of digits to the right of the decimal separator. For
+strings, it truncates over-long values. It is ignored for integer types.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Common Formats"><div class="sect1" id="smallerc-APP-B-SECT-2">
+<h1>Common Formats</h1>
+
+<p>To see some of the more common or popular formats in action, take a look at
+<a href="https://oreil.ly/R2vNI"><em>appB/popular_formats.c</em></a>.
+It’s just a big batch of <code>printf()</code> calls, but it contains a wide variety of examples
+using different format specifiers. I won’t bother with the source listing here, but
+the output makes for a quick reference:</p>
+
+<pre data-type="programlisting">appB$ gcc popular_formats.c
+appB$ ./a.out
+char Examples
+  Simple char:             %c       |y|
+  In a 9-char field:       %9c      |        y|
+  Left, 9-char field:      %-9c     |y        |
+  The percent sign:        %%       |%|
+
+
+int Examples
+  Simple int:              %i       |76|
+  Simple decimal int:      %d       |76|
+  Simple octal int:        %o       |114|
+  Prefixed octal int:      %#o      |0114|
+  Simple hexadecimal int:  %x       |4c|
+  Uppercase hexadecimal:   %X       |4C|
+  Prefixed hexadecimal:    %#x      |0x4c|
+  Prefixed uppercase:      %#X      |0X4C|
+  In a 9-column field:     %9i      |       76|
+  Left, 9-column field:    %-9i     |76       |
+  Zeros, 9-column field:   %09i     |000000076|
+  With plus prefix:        %+i      |+76|
+    negative value:                 |-12|
+  With space prefix:       % i      | 76|
+     negative value:                |-12|
+  Huge number:             %llu     |28054511505742|
+  (Ignored) precision:     %1.1d    |76|
+
+
+float Examples
+  Simple float:            %f       |216.289993|
+  2 decimal places:        %.2f     |216.29|
+  1 decimal place:         %.1f     |216.3|
+  No decimal places:       %.0f     |216|
+  In a 12-column field:    %12f     |  216.289993|
+  2 decimals, 12 columns:  %12.2f   |      216.29|
+  Left, 12-column field:   %-12.2f  |216.29      |
+
+
+string (char[]) Examples
+  Simple string:           %s       |Ada Lovelace|
+  In a 20-column field:    %20s     |        Ada Lovelace|
+  Left, 20-column field:   %-20s    |Ada Lovelace        |
+  6-column field:          %6s      |Ada Lovelace|
+  6-columns, truncated:    %6.6s    |Ada Lo|
+
+
+And last but not least, a blank line (\n):</pre>
+
+<p>The Wikipedia page<a data-type="indexterm" data-primary="functions" data-secondary="printf()" data-startref="functions-printf-format-specs" id="idm45018710407768"/><a data-type="indexterm" data-primary="printf() function" data-startref="printf-format-specs" id="idm45018710406424"/><a data-type="indexterm" data-primary="format specifiers" data-startref="format-specifier-printf" id="idm45018710405480"/> on the <a href="https://oreil.ly/xvtiC">printf format string</a> has a comprehensive overview of the options available.</p>
+</div></section>
+
+
+
+
+
+
+
+</div></section></div></body></html>

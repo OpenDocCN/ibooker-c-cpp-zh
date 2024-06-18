@@ -1,0 +1,2014 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="chapter" epub:type="chapter" data-pdf-bookmark="Chapter 3. Flow of Control"><div class="chapter" id="smallerc-CHP-3">
+<h1><span class="label">Chapter 3. </span>Flow of Control</h1>
+
+
+<p>Now that you have seen the basic format of a statement in C, it’s time to start
+branching out…pun intended. In code, the idea of making decisions and then selecting
+a particular bit of code to run instead of some other bit of code is<a data-type="indexterm" data-primary="branching" id="idm45018734466824"/><a data-type="indexterm" data-primary="conditional branching" data-see="branching" id="idm45018734466120"/> often referred to
+as <em>branching</em> or <em>conditional branching</em>. And repetition
+is often discussed in terms <a data-type="indexterm" data-primary="looping" id="idm45018734464184"/><a data-type="indexterm" data-primary="iterating" data-see="looping" id="idm45018734463480"/>of <em>looping</em> or <em>iterating</em>. Collectively, branching and looping
+statements comprise <a data-type="indexterm" data-primary="flow of control" data-seealso="branching; looping" id="idm45018734461544"/><a data-type="indexterm" data-primary="control flow" data-see="flow of control" id="idm45018734460568"/>the <em>flow of control</em> in a language.</p>
+
+<p>Some problems can be solved with a simple series of linear steps. Many programs that automate various computer tasks work just this way, taking a tedious routine and reducing that to a single app you can run
+whenever you need it. But programs can do much more than just process a batch
+of commands. They can make decisions based on the values in a variable or the state of a sensor. They can repeat tasks like turn on every LED in a string of lights or process every line in a log file. And they can combine the decision-making and repetition in complex, nested ways that allow you as the programmer to solve just about any problem you can think of. In this chapter we’ll
+look at how C implements these concepts.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Boolean Values"><div class="sect1" id="smallerc-CHP-3-SECT-1">
+<h1>Boolean Values</h1>
+
+<p>To <a data-type="indexterm" data-primary="Boolean values" data-secondary="described" id="boolean-describe"/>ask a question in C, you typically compare two (or more) things. C has several
+operators meant for just this task. You can check to see if two things are the same.
+You can check to see if two things are not the same. You can see if some value is
+less than or greater than some other value.</p>
+
+<p>When you ask questions like “is x the same as y,” you get a yes or no,
+true or false answer. In computer science, these are called Boolean values, after
+George Boole,<a data-type="indexterm" data-primary="Boole, George" id="idm45018734453768"/> who worked to formalize a system of logical operations and outcomes.
+Some languages have an actual type for Boolean values and variables, but C mostly
+uses integers: 0 is false/no and 1 is true/yes.<sup><a data-type="noteref" id="idm45018734452728-marker" href="ch03.xhtml#idm45018734452728">1</a></sup></p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>Technically, any value in C that is
+not 0 is true. So 1 is true, 2 is true, –18 is true, etc. I’ll point out
+anytime I perform a check that relies on this fact. It can be convenient, and you
+will definitely see it used in the real world, but I’ll be concentrating
+on performing explicit comparisons wherever<a data-type="indexterm" data-primary="Boolean values" data-secondary="described" data-startref="boolean-describe" id="idm45018734448008"/> I can.</p>
+</div>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Comparison Operators"><div class="sect2" id="smallerc-CHP-3-SECT-1.1">
+<h2>Comparison Operators</h2>
+
+<p>Math, <a data-type="indexterm" data-primary="Boolean values" data-secondary="comparison operators" id="boolean-compare"/><a data-type="indexterm" data-primary="comparison operators" id="compare"/><a data-type="indexterm" data-primary="operators" data-secondary="comparison" id="operators-compare"/>of course, is not the only thing computers are good at. When we get
+into writing more complex programs, we’ll need the ability to make
+decisions about the state of our system. We’ll need to compare variables
+against desired values and safeguard against error conditions. We’ll
+need to detect the end of lists and other data structures. Happily, all of
+these requirements can be accommodated with C’s comparison operators.</p>
+
+<p>C defines six operators (shown in <a data-type="xref" href="#smallerc-CHP-3-TABLE-comparison-ops">Table 3-1</a>) that can be used to compare values. We use these operators much like we used the mathematical operators from <a data-type="xref" href="ch02.xhtml#smallerc-CHP-2-TABLE-math-ops">Table 2-6</a>. You have a variable or value or expression on the left, the operator, and a variable or value or expression on the right. The difference here is that the result of using a comparison operator is always a<a data-type="indexterm" data-primary="== (double equal sign), equality comparison operator" id="idm45018734405800"/><a data-type="indexterm" data-primary="double equal sign (==), equality comparison operator" id="idm45018734405192"/><a data-type="indexterm" data-primary="equality comparison operator (==)" id="idm45018734404584"/> Boolean <code>int</code>, meaning it is always a <code>1</code> or a <code>0</code>.</p>
+<table id="smallerc-CHP-3-TABLE-comparison-ops">
+<caption><span class="label">Table 3-1. </span>Comparison operators</caption>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>==</code></p></td>
+<td><p>Is equal to</p></td>
+</tr>
+<tr>
+<td><p><code>!=</code></p></td>
+<td><p>Is not equal to</p></td>
+</tr>
+<tr>
+<td><p><code>&lt;</code></p></td>
+<td><p>Is less than</p></td>
+</tr>
+<tr>
+<td><p><code>&gt;</code></p></td>
+<td><p>Is greater than</p></td>
+</tr>
+<tr>
+<td><p><code>&lt;=</code></p></td>
+<td><p>Is less than or equal to</p></td>
+</tr>
+<tr>
+<td><p><code>&gt;=</code></p></td>
+<td><p>Is greater than or equal to</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>In C, the comparison operators work on characters, integers, and floating
+point numbers. Some languages support operators that work on more complex bits of
+data like arrays (I’ll cover these in <a data-type="xref" href="ch04.xhtml#smallerc-CHP-4">Chapter 4</a>), records, or
+objects, but C uses functions (covered in <a data-type="xref" href="ch05.xhtml#smallerc-CHP-5">Chapter 5</a>) to do that type
+of work.</p>
+
+<p>When comparing two expressions of the same type, you can use the operators in
+<a data-type="xref" href="#smallerc-CHP-3-TABLE-comparison-ops">Table 3-1</a> without really thinking about it.
+If you compare expressions of different types, say
+a <code>float</code> variable and an <code>int</code> value, the same notion of implicit
+casting (see <a data-type="xref" href="ch02.xhtml#smallerc-CHP-2-FIG-promotions">Figure 2-4</a>) applies and the value with the
+“lower” type will be promoted before being compared.</p>
+
+<p>We’ll put these comparison operators to use shortly in <a data-type="xref" href="#smallerc-CHP-3-SECT-2">“Branching”</a>
+and <a data-type="xref" href="#smallerc-CHP-3-SECT-3">“Loop Statements”</a>, but we can take a quick detour and show the 0-or-1
+results with some simple print statements. Consider
+<a href="https://oreil.ly/2dSZx"><em>ch03/booleans.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 1 == 1  : %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">1</code> <code class="o">==</code> <code class="mi">1</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 1 != 1  : %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">1</code> <code class="o">!=</code> <code class="mi">1</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &lt; 10  : %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">5</code> <code class="o">&lt;</code> <code class="mi">10</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &gt; 10  : %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">5</code> <code class="o">&gt;</code> <code class="mi">10</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"12 &lt;= 10 : %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">12</code> <code class="o">&lt;=</code> <code class="mi">10</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"12 &gt;= 10 : %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">12</code> <code class="o">&gt;=</code> <code class="mi">10</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>Go ahead and compile that file and run it. You should see output similar to this:</p>
+
+<pre data-type="programlisting">ch03$ gcc booleans.c
+ch03$ ./a.out
+ 1 == 1  : 1
+ 1 != 1  : 0
+ 5 &lt; 10  : 1
+ 5 &gt; 10  : 0
+12 &lt;= 10 : 0
+12 &gt;= 10 : 1</pre>
+
+<p>You can see here that a “true” comparison results in a <code>1</code>, as I
+noted before. Conversely, “false” is a <code>0</code> behind the<a data-type="indexterm" data-primary="Boolean values" data-secondary="comparison operators" data-startref="boolean-compare" id="idm45018734312104"/><a data-type="indexterm" data-primary="comparison operators" data-startref="compare" id="idm45018734310856"/><a data-type="indexterm" data-primary="operators" data-secondary="comparison" data-startref="operators-compare" id="idm45018734309912"/> scenes.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Logical Operators"><div class="sect2" id="smallerc-CHP-3-SECT-1.2">
+<h2>Logical Operators</h2>
+
+<p>Some<a data-type="indexterm" data-primary="Boolean values" data-secondary="logical operators" id="boolean-logical"/><a data-type="indexterm" data-primary="logical operators" id="logical"/><a data-type="indexterm" data-primary="operators" data-secondary="logical (Boolean)" id="operators-logical"/> questions we want to ask in our code cannot be reduced to a single comparison.
+A very popular question, for example, is to ask if a variable is within a
+range of values. We need to know if the variable in question is <em>both</em> greater
+than some minimum value <em>and</em> also less than some maximum. C does not have
+the kinds of operators that create ranges or that test for membership in such
+ranges. But C does support logical operators (sometimes you’ll hear about
+Boolean operators) to help you build up logic expressions that can be quite complex.</p>
+
+<p>To get started, look at the operators in <a data-type="xref" href="#smallerc-CHP-3-TABLE-boolean-ops">Table 3-2</a>.</p>
+<table id="smallerc-CHP-3-TABLE-boolean-ops">
+<caption><span class="label">Table 3-2. </span>Boolean operators</caption>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Operation</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>!</p></td>
+<td><p>Not</p></td>
+<td><p>Unary operator that produces the logical opposite of its operand</p></td>
+</tr>
+<tr>
+<td><p>&amp;&amp;</p></td>
+<td><p>And</p></td>
+<td><p>Conjunction; both operands must be true to yield true</p></td>
+</tr>
+<tr>
+<td><p>||</p></td>
+<td><p>Or</p></td>
+<td><p>Disjunction; true if at least one operand is true</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>These operators probably look a little strange and you may not be familiar with
+logical operations, so give yourself some time to play with these symbols. Don’t
+worry if they aren’t comfortable yet. Boolean algebra is not a common grade
+school topic! But you will definitely encounter these operators in code you find
+online, so let’s make sure you understand how they work.</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>Calling it “logic” or “boolean algebra” is useful when
+discussing programming languages, but you probably do have experience with these
+concepts from human languages (like the English I’m using here): these
+operators<a data-type="indexterm" data-primary="conjunctions, comparison with logical operators" id="idm45018734287800"/> form <em>conjunctions</em>. The classic “and,” “but,”
+and “or” from grammar lessons are roughly equivalent to the <code>&amp;&amp;</code>,
+<code>!</code>, and <code>||</code> in C. Putting these Boolean expressions into English can even
+help you grasp their intent. Consider “x &gt; 0 &amp;&amp; x &lt; 100.” Go ahead
+and read that expression out loud: “x is greater than zero and x is less
+than 100.” If spelling these expressions out helps, it’s an easy
+trick to pull out when coming across new code.</p>
+</div>
+
+<p>In logic, these operators can be described best by their outcomes. Those outcomes,
+in turn, are often shown <a data-type="indexterm" data-primary="truth tables" id="idm45018734283928"/>in <em>truth tables</em> that enumerate all possible combinations
+of inputs and their results. Luckily, with only two possible values, true and false,
+the combinations are manageable. Each operator gets its own truth table.
+<a data-type="xref" href="#smallerc-CHP-3-TABLE-boolean-op-and">Table 3-3</a> lists the inputs and results<a data-type="indexterm" data-primary="&amp;&amp; (AND) operator" id="idm45018734281656"/><a data-type="indexterm" data-primary="AND (&amp;&amp;) operator" id="idm45018734280984"/> for the <code>&amp;&amp;</code> operator. Let’s
+start there.</p>
+<table id="smallerc-CHP-3-TABLE-boolean-op-and">
+<caption><span class="label">Table 3-3. </span>The <code>&amp;&amp;</code> (and) operator</caption>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>a &amp;&amp; b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>true</p></td>
+<td><p>true</p></td>
+<td><p>true</p></td>
+</tr>
+<tr>
+<td><p>true</p></td>
+<td><p>false</p></td>
+<td><p>false</p></td>
+</tr>
+<tr>
+<td><p>false</p></td>
+<td><p>true</p></td>
+<td><p>false</p></td>
+</tr>
+<tr>
+<td><p>false</p></td>
+<td><p>false</p></td>
+<td><p>false</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>As the table illustrates, this is a fairly restrictive operator. Both inputs have to be true
+for the result to be true. Per the previous tip, it can be useful to think in terms of an English
+conjunction: “We can’t go to the party until both Reg <em>and</em> Kaori
+are ready.” If Reg isn’t ready, we have to wait. If Reg is ready, but
+Kaori isn’t, we have to wait. Of course, if neither are ready, we wait.<sup><a data-type="noteref" id="idm45018734265544-marker" href="ch03.xhtml#idm45018734265544">2</a></sup>
+It’s only when both are good to go that we can start our trek. For the record, Reg and
+Kaori are both quite prompt individuals. Waiting is rarely an issue. ;)</p>
+
+<p><a data-type="xref" href="#smallerc-CHP-3-TABLE-boolean-op-or">Table 3-4</a> shows the <a data-type="indexterm" data-primary="|| (OR) operator" id="idm45018734263256"/><a data-type="indexterm" data-primary="OR (||) operator" id="idm45018734262552"/>results when using <code>||</code> for the same combination
+of inputs.</p>
+<table id="smallerc-CHP-3-TABLE-boolean-op-or">
+<caption><span class="label">Table 3-4. </span>The <code>||</code> (or) operator</caption>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>a || b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>true</p></td>
+<td><p>true</p></td>
+<td><p>true</p></td>
+</tr>
+<tr>
+<td><p>true</p></td>
+<td><p>false</p></td>
+<td><p>true</p></td>
+</tr>
+<tr>
+<td><p>false</p></td>
+<td><p>true</p></td>
+<td><p>true</p></td>
+</tr>
+<tr>
+<td><p>false</p></td>
+<td><p>false</p></td>
+<td><p>false</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>This is a more permissive operator. Back to our party trip metaphor, perhaps it falls on a weeknight and we can’t expect both of our friends to drop
+everything and join. For this variation, if <em>either</em> Reg <em>or</em> Kaori can join,
+then we will have a nice time with a good dinner companion. Similar to the <code>&amp;&amp;</code> operator, if both can join, then hooray! We still have an enjoyable evening ahead.<sup><a data-type="noteref" id="idm45018734246248-marker" href="ch03.xhtml#idm45018734246248">3</a></sup>
+If both inputs are false, though, the overall answer is still false and we’ll
+be stuck on our own.</p>
+
+<p>The final operator C supports for building logic expressions is <code>!</code>. It is a
+<em>unary</em> operator, <a data-type="indexterm" data-primary="unary operators" id="idm45018734204856"/><a data-type="indexterm" data-primary="! (NOT) operator" id="idm45018734204248"/><a data-type="indexterm" data-primary="NOT (!) operator" id="idm45018734203576"/><a data-type="indexterm" data-primary="exclamation point (!), NOT operator" id="idm45018734202904"/>meaning it operates on only one thing rather than the two that go into a <em>binary</em> operation like the math or comparison operators require. That means its table, <a data-type="xref" href="#smallerc-CHP-3-TABLE-boolean-op-not">Table 3-5</a>, is a little simpler.</p>
+<table id="smallerc-CHP-3-TABLE-boolean-op-not">
+<caption><span class="label">Table 3-5. </span>The <code>!</code> (not) operator</caption>
+<thead>
+<tr>
+<th>a</th>
+<th>!a</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>true</p></td>
+<td><p>false</p></td>
+</tr>
+<tr>
+<td><p>false</p></td>
+<td><p>true</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>In coding, this “not” operation is often used to guard against
+errors before continuing on. Our final party example: we will arrive at
+the party on time as long as we do <em>not</em> run into traffic. This operator
+creates an opposite result. So “traffic is bad” versus “no
+traffic is good.” The conversion to English is not quite as literal,
+but hopefully still illustrates the point that you can talk about the logic
+being<a data-type="indexterm" data-primary="Boolean values" data-secondary="logical operators" data-startref="boolean-logical" id="idm45018734192424"/><a data-type="indexterm" data-primary="logical operators" data-startref="logical" id="idm45018734191304"/><a data-type="indexterm" data-primary="operators" data-secondary="logical (Boolean)" data-startref="operators-logical" id="idm45018734190456"/> performed.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Branching"><div class="sect1" id="smallerc-CHP-3-SECT-2">
+<h1>Branching</h1>
+
+<p>Now that we know how to translate logic questions into valid C syntax, how can
+we put those questions to use? We’ll start with the notion of conditional
+statements, or <em>branches</em>. We can ask a question and then execute some group of
+statements (or not) depending on the answer.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The if Statement"><div class="sect2" id="smallerc-CHP-3-SECT-2.1">
+<h2>The if Statement</h2>
+
+<p>The <a data-type="indexterm" data-primary="statements" data-secondary="branching" data-tertiary="if statement" id="statements-branch-if"/><a data-type="indexterm" data-primary="branching" data-secondary="if statement" id="branching-if"/><a data-type="indexterm" data-primary="if statement" id="if"/>simplest conditional statement is the <code>if</code> statement. It has three forms,
+with the simplest being a do-it-or-don’t configuration. The syntax of
+this statement is fairly straightforward. You supply the <code>if</code> keyword, a
+test inside parentheses, and then a statement <a data-type="indexterm" data-primary="blocks of code" id="idm45018734179928"/>or code <em>block</em> (a grouping
+of one or more statements inside curly braces) like so:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="c1">// For single statements, like a printf():</code>
+<code class="k">if</code> <code class="p">(</code><code class="n">test</code><code class="p">)</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Test returned true!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+
+<code class="c1">// or for multiple statements:</code>
+<code class="k">if</code> <code class="p">(</code><code class="n">test</code><code class="p">)</code> <code class="p">{</code>
+  <code class="c1">// body goes here</code>
+<code class="p">}</code></pre>
+
+<p>If the <a data-type="indexterm" data-primary="expressions" data-secondary="Boolean, in if statements" id="idm45018734156936"/><a data-type="indexterm" data-primary="Boolean values" data-secondary="in if statements" data-secondary-sortas="if statements" id="idm45018734156200"/><a data-type="indexterm" data-primary="if statement" data-secondary="Boolean expressions in" id="idm45018734154984"/>Boolean
+expression we use is true, we will execute the statement or block
+following the <code>if</code> line.
+If the expression is false, we will skip the statement or block.</p>
+
+<p>Consider a simple program that asks the user for a numeric input. You might
+want to let the user know about uncommon inputs, in case they made a typo.
+For example, we could allow negative numbers, but maybe they aren’t the usual
+way to go. We still want the program to run, but we alert the user that they
+might get a surprising result. The program in
+<a href="https://oreil.ly/sP2kJ"><em>ch03/warnings.c</em></a> is a simple
+example:</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">units</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter the number of units found: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%d"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">units</code><code class="p">);</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">units</code> <code class="o">&lt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// start of our "if" code block</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  *** Warning: possible lost items ***</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="c1">// end of our "if" code block</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d units received.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">units</code><code class="p">);</code>
+<code class="p">}</code>
+</pre>
+
+<p>If we run this with a few different inputs, you can see the effect of the <code>if</code>
+statement. Only the final run shows the warning:</p>
+
+<pre data-type="programlisting">ch03$ gcc warnings.c
+ch03$ ./a.out
+Please enter the number of units found: 12
+12 units received.
+
+ch03$ ./a.out
+Please enter the number of units found: 7
+7 units received.
+
+ch03$ ./a.out
+Please enter the number of units found: -4
+  *** Warning: possible lost items ***
+-4 units received.</pre>
+
+<p>Try entering the program and then compile and run it yourself. Try changing the test to
+look for other things like even or odd numbers, or numbers inside or outside
+a range.</p>
+
+<p>We can also use <code>if</code> statements to get some more human-friendly responses from
+Boolean values. Instead of printing out simple ones and zeros, we can put
+the tests into an <code>if</code> statement and then print
+out any true response. Here’s our updated example; we’ll call it
+<a href="https://oreil.ly/neHcZ"><em>ch03/booleans2.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">1</code> <code class="o">==</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 1 == 1</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">1</code> <code class="o">!=</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 1 != 1</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">5</code> <code class="o">&lt;</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &lt; 10</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">5</code> <code class="o">&gt;</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &gt; 10</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">12</code> <code class="o">&lt;=</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"12 &lt;= 10</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">12</code> <code class="o">&gt;=</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"12 &gt;= 10</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Give this new program a try and you should get output similar to this:</p>
+
+<pre data-type="programlisting">ch03$ gcc booleans2.c
+ch03$ ./a.out
+ 1 == 1
+ 5 &lt; 10
+12 &gt;= 10</pre>
+
+<p>Great! Only<a data-type="indexterm" data-primary="debugging" data-secondary="with if statements" data-secondary-sortas="if statements" id="idm45018734071944"/><a data-type="indexterm" data-primary="if statement" data-secondary="debugging with" id="idm45018733931512"/> tests that return true are printing. That is much more readable.
+This type of <code>if</code> combined with <code>printf()</code> is
+a common debugging trick. Anytime you have an interesting (or worrying) condition,
+print out a warning and maybe include the relevant variables to help you fix the
+problem.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="else"><div class="sect3" id="smallerc-CHP-3-SECT-2.1.1">
+<h3>else</h3>
+
+<p>With<a data-type="indexterm" data-primary="statements" data-secondary="branching" data-tertiary="else statement" id="statements-branch-else"/><a data-type="indexterm" data-primary="branching" data-secondary="else statement" id="branching-else"/><a data-type="indexterm" data-primary="if statement" data-secondary="else statement and" id="if-else"/><a data-type="indexterm" data-primary="else statement" id="else"/> a simple <code>if</code>, we can see nice output for tests that return true. But what
+if we also want to know when a test is false? That’s what the second form
+of the <code>if</code> statement is for; it includes an <code>else</code> clause.
+You always use an <code>else</code> in conjunction with an <code>if</code>. (An <code>else</code> on its
+own is a syntax error and the program won’t compile.) The <code>if/else</code> statement
+ends up with two branches: one executes if the test is true, the other executes if
+the test is false. Let’s build
+<a href="https://oreil.ly/neHcZ"><em>ch03/booleans3.c</em></a> and get either a thumbs-up or
+a thumbs-down answer for every test:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">1</code> <code class="o">==</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 1 == 1</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 1 == 1 returned false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">1</code> <code class="o">!=</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 1 != 1 returned true</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 1 != 1  is false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">5</code> <code class="o">&lt;</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &lt; 10</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 5 &lt; 10 returned false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">5</code> <code class="o">&gt;</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 5 &gt; 10 returned true</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &gt; 10  is false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">12</code> <code class="o">&lt;=</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 12 &lt;= 10 returned false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"12 &lt;= 10 is false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">12</code> <code class="o">&gt;=</code> <code class="mi">10</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"12 &gt;= 10</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 12 &gt;= 10 returned false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>And if we run this with the same inputs from before, we’ll see a gratifying
+expansion of answers:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="n">ch03</code><code class="err">$</code> <code class="n">gcc</code> <code class="n">booleans3</code><code class="p">.</code><code class="n">c</code>
+<code class="n">ch03</code><code class="err">$</code> <code class="p">.</code><code class="o">/</code><code class="n">a</code><code class="p">.</code><code class="n">out</code>
+ <code class="mi">1</code> <code class="o">==</code> <code class="mi">1</code>
+ <code class="mi">1</code> <code class="o">!=</code> <code class="mi">1</code>  <code class="n">is</code> <code class="nb">false</code>
+ <code class="mi">5</code> <code class="o">&lt;</code> <code class="mi">10</code>
+ <code class="mi">5</code> <code class="o">&gt;</code> <code class="mi">10</code>  <code class="n">is</code> <code class="nb">false</code>
+<code class="mi">12</code> <code class="o">&lt;=</code> <code class="mi">10</code> <code class="n">is</code> <code class="nb">false</code>
+<code class="mi">12</code> <code class="o">&gt;=</code> <code class="mi">10</code></pre>
+
+<p>Perfect. We have readable answers for every test. Now we don’t have to
+wonder if a test ran and failed or was somehow skipped altogether. We get a
+useful response every time. Try upgrading the <em>warnings.c</em> file so that you
+still get the warning if a number is “unusual,” but it also gives the user a friendly message indicating their input is in the expected range.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="else if chains"><div class="sect3" id="smallerc-CHP-3-SECT-2.1.2">
+<h3>else if chains</h3>
+
+<p>We <a data-type="indexterm" data-primary="chaining else if statements" id="chain-if-else"/>now have some pretty powerful decision statements in our toolkit. We can
+do something or skip it. We can do one thing or an alternative. What if we need
+to decide between three statements? Or four? Or more? One possible pattern for
+this scenario is the third variation of <code>if</code>: the <code>if/else if/else</code> combination.</p>
+
+<p>C allows you to “chain” <code>if/else</code> pairs together to achieve a
+one-of-many branch selection. Consider game scores that get rated with one,
+two, or three stars depending on how well you did. You could get that type
+of answer with this idea of <code>else if</code> blocks. Here is
+<a href="https://oreil.ly/Fe8q9"><em>ch03/stars.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">score</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your score (1 - 100): "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%d"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">score</code><code class="p">);</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;</code> <code class="mi">100</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Bad score, must be between 1 and 100.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;=</code> <code class="mi">85</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Great! 3 stars!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;=</code> <code class="mi">50</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Good score! 2 stars.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;=</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"You completed the game. 1 star.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="c1">// Only here because we have a negative score</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Impossible score, must be positive.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p class="pagebreak-before less_space">Here are some example runs:</p>
+
+<pre data-type="programlisting">ch03$ gcc stars.c
+ch03$ ./a.out
+Enter your score (1 - 100): 72
+Good score! 2 stars.
+
+ch03$ ./a.out
+Enter your score (1 - 100): 99
+Great! 3 stars!
+
+ch03$ ./a.out
+Enter your score (1 - 100): 4567
+Bad score, must be between 1 and 100.
+
+ch03$ ./a.out
+Enter your score (1 - 100): 42
+You completed the game. 1 star.
+
+ch03$ ./a.out
+Enter your score (1 - 100): -42
+Impossible score, must be positive.</pre>
+
+<p>But maybe our game is special and has four star performances. (Wow!) The file
+<a href="https://oreil.ly/uXLDr"><em>ch03/stars2.c</em></a> shows how to
+bring one more <code>else if</code> clause to the rescue!</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">score</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your score (1 - 100): "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%d"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">score</code><code class="p">);</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;</code> <code class="mi">100</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Bad score, must be between 1 and 100.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">==</code> <code class="mi">100</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Perfect score!! 4 stars!!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;=</code> <code class="mi">85</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Great! 3 stars!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;=</code> <code class="mi">50</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Good score! 2 stars.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">score</code> <code class="o">&gt;=</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"You completed the game. 1 star.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="c1">// Only here because we have a negative score</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Impossible score, must be positive.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>And a few more examples of the output to verify that our new top score works:</p>
+
+<pre data-type="programlisting">ch03$ gcc stars2.c
+ch03$ ./a.out
+Enter your score (1 - 100): 100
+Perfect score!! 4 stars!!
+
+ch03$ ./a.out
+Enter your score (1 - 100): 64
+Good score! 2 stars.
+
+ch03$ ./a.out
+Enter your score (1 - 100): 101
+Bad score, must be between 1 and 100.</pre>
+
+<p>You could continue those chains ad infinitum. Well, within reason. You’ll
+eventually be limited by memory and beyond a handful of clauses, it becomes
+difficult to follow the flow of such chains. If it feels like you have too many
+<code>else/if</code> blocks in one chain, it might be worth spending a little time examining
+your algorithm to see if there are other ways to break down your<a data-type="indexterm" data-primary="chaining else if statements" data-startref="chain-if-else" id="idm45018733523112"/><a data-type="indexterm" data-primary="statements" data-secondary="branching" data-tertiary="else statement" data-startref="statements-branch-else" id="idm45018733355464"/><a data-type="indexterm" data-primary="branching" data-secondary="else statement" data-startref="branching-else" id="idm45018733353976"/><a data-type="indexterm" data-primary="if statement" data-secondary="else statement and" data-startref="if-else" id="idm45018733352760"/><a data-type="indexterm" data-primary="else statement" data-startref="else" id="idm45018733351544"/> tests.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="if gotchas"><div class="sect3" id="smallerc-CHP-3-SECT-2.1.3">
+<h3>if gotchas</h3>
+
+<p>The <a data-type="indexterm" data-primary="if statement" data-secondary="potential pitfalls" id="if-pitfalls"/><a data-type="indexterm" data-primary="debugging" data-secondary="if statement" id="debug-if"/>syntax of those <code>else/if</code> chains hints at a detail of C’s syntax I previously
+mentioned briefly. The <code>if</code> and <code>else</code> chunks <a data-type="indexterm" data-primary="{} (curly braces)" data-secondary="in if/else statements" data-secondary-sortas="if/else statements" id="curly-if"/><a data-type="indexterm" data-primary="curly braces ({})" data-secondary="in if/else statements" data-secondary-sortas="if/else statements" id="curly-if-spelled"/>do not require the curly braces if you
+have exactly one statement in the clause. For example, our <em>booleans3.c</em> could be
+written like this (<a href="https://oreil.ly/FrXzk"><em>ch03/booleans3_alt.c</em></a>):</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">1</code> <code class="o">==</code> <code class="mi">1</code><code class="p">)</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 1 == 1</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">else</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 1 == 1 returned false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">if</code> <code class="p">(</code><code class="mi">1</code> <code class="o">!=</code> <code class="mi">1</code><code class="p">)</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" *** Yikes! 1 != 1 returned true</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">else</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" 1 != 1  is false</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="c1">// ...</code>
+<code class="p">}</code></pre>
+
+<p>You will definitely run across code like this online. It saves a little typing
+and can make for more compact code where the tests and the statements are simple.
+You <em>can</em> use the curly braces to create a block with a single statement
+just as we did in the original <em>booleans3.c</em> code. It works like using extra
+parentheses in mathematic operations: not necessary but useful for readability.
+It is mostly just a matter of style when
+you have only the one thing to do. Since doing two or more things always
+requires the curly braces, though, I’ll stick to using curly braces as
+a way to future-proof our code. (And as a matter of style, I prefer the consistency
+of seeing the braces.) If we come back later to update some example and
+need to add another print statement, say, we won’t have to remember
+to add the braces; they’ll be there ready and waiting.</p>
+
+<p>The tests you use in <code>if</code> statements can also cause problems if you aren’t
+careful. Remember the comment about C treating a zero as false and any other
+number as true? Some programmers rely on that fact to write very compact tests.
+Consider this snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">x</code><code class="p">;</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"Please enter an integer: "</code><code class="p">);</code>
+<code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="n">x</code><code class="p">);</code>
+<code class="k">if</code> <code class="p">(</code><code class="n">x</code><code class="p">)</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Thanks, you gave us a great number!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Oh. A zero. Well, thanks for </code><code class="se">\"</code><code class="s">nothing</code><code class="se">\"</code><code class="s">! ;)</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>The <code>if</code> clause will execute for any positive or negative number, as if
+we had built a real test like <code>x != 0</code> or even a fancier logical expression
+like <code>(x &lt; 0 || x &gt; 0)</code>. This
+pattern gets used as a (sometimes lazy) shortcut for asking “does this
+variable have any value at all” where a zero is assumed to be an
+invalid possibility. It’s a fairly common pattern, although I usually
+prefer to write explicit tests.</p>
+
+<p>One other big quirk of C using integers as proxies for Boolean values: there
+is a very subtle typo that can cause real trouble. Take a look at this next
+snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">first_card</code> <code class="o">=</code> <code class="mi">10</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">second_card</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">total</code> <code class="o">=</code> <code class="n">first_card</code> <code class="o">+</code> <code class="n">second_card</code><code class="p">;</code>
+
+<code class="k">if</code> <code class="p">(</code><code class="n">total</code> <code class="o">=</code> <code class="mi">21</code><code class="p">)</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Blackjack! %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">total</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>If you’re curious, go ahead and create a program to try this gotcha.
+When you run it, you’ll see that you <em>always</em> get the “Blackjack! 21”
+output. What happened? Look closely at the test in the <code>if</code> statement. What
+we meant to write was <code>total == 21</code> using the double equal sign
+comparison operator. By using the single equal sign, we <a data-type="indexterm" data-primary="expressions" data-secondary="assignment in" id="idm45018733089256"/><a data-type="indexterm" data-primary="assigning variables" id="idm45018733088456"/><a data-type="indexterm" data-primary="variables" data-secondary="assigning" id="idm45018733087784"/>actually <em>assigned</em>
+the value 21 to our <code>total</code> variable right there inside the <code>if</code> test! Assignments in C
+are expressions just like our mathematic calculations. The value of an assignment
+expression is the same as the new value being assigned. The upshot is that
+this test is akin to <code>if (21) ...</code>, which will always be true since 21 is not 0. It is
+frustratingly easy to make this mistake. Just watch out for <code>if</code> statements
+that always seem to execute no matter how you change your inputs.
+That behavior is a hint to reexamine the test you’re<a data-type="indexterm" data-primary="if statement" data-secondary="potential pitfalls" data-startref="if-pitfalls" id="idm45018733084104"/><a data-type="indexterm" data-primary="debugging" data-secondary="if statement" data-startref="debug-if" id="idm45018733082856"/><a data-type="indexterm" data-primary="statements" data-secondary="branching" data-tertiary="if statement" data-startref="statements-branch-if" id="idm45018733081640"/><a data-type="indexterm" data-primary="branching" data-secondary="if statement" data-startref="branching-if" id="idm45018733080152"/><a data-type="indexterm" data-primary="if statement" data-startref="if" id="idm45018733078936"/> using.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The switch Statement"><div class="sect2" id="smallerc-CHP-3-SECT-2.2">
+<h2>The switch Statement</h2>
+
+<p>I<a data-type="indexterm" data-primary="statements" data-secondary="branching" data-tertiary="switch statement" id="statements-branch-switch"/><a data-type="indexterm" data-primary="branching" data-secondary="switch statement" id="branching-switch"/><a data-type="indexterm" data-primary="switch statement" id="switch"/> noted in <a data-type="xref" href="#smallerc-CHP-3-SECT-2.1.2">“else if chains”</a> that the <code>if/else if</code> chains can become difficult
+to follow if you have too many tests chained together. Sometimes, though, you really
+do have a bunch of specific cases you need to check, say, what shirts are in stock
+at your favorite online store based on your size. If those cases all involve
+the same variable and all use simple equality (<code>==</code>) as the test, then you can
+use the <code>switch</code> statement in C as a nice alternative.</p>
+
+<p>A <code>switch</code> statement <a data-type="indexterm" data-primary="expressions" data-secondary="in switch statements" data-secondary-sortas="switch statements" id="idm45018733068984"/><a data-type="indexterm" data-primary="switch statement" data-secondary="expressions in" id="idm45018733067704"/>takes an expression (the control expression), typically
+a variable or simple calculation, and then systematically compares the value of
+that expression to one or more constant values <a data-type="indexterm" data-primary="case statement" id="idm45018733066440"/><a data-type="indexterm" data-primary="break statement" id="idm45018733065768"/>using <code>case</code> labels.
+If the control expression value matches a case, the code
+following that value starts executing and continues until the end of the
+<code>switch</code> statement (which is always a curly brace block) or the program hits
+a <code>break</code> command. The
+<a href="https://oreil.ly/LVkuZ"><em>ch03/medals.c</em></a> file contains a simple example:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">place</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your place: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">place</code><code class="p">);</code>
+  <code class="k">switch</code> <code class="p">(</code><code class="n">place</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"1st place! Gold!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"2nd place! Silver!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">3</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"3rd place! Bronze!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>If you compile and run the program a few times with the three possible inputs,
+you should see results like this:</p>
+
+<pre data-type="programlisting">ch03$ gcc medals.c
+ch03$ ./a.out
+Enter your place: 2
+2nd place! Silver!
+
+ch03$ ./a.out
+Enter your place: 1
+1st place! Gold!
+
+ch03$ ./a.out
+Enter your place: 3
+3rd place! Bronze!</pre>
+
+<p>Neat! Exactly what we expected. But what if we comment out those <code>break</code>
+lines? Let’s try that now because this illustrates a critical quirk with
+<code>switch</code> that can trip up new programmers. Here is our altered program,
+<a href="https://oreil.ly/MluI4"><em>ch03/medals2.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">place</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your place: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">place</code><code class="p">);</code>
+  <code class="k">switch</code> <code class="p">(</code><code class="n">place</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"1st place! Gold!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"2nd place! Silver!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">case</code> <code class="mi">3</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"3rd place! Bronze!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>And here is the new output using the same series of inputs we used the first time:</p>
+
+<pre data-type="programlisting">ch03$ gcc medals2.c
+ch03$ ./a.out
+Enter your place: 2
+2nd place! Silver!
+3rd place! Bronze!
+
+ch03$ ./a.out
+Enter your place: 1
+1st place! Gold!
+2nd place! Silver!
+3rd place! Bronze!
+
+ch03$ ./a.out
+Enter your place: 3
+3rd place! Bronze!</pre>
+
+<p>Huh. That’s really strange. Once it gets started, the program just keeps executing
+statements in the <code>switch</code> even if they are part of separate cases. While that might
+seem like a bad idea, it is meant to be a feature of <code>switch</code>, not a bug. This
+design allows you to perform the same action for several values. Consider the following
+snippet that describes any number between 1 and 10 in terms of even, odd, and prime:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="n">printf</code><code class="p">(</code><code class="s">"Describing %d:</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">someNumber</code><code class="p">);</code>
+<code class="k">switch</code><code class="p">(</code><code class="n">someNumber</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  only even prime</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">3</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">5</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">7</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  prime</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">9</code><code class="o">:</code>
+    <code class="c1">// 1 isn't often described as prime, so we'll just let it be odd</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  odd</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">4</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">6</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">8</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">10</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  even</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+<code class="p">}</code></pre>
+
+<p>We can arrange cases in such a way that the <code>switch</code> feature of flowing until a
+<code>break</code> gives us exactly the right output. While this feature is most often used to
+collect a related series of distinct values (such as our even numbers) and then give
+them the same
+block to execute, the flow of printing the “prime” qualifier
+and then continuing on to add the “odd” designation is valid and
+can be handy sometimes.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Handling defaults"><div class="sect3" id="smallerc-CHP-3-SECT-2.2.1">
+<h3>Handling defaults</h3>
+
+<p>There is <a data-type="indexterm" data-primary="switch statement" data-secondary="default statement and" id="switch-default"/><a data-type="indexterm" data-primary="default statement" id="default-statement"/>one other feature in <code>switch</code> that is similar to the <code>else</code> clause that
+can be used with <code>if</code> statements. Sometimes you want your <code>switch</code> statement to
+handle every possible input. But listing out a few thousand integers or even just
+every letter in the alphabet can be very tedious, to say the least. And usually,
+you don’t have unique actions for all those thousands of options. In these
+situations, you can use the <code>default</code> label as your final “case” and
+it will execute regardless of the control expression value.</p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>Technically, <code>default</code> can appear anywhere in the list of cases, not just as the
+final option. However, since the <code>default</code> case <em>always</em> runs when encountered, it
+doesn’t make sense to include subsequent, specific cases.</p>
+</div>
+
+<p>For example, with our <em>medals.c</em> program, what about contestants that didn’t
+make the podium? Try running it again with some number larger than three. What do you
+get? Nothing. No error, no output, nada. Let’s write
+<a href="https://oreil.ly/l1AHK"><em>ch03/medals3.c</em></a> and use the <code>default</code>
+option to print a message and at least prove we saw the input:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">place</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your place: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">place</code><code class="p">);</code>
+  <code class="k">switch</code> <code class="p">(</code><code class="n">place</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"1st place! Gold!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"2nd place! Silver!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">3</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"3rd place! Bronze!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">default</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Sorry, you didn't make the podium.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Compile and run this new program and try some values larger than three:</p>
+
+<pre data-type="programlisting">ch03$ gcc medals3.c
+ch03$ ./a.out
+Enter your place: 8
+Sorry, you didn't make the podium.
+
+ch03$ ./a.out
+Enter your place: 88
+Sorry, you didn't make the podium.
+
+ch03$ ./a.out
+Enter your place: 5792384
+Sorry, you didn't make the podium.</pre>
+
+<p>Lovely! No matter what number greater than three we give, we get some feedback to show that we have
+processed that input. Exactly what we wanted. And we can use <code>default</code> even with
+<code>switch</code> statements that include the multiple-cases-per-block arrangement.
+Let’s add a “Top 10” level to our medal description program,
+<a href="https://oreil.ly/lS1tv"><em>ch03/medals4.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">place</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your place: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">place</code><code class="p">);</code>
+  <code class="k">switch</code> <code class="p">(</code><code class="n">place</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"1st place! Gold!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"2nd place! Silver!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">3</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"3rd place! Bronze!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">case</code> <code class="mi">4</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">5</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">6</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">7</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">8</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">9</code><code class="o">:</code>
+  <code class="k">case</code> <code class="mi">10</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Top 10! Congrats!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+  <code class="k">default</code><code class="o">:</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Sorry, you didn't make the podium.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>One more compile and then run it with a few inputs:</p>
+
+<pre data-type="programlisting">ch03$ gcc medals4.c
+ch03$ ./a.out
+Enter your place: 4
+Top 10! Congrats!
+
+ch03$ ./a.out
+Enter your place: 1
+1st place! Gold!
+
+ch03$ ./a.out
+Enter your place: 20
+Sorry, you didn't make the podium.
+
+ch03$ ./a.out
+Enter your place: 7
+Top 10! Congrats!</pre>
+
+<p>Great. Here’s a quick homework assignment for you. Modify <em>medals4.c</em> so
+that if you get 4th or 5th place, you get labeled a “runner up.”
+Places 6 through 10 should still be listed as top 10. (It’s a small change.
+You can check your answer against<a data-type="indexterm" data-primary="switch statement" data-secondary="default statement and" data-startref="switch-default" id="idm45018732521208"/><a data-type="indexterm" data-primary="default statement" data-startref="default-statement" id="idm45018732520024"/><a data-type="indexterm" data-primary="statements" data-secondary="branching" data-tertiary="switch statement" data-startref="statements-branch-switch" id="idm45018732519080"/><a data-type="indexterm" data-primary="branching" data-secondary="switch statement" data-startref="branching-switch" id="idm45018732517624"/><a data-type="indexterm" data-primary="switch statement" data-startref="switch" id="idm45018732516408"/> mine in
+<a href="https://oreil.ly/W7uci"><em>ch03/medals5.c</em></a>.)</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="The Ternary Operator and Conditional Assignment"><div class="sect1" id="smallerc-CHP-3-SECT-2.3">
+<h1>The Ternary Operator and Conditional Assignment</h1>
+
+<p>One <a data-type="indexterm" data-primary="operators" data-secondary="ternary" id="operators-ternary"/><a data-type="indexterm" data-primary="?: (ternary) operator" id="ternary"/><a data-type="indexterm" data-primary="ternary (?:) operator" id="ternary-spelled"/><a data-type="indexterm" data-primary="conditional assignment" id="conditional-assign"/><a data-type="indexterm" data-primary="assigning variables" data-secondary="conditional assignment" id="assigning-variables-conditional"/><a data-type="indexterm" data-primary="variables" data-secondary="assigning" data-tertiary="conditional assignment" id="variables-assigning-conditional"/>last conditional topic that gets a lot of use in lean code is the notion of
+conditional assignment. C includes a ternary operator, <code>?:</code>, that takes three
+operands. It allows you to use one of two values in a very compact
+syntax. The result of this ternary expression is indeed a value like any
+other expression in C, so you can use <code>?:</code> anywhere a value is legal.</p>
+
+<p>The syntax of <code>?:</code> uses a Boolean expression as the first operand, then the
+question mark, then an
+expression to evaluate if the boolean is true, then the colon,
+and finally an alternate expression to evaluate if the boolean is false.</p>
+
+<p>A great example of using the ternary operator is grabbing the smaller of
+two values. Consider a simple program processing two bids for some graphic
+design work. Budget is sadly the driving factor, so you need to accept the
+lowest bid.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">winner</code> <code class="o">=</code> <code class="p">(</code><code class="n">bid1</code> <code class="o">&lt;</code> <code class="n">bid2</code><code class="p">)</code> <code class="o">?</code> <code class="nl">bid1</code> <code class="p">:</code> <code class="n">bid2</code><code class="p">;</code></pre>
+
+<p>Very dense! It takes a little practice even just to read these ternary expressions,
+but once you have the hang of it, I think you’ll find it a very handy
+operator. The alternative is a somewhat drawn out <code>if/else</code>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">winner</code><code class="p">;</code>
+<code class="k">if</code> <code class="p">(</code><code class="n">bid1</code> <code class="o">&lt;</code> <code class="n">bid2</code><code class="p">)</code> <code class="p">{</code>
+  <code class="n">winner</code> <code class="o">=</code> <code class="n">bid1</code><code class="p">;</code>
+<code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+  <code class="n">winner</code> <code class="o">=</code> <code class="n">bid2</code><code class="p">;</code>
+<code class="p">}</code></pre>
+
+<p>Certainly not an awful alternative, but it is definitely more verbose. Plus
+there are times where the ternary approach really simplifies things. Remember
+the first program on Boolean expressions, <em>booleans.c</em>, in <a data-type="xref" href="#smallerc-CHP-3-SECT-1.1">“Comparison Operators”</a>?
+We had to live with interpreting a 1 as “true” and a 0 as
+“false.” We eventually printed nice statements in <em>booleans3.c</em>, but we
+had to use that fairly verbose <code>if/else</code> pattern. With <code>?:</code>, however, we can make
+human-friendly output directly in the <code>printf()</code> statements. Try
+<a href="https://oreil.ly/Hnumr"><em>ch03/booleans4.c</em></a> and
+see what you think:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 1 == 1  : %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">1</code> <code class="o">==</code> <code class="mi">1</code> <code class="o">?</code> <code class="s">"true"</code> <code class="o">:</code> <code class="s">"false"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 1 != 1  : %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">1</code> <code class="o">!=</code> <code class="mi">1</code> <code class="o">?</code> <code class="s">"true"</code> <code class="o">:</code> <code class="s">"false"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &lt; 10  : %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">5</code> <code class="o">&lt;</code> <code class="mi">10</code> <code class="o">?</code> <code class="s">"true"</code> <code class="o">:</code> <code class="s">"false"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" 5 &gt; 10  : %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">5</code> <code class="o">&gt;</code> <code class="mi">10</code> <code class="o">?</code> <code class="s">"true"</code> <code class="o">:</code> <code class="s">"false"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"12 &lt;= 10 : %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">12</code> <code class="o">&lt;=</code> <code class="mi">10</code> <code class="o">?</code> <code class="s">"true"</code> <code class="o">:</code> <code class="s">"false"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"12 &gt;= 10 : %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">12</code> <code class="o">&gt;=</code> <code class="mi">10</code> <code class="o">?</code> <code class="s">"true"</code> <code class="o">:</code> <code class="s">"false"</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>And here is our updated output:</p>
+
+<pre data-type="programlisting">ch03$ gcc booleans4.c
+ch03$ ./a.out
+ 1 == 1  : true
+ 1 != 1  : false
+ 5 &lt; 10  : true
+ 5 &gt; 10  : false
+12 &lt;= 10 : false
+12 &gt;= 10 : true</pre>
+
+<p>Much better.</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>It was<a data-type="indexterm" data-primary="if statement" data-secondary="ternary operator versus" id="idm45018732264216"/> a bit of a pain wrapping each of those print calls in an
+<code>if/else</code> block in <em>booleans3.c</em>. Not just annoying, the shared
+parts in the printed text can get out of sync if you make any changes.
+If you found a typo at the beginning of a line, for example, you would
+have to make sure you fixed the beginning of both the <code>if</code> clause
+<code>printf()</code> and again in the <code>else</code> clause. It is all too easy to forget
+one or the other.</p>
+
+<p>Any time you can avoid such duplicated code by using
+a different conditional statement or operator, it’s worth considering.
+But don’t be overzealous; if your <code>if/else</code> chain feels readable and
+produces the right output, that is still a fine <a data-type="indexterm" data-primary="operators" data-secondary="ternary" data-startref="operators-ternary" id="idm45018732259928"/><a data-type="indexterm" data-primary="?: (ternary) operator" data-startref="ternary" id="idm45018732258680"/><a data-type="indexterm" data-primary="ternary (?:) operator" data-startref="ternary-spelled" id="idm45018732257736"/><a data-type="indexterm" data-primary="conditional assignment" data-startref="conditional-assign" id="idm45018732256792"/><a data-type="indexterm" data-primary="assigning variables" data-secondary="conditional assignment" data-startref="assigning-variables-conditional" id="idm45018732255848"/><a data-type="indexterm" data-primary="variables" data-secondary="assigning" data-tertiary="conditional assignment" data-startref="variables-assigning-conditional" id="idm45018732254664"/>option.</p>
+</div>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Loop Statements"><div class="sect1" id="smallerc-CHP-3-SECT-3">
+<h1>Loop Statements</h1>
+
+<p>You <a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="described" id="idm45018732251144"/><a data-type="indexterm" data-primary="looping" data-secondary="described" id="idm45018732249864"/>can solve some interesting problems with just variables and the input,
+output, and branching statements we have covered so far. But one of the spots
+where computers really shine is when you need to repeat a test or batch of
+statements. To perform repetitions, you can use one of C’s <em>loop</em>
+statements. Your program will execute all of the (optional) statements,
+and at the end of those statements, “loop” back to the start
+and execute them all again. Usually you don’t want that loop
+to run forever, so each loop statement has a condition to check and
+see when the loop should stop.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The for Statement"><div class="sect2" id="smallerc-CHP-3-SECT-3.1">
+<h2>The for Statement</h2>
+
+<p>One<a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="for statement" id="statements-loop-for"/><a data-type="indexterm" data-primary="looping" data-secondary="for statement" id="looping-for"/><a data-type="indexterm" data-primary="for statement" id="for"/> type of repetition that crops up in programming is repeating a block for
+a specific number of times. For example, doing something for each day of the week,
+or processing the first 5 lines of input, or even just counting to 10. In fact,
+let’s see the <code>for</code> loop that counts to 10, shown in <a data-type="xref" href="#smallerc-CHP-3-FIG-for-loop-annotated">Figure 3-1</a> where
+I have marked the parts of the loop. (Feel free to type this in or open up the
+<a href="https://oreil.ly/qqDiQ"><em>ch03/ten.c</em></a> file.)
+It can look a little messy at first, but over time it’ll become familiar.</p>
+
+<figure class="width-50"><div id="smallerc-CHP-3-FIG-for-loop-annotated" class="figure">
+<img src="Images/smac_0301.png" alt="smac 0301" width="829" height="603"/>
+<h6><span class="label">Figure 3-1. </span>An annotated <code>for</code> loop</h6>
+</div></figure>
+
+<p>Before we look at the details of the loop, here’s the output:</p>
+
+<pre data-type="programlisting">ch03$ gcc ten.c
+ch03$ ./a.out
+Loop iteration: 1
+Loop iteration: 2
+Loop iteration: 3
+Loop iteration: 4
+Loop iteration: 5
+Loop iteration: 6
+Loop iteration: 7
+Loop iteration: 8
+Loop iteration: 9
+Loop iteration: 10</pre>
+<dl class="calloutlist">
+<dt><img src="Images/1.png" alt="1" width="12" height="12"/></dt>
+<dd><p>(<code>int i = 1</code>) This is our loop variable. We use the same declaration
+and initialization syntax as we do for normal variables. This portion of the
+loop is always executed first, and is only executed once when the loop starts.</p></dd>
+<dt><img src="Images/2.png" alt="2" width="12" height="12"/></dt>
+<dd><p>(<code>i &lt;= 10</code>) Here is the test to see when the loop should stop. The loop
+will run as long as this test returns true. If this condition is
+false—even the first time it is checked—the loop will end.</p></dd>
+<dt><img src="Images/3.png" alt="3" width="12" height="12"/></dt>
+<dd><p>The body of the loop is executed next, assuming the test in <img src="Images/2.png" alt="2" width="12" height="12"/> returned true.</p></dd>
+<dt><img src="Images/4.png" alt="4" width="12" height="12"/></dt>
+<dd><p>(<code>i = i + 1</code>) After completing the body, this adjustment expression is evaluated.
+This expression typically increments or decrements our loop variable by one. After
+this step, control jumps back to <img src="Images/2.png" alt="2" width="12" height="12"/> to see if the loop should continue.</p></dd>
+</dl>
+
+<p>The initialization, the check for when to end, and the adjustment
+are all quite flexible. You can use whatever name you like and can count up or
+down by any amount. You can even use the <code>char</code> type for a variable if you want
+sequential characters for any reason.</p>
+
+<p>Let’s try a few more simple <code>for</code> loops to practice its syntax and its
+flow. We’ll initialize our loop variable, check to make sure we should
+start the loop, execute the statements in the body, perform the adjustment,
+and then check to see if we should continue. Lather. Rinse. Repeat.<sup><a data-type="noteref" id="idm45018732222664-marker" href="ch03.xhtml#idm45018732222664">4</a></sup> We’ll try some loops with different adjustments
+including a decrement that can be used to count backward,
+<a href="https://oreil.ly/jzGZe"><em>ch03/more_for.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Print only even values from 2 to 10:</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;=</code> <code class="mi">10</code><code class="p">;</code> <code class="n">i</code> <code class="o">=</code> <code class="n">i</code> <code class="o">+</code> <code class="mi">2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  %i</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">i</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">Count down from 5 to 1:</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">j</code> <code class="o">=</code> <code class="mi">5</code><code class="p">;</code> <code class="n">j</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">;</code> <code class="n">j</code> <code class="o">=</code> <code class="n">j</code> <code class="o">-</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"  %i</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">j</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Here’s our output:</p>
+
+<pre data-type="programlisting">ch03$ gcc more_for.c
+ch03$ ./a.out
+Print only even values from 2 to 10:
+  2
+  4
+  6
+  8
+  10
+
+Count down from 5 to 1:
+  5
+  4
+  3
+  2
+  1</pre>
+
+<p>Try tweaking some of the values in the loops and
+recompile. Can you count backward by twos? Can you count to 100? Can you
+count from 1 to 1,024 by doubling?</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Increment shortcuts"><div class="sect3" id="smallerc-CHP-3-SECT-3.1.1">
+<h3>Increment shortcuts</h3>
+
+<p>Incrementing <a data-type="indexterm" data-primary="variables" data-secondary="incrementing/decrementing" id="idm45018732093448"/><a data-type="indexterm" data-primary="incrementing variables" id="idm45018732092488"/><a data-type="indexterm" data-primary="decrementing variables" id="idm45018732091816"/><a data-type="indexterm" data-primary="for statement" data-secondary="incrementing/decrementing variables" id="idm45018732091144"/>or decrementing a variable like we do in those adjustment expressions
+is such a common task (even outside of loops) that C supports a number of shortcuts for that type
+of change. Consider statements of the following form:</p>
+
+<pre data-type="programlisting">var = var op value
+
+// Examples
+i = i + 1
+y = y * 5
+total = total - 1</pre>
+
+<p>where <code>var</code> is some variable and <code>op</code> is one of the arithmetic operators
+from <a data-type="xref" href="ch02.xhtml#smallerc-CHP-2-TABLE-math-ops">Table 2-6</a>. If you are using that pattern in your
+code, you can use a compound assignment instead:</p>
+
+<pre data-type="programlisting">var op= value
+
+// Converted examples
+i += 1
+y *= 5
+total -= 1</pre>
+
+<p>Going further, any time you are adding or subtracting 1 from a variable, you
+can use an even more succinct variation:</p>
+
+<pre data-type="programlisting">var++ or var--
+
+// Further converted examples
+i++
+total--</pre>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>You may see a “prefix” version of the increment and decrement
+shortcuts, i.e., <code>++i</code> or <code>--total</code>. These variations are legal and
+have a subtle distinction that does not come into play when used in <code>for</code>
+loops like we’re doing.<sup><a data-type="noteref" id="idm45018732082600-marker" href="ch03.xhtml#idm45018732082600">5</a></sup></p>
+</div>
+
+<p>You don’t have to use these compact options, but they are popular and
+you will certainly encounter them on coding sites like Stack Overflow or in
+Arduino examples.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="for gotchas"><div class="sect3" id="smallerc-CHP-3-SECT-3.1.2">
+<h3>for gotchas</h3>
+
+<p>Before <a data-type="indexterm" data-primary="for statement" data-secondary="potential pitfalls" id="for-pitfalls"/><a data-type="indexterm" data-primary="debugging" data-secondary="for loops" id="debug-for"/>we tackle the other loop options in C, I want to point out a few details
+about <code>for</code> loops that can trip you up.</p>
+
+<p>Perhaps the most important element of the <code>for</code> loop syntax is the condition
+in the middle of the loop’s setup. You need to make sure that
+the condition allows the loop to <em>start</em> as well as the more obviously necessary
+ability to make the loop stop. Consider this loop snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">x</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="n">x</code> <code class="o">==</code> <code class="mi">11</code><code class="p">;</code> <code class="n">x</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// ....</code>
+  <code class="p">}</code></pre>
+
+<p>The ostensible intent of the loop is to count to 10—by stopping when <code>x</code>
+is equal to 11. But the condition must evaluate to true for the loop to run, so you
+can’t just watch for the end.</p>
+
+<p>You also need to make sure your condition and adjustment expressions are in sync.
+One of my favorite mistakes is to create a loop meant to count down or count
+backward, but I forget to use the decrement operation:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">countdown</code> <code class="o">=</code> <code class="mi">10</code><code class="p">;</code> <code class="n">countdown</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">;</code> <code class="n">countdown</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// ....</code>
+  <code class="p">}</code></pre>
+
+<p>I obviously should say <code>countdown--</code> in the last segment of this setup, but
+incrementing is so common, it’s almost muscle memory. Take a look at this
+loop. Can you see what is going to happen? Instead of moving toward the stop
+condition, this loop will head away and keep going for quite some time. Sadly,
+the compiler can’t really help us here because this syntax is entirely
+legal. The error<a data-type="indexterm" data-primary="logic errors" id="idm45018732039912"/> is a logic error, so it falls to you as the programmer to catch it.</p>
+
+<p>The other big mistake that can be easy to make has to do with the
+syntax of the <code>for</code> loop setup.
+Notice that the expressions are separated by semicolons, not commas:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">bad</code> <code class="o">=</code> <code class="mi">1</code><code class="p">,</code> <code class="n">bad</code> <code class="o">&lt;</code> <code class="mi">10</code><code class="p">,</code> <code class="n">bad</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// ....</code>
+  <code class="p">}</code>
+
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">good</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="n">good</code> <code class="o">&lt;</code> <code class="mi">10</code><code class="p">;</code> <code class="n">good</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// ....</code>
+  <code class="p">}</code></pre>
+
+<p>That detail is easy to miss and you’ll probably make that mistake
+at least once. Here, the compiler will catch you, though:</p>
+
+<pre data-type="programlisting">ch03$ gcc bad_ten.c
+ten.c: In function ‘main’:
+ten.c:4:23: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ before ‘&lt;=’ token
+    4 |   for (int bad = 1, bad &lt;= 10, bad++) {
+      |                     ^~
+ten.c:7:1: error: expected expression before ‘}’ token
+    7 | }
+      | ^
+ten.c:7:1: error: expected expression before ‘}’ token
+ten.c:7:1: error: expected expression before ‘}’ token</pre>
+
+<p>Easy to fix, of course, but something to be mindful of as you are learning. These
+types of errors are something you encounter (and then fix!) more often when
+typing up code directly rather than cutting and pasting it from an online source.
+I really do 
+<span class="keep-together">recommend</span> entering some of the program listings in this book by hand
+for just this<a data-type="indexterm" data-primary="for statement" data-secondary="potential pitfalls" data-startref="for-pitfalls" id="idm45018731906600"/><a data-type="indexterm" data-primary="debugging" data-secondary="for loops" data-startref="debug-for" id="idm45018731905352"/><a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="for statement" data-startref="statements-loop-for" id="idm45018731904136"/><a data-type="indexterm" data-primary="looping" data-secondary="for statement" data-startref="looping-for" id="idm45018731902648"/><a data-type="indexterm" data-primary="for statement" data-startref="for" id="idm45018731901432"/> 
+<span class="keep-together">reason</span>.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The while Statement"><div class="sect2" id="smallerc-CHP-3-SECT-3.2">
+<h2>The while Statement</h2>
+
+<p>Performing<a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="while statement" id="statements-loop-while"/><a data-type="indexterm" data-primary="looping" data-secondary="while statement" id="looping-while"/><a data-type="indexterm" data-primary="while statement" id="while"/> a specific number of iterations is certainly a popular task in computer
+programming. But looping until some more generic condition is met is easily just
+as common. In C, that more generic loop is the <code>while</code> loop. It has a simple condition as its only real syntactic element. If the condition is true, the body of the loop is executed. Jump back up and check the condition…and repeat.</p>
+
+<p>This type of loop is perfect for input where you cannot predict how many pieces
+of information you will need to scan. Let’s try a simple program to calculate
+the average of some numbers. Critically, we will allow the user to enter as many
+(or as few) numbers as they wish. We’ll ask them to <a data-type="indexterm" data-primary="sentinel values" id="idm45018731892584"/>enter a <em>sentinel</em> value
+to indicate they are done giving us new numbers. A sentinel can be any value that
+stands out from expected values. We use it in our condition so we know when to
+stop. For example, let’s ask the user for numbers between 1 and 100. We can
+then use 0 as a sentinel. Here is <a href="https://oreil.ly/KmxH4"><em>ch03/average.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">grade</code><code class="p">;</code>
+  <code class="kt">float</code> <code class="n">total</code> <code class="o">=</code> <code class="mf">0.0</code><code class="p">;</code>
+  <code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a grade between 1 and 100. Enter 0 to quit: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">grade</code><code class="p">);</code>
+  <code class="k">while</code> <code class="p">(</code><code class="n">grade</code> <code class="o">!=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">total</code> <code class="o">+=</code> <code class="n">grade</code><code class="p">;</code>
+    <code class="n">count</code><code class="o">++</code><code class="p">;</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Enter another grade (0 to quit): "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">grade</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">count</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">The final average is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">total</code> <code class="o">/</code> <code class="n">count</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">No grades were entered.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Here are two sample runs with different inputs:</p>
+
+<pre data-type="programlisting">ch03$ gcc average.c
+ch03$ ./a.out
+Please enter a grade between 1 and 100. Enter 0 to quit: 82
+Enter another grade (0 to quit): 91
+Enter another grade (0 to quit): 77
+Enter another grade (0 to quit): 43
+Enter another grade (0 to quit): 14
+Enter another grade (0 to quit): 97
+Enter another grade (0 to quit): 0
+
+The final average is 67.33
+
+ch03$ ./a.out
+Please enter a grade between 1 and 100. Enter 0 to quit: 0
+
+No grades were entered.</pre>
+
+<p>We get things going by asking the user for the first number. We then use that
+response in our <code>while</code> statement. If they enter a 0 the first time, we’re
+done. Unlike <code>for</code> loops, it is not uncommon for a <code>while</code> loop to never
+execute. There are reasonable circumstances where you might need to iterate
+over an optional task, say, turning off all the lights in a smart home.
+But being optional, sometimes that means you don’t do it at all; if the
+lights are already off, there’s nothing to do.</p>
+
+<p>Assuming they give us a valid number, though, we start the loop. We add their
+input to a separate variable where we keep the running <code>total</code>. (In programming,
+this is sometimes referred to as <a data-type="indexterm" data-primary="accumulators" id="idm45018731746376"/>an <em>accumulator</em>.) We also increment a third
+variable, <code>count</code>, to keep track of how many numbers the user gives us.</p>
+
+<p>We prompt the user for the next number (or a 0 to quit). We get their
+input, and again that value will be used in the <code>while</code> loop’s condition.
+If the most recent grade is valid, add it to the total and repeat.</p>
+
+<p>Once we complete the loop, we print the results. We use an <code>if/else</code> statement to wrap
+that final result in a nice, human-friendly sentence. If they entered a 0 at the
+beginning, we note that there is no average to print. Otherwise (<code>else</code>) we print
+the average with two decimal places of <a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="while statement" data-startref="statements-loop-while" id="idm45018731742200"/><a data-type="indexterm" data-primary="looping" data-secondary="while statement" data-startref="looping-while" id="idm45018731740680"/><a data-type="indexterm" data-primary="while statement" data-startref="while" id="idm45018731739464"/>precision.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="The do/while Variation"><div class="sect2" id="smallerc-CHP-3-SECT-3.3">
+<h2>The do/while Variation</h2>
+
+<p>The<a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="do (while) statement" id="statements-loop-do"/><a data-type="indexterm" data-primary="looping" data-secondary="do (while) statement" id="looping-do"/><a data-type="indexterm" data-primary="do (while) statement" id="do"/> last of the loop statements in C is the <code>do/while</code> (sometimes referred to as
+just a <code>do</code> loop). As you might guess
+from the name, it is similar to the <code>while</code> loop, but with one big difference. A <code>do</code>
+loop automatically guarantees at least one execution of the loop body. It does
+this by checking the loop condition <em>after</em> the body has executed instead of
+before. This is great where you know you need at least one pass. Our grade
+averaging program is actually a perfect example. We have to ask the user for
+a grade at least once. If they give us a 0 right away, we’re done and
+that’s fine. If they give us a valid number, we accumulate our total and
+ask again. Using a <code>do</code> loop and a small adjustment to our count at the end,
+we can avoid the duplicate <code>scanf()</code> calls in
+<a href="https://oreil.ly/ILhdW"><em>ch03/average2.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">grade</code><code class="p">;</code>
+  <code class="kt">float</code> <code class="n">total</code> <code class="o">=</code> <code class="mf">0.0</code><code class="p">;</code>
+  <code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="k">do</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Enter a grade between 1 and 100 (0 to quit): "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">grade</code><code class="p">);</code>
+    <code class="n">total</code> <code class="o">+=</code> <code class="n">grade</code><code class="p">;</code>
+    <code class="n">count</code><code class="o">++</code><code class="p">;</code>
+  <code class="p">}</code> <code class="k">while</code> <code class="p">(</code><code class="n">grade</code> <code class="o">!=</code> <code class="mi">0</code><code class="p">);</code>
+  <code class="c1">// We end up counting the sentinel as a grade, so undo that</code>
+  <code class="n">count</code><code class="o">--</code><code class="p">;</code>
+
+  <code class="k">if</code> <code class="p">(</code><code class="n">count</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">The final average is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">total</code> <code class="o">/</code> <code class="n">count</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">No grades were entered.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>And the output is essentially the same:</p>
+
+<pre data-type="programlisting">ch03$ gcc average2.c
+ch03$ ./a.out
+Enter a grade between 1 and 100 (0 to quit): 82
+Enter a grade between 1 and 100 (0 to quit): 91
+Enter a grade between 1 and 100 (0 to quit): 77
+Enter a grade between 1 and 100 (0 to quit): 43
+Enter a grade between 1 and 100 (0 to quit): 14
+Enter a grade between 1 and 100 (0 to quit): 97
+Enter a grade between 1 and 100 (0 to quit): 0
+
+The final average is 67.33</pre>
+
+<p>Not much of a difference—indeed no difference in the results—but
+any time you can remove lines of code without harming functionality, you’re
+reducing the chances of bugs cropping up. That’s always a <a data-type="indexterm" data-primary="statements" data-secondary="looping" data-tertiary="do (while) statement" data-startref="statements-loop-do" id="idm45018731637272"/><a data-type="indexterm" data-primary="looping" data-secondary="do (while) statement" data-startref="looping-do" id="idm45018731635928"/><a data-type="indexterm" data-primary="do (while) statement" data-startref="do" id="idm45018731634712"/>good thing!</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Nesting"><div class="sect1" id="smallerc-CHP-3-SECT-4">
+<h1>Nesting</h1>
+
+<p>Adding<a data-type="indexterm" data-primary="statements" data-secondary="nesting" id="statements-nesting"/><a data-type="indexterm" data-primary="nesting" data-secondary="statements" id="nesting-statements"/><a data-type="indexterm" data-primary="looping" data-secondary="nesting in" id="looping-nesting"/><a data-type="indexterm" data-primary="branching" data-secondary="nesting in" id="branching-nesting"/> loops and conditional statements to your repertoire greatly expands the
+problems you can tackle. But it gets even better: you can nest <code>if</code> statements
+inside loops to watch for error conditions, put a <code>while</code> inside an <code>if</code> to
+wait on a sensor, or use a <code>for</code> loop inside another <code>for</code> loop to traverse
+tabular data. Remember that all these control statements are still
+just statements and they can be used anywhere other, simpler statements are
+allowed.</p>
+
+<p>Let’s use this nesting ability to improve our averaging program further.
+We know zero is the “done” value, but we said we wanted values between
+1 and 100. What happens if the user gives us a negative number? Or a number
+greater than 100? If you look closely at the code in <em>average2.c</em>,
+you’ll see we don’t do much about it. We don’t exit or
+throw it out. We can do better if we use an <code>if/else</code> statement inside our
+loop as in
+<a href="https://oreil.ly/alYI8"><em>ch03/average3.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">grade</code><code class="p">;</code>
+  <code class="kt">float</code> <code class="n">total</code> <code class="o">=</code> <code class="mf">0.0</code><code class="p">;</code>
+  <code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="k">do</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Enter a grade between 1 and 100 (0 to quit): "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">grade</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="n">grade</code> <code class="o">&gt;=</code> <code class="mi">1</code> <code class="o">&amp;&amp;</code> <code class="n">grade</code> <code class="o">&lt;=</code> <code class="mi">100</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// Valid! Count it.</code>
+      <code class="n">total</code> <code class="o">+=</code> <code class="n">grade</code><code class="p">;</code>
+      <code class="n">count</code><code class="o">++</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">grade</code> <code class="o">!=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// Not valid, and not our sentinel, so print an error and continue.</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"   *** %d is not a valid grade. Skipping.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">grade</code><code class="p">);</code>
+    <code class="p">}</code>
+  <code class="p">}</code> <code class="k">while</code> <code class="p">(</code><code class="n">grade</code> <code class="o">!=</code> <code class="mi">0</code><code class="p">);</code>
+
+  <code class="k">if</code> <code class="p">(</code><code class="n">count</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">The final average is %.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">total</code> <code class="o">/</code> <code class="n">count</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">No grades were entered.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Cool. We even fixed the little hiccup with our <code>count</code> variable in <em>average2.c</em>
+where we had to decrement <code>count</code> by 1 since we executed the entire body of the <code>do/while</code>
+loop even if the first entry was 0. Very nice upgrade!</p>
+
+<p>Let’s test this program with some simple inputs so we can verify that
+bad values were not included in the average:</p>
+
+<pre data-type="programlisting">ch03$ gcc average3.c
+ch03$ ./a.out
+Enter a grade between 1 and 100 (0 to quit): 82
+Enter a grade between 1 and 100 (0 to quit): -82
+   *** -82 is not a valid grade. Skipping.
+Enter a grade between 1 and 100 (0 to quit): 43
+Enter a grade between 1 and 100 (0 to quit): 14
+Enter a grade between 1 and 100 (0 to quit): 9101
+   *** 9101 is not a valid grade. Skipping.
+Enter a grade between 1 and 100 (0 to quit): 97
+Enter a grade between 1 and 100 (0 to quit): 0
+
+The final average is 59.00</pre>
+
+<p>We can check the math: 82 + 43 + 14 + 97 = 236. 236 ÷ 4 = 59. That matches our result, so our nested <code>if/else</code> is working. Hooray!</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>As you build more complicated programs with nested control statements, you may
+bump into situations<a data-type="indexterm" data-primary="break statement" id="idm45018731469784"/> where you need to get out of a loop before it would normally
+finish. Happily, the <code>break</code> command you saw in the discussion of the <code>switch</code>
+statement can be used to immediately exit a loop. Some programmers try to avoid
+this “cheat,” but sometimes I think it actually makes code more readable.</p>
+
+<p>A common use case is encountering an error from user input in the middle of a loop.
+Rather than try to add extra logic to your loop condition, you can test for the error
+with an <code>if</code> statement and if you did get the error, just <code>break</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Nested Loops and Tables"><div class="sect2" id="smallerc-CHP-3-SECT-4.1">
+<h2>Nested Loops and Tables</h2>
+
+<p>Let’s try another example. I mentioned using nested <code>for</code> loops for
+tabular data. We can use this idea to produce the classic multiplication table
+from grade school in
+<a href="https://oreil.ly/mQQbs"><em>ch03/multiplication.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">tableSize</code> <code class="o">=</code> <code class="mi">10</code><code class="p">;</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">row</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="n">row</code> <code class="o">&lt;=</code> <code class="n">tableSize</code><code class="p">;</code> <code class="n">row</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">col</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="n">col</code> <code class="o">&lt;=</code> <code class="n">tableSize</code><code class="p">;</code> <code class="n">col</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"%4d"</code><code class="p">,</code> <code class="n">row</code> <code class="o">*</code> <code class="n">col</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code> <code class="c1">// final newline to move to the next row</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>That’s pretty small. This is the type of repetitive task that programs can
+solve very efficiently. And the resulting table:</p>
+
+<pre data-type="programlisting">ch03$ gcc multiplication.c
+ch03$ ./a.out
+   1   2   3   4   5   6   7   8   9  10
+   2   4   6   8  10  12  14  16  18  20
+   3   6   9  12  15  18  21  24  27  30
+   4   8  12  16  20  24  28  32  36  40
+   5  10  15  20  25  30  35  40  45  50
+   6  12  18  24  30  36  42  48  54  60
+   7  14  21  28  35  42  49  56  63  70
+   8  16  24  32  40  48  56  64  72  80
+   9  18  27  36  45  54  63  72  81  90
+  10  20  30  40  50  60  70  80  90 100</pre>
+
+<p>Very gratifying! And you aren’t limited to just two loops. You could
+process three-dimensional data with three loops, as in this snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">x</code> <code class="o">=</code> <code class="o">-</code><code class="mi">5</code><code class="p">;</code> <code class="n">x</code> <code class="o">&lt;=</code> <code class="mi">5</code><code class="p">;</code> <code class="n">x</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">y</code> <code class="o">=</code> <code class="o">-</code><code class="mi">5</code><code class="p">;</code> <code class="n">y</code> <code class="o">&lt;=</code> <code class="mi">5</code><code class="p">;</code> <code class="n">y</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+      <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">z</code> <code class="o">=</code> <code class="o">-</code><code class="mi">5</code><code class="p">;</code> <code class="n">z</code> <code class="o">&lt;=</code> <code class="mi">5</code><code class="p">;</code> <code class="n">z</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// Do something with your 3D (x, y, z) coordinate</code>
+        <code class="c1">// or use even more nested elements like checking for the origin</code>
+        <code class="k">if</code> <code class="p">(</code><code class="n">x</code> <code class="o">==</code> <code class="mi">0</code> <code class="o">&amp;&amp;</code> <code class="n">y</code> <code class="o">==</code> <code class="mi">0</code> <code class="o">&amp;&amp;</code> <code class="n">z</code> <code class="o">==</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+          <code class="n">printf</code><code class="p">(</code><code class="s">"We found the origin!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+        <code class="p">}</code>
+      <code class="p">}</code>
+    <code class="p">}</code>
+  <code class="p">}</code></pre>
+
+<p>There is (almost) no end to the complexity you can wrap up in your code to
+solve even the thorniest <a data-type="indexterm" data-primary="statements" data-secondary="nesting" data-startref="statements-nesting" id="idm45018731309336"/><a data-type="indexterm" data-primary="nesting" data-secondary="statements" data-startref="nesting-statements" id="idm45018731197816"/><a data-type="indexterm" data-primary="looping" data-secondary="nesting in" data-startref="looping-nesting" id="idm45018731196600"/><a data-type="indexterm" data-primary="branching" data-secondary="nesting in" data-startref="branching-nesting" id="idm45018731195384"/>problems.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Variable Scope"><div class="sect2" id="smallerc-CHP-3-SECT-4.2">
+<h2>Variable Scope</h2>
+
+<p>One<a data-type="indexterm" data-primary="variables" data-secondary="scope" id="variables-scope"/><a data-type="indexterm" data-primary="scope of variables" id="scope"/> important thing to remember about nesting statements in C is that the
+language enforces <em>variable scope</em> in its blocks. If you create a variable
+to use with a <code>for</code> loop, for example, that variable cannot be used <em>after</em>
+the loop has completed. This is true of any variable declared inside a block
+(e.g., inside a pair of curly braces) or in the setup of a <code>for</code> loop.
+Once the block ends, the variable is no longer accessible. (Sometimes you’ll hear programmers talk about a <a data-type="indexterm" data-primary="visibility of variables" id="idm45018731187240"/>variable’s <em>visibility</em>, which is the same idea.)</p>
+
+<p>Most times you don’t
+have to think much about this topic, as you’ll naturally tend to use
+your variables where you declare them and that’s great. But in complex
+code structures, you can lose track of where a variable was declared and
+that can cause problems.</p>
+
+<p>Let’s upgrade our multiplication table program to ask the user what
+size of table (within reason!) they’d like to produce. We’ll
+allow any table size from 1 to 20. We’ll store the user’s
+response in a variable that can be used by both loops. Try the following
+program
+(<a href="https://oreil.ly/0z424"><em>ch03/multiplication2.c</em></a>)
+and pay attention to the comments that highlight some potential
+problem areas where a variable is not visible.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#</code><code class="cp">include &lt;stdio.h&gt;</code><code class="cp">
+</code><code>
+</code><code class="kt">int</code><code> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>  </code><code class="kt">int</code><code> </code><code class="n">tableSize</code><code class="p">;</code><code>
+</code><code>  </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">Please enter a size for your table (1 - 20): </code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="n">scanf</code><code class="p">(</code><code class="s">"</code><code class="s">%i</code><code class="s">"</code><code class="p">,</code><code> </code><code class="o">&amp;</code><code class="n">tableSize</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="k">if</code><code> </code><code class="p">(</code><code class="n">tableSize</code><code> </code><code class="o">&lt;</code><code> </code><code class="mi">1</code><code> </code><code class="o">|</code><code class="o">|</code><code> </code><code class="n">tableSize</code><code> </code><code class="o">&gt;</code><code> </code><code class="mi">20</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>    </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">We can't make a table that size. Sorry!</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">We'll use the default size of 10 instead.</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>    </code><code class="n">tableSize</code><code> </code><code class="o">=</code><code> </code><code class="mi">10</code><code class="p">;</code><code>
+</code><code>  </code><code class="p">}</code><code>
+</code><code>  </code><code class="k">for</code><code> </code><code class="p">(</code><code class="kt">int</code><code> </code><code class="n">row</code><code> </code><code class="o">=</code><code> </code><code class="mi">1</code><code class="p">;</code><code> </code><code class="n">row</code><code> </code><code class="o">&lt;</code><code class="o">=</code><code> </code><code class="n">tableSize</code><code class="p">;</code><code> </code><code class="n">row</code><code class="o">+</code><code class="o">+</code><code class="p">)</code><code> </code><code class="p">{</code><code>      </code><a class="co" id="co_flow_of_control_CO1-1" href="#callout_flow_of_control_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a><code>
+    </code><code class="c1">// row and tableSize are both in scope
+</code><code>    </code><code class="k">for</code><code> </code><code class="p">(</code><code class="kt">int</code><code> </code><code class="n">col</code><code> </code><code class="o">=</code><code> </code><code class="mi">1</code><code class="p">;</code><code> </code><code class="n">col</code><code> </code><code class="o">&lt;</code><code class="o">=</code><code> </code><code class="n">tableSize</code><code class="p">;</code><code> </code><code class="n">col</code><code class="o">+</code><code class="o">+</code><code class="p">)</code><code> </code><code class="p">{</code><code>    </code><a class="co" id="co_flow_of_control_CO1-2" href="#callout_flow_of_control_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a><code>
+      </code><code class="c1">// row, col, and tableSize are all in scope
+</code><code>      </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">%4d</code><code class="s">"</code><code class="p">,</code><code> </code><code class="n">row</code><code> </code><code class="o">*</code><code> </code><code class="n">col</code><code class="p">)</code><code class="p">;</code><code>                     </code><a class="co" id="co_flow_of_control_CO1-3" href="#callout_flow_of_control_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a><code>
+    </code><code class="p">}</code><code>
+</code><code>    </code><code class="c1">// col is now _out_ of scope                    </code><a class="co" id="co_flow_of_control_CO1-4" href="#callout_flow_of_control_CO1-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a><code class="c1">
+</code><code>    </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code> </code><code class="c1">// final newline to move to the next row
+</code><code>  </code><code class="p">}</code><code>
+</code><code>  </code><code class="c1">// row is out of scope now, too, but tableSize remains available
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_flow_of_control_CO1-1" href="#co_flow_of_control_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a></dt>
+<dd><p>You can see that our <code>tableSize</code> variable is visible in both loops.</p></dd>
+<dt><a class="co" id="callout_flow_of_control_CO1-2" href="#co_flow_of_control_CO1-3"><img src="Images/2.png" alt="2" width="12" height="12"/></a></dt>
+<dd><p>Clearly, the <code>row</code> variable is visible inside the loop drive by the <code>col</code>
+variable.</p></dd>
+<dt><a class="co" id="callout_flow_of_control_CO1-3" href="#co_flow_of_control_CO1-4"><img src="Images/3.png" alt="3" width="12" height="12"/></a></dt>
+<dd><p>But once that inner <code>for</code> loop finishes printing the values for a
+given row, the <code>col</code> variable goes “out of scope” and cannot be
+used.</p></dd>
+</dl>
+
+<p>But what happens if you try to access something that has gone out of scope?
+Well happily, the compiler will usually catch you. For example, if we try printing the
+final value of <code>col</code> where we currently print the newline character to end the
+row, we’ll get an error like this:</p>
+
+<pre data-type="programlisting">ch03$ gcc multiplication2.c
+multiplication2.c: In function ‘main’:
+multiplication2.c:19:20: error: ‘col’ undeclared (first use in this function)
+   19 |     printf("%d\n", col); // final newline to move to the next row
+      |                    ^~~</pre>
+
+<p>Making <a data-type="indexterm" data-primary="error messages" data-secondary="variable scope" id="idm45018731026632"/>these mistakes is never fatal. You just have to read the error message
+and figure out which bit of code is causing the problem. If you <em>do</em> need to
+use a particular variable after a loop or block concludes, you must define
+that variable before the block. For example, we could declare both of
+our loop variables, <code>row</code> and <code>col</code>, in the same spot where we declare <code>tableSize</code>
+to make all three of them visible
+everywhere inside our <code>main()</code> function. Our initialization step in our <code>for</code>
+loops won’t declare those variables with their <code>int</code> type, but rather
+just assign the starting value, like in
+<a href="https://oreil.ly/yTDBc"><em>ch03/multiplication3.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">tableSize</code><code class="p">,</code> <code class="n">row</code><code class="p">,</code> <code class="n">col</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a size for your table (1 - 20): "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%i"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">tableSize</code><code class="p">);</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">tableSize</code> <code class="o">&lt;</code> <code class="mi">1</code> <code class="o">||</code> <code class="n">tableSize</code> <code class="o">&gt;</code> <code class="mi">20</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"We can't make a table that size. Sorry!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"We'll use the default size of 10 instead.</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+    <code class="n">tableSize</code> <code class="o">=</code> <code class="mi">10</code><code class="p">;</code>
+  <code class="p">}</code>
+  <code class="c1">// Notice that since we declared row and col above, we do not</code>
+  <code class="c1">// include the "int" type declaration inside the for loops below</code>
+  <code class="k">for</code> <code class="p">(</code><code class="n">row</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="n">row</code> <code class="o">&lt;=</code> <code class="n">tableSize</code><code class="p">;</code> <code class="n">row</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="n">col</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="n">col</code> <code class="o">&lt;=</code> <code class="n">tableSize</code><code class="p">;</code> <code class="n">col</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"%4d"</code><code class="p">,</code> <code class="n">row</code> <code class="o">*</code> <code class="n">col</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">Final variable values:</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"  row == %d</code><code class="se">\n</code><code class="s">  col == %d</code><code class="se">\n</code><code class="s">  tableSize == %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">row</code><code class="p">,</code> <code class="n">col</code><code class="p">,</code> <code class="n">tableSize</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>If we run our new version with a width of 5, then, here’s our output:</p>
+
+<pre data-type="programlisting">ch03$ gcc multiplication3.c
+ch03$ ./a.out
+Please enter a size for your table (1 - 20): 5
+   1   2   3   4   5
+   2   4   6   8  10
+   3   6   9  12  15
+   4   8  12  16  20
+   5  10  15  20  25
+
+Final variable values:
+  row == 6
+  col == 6
+  tableSize == 5</pre>
+
+<p>So we can see the final values of <code>row</code> and <code>col</code> that caused the loops to
+stop. Kind of neat, but also kind of prone to causing problems. Using variables
+with a broad or global scope is frowned on because of those potential problems.
+If you have a good reason and need to use a particular variable in different
+blocks, that’s fine, just make sure you declare such variables deliberately
+and not simply to make the program<a data-type="indexterm" data-primary="variables" data-secondary="scope" data-startref="variables-scope" id="idm45018730694584"/><a data-type="indexterm" data-primary="scope of variables" data-startref="scope" id="idm45018730693336"/> compile.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Exercises"><div class="sect1" id="smallerc-CHP-3-SECT-5">
+<h1>Exercises</h1>
+
+<p>We’ve seen the structure of several different flow of control statements
+in this chapter. Hopefully, you’ve been trying and tweaking the examples
+as you’ve been reading. But nothing helps you get comfortable with a new
+language or a new statement like using it. Over and over. And over. :) To that
+end, here are some exercises to try if you like before reading on.</p>
+<ol>
+<li>
+<p>Print out a triangle pattern. You can hardcode the size or ask the user,
+like we did with our multiplication table. For example:</p>
+
+<pre data-type="programlisting">exercises$ ./a.out
+Please enter a size for your triangle (1 - 20): 5
+*
+**
+***
+****
+*****</pre>
+</li>
+
+</ol>
+<ol start="2">
+<li>
+<p>Print out a pyramid pattern where the rows of stars are centered, like this:</p>
+
+<pre data-type="programlisting">exercises$ ./a.out
+Please enter a size for your triangle (1 - 20): 5
+    *
+   * *
+  * * *
+ * * * *
+* * * * *</pre>
+</li>
+
+</ol>
+<ol start="3">
+<li>
+<p>Add row and column labels to our multiplication table, like this:</p>
+
+<pre data-type="programlisting">exercises$ ./a.out
+Please enter a size for your table (1 - 20): 5
+     1   2   3   4   5
+ 1   1   2   3   4   5
+ 2   2   4   6   8  10
+ 3   3   6   9  12  15
+ 4   4   8  12  16  20
+ 5   5  10  15  20  25</pre>
+</li>
+
+</ol>
+<ol start="4">
+<li>
+<p>Write a number guessing game. For now, just pick a number yourself and store it
+in a variable like <code>secret</code>. (We’ll take a look at letting the computer pick a
+random number for us in <a data-type="xref" href="ch07.xhtml#smallerc-CHP-7">Chapter 7</a>.) Tell the user what the bounds of the
+range are and as they guess, give them clues about whether their guess is lower or
+higher than the secret. Playing your game might look something like this:</p>
+
+<pre data-type="programlisting">exercises$ ./a.out
+Guess a number between 1 and 50: 25
+Too low! Try again.
+Guess a number between 1 and 50: 38
+Too low! Try again.
+Guess a number between 1 and 50: 44
+Too high! Try again.
+Guess a number between 1 and 50: 42
+*** Congratulations! You got it right! ***</pre>
+</li>
+
+</ol>
+<ol start="5">
+<li>
+<p>Try implementing Euclid’s algorithm for finding the greatest common
+divisor shared by two numbers. In <em>pseudocode</em> (English statements arranged
+like code and occasionally using operators like “=”; it’s
+meant to be a way of describing the steps of some program without requiring
+real code), the algorithm goes like this:</p>
+
+<pre data-type="programlisting">Start with two positive numbers, a and b
+While b is not zero:
+  Is a greather than b?
+    Yes: a = a - b
+    No: b = b - a
+Print a</pre>
+</li>
+
+</ol>
+
+<p>You can just set the two values in your program or ask the user to input them.
+To check your program, the greatest common divisor of 3,456 and 1,234 is 2 and
+the greatest common divisor of 432 and 729 is 27.</p>
+
+<p>If you want to see how I solved these problems, you can look at the various
+answers in the
+<a href="https://oreil.ly/BDw5K"><em>ch03/exercises</em></a> folder.
+But I encourage you to try
+and solve them yourself before looking at my solutions. There are many, many
+ways to solve each of the exercises, and comparing your own approach to mine
+can help reinforce the syntax and purpose of the statements we’ve covered.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Next Steps"><div class="sect1" id="smallerc-CHP-3-SECT-6">
+<h1>Next Steps</h1>
+
+<p>The branching and repetition statements we covered in this chapter are the core
+of a computer program’s ability to solve problems. They make it possible to
+take real-world algorithms and convert them into code. Knowing C’s control
+statements comes with the added benefit of preparing you for other programming
+languages that often borrow some of C’s syntax.</p>
+
+<p>There is more of that syntax to cover, though. In the next chapter, we’ll look
+at how C handles one of the most popular tools for storing big lists of things: the array.
+With an eye on our goal of writing C code for more limited microcontrollers, we’ll
+also see how C can be used to manipulate the smallest thing in a computer: the bit.</p>
+</div></section>
+
+
+
+
+
+
+
+<div data-type="footnotes"><p data-type="footnote" id="idm45018734452728"><sup><a href="ch03.xhtml#idm45018734452728-marker">1</a></sup> C99 introduced a new type, <code>_Bool</code>, but we won’t be using this in our lean code. If you find yourself working with Boolean logic in your own coding, though, be sure to check out the <em>stdbool.h</em> header. You can find more details on just about everything C in <a data-type="indexterm" data-primary="C in a Nutshell (Prinz and Crawford)" id="idm45018734451208"/>Prinz and Crawford’s <a href="https://www.oreilly.com/library/view/c-in-a/0596006977/" class="orm:hideurl"><em>C in a Nutshell</em></a> (O’Reilly).</p><p data-type="footnote" id="idm45018734265544"><sup><a href="ch03.xhtml#idm45018734265544-marker">2</a></sup> Many languages, including C, are clever enough to realize that if Reg is not ready, we don’t even have to bother checking on Kaori. This behavior is often referred to as “short circuit evaluation.” Short circuit comparisons can be very useful when the tests involved are computationally expensive.</p><p data-type="footnote" id="idm45018734246248"><sup><a href="ch03.xhtml#idm45018734246248-marker">3</a></sup> And like the <code>&amp;&amp;</code> operator, the C compiler optimizes the case where Reg can join by not asking Kaori at all.</p><p data-type="footnote" id="idm45018732222664"><sup><a href="ch03.xhtml#idm45018732222664-marker">4</a></sup> Did you know many shampoo bottles come with an algorithm for washing your hair? But don’t follow the algorithm too closely: many times the instructions really are as simple as “lather, rinse, repeat,” which is an infinite loop! There is no check as to when you have repeated enough.</p><p data-type="footnote" id="idm45018732082600"><sup><a href="ch03.xhtml#idm45018732082600-marker">5</a></sup> A quick nerdy detail, if you’re curious. <em>Prefix</em> operators <a data-type="indexterm" data-primary="prefix operators" id="idm45018732081384"/><a data-type="indexterm" data-primary="postfix operators" id="idm45018732080648"/><a data-type="indexterm" data-primary="infix operators" id="idm45018732079976"/>come before the value or expression they are meant to operate on. The <code>i--</code> expression contains an example of a <em>postfix</em> operator—one that comes after the value or expression. In C, all of the binary operators like + or * or == are <em>infix</em> operators, coming “in between” the operands.</p></div></div></section></div></body></html>

@@ -1,0 +1,1536 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="chapter" epub:type="chapter" data-pdf-bookmark="Chapter 2. Storing and Stating"><div class="chapter" id="smallerc-CHP-2">
+<h1><span class="label">Chapter 2. </span>Storing and Stating</h1>
+
+
+<p>The essence of <a data-type="indexterm" data-primary="programming languages, purpose of" id="idm45018742907768"/>programming is the manipulation of data. A programming language provides humans an interface for telling the computer what that data is and what you want to do to that data. Languages designed for powerful machines may hide (or infer) a lot of the details about storing data, but C remains fairly simple in this regard. Perhaps simple is the wrong word, but its approach to data storage is straightforward while still allowing for complex manipulation. As we’ll see in <a data-type="xref" href="ch06.xhtml#smallerc-CHP-6">Chapter 6</a>, C also provides the programmer with a window into the low-level aspects of where the data is stored in the computer’s memory. When we start working directly with microcontrollers in the latter half of this book, that access will become more important.</p>
+
+<p>For now though, I want to tackle some of the basics of C’s syntax so that we can start composing original programs rather than just copying lines of code from a book. This chapter has plenty of those lines, and you are heartily encouraged to copy them as you read! But hopefully, we’ll get to the point where you can create novel answers to your own programming challenges.</p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>If you already feel comfortable with programming from your experience in another
+language, feel free to skim this chapter. You should read <a data-type="xref" href="#smallerc-CHP-2-SECT-3">“printf() and scanf()”</a>
+on the <code>printf()</code> and <code>scanf()</code> functions, but other sections will likely be familiar.</p>
+</div>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Statements in C"><div class="sect1" id="smallerc-CHP-2-SECT-1">
+<h1>Statements in C</h1>
+
+<p>Another <a data-type="indexterm" data-primary="algorithms" id="idm45018742899640"/>concept you hear about as a fundamental element of programming is the notion of an
+<em>algorithm</em>. Algorithms are sets of instructions that process data and generally get things
+done on computers. One classic analogy for an algorithm is a kitchen recipe. Given a set of
+ingredients, here are the individual steps you take to turn those ingredients into something
+like a cake. In programming, those “individual steps” are statements.</p>
+
+<p>In C, statements come in a variety of flavors. In this chapter, I’ll be looking at
+declaration statements, initialization statements, function calls, and comments.
+Later chapters will tackle control statements and not-quite statements like
+creating your own functions and preprocessor commands.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Statement Separators"><div class="sect2" id="smallerc-CHP-2-SECT-1.1">
+<h2>Statement Separators</h2>
+
+<p>Statements<a data-type="indexterm" data-primary="statements" data-secondary="semicolon (;) in" id="idm45018742895176"/><a data-type="indexterm" data-primary="semicolon (;), in C code" id="idm45018742894168"/><a data-type="indexterm" data-primary="; (semicolon), in C code" id="idm45018742893528"/> are separated from each other using
+a semicolon. Semicolons in C work a lot like periods do in English. Long sentences in English might span multiple lines, but you know to keep going until you see a period. Likewise, you might have several short sentences bunched up together on a single line, but you can easily distinguish them based on those periods. It can be easy to forget the semicolon at the end of a statement. If each statement fits on its own line, it becomes tempting to assume the compiler “sees” the same structure that humans can so easily pick out. Unfortunately, the compiler cannot. Even with our first, very simple program from <a data-type="xref" href="ch01.xhtml#smallerc-CHP-1-SECT-2.2">“Creating a C ‘Hello, World’”</a>, the statement we used to print out <a data-type="indexterm" data-primary="&quot;Hello, World!&quot; programs" data-secondary="semicolons in" data-primary-sortas="Hello, World" id="idm45018742891320"/>some text in our 
+<span class="keep-together">terminal</span> window needs to end with a semicolon. If you’re curious, try deleting that 
+<span class="keep-together">semicolon</span>, save your file, and then recompile it. You’ll end up with something like this:</p>
+
+<pre data-type="programlisting">$ gcc hello.c
+hello.c:4:27: error: expected ';' after expression
+  printf("Hello, world\n")
+                          ^
+                          ;
+1 error generated.</pre>
+
+<p>Yuck. An<a data-type="indexterm" data-primary="error messages" data-secondary="missing semicolon" id="idm45018742887384"/> error. But at least the error message is useful. It tells us two critical things: <em>what</em> went wrong (“expected ‘;' after expression”) and <em>where</em> the compiler had trouble (“hello.c:4:27”, or the <em>hello.c</em> file, line 4, column 27). I don’t want to scare you off with an error message so early in your exploration of C, but you will definitely run into them. A lot. Happily, it just means you need to look at your source code a little closer and then try again.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Statement Flow"><div class="sect2" id="smallerc-CHP-2-SECT-1.2">
+<h2>Statement Flow</h2>
+
+<p>The <a data-type="indexterm" data-primary="statements" data-secondary="flow of" id="statements-flow"/><a data-type="indexterm" data-primary="flow of statements" id="flow-statements"/><a data-type="indexterm" data-primary="&quot;Hello, World!&quot; programs" data-secondary="statement flow in" data-primary-sortas="Hello, World" id="hello-statement-flow"/>separators tell the compiler where one statement ends and where the next begins.
+That order matters, too. The flow of statements is top to bottom, or left to right
+if multiple statements are on the same line. And multiple statements are definitely allowed!
+We can quickly expand our simple “Hello, World” program to be a little more verbose.</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>When you have the time and energy, I highly recommend transcribing the source
+code by hand. This will give you a little more practice with C’s syntax.
+You’ll often make a mistake or two, as well. Spotting and fixing those mistakes
+is a great way to learn! Even if those mistakes can be a little frustrating from time
+to time.</p>
+</div>
+
+<p>Consider the following program, <a href="https://oreil.ly/wqnYC"><em>ch02/verbose.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#</code><code class="cp">include &lt;stdio.h&gt;</code><code class="cp">
+</code><code>
+</code><code class="kt">int</code><code> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code> </code><code class="p">{</code><code>
+</code><code>  </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">Ahem!</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>                                 </code><a class="co" id="co_storing_and_stating_CO1-1" href="#callout_storing_and_stating_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a><code>
+  </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">May I have your attention, please?</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>    </code><a class="co" id="co_storing_and_stating_CO1-2" href="#callout_storing_and_stating_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a><code>
+  </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">I would like to extend the warmest of</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code> </code><a class="co" id="co_storing_and_stating_CO1-3" href="#callout_storing_and_stating_CO1-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a><code>
+  </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">greetings to the world.</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code>  </code><code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="s">Thank you.</code><code class="se">\n</code><code class="s">"</code><code class="p">)</code><code class="p">;</code><code>
+</code><code class="p">}</code></pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_storing_and_stating_CO1-1" href="#co_storing_and_stating_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a></dt>
+<dd><p>We start with a very similar statement to the one we used in <em>hello.c</em>.
+The only 
+<span class="keep-together">real difference</span> is the text we print. Note that we end the line
+with our semicolon 
+<span class="keep-together">separator</span>.</p></dd>
+<dt><a class="co" id="callout_storing_and_stating_CO1-2" href="#co_storing_and_stating_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a></dt>
+<dd><p>We have a second <code>printf()</code> statement similar to the first. It will
+indeed be executed second.</p></dd>
+<dt><a class="co" id="callout_storing_and_stating_CO1-3" href="#co_storing_and_stating_CO1-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a></dt>
+<dd><p>And just to drive the point home, this third statement will be called
+after the first two. And the last two calls will come after this one.</p></dd>
+</dl>
+
+<p>Here’s the output of our simple multiline upgrade:</p>
+
+<pre data-type="programlisting">$ gcc verbose.c
+$ ./a.out
+Ahem!
+May I have your attention, please?
+I would like to extend the warmest of
+greetings to the world.
+Thank you.</pre>
+
+<p>Nice. You can see how the output precisely follows the order of the statements
+in our program. Try switching them around and confirm for yourself that the
+flow of the program goes top to bottom. Or try putting two <code>printf()</code> calls on
+the same line. This isn’t meant to be tricky. I just want you to practice
+writing, running, and compiling code as often as possible. The more examples you
+try, the better you’ll get at avoiding the simple mistakes and the easier
+it will be to follow along with new code<a data-type="indexterm" data-primary="statements" data-secondary="flow of" data-startref="statements-flow" id="idm45018742758280"/><a data-type="indexterm" data-primary="flow of statements" data-startref="flow-statements" id="idm45018742757032"/><a data-type="indexterm" data-primary="&quot;Hello, World!&quot; programs" data-secondary="statement flow in" data-primary-sortas="Hello, World" data-startref="hello-statement-flow" id="idm45018742756088"/> examples.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Variables and Types"><div class="sect1" id="smallerc-CHP-2-SECT-2">
+<h1>Variables and Types</h1>
+
+<p>We <a data-type="indexterm" data-primary="variables" data-secondary="described" id="idm45018742752808"/><a data-type="indexterm" data-primary="variables" data-secondary="types" id="idm45018742751800"/><a data-type="indexterm" data-primary="types (variables)" id="idm45018742750856"/><a data-type="indexterm" data-primary="statements" data-secondary="variables" data-see="variables" id="idm45018742750184"/>can do much more than just print text, of course. We can also store and
+manipulate data as we work to implement an algorithm or perform a task.
+In C (and in most languages), you store data in <em>variables</em>, which are powerful tools in problem solving. Those variables have <em>types</em>, which dictate what kinds of data you can store. Both of these concepts figure heavily in two of the statement flavors I mentioned: declarations and initializations.</p>
+
+<p>A variable is a placeholder for a value. A variable can hold simple values like
+numbers (how many students are in the class? what’s the total cost of the items
+in my shopping cart?) or more complex things (what’s the name of this particular
+student? what are each student’s grades? or even an actual complex value like the square root of –1). Variables can store data received from users, and they
+allow you to write programs that can solve general problems without rewriting the program itself.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Getting User Input"><div class="sect2" id="smallerc-CHP-2-SECT-2.1">
+<h2>Getting User Input</h2>
+
+<p>We’ll be <a data-type="indexterm" data-primary="variables" data-secondary="user input" id="variable-user-input"/><a data-type="indexterm" data-primary="input" data-secondary="with variables" data-secondary-sortas="variables" id="user-input-variables"/><a data-type="indexterm" data-primary="&quot;Hello, World!&quot; programs" data-secondary="user input" data-primary-sortas="Hello, World" id="hello-user-input"/><a data-type="indexterm" data-primary="user input" data-see="input" id="idm45018742740120"/>exploring the details of defining and initializing variables shortly, but let’s first run with that idea of getting some input for the user to create dynamic output without recompiling our program every time. We’ll return to our “Hello, World” program and upgrade it a little. We can ask the user to give us their name and then greet them personally!</p>
+
+<p>You’ve seen one output statement so far, our <code>printf()</code> function call we used
+to greet the planet. There is a counterpart, <a data-type="indexterm" data-primary="scanf() function" id="idm45018742737880"/><a data-type="indexterm" data-primary="functions" data-secondary="scanf()" id="idm45018742737176"/>input function, too: <code>scanf()</code>.
+You can use print/scan pairs to prompt the user and then wait for them to type
+in an answer. We’ll store that answer in a variable. If you have done some
+programming in other languages, this next program should look familiar. If
+you’re new to programming and to C, the listing may be a little dense or
+weird—and that’s OK! Typing in these programs and getting them to run
+after fixing any typos you make is a useful way to learn.</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>A lot of programming is just thoughtful plagiarism.
+That’s a bit of a joke, but only a bit. You start out much the way humans start
+out with spoken language: repeating something you see (or hear) without
+necessarily understanding everything about it. If you perform that repetition
+enough, you discover the patterns inherent in the language and learn where
+you can make useful changes. Make enough of those useful changes, and you
+discover how to create new, meaningful things from scratch. That is our goal.</p>
+</div>
+
+<p class="pagebreak-before less_space">This <a href="https://oreil.ly/OrUqu"><em>ch02/hello2.c</em></a>
+program is simply another bit of code you
+can copy as you start down the path of programming discovery:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">name</code><code class="p">[</code><code class="mi">20</code><code class="p">];</code>
+
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your name: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%s"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Well hello, %s!</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>Hopefully, the structure of this program looks familiar. We include our standard
+I/O library, we have a <code>main()</code> function, and that function has a body with multiple
+statements inside a pair of curly braces. That body, though, contains several new items.
+Let’s go through each line.</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="kt">char</code> <code class="n">name</code><code class="p">[</code><code class="mi">20</code><code class="p">];</code></pre>
+
+<p>Here is our first example of the declaration of a <a data-type="indexterm" data-primary="variables" data-secondary="declaring" id="idm45018742681592"/><a data-type="indexterm" data-primary="declaring" data-secondary="variables" id="idm45018742680744"/>variable. The variable’s name
+is, well, “name”. Its type <a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="char" id="idm45018742679704"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="char" id="idm45018742678488"/><a data-type="indexterm" data-primary="char (variable type)" id="idm45018742700984"/>is <code>char</code>, which is what C uses to refer to a single
+(ASCII) character.<sup><a data-type="noteref" id="idm45018742699768-marker" href="ch02.xhtml#idm45018742699768">1</a></sup> It is also <a data-type="indexterm" data-primary="arrays" id="idm45018742696600"/>an <em>array</em>, meaning it stores multiple
+<code>char</code> values in sequence. In our case, 20 such values can be stored. More on arrays in
+<a data-type="xref" href="ch04.xhtml#smallerc-CHP-4">Chapter 4</a>. For now, just note that this variable can keep a person’s name
+as long as it is less than 20 characters
+long.</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your name: "</code><code class="p">);</code></pre>
+
+<p>This is a fairly<a data-type="indexterm" data-primary="functions" data-secondary="printf()" id="idm45018742686072"/><a data-type="indexterm" data-primary="printf() function" id="idm45018742684792"/><a data-type="indexterm" data-primary="newline character" id="idm45018742684120"/> standard <code>printf()</code> call—very similar to the one we used in
+our first program back in <a data-type="xref" href="ch01.xhtml#smallerc-CHP-1-SECT-2.2">“Creating a C ‘Hello, World’”</a>. The only meaningful difference is the last
+characters inside the set of double quote marks. If you look at <em>hello.c</em> or
+<em>verbose.c</em>, you’ll notice the last two characters are a backslash and the
+letter “n”. The combination of those two characters (<code>\n</code>) represents
+a single “newline” character. If you add
+<code>\n</code> at the end, you are printing one line and any subsequent call to <code>printf()</code> will go on the
+next line. Conversely, if you omit the <code>\n</code>, the cursor in the terminal stays on the
+current line. This can be handy if you want to do things like print out a table but
+do so one table cell at a time. Or, in our case, if you want to prompt the user for
+some input, and then allow them to enter their response on the same line as the
+question.</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">scanf</code><code class="p">(</code><code class="s">"%s"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code></pre>
+
+<p class="pagebreak-before less_space">Here is that<a data-type="indexterm" data-primary="scanf() function" id="scanf"/><a data-type="indexterm" data-primary="functions" data-secondary="scanf()" id="functions-scanf"/> new function I mentioned at the beginning of this section. The <code>scanf()</code> function “scans in” characters and can convert them into C data types like numbers, or in this case, an array of characters. Once converted, <code>scanf()</code> expects to store each “thing” in a variable. In this line, then, we’re scanning for a bunch of characters and we’ll store them in our <code>name</code> variable. We’ll look at the very strange syntax of the stuff inside the parentheses in <a data-type="xref" href="#smallerc-CHP-2-SECT-3">“printf() and scanf()”</a>.</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">printf</code><code class="p">(</code><code class="s">"Well hello, %s!</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code></pre>
+
+<p>And lastly, <a data-type="indexterm" data-primary="arrays" data-secondary="strings as" id="idm45018742613704"/><a data-type="indexterm" data-primary="strings" data-secondary="as arrays" data-secondary-sortas="arrays" id="idm45018742547288"/><a data-type="indexterm" data-primary="% (percent sign), printf specifiers" id="idm45018742546072"/><a data-type="indexterm" data-primary="percent sign (%), printf specifiers" id="idm45018742545432"/><a data-type="indexterm" data-primary="type specifiers for printf() function" id="idm45018742592408"/>we want to print our greeting. Again, this should look familiar, but now
+we have more strange syntax. If <a data-type="indexterm" data-primary="%s (percent s), for strings" id="idm45018742591624"/><a data-type="indexterm" data-primary="percent s (%s), for strings" id="idm45018742590984"/>the <code>%s</code> jumps out at you as the same weird thing that
+was in the call to <code>scanf()</code>, congrats! You just spotted a very useful pattern. That
+pair of characters is exactly what C uses when printing or scanning an array of characters.
+An array of characters is such a common type in C that it has a simpler name: string.
+Hence the use of an “s” in this pair.</p>
+
+<p>So what’s happening with <code>name</code>? The <code>scanf()</code> call took whatever name you typed
+in <a data-type="indexterm" data-primary="carriage returns" id="idm45018742587720"/>(not including the Return key<sup><a data-type="noteref" id="idm45018742586888-marker" href="ch02.xhtml#idm45018742586888">2</a></sup> you pressed) and stored it in memory. Our <code>name</code> variable
+contains the memory location of those characters. When we come along with our <code>printf()</code>
+call, our first argument (the <code>"Well hello, %s!\n"</code> part) contains a few literal characters
+such as those in the word “Well” and a placeholder for a string (the <code>%s</code> part).
+Variables are great for filling placeholders. Whatever name you typed in will now be
+displayed back to you!</p>
+
+<p>Also notice that we do include the<a data-type="indexterm" data-primary="newline character" id="idm45018742557448"/> special <code>\n</code> newline here on our greeting. That means
+we’ll print the greeting and then “hit the Return key” so that anything else to be
+shown in the terminal will go on the next line.</p>
+
+<p>Let’s go ahead and run the program to see how things work. You can use the Terminal tab
+at the bottom of VS Code, or the Terminal or Command app for your platform. You’ll
+need to compile it first with <code>gcc</code> then run either <code>a.out</code> or whatever name you
+chose using the <code>-o</code> option. You should
+get something similar to <a data-type="xref" href="#smallerc-CHP-2-FIG-hello2">Figure 2-1</a>.</p>
+
+<p>Notice that when you type in a name, it appears on the same line as the prompt asking you to enter it. That is exactly what we wanted when we left off the newline (<code>\n</code>) character. But try running it again and type in a different name. Did you get the results you expected? Try a third time. This dynamic behavior of responding to user input makes variables invaluable in computer programming. The same program can produce different output based on different input without being recompiled. That ability, in turn, has helped make computer programs invaluable to our everyday<a data-type="indexterm" data-primary="variables" data-secondary="user input" data-startref="variable-user-input" id="idm45018742551720"/><a data-type="indexterm" data-primary="input" data-secondary="with variables" data-secondary-sortas="variables" data-startref="user-input-variables" id="idm45018742550472"/><a data-type="indexterm" data-primary="&quot;Hello, World!&quot; programs" data-secondary="user input" data-primary-sortas="Hello, World" data-startref="hello-user-input" id="idm45018742528120"/> lives.</p>
+
+<figure><div id="smallerc-CHP-2-FIG-hello2" class="figure">
+<img src="Images/smac_0201.png" alt="smac 0201" width="1804" height="1176"/>
+<h6><span class="label">Figure 2-1. </span>Our tailored Hello World output</h6>
+</div></figure>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Strings and Characters"><div class="sect2" id="smallerc-CHP-2-SECT-2.2">
+<h2>Strings and Characters</h2>
+
+<p>Let’s <a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="char" data-seealso="characters" id="variables-types-char"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="char" data-seealso="characters" id="types-char"/><a data-type="indexterm" data-primary="char (variable type)" data-seealso="characters" id="char"/>look a little closer at the <code>char</code> type as well as its close cousin,
+the array of characters—<code>char[]</code>—better known as a string. When you
+declare<a data-type="indexterm" data-primary="variables" data-secondary="declaring" id="idm45018742517128"/><a data-type="indexterm" data-primary="declaring" data-secondary="variables" id="idm45018742516152"/> a variable in C, you give it both a name and a type. The simplest declaration
+looks something like this:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">response</code><code class="p">;</code></pre>
+
+<p>Here we create a variable named <code>response</code> with a type of <code>char</code>. The <code>char</code> type
+holds one character. We could store a “y” or an “n”, for
+example. <a data-type="xref" href="ch05.xhtml#smallerc-CHP-5">Chapter 5</a> will go through the memory address and reference details,
+but for now, just remember that a variable declaration sets aside a spot in memory
+with enough space to store one of whatever type you specified. If we had a series
+of questions to ask, then we could create a series of variables:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">response1</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">response2</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">finalanswer</code><code class="p">;</code></pre>
+
+<p>Each of these variables can hold one character. But again, when you use a variable,
+you don’t have to predict or decide what that character will be in advance.
+The contents can vary. (Vary…variable…get it? :)</p>
+
+<p>C compilers <a data-type="indexterm" data-primary="encoding for characters" id="idm45018742508376"/><a data-type="indexterm" data-primary="characters" data-secondary="encoding" id="idm45018742507768"/><a data-type="indexterm" data-primary="characters" data-secondary="arrays of" data-see="strings" id="idm45018742506824"/><a data-type="indexterm" data-primary="arrays" data-secondary="of characters" data-see="strings" data-secondary-sortas="characters" id="idm45018742505608"/>determine which encoding your source characters use. Older compilers use the older
+ASCII<sup><a data-type="noteref" id="idm45018742503880-marker" href="ch02.xhtml#idm45018742503880">3</a></sup> format while more recent compilers typically use UTF-8. Both
+encodings include
+lower- and uppercase letters, numbers, and most of the symbols you see on your keyboard.
+To talk about a specific character rather than a variable of type <code>char</code>, you use
+single quotes to delimit it. For example, <code>'a'</code>, <code>'A'</code>, <code>'8'</code>, and <code>'@'</code> are all valid.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Special characters"><div class="sect3" id="smallerc-CHP-2-SECT-2.2.1">
+<h3>Special characters</h3>
+
+<p>A <a data-type="indexterm" data-primary="characters" data-secondary="special" id="characters-special"/><a data-type="indexterm" data-primary="special characters" id="special-characters"/><a data-type="indexterm" data-primary="escape characters" id="escape-characters"/><a data-type="indexterm" data-primary="\ (backslash), as escape character" data-secondary-sortas="escape character" id="backslash"/><a data-type="indexterm" data-primary="backslash (\), as escape character" data-secondary-sortas="escape character" id="backslash-spelled"/>character can also be special. C supports things like tabs and newlines. We’ve
+seen the newline character (<code>\n</code>), but there are also a few other special characters
+listed in <a data-type="xref" href="#smallerc-CHP-2-TABLE-special-chars">Table 2-1</a>. These special characters are coded
+using “escape sequences,” and the backslash is known as the
+“escape character”.</p>
+<table id="smallerc-CHP-2-TABLE-special-chars">
+<caption><span class="label">Table 2-1. </span>Escape sequences in C</caption>
+<thead>
+<tr>
+<th>Char</th>
+<th>ASCII</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>\a</p></td>
+<td><p>7</p></td>
+<td><p>BEL</p></td>
+<td><p>Make the terminal “beep” when printed</p></td>
+</tr>
+<tr>
+<td><p>\n</p></td>
+<td><p>10</p></td>
+<td><p>LF</p></td>
+<td><p>Line Feed (standard line ending on Mac and Linux)</p></td>
+</tr>
+<tr>
+<td><p>\r</p></td>
+<td><p>13</p></td>
+<td><p>CR</p></td>
+<td><p>Carriage Return (when used with <code>\n</code>, common line ending on Windows)</p></td>
+</tr>
+<tr>
+<td><p>\t</p></td>
+<td><p>15</p></td>
+<td><p>HT</p></td>
+<td><p>(Horizontal) Tab</p></td>
+</tr>
+<tr>
+<td><p>\\</p></td>
+<td><p>92</p></td>
+<td/>
+<td><p>Used to place a literal backslash in a string or char</p></td>
+</tr>
+<tr>
+<td><p>\'</p></td>
+<td><p>39</p></td>
+<td/>
+<td><p>Used to place a literal single quote in a char (no escape required in a string)</p></td>
+</tr>
+<tr>
+<td><p>\”</p></td>
+<td><p>34</p></td>
+<td/>
+<td><p>Used to place a literal double quote in a string (no escape required in a char)</p></td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td colspan="4"><p><em>This is not an exhaustive list, but covers the characters we will use in this book.</em></p></td>
+</tr>
+</tfoot>
+</table>
+
+<p>These named shortcuts only cover the most popular characters. If you have to use other special characters, say an end of transmission (EOT, ASCII value 4) signal from a modem, you can give the character’s ASCII value in octal with the backslash. Our EOT character, then, would be <code>'\4'</code>, or sometimes you see three digits: <code>'\004'</code>. (Since ASCII is a 7-bit encoding, three octal digits cover the highest ASCII character. Which, if you’re curious, is delete (DEL, ASCII 127) or <code>'\177'</code> as an octal escape sequence. Some folks prefer the consistency of always seeing three digits.)</p>
+
+<p>You might not need many of these shortcuts, but since Windows path names use the backslash
+character, it’s important to remember that some characters require this special
+prefix. And, of course, the newline character will continue to show up
+in many of our print statements. As you may have noticed with the octal escape sequences,
+the prefixing backslash is included inside the single quotes. So a tab is <code>'\t'</code> and
+the backslash<a data-type="indexterm" data-primary="characters" data-secondary="special" data-startref="characters-special" id="idm45018742412392"/><a data-type="indexterm" data-primary="special characters" data-startref="special-characters" id="idm45018742411112"/><a data-type="indexterm" data-primary="escape characters" data-startref="escape-characters" id="idm45018742410168"/><a data-type="indexterm" data-primary="\ (backslash), as escape character" data-secondary-sortas="escape character" data-startref="backslash" id="idm45018742409224"/><a data-type="indexterm" data-primary="backslash (\), as escape character" data-secondary-sortas="escape character" data-startref="backslash-spelled" id="idm45018742407992"/> is <code>'\\'</code>.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Strings"><div class="sect3" id="smallerc-CHP-2-SECT-2.2.2">
+<h3>Strings</h3>
+
+<p>Strings <a data-type="indexterm" data-primary="strings" data-secondary="described" id="idm45018742404152"/><a data-type="indexterm" data-primary="variables" data-secondary="strings" data-see="strings" id="idm45018742403144"/><a data-type="indexterm" data-primary="arrays" data-secondary="strings as" id="idm45018742401928"/><a data-type="indexterm" data-primary="strings" data-secondary="as arrays" data-secondary-sortas="arrays" id="idm45018742400984"/>are a series of <code>char</code>s, but a very formalized series. Many programming languages support such series, called arrays. <a data-type="xref" href="ch04.xhtml#smallerc-CHP-4">Chapter 4</a> introduces arrays in much more detail, but the array of <code>char</code> type—<code>char[]</code> in C syntax—is so common that I want to mention it separately.</p>
+
+<p>We’ve been working with strings without being very explicit about them. In our very first hello program, we called <code>printf()</code> with a string argument. A string in C is a collection of zero or <a data-type="indexterm" data-primary="null character (\0)" id="idm45018742396392"/><a data-type="indexterm" data-primary="\0 (null character)" id="idm45018742395688"/>more <code>char</code>s with a special, final “null” character, <code>\0</code> (with the ASCII value of 0). You typically include the characters in your code between double quotes, such as our <code>"Hello, world!\n"</code> argument. Happily, when you use those double quotes, you don’t have to add the <code>\0</code> yourself. It is implicit in the
+definition of a string literal.</p>
+
+<p>Declaring <a data-type="indexterm" data-primary="strings" data-secondary="declaring" id="idm45018742392808"/><a data-type="indexterm" data-primary="declaring" data-secondary="strings" id="idm45018742391800"/>string variables is as simple as declaring <code>char</code> variables:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">firstname</code><code class="p">[</code><code class="mi">20</code><code class="p">];</code>
+<code class="kt">char</code> <code class="n">lastname</code><code class="p">[</code><code class="mi">20</code><code class="p">];</code>
+<code class="kt">char</code> <code class="n">jobtitle</code><code class="p">[</code><code class="mi">50</code><code class="p">];</code></pre>
+
+<p>Each of these variables could store simple things like a name, or more complex
+things like a multipart title, e.g., “Senior Code and Tasty Pie Developer.” A string
+can also be empty: “”. That may seem silly, but think about forms where you are
+entering things like names. If you happen to be a wildly successful pop star with
+just one name, the <code>lastname</code> variable above could be given the valid value <code>""</code>
+(i.e., just the terminating <code>'\0'</code>)
+to indicate that Drake and Cher are doing just fine without a surname.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Numbers"><div class="sect2" id="smallerc-CHP-2-SECT-2.3">
+<h2>Numbers</h2>
+
+<p>Not <a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="char" data-startref="variables-types-char" id="idm45018742367816"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="char" data-startref="types-char" id="idm45018742366264"/><a data-type="indexterm" data-primary="char (variable type)" data-startref="char" id="idm45018742365048"/><a data-type="indexterm" data-primary="numbers" data-secondary="char variable type" id="idm45018742364104"/>surprisingly, C also has types that can store numeric values. Or more precisely,
+C has types for storing numbers larger than what typically fits in variable of type
+<code>char</code>. (Even though the examples in this chapter so far have used <code>char</code> for storing
+actual characters, it’s still a numeric type and is good for storing small
+numbers that have nothing to do with a character encoding.) C breaks these
+numeric types into two subcategories: integers and floating point
+numbers (i.e., decimals).</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Integer types"><div class="sect3" id="smallerc-CHP-2-SECT-2.3.1">
+<h3>Integer types</h3>
+
+<p>The<a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="integers" id="variables-types-integer"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="integers" id="types-integers"/><a data-type="indexterm" data-primary="integer types" id="integers"/><a data-type="indexterm" data-primary="numbers" data-secondary="integers" id="numbers-integers"/> integer types store simple numbers. The main type is called <code>int</code>, but there
+are many variations. The main difference in the variations is the size of the
+biggest number that can be stored in a variable of the given type.
+<a data-type="xref" href="#smallerc-CHP-2-TABLE-types-and-sizes">Table 2-2</a> summarizes the types and their storage <a data-type="indexterm" data-primary="int (variable type)" id="idm45018742353048"/><a data-type="indexterm" data-primary="short (variable type)" id="idm45018742352376"/><a data-type="indexterm" data-primary="long (variable type)" id="idm45018742351704"/><a data-type="indexterm" data-primary="long long (variable type)" id="idm45018742351032"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="int" id="idm45018742350392"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="short" id="idm45018742349176"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="long" id="idm45018742347960"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="long long" id="idm45018742327976"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="int" id="idm45018742326760"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="short" id="idm45018742325816"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="long" id="idm45018742324872"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="long long" id="idm45018742323928"/>capacities.</p>
+<table id="smallerc-CHP-2-TABLE-types-and-sizes">
+<caption><span class="label">Table 2-2. </span>Integer types and their typical sizes</caption>
+<thead>
+<tr>
+<th>Type</th>
+<th>Bytes</th>
+<th>Range</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>char</p></td>
+<td><p>1</p></td>
+<td><p>–127 to +127 or 0 to 255</p></td>
+<td><p>Normally for letters; can also store small numbers</p></td>
+</tr>
+<tr>
+<td><p>short</p></td>
+<td><p>2</p></td>
+<td><p>–32,767 to +32,767</p></td>
+<td/>
+</tr>
+<tr>
+<td><p>int</p></td>
+<td><p>2 or 4</p></td>
+<td><p>–32,767 to +32,767 or –2,147,483,647 to +2,147,483,647</p></td>
+<td><p>Varies by implementation</p></td>
+</tr>
+<tr>
+<td><p>long</p></td>
+<td><p>4</p></td>
+<td><p>–2,147,483,647 to +2,147,483,647</p></td>
+<td/>
+</tr>
+<tr>
+<td><p>long long</p></td>
+<td><p>8</p></td>
+<td><p>–9,223,372,036,854,775,807 to +9,223,372,036,854,775,807</p></td>
+<td><p>Introduced in C99</p></td>
+</tr>
+<tr>
+<td colspan="4"><p><em>While <code>char</code> is defined as one byte, the other sizes are system dependent.</em></p></td>
+</tr>
+</tbody>
+</table>
+
+<p>Most of the types <a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="signed/unsigned" id="idm45018742303208"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="signed/unsigned" id="idm45018742301960"/><a data-type="indexterm" data-primary="signed variable types" id="idm45018742301016"/><a data-type="indexterm" data-primary="unsigned variable types" id="idm45018742300344"/>above are <em>signed</em> types,<sup><a data-type="noteref" id="idm45018742299128-marker" href="ch02.xhtml#idm45018742299128">4</a></sup> which means that they can store
+values less than zero. All five types also have an explicit <em>unsigned</em> variation (e.g., <code>unsigned int</code> or <code>unsigned char</code>) that is the same size in bits/bytes but does not
+store negative values.
+Their ranges start at zero and end at roughly double the top of the signed range, as shown in <a data-type="xref" href="#smallerc-CHP-2-TABLE-unsigned-sizes">Table 2-3</a>.</p>
+<table id="smallerc-CHP-2-TABLE-unsigned-sizes">
+<caption><span class="label">Table 2-3. </span>Unsigned integer types and their typical sizes</caption>
+<thead>
+<tr>
+<th>Type</th>
+<th>Bytes</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>unsigned char</p></td>
+<td><p>1</p></td>
+<td><p>0 to 255</p></td>
+</tr>
+<tr>
+<td><p>unsigned short</p></td>
+<td><p>2</p></td>
+<td><p>0 to 65535</p></td>
+</tr>
+<tr>
+<td><p>unsigned int</p></td>
+<td><p>2 or 4</p></td>
+<td><p>0 to 65535 or 0 to 4,294,967,295</p></td>
+</tr>
+<tr>
+<td><p>unsigned long</p></td>
+<td><p>4</p></td>
+<td><p>0 to 4,294,967,295</p></td>
+</tr>
+<tr>
+<td><p>unsigned long long</p></td>
+<td><p>8</p></td>
+<td><p>0 to 18,446,744,073,709,551,615</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>Here are some sample <a data-type="indexterm" data-primary="declaring" data-secondary="integers" id="idm45018742280520"/>integer type declarations. Note the declaration of the
+<code>x</code> and <code>y</code> variables. You often see coordinates on a grid or graph discussed
+in terms of “x and y.” C allows you to declare multipe variable
+names with the same type using a comma to separate them. There’s nothing
+special about this format, but if you ever have some short, related variable
+names, this might be a nice option.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">studentcount</code><code class="p">;</code>
+<code class="kt">long</code> <code class="n">total</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">x</code><code class="p">,</code> <code class="n">y</code><code class="p">;</code>
+<code class="kt">short</code> <code class="n">volume</code><code class="p">,</code> <code class="n">chapter</code><code class="p">,</code> <code class="n">page</code><code class="p">;</code>
+<code class="kt">unsigned</code> <code class="kt">long</code> <code class="kt">long</code> <code class="n">nationaldebt</code><code class="p">;</code></pre>
+
+<p>If you have small values to store, say “up to one dozen” or “top 100,” remember that you can use the <code>char</code> type. It is only 1 byte in length and the compiler doesn’t care if you ever print the value as an actual character or as a simple <a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="char" id="idm45018742260456"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="char" id="idm45018742259304"/><a data-type="indexterm" data-primary="char (variable type)" id="idm45018742256968"/><a data-type="indexterm" data-primary="numbers" data-secondary="char variable type" id="idm45018742256296"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="integers" data-startref="variables-types-integer" id="idm45018742255352"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="integers" data-startref="types-integers" id="idm45018742253864"/><a data-type="indexterm" data-primary="integer types" data-startref="integers" id="idm45018742252648"/><a data-type="indexterm" data-primary="numbers" data-secondary="integers" data-startref="numbers-integers" id="idm45018742251704"/>number.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Floating point types"><div class="sect3" id="smallerc-CHP-2-SECT-2.3.2">
+<h3>Floating point types</h3>
+
+<p>If <a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="floating point" id="idm45018742248552"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="floating point" id="idm45018742246888"/><a data-type="indexterm" data-primary="floating point types" id="idm45018742245944"/><a data-type="indexterm" data-primary="numbers" data-secondary="floating point types" id="idm45018742245272"/><a data-type="indexterm" data-primary="float (variable type)" id="idm45018742244328"/><a data-type="indexterm" data-primary="double (variable type)" id="idm45018742243656"/><a data-type="indexterm" data-primary="decimal numbers" id="idm45018742242984"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="float" id="idm45018742242312"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="double" id="idm45018742241096"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="float" id="idm45018742239880"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="double" id="idm45018742238936"/>you are storing fractional or financial numbers, you can use the <code>float</code>
+or <code>double</code> types. These are both floating point types where the decimal
+point is not fixed (e.g., it can float), capable of storing
+values like 999.9 or 3.14. But because we are talking about computers that
+think in discrete chunks, the floating point types store an approximation
+of the value encoded in 1s and 0s like an <code>int</code>. The <code>float</code> type is a 32-bit
+encoding that can store a wide range of values from very small fractions
+to very large exponentials. But <code>float</code> is most accurate in a narrow band
+between roughly 
+<span class="keep-together">–32k</span> to 32k and six significant places after the decimal point.</p>
+
+<p>The <code>double</code> type has “double” the precision of a
+<code>float</code>.<sup><a data-type="noteref" id="idm45018742233528-marker" href="ch02.xhtml#idm45018742233528">5</a></sup> This means roughly 15 decimal digits
+will be accurately represented. We’ll see a few places where
+this approximation can cause problems, but for general purposes
+like a receipt total or a reading from a temperature sensor, these
+types are sufficient.</p>
+
+<p>As with the other types, you place the type before the name:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">balance</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average</code><code class="p">;</code>
+<code class="kt">double</code> <code class="n">microns</code><code class="p">;</code></pre>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>Since normal decimal numbers can also store integral values like 6 (as 6.0),
+it might be tempting to use <code>float</code> for your default numeric type. But
+manipulating numbers encoded with decimal points can be expensive on tiny
+CPUs like an Arduino. And even on big chips, it is still more expensive
+than working with simple integers. For performance and accuracy reasons,
+most C programmers stick with <code>int</code> unless they have an explicit reason
+not to.</p>
+</div>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Variable Names"><div class="sect2" id="smallerc-CHP-2-SECT-2.4">
+<h2>Variable Names</h2>
+
+<p>Regardless<a data-type="indexterm" data-primary="variables" data-secondary="naming" id="variables-naming"/><a data-type="indexterm" data-primary="naming" data-secondary="variables" id="naming-variables"/> of what type a variable is, it has a name. For the most part, you
+are free to use any name you want, but there are a few rules you have to follow.</p>
+
+<p>In C, variable names can start with any letter or the underscore character
+(“_”). After that initial character, a name can have more letters,
+more underscores, or numbers. Variable names are case sensitive (<code>total</code> and <code>Total</code>
+are not the same variable) and are (usually) limited to 31
+characters long,<sup><a data-type="noteref" id="idm45018742180600-marker" href="ch02.xhtml#idm45018742180600">6</a></sup>
+although convention keeps them shorter.</p>
+
+<p>C also has <a data-type="indexterm" data-primary="keywords" id="idm45018742179128"/>several <em>keywords</em> that are reserved for use by the C language itself.
+Because the keywords in <a data-type="xref" href="#smallerc-CHP-2-TAB-c-keywords">Table 2-4</a> already mean something to C,
+they cannot be used as variable names.
+Some implementations may reserve other words (such as <code>asm</code>, <code>typeof</code>, and <code>inline</code>),
+but most alternate keywords begin with one or two underscores to help make conflicts
+with your own variable names unlikely.</p>
+<table id="smallerc-CHP-2-TAB-c-keywords">
+<caption><span class="label">Table 2-4. </span>C keywords</caption>
+<thead>
+<tr>
+<th colspan="4">Reserved words</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>_Bool</p></td>
+<td><p>default</p></td>
+<td><p>if</p></td>
+<td><p>static</p></td>
+</tr>
+<tr>
+<td><p>_Complex</p></td>
+<td><p>do</p></td>
+<td><p>int</p></td>
+<td><p>struct</p></td>
+</tr>
+<tr>
+<td><p>_Imaginary</p></td>
+<td><p>double</p></td>
+<td><p>long</p></td>
+<td><p>switch</p></td>
+</tr>
+<tr>
+<td><p>auto</p></td>
+<td><p>else</p></td>
+<td><p>register</p></td>
+<td><p>typedef</p></td>
+</tr>
+<tr>
+<td><p>break</p></td>
+<td><p>enum</p></td>
+<td><p>restrict</p></td>
+<td><p>union</p></td>
+</tr>
+<tr>
+<td><p>case</p></td>
+<td><p>extern</p></td>
+<td><p>return</p></td>
+<td><p>unsigned</p></td>
+</tr>
+<tr>
+<td><p>char</p></td>
+<td><p>float</p></td>
+<td><p>short</p></td>
+<td><p>void</p></td>
+</tr>
+<tr>
+<td><p>const</p></td>
+<td><p>for</p></td>
+<td><p>signed</p></td>
+<td><p>volatile</p></td>
+</tr>
+<tr>
+<td><p>continue</p></td>
+<td><p>goto</p></td>
+<td><p>sizeof</p></td>
+<td><p>while</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>If you do <a data-type="indexterm" data-primary="error messages" data-secondary="variable names" id="idm45018742127576"/>stumble upon a conflict with a keyword when declaring your variables,
+you’ll see an error similar to the error you get if you use an invalid
+variable name, such as one starting with a number:</p>
+
+<pre data-type="programlisting">badname.c: In function ‘main’:
+badname.c:4:9: error: expected identifier or ‘(’ before ‘do’
+    4 |   float do;
+      |         ^~
+badname.c:5:7: error: expected identifier or ‘(’ before numeric constant
+    5 |   int 5r;
+      |       ^~</pre>
+
+<p>That phrase “expected identifier” is a strong indicator your variable
+is the cause of the error. The compiler was expecting a variable name but found a
+keyword <a data-type="indexterm" data-primary="variables" data-secondary="naming" data-startref="variables-naming" id="idm45018742124712"/><a data-type="indexterm" data-primary="naming" data-secondary="variables" data-startref="naming-variables" id="idm45018742123464"/>instead.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Variable Assignments"><div class="sect2" id="smallerc-CHP-2-SECT-2.5">
+<h2>Variable Assignments</h2>
+
+<p>In<a data-type="indexterm" data-primary="variables" data-secondary="assigning" id="idm45018742119880"/><a data-type="indexterm" data-primary="assigning variables" id="idm45018742118872"/><a data-type="indexterm" data-primary="= (equal sign), variable assignments" id="idm45018742118200"/><a data-type="indexterm" data-primary="equal sign (=), variable assignments" id="idm45018742117560"/> our <em>hello2.c</em> example, we relied on a rather implicit assignment to our <code>name</code>
+variable. As an argument to the <code>scanf()</code> function, whatever the user types is
+stored in that variable. But we can (and often do) make direct assignments
+to variables. You use the equal sign (“=”) to indicate an assignment
+like so:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">total</code><code class="p">;</code>
+<code class="n">total</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code></pre>
+
+<p>You have now successfully stored the value <code>7</code> in the variable <code>total</code>.
+Congratulations!</p>
+
+<p>You can overwrite that value at any time, too:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">total</code><code class="p">;</code>
+<code class="n">total</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code>
+<code class="n">total</code> <code class="o">=</code> <code class="mi">42</code><code class="p">;</code></pre>
+
+<p>While back-to-back assignments is a bit wasteful, there is nothing wrong with
+this snippet of C. The variable <code>total</code> will only retain one integer value,
+though, so the most recent assignment is the winner, <code>42</code> in this case.</p>
+
+<p>You often see <a data-type="indexterm" data-primary="variables" data-secondary="initializing" id="idm45018735953512"/><a data-type="indexterm" data-primary="initializing" data-secondary="variables" id="idm45018735952536"/>variables defined and assigned an initial value (<em>initialized</em> in
+programmer-speak) at the same time:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">total</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">answer</code> <code class="o">=</code> <code class="sc">'y'</code><code class="p">;</code></pre>
+
+<p>Both <code>total</code> and <code>answer</code> now have values you can use, but both can still be
+changed as needed. That’s exactly what variables do.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Literals"><div class="sect3" id="smallerc-CHP-2-SECT-2.5.1">
+<h3>Literals</h3>
+
+<p>Those<a data-type="indexterm" data-primary="variables" data-secondary="literals" id="variables-literals"/><a data-type="indexterm" data-primary="literals" id="literals"/> simple values we are plugging into variables in these examples are called
+<em>literals</em>. A literal is just a value that needs no interpretation. Numbers,
+characters inside single quotes, or strings inside double quotes all count as
+literals:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="mi">12</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">suffix</code> <code class="o">=</code> <code class="sc">'s'</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">label</code><code class="p">[]</code> <code class="o">=</code> <code class="s">"Description"</code><code class="p">;</code></pre>
+
+<p>Hopefully, <a data-type="indexterm" data-primary="arrays" data-secondary="length of" id="idm45018735877576"/><a data-type="indexterm" data-primary="strings" data-secondary="length of" id="idm45018735876728"/>those first two variable definitions look familiar. But notice when
+we initialized our string called <code>label</code>, we did not give the array
+a length. The C compiler infers the size from the literal we use in the initialization.
+In this case, then, <code>label</code> is 12 characters long; 11 for the letters in the word
+“Description” and one more for the terminating <code>'\0'</code>. You can give
+string variables more room if you know you’ll need it later in your code,
+but you should not specify too little room.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">automatic</code><code class="p">[]</code> <code class="o">=</code> <code class="s">"A string variable with just the right length"</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">jobtitle</code><code class="p">[</code><code class="mi">50</code><code class="p">]</code> <code class="o">=</code> <code class="s">"Chief Acceptable Length Officer"</code><code class="p">;</code>
+<code class="kt">char</code> <code class="n">warning</code><code class="p">[</code><code class="mi">5</code><code class="p">]</code> <code class="o">=</code> <code class="s">"This is a bad idea."</code><code class="p">;</code></pre>
+
+<p>If you do try to assign a <a data-type="indexterm" data-primary="warnings" data-secondary="string length" id="idm45018735823096"/>string literal that is too long for its <code>char[]</code>
+variable, you’ll likely see a warning from the compiler:</p>
+
+<pre data-type="programlisting">toolong.c: In function ‘main’:
+toolong.c:6:21: warning: initializer-string for array of chars is too long
+    6 |   char warning[5] = "This is a bad idea.";
+      |                     ^~~~~~~~~~~~~~~~~~~~~</pre>
+
+<p>That’s a fairly specific error, so hopefully you’ll find it easy to fix.
+Your program will still run, by the way. Notice that the compiler gave you
+a <em>warning</em> rather<a data-type="indexterm" data-primary="warnings" data-secondary="error messages versus" id="idm45018735797752"/><a data-type="indexterm" data-primary="error messages" data-secondary="warnings versus" id="idm45018735796744"/> than an <em>error</em> as we’ve seen in some previous
+examples with compiler problems. Warnings typically mean the compiler thinks
+you are making a mistake, but you get the benefit of the doubt. It’s
+usually best to address warnings anyway, but it is not<a data-type="indexterm" data-primary="variables" data-secondary="literals" data-startref="variables-literals" id="idm45018735795000"/><a data-type="indexterm" data-primary="literals" data-startref="literals" id="idm45018735793752"/> required.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="printf() and scanf()"><div class="sect1" id="smallerc-CHP-2-SECT-3">
+<h1>printf() and scanf()</h1>
+
+<p>We have already seen how to print out information using <code>printf()</code> and how
+to accept user input with <code>scanf()</code>, but I glossed over many of the details
+of both functions. Let’s look at some of those details now.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="printf() Formats"><div class="sect2" id="smallerc-CHP-2-SECT-3.1">
+<h2>printf() Formats</h2>
+
+<p>The <code>printf()</code> function<a data-type="indexterm" data-primary="functions" data-secondary="printf()" id="functions-printf-format"/><a data-type="indexterm" data-primary="printf() function" id="printf-format"/><a data-type="indexterm" data-primary="format strings" id="format-strings"/><a data-type="indexterm" data-primary="format specifiers" id="format-specifier"/> is C’s primary output function. We have already
+used it for printing simple strings like <code>"Hello, world\n"</code>. We also peeked at
+using it to print a variable in <a data-type="xref" href="#smallerc-CHP-2-SECT-2.1">“Getting User Input”</a>. It can print all
+variable types, you just need to supply the correct <em>format string</em>.</p>
+
+<p>When we call <code>printf()</code>, the first thing we supply is usually a string literal.
+That first argument
+is known as the format string. You can have simple strings that are
+echoed “as is” to the terminal, or you can print (and format) the
+values of variables. You use the format string to let <code>printf()</code> know what’s
+coming. You do that by including <em>format specifiers</em> such as our <code>%s</code> from
+<a href="https://oreil.ly/DcU5k"><em>ch02/hello2.c</em></a>.
+Let’s print a few of those variables we have been creating
+while discussing declarations and assignments. Consider
+<a href="https://oreil.ly/qhIIT"><em>ch02/hello3.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="mi">12</code><code class="p">;</code>
+  <code class="kt">int</code> <code class="n">total</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code>
+  <code class="kt">char</code> <code class="n">answer</code> <code class="o">=</code> <code class="sc">'y'</code><code class="p">;</code>
+  <code class="kt">char</code> <code class="n">jobtitle</code><code class="p">[</code><code class="mi">50</code><code class="p">]</code> <code class="o">=</code> <code class="s">"Chief Acceptable Length Officer"</code><code class="p">;</code>
+  <code class="c1">// char warning[5] = "This is a bad idea.";</code>
+
+  <code class="n">printf</code><code class="p">(</code><code class="s">"You can have %d, you currently have %d.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">count</code><code class="p">,</code> <code class="n">total</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"You answered: %c</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">answer</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please welcome our newest %s!</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">jobtitle</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>And here’s the result:</p>
+
+<pre data-type="programlisting">ch02$ gcc hello3.c
+ch02$ ./a.out
+You can have 12, you currently have 7.
+You answered: y
+Please welcome our newest Chief Acceptable Length Officer!</pre>
+
+<p>Compare the output to the source code. You can see that we mostly print out
+the characters in our format string as is. But when we encounter a format
+specifier, we substitute the value of one of the arguments that follow the
+format string. Look closely at our first
+call to <code>printf()</code>. We have two format specifiers in the format string. After
+that string, we supply two variables. The variables fill in the format
+specifiers in order, left to right. If you check the output, you can see
+that first line of output does indeed include the value of <code>count</code> first,
+followed by the value of <code>total</code>. Neat. And we got the output of our <code>char</code>
+and string variables, too.</p>
+
+<p>If you noticed that each type uses a different specifier, congratulations!
+You’re finding the important differences in these statements. (And if
+it all still looks a little like gibberish, don’t give up! The
+patterns—and the things that don’t fit the patterns—will
+start to stand out as you read and practice more.) In fact, <code>printf()</code> has
+quite a range of format specifiers, as shown in <a data-type="xref" href="#smallerc-CHP-2-TAB-common-specifiers">Table 2-5</a>.
+Some are obvious and are clearly associated with a particular type. Others
+are a little more esoteric, but that’s what books are for. You’ll
+memorize the few specifiers you use most often and can always look up the
+less popular ones when you need them.</p>
+<table id="smallerc-CHP-2-TAB-common-specifiers">
+<caption><span class="label">Table 2-5. </span>Common format specifier types for <code>printf()</code></caption>
+<thead>
+<tr>
+<th>Specifier</th>
+<th>Type(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>%c</code></p></td>
+<td><p><code>char</code></p></td>
+<td><p>Print out a single character</p></td>
+</tr>
+<tr>
+<td><p><code>%d</code></p></td>
+<td><p><code>int, short, long</code></p></td>
+<td><p>Print integer values in base 10 (“decimal”)</p></td>
+</tr>
+<tr>
+<td><p><code>%f</code></p></td>
+<td><p><code>float, double</code></p></td>
+<td><p>Print floating point values</p></td>
+</tr>
+<tr>
+<td><p><code>%i</code></p></td>
+<td><p><code>int, short</code></p></td>
+<td><p>Print integer values in base 10</p></td>
+</tr>
+<tr>
+<td><p><code>%li, %lli</code></p></td>
+<td><p><code>long, long long</code></p></td>
+<td><p>Print long integer values in base 10</p></td>
+</tr>
+<tr>
+<td><p><code>%s</code></p></td>
+<td><p><code>char[]</code> (string)</p></td>
+<td><p>Print array of char as text</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>There are other formats as well, but I’ll leave those for later
+where we need to print out odd or special bits of data. These formats will
+cover the vast majority of what you need day-to-day. <a data-type="xref" href="app02.xhtml#smallerc-APP-B">Appendix B</a>
+includes a more detailed discussion of all the formats used in this book.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Tailored Output"><div class="sect2" id="smallerc-CHP-2-SECT-3.2">
+<h2>Tailored Output</h2>
+
+<p>But <a data-type="indexterm" data-primary="decimal numbers" data-secondary="formatting" id="decimal-format"/><a data-type="indexterm" data-primary="formatting floating point numbers" id="format-decimal"/><a data-type="indexterm" data-primary="numbers" data-secondary="formatting" id="numbers-floating-format"/><a data-type="indexterm" data-primary="floating point numbers, formatting" id="floating-format"/><a data-type="indexterm" data-primary="output" data-secondary="formatting" id="output-format"/>what about formatting those values? After all, C uses the phrases
+“format string” and “format specifier.” You add
+information to the format specifier to achieve this goal. One of the most common
+examples of this is printing floating point numbers like bank account balances
+or analog sensor readings. Let’s give ourselves
+some interesting decimals and try printing them out.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">float</code> <code class="n">one_half</code> <code class="o">=</code> <code class="mf">0.5</code><code class="p">;</code>
+  <code class="kt">double</code> <code class="n">two_thirds</code> <code class="o">=</code> <code class="mf">0.666666667</code><code class="p">;</code>
+  <code class="kt">double</code> <code class="n">pi</code> <code class="o">=</code> <code class="mf">3.1415926535897932384626433</code><code class="p">;</code>
+
+  <code class="n">printf</code><code class="p">(</code><code class="s">"1/2: %f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">one_half</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"2/3: %f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">two_thirds</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"pi:  %f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">pi</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>We declare three variables, one <code>float</code> and two <code>double</code> types. We use the <code>%f</code>
+format specifier in our <code>printf()</code> statements. Great! Here’s what we get
+after compiling and running the program:</p>
+
+<pre data-type="programlisting">1/2: 0.500000
+2/3: 0.666667
+pi:  3.141593</pre>
+
+<p>Hmm, they all had six decimal places, even though we didn’t specify how
+many we wanted and none of our variables have exactly six decimal
+places. To get just the right amount of information, you give
+the format specifier some extra details. All specifiers can accept both width
+and precision arguments. Both are optional, and you can supply either or both.
+The extra details look like a decimal number:
+<em><code>width.precision</code></em> and these details go between the percent sign and the
+type character, as shown in <a data-type="xref" href="#smallerc-CHP-2-FIG-width-precision">Figure 2-2</a>.</p>
+
+<figure><div id="smallerc-CHP-2-FIG-width-precision" class="figure">
+<img src="Images/smac_0202.png" alt="smac 0202" width="983" height="506"/>
+<h6><span class="label">Figure 2-2. </span>Implicit casting hierarchy</h6>
+</div></figure>
+
+<p>Using both of these options makes a lot of sense for floating point numbers.
+We can now ask for more or less digits. Try changing the three <code>printf()</code> calls
+in <a href="https://oreil.ly/Os37q"><em>ch02/floats.c</em></a> like so:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">printf</code><code class="p">(</code><code class="s">"1/2: |%5.2f|</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">one_half</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"2/3: |%12f|</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">two_thirds</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"pi:  |%12.10f|</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">pi</code><code class="p">);</code></pre>
+
+<p>I added the vertical bar or pipe character (<code>|</code>) just before and after the expanded
+format specifiers so that you can see just how the width element affects the
+output. Take a look at the new results:</p>
+
+<pre data-type="programlisting">1/2: | 0.50|         <a class="co" id="co_storing_and_stating_CO2-1" href="#callout_storing_and_stating_CO2-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a>
+2/3: |    0.666667|  <a class="co" id="co_storing_and_stating_CO2-2" href="#callout_storing_and_stating_CO2-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a>
+pi:  |3.1415926536|  <a class="co" id="co_storing_and_stating_CO2-3" href="#callout_storing_and_stating_CO2-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a></pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_storing_and_stating_CO2-1" href="#co_storing_and_stating_CO2-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a></dt>
+<dd><p>Our value, <code>0.5</code>, is displayed with two decimal places of precision in a
+total field width of five characters. Because we don’t need all five
+spots, one space character is added at the beginning.</p></dd>
+<dt><a class="co" id="callout_storing_and_stating_CO2-2" href="#co_storing_and_stating_CO2-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a></dt>
+<dd><p>A longer decimal number is printed within 12 spots. Notice that we get
+the same six decimal places as we did without specifying any width or precision.</p></dd>
+<dt><a class="co" id="callout_storing_and_stating_CO2-3" href="#co_storing_and_stating_CO2-3"><img src="Images/3.png" alt="3" width="12" height="12"/></a></dt>
+<dd><p>An even longer decimal number is shown within 12 spots but includes 10
+places of precision. Notice here that 12 is the <em>total</em> width—including
+the spots occupied by the numbers after the<a data-type="indexterm" data-primary="decimal numbers" data-secondary="formatting" data-startref="decimal-format" id="idm45018735494664"/><a data-type="indexterm" data-primary="formatting floating point numbers" data-startref="format-decimal" id="idm45018735493416"/><a data-type="indexterm" data-primary="numbers" data-secondary="formatting" data-startref="numbers-floating-format" id="idm45018735492456"/><a data-type="indexterm" data-primary="floating point numbers, formatting" data-startref="floating-format" id="idm45018735491240"/> decimal point.</p></dd>
+</dl>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>For <code>printf()</code>, the precision you request and the actual value you are printing
+take precedence over the width if given. You regularly see floating point formats
+like <code>“%0.2f”</code> or <code>“%.1f”</code> that give you the right number
+of decimal places within the exact number of spots required. Applying these two
+example formats to π, for example, would result in <code>3.14</code> and <code>3.1</code>, respectively.</p>
+</div>
+
+<p>With other types such as strings or ints, the width option is fairly straightforward.
+For example, you can print tabular data quite easily, as shown in
+<a href="https://oreil.ly/nQC7x"><em>ch02/tabular.c</em></a>,
+by using the same widths
+regardless of the value being printed 
+<span class="keep-together">like so:</span></p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">root2</code> <code class="o">=</code> <code class="mf">1.4142</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">phi</code> <code class="o">=</code> <code class="mf">1.618034</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">pi</code> <code class="o">=</code> <code class="mf">3.1415926</code><code class="p">;</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"     %10s%10s%10s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="s">"Root 2"</code><code class="p">,</code> <code class="s">"phi"</code><code class="p">,</code> <code class="s">"pi"</code><code class="p">);</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">" 1x  %10.4f%10.4f%10.4f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">root2</code><code class="p">,</code> <code class="n">phi</code><code class="p">,</code> <code class="n">pi</code><code class="p">);</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">" 2x  %10.4f%10.4f%10.4f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="mi">2</code> <code class="o">*</code> <code class="n">root2</code><code class="p">,</code> <code class="mi">2</code> <code class="o">*</code> <code class="n">phi</code><code class="p">,</code> <code class="mi">2</code> <code class="o">*</code> <code class="n">pi</code><code class="p">);</code></pre>
+
+<p>With wonderful columnar results:</p>
+
+<pre data-type="programlisting">         Root 2       phi        pi
+ 1x      1.4142    1.6180    3.1416
+ 2x      2.8284    3.2361    6.2832</pre>
+
+<p>Very nice. And notice how I tackled the column labels. I used format specifiers
+and string literals rather than a single string with the labels manually spaced
+apart. I did it this way to highlight the use of output widths, even though doing
+it manually wouldn’t be difficult. In fact, it would be easier to center
+the labels over these few columns manually. If you’re up for a little
+exercise, open the <em>tabular.c</em> file and try adjusting that first <code>printf()</code> to
+see if you can get the labels centered.</p>
+
+<p>While the width option is straightforward for all types, for nonfloating point formats,
+the effect of adding the precision option may not be as
+intuitive. For strings, specifying a precision results in truncating text
+to fit the given field width. (For <code>int</code> and <code>char</code> types, it typically has no effect, but your compiler may warn you not to rely on <a data-type="indexterm" data-primary="output" data-secondary="formatting" data-startref="output-format" id="idm45018735404872"/><a data-type="indexterm" data-primary="functions" data-secondary="printf()" data-startref="functions-printf-format" id="idm45018735403624"/><a data-type="indexterm" data-primary="printf() function" data-startref="printf-format" id="idm45018735402408"/><a data-type="indexterm" data-primary="format strings" data-startref="format-strings" id="idm45018735401464"/><a data-type="indexterm" data-primary="format specifiers" data-startref="format-specifier" id="idm45018735400520"/>such “typical” behavior.)</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="scanf() and Parsing Inputs"><div class="sect2" id="smallerc-CHP-2-SECT-3.3">
+<h2>scanf() and Parsing Inputs</h2>
+
+<p>On the<a data-type="indexterm" data-primary="scanf() function" id="scanf-parse"/><a data-type="indexterm" data-primary="functions" data-secondary="scanf()" id="functions-scanf-parse"/><a data-type="indexterm" data-primary="input" data-secondary="parsing" id="user-input-parsing"/><a data-type="indexterm" data-primary="parsing user input" id="parsing-user-input"/> flip side of output is input. We took a peek at using the <code>scanf()</code> function
+to do this at the beginning of this chapter in <a data-type="xref" href="#smallerc-CHP-2-SECT-2.1">“Getting User Input”</a>. By now
+you might recognize the <code>%s</code> we used in that simple program as a format specifier.
+That familiarity goes deeper: you can use all of the format specifiers listed in
+<a data-type="xref" href="#smallerc-CHP-2-TAB-common-specifiers">Table 2-5</a> with <code>scanf()</code> to get those types of
+values from user input.</p>
+
+<p>There is one important point I need to make about the variables you use with <code>scanf()</code>. We got a little lucky scanning for a string in our first example. Strings in C, if you recall, are really just arrays of type <code>char</code>. We’ll see more on this topic in Chapters <a data-xrefstyle="select:labelnumber" data-type="xref" href="ch04.xhtml#smallerc-CHP-4">4</a> and <a data-xrefstyle="select:labelnumber" data-type="xref" href="ch06.xhtml#smallerc-CHP-6">6</a>, but for our purpose here, I’ll just note that arrays are a special case<a data-type="indexterm" data-primary="pointers" id="idm45018735386168"/> of <em>pointers</em> in C. Pointers are special values that refer to <a data-type="indexterm" data-primary="addresses (memory)" id="idm45018735384856"/><a data-type="indexterm" data-primary="memory" data-secondary="addresses" id="idm45018735384152"/>the <em>address</em> (location) of things in memory. The <code>scanf()</code> function uses the address of a variable, not its value. Indeed, the point of <code>scanf()</code> is to put a value into a variable.
+Since arrays are really pointers, you can use a <code>char</code> array variable
+directly. But to use numeric and individual <code>char</code> variables with <code>scanf()</code>,
+you <a data-type="indexterm" data-primary="&amp; (ampersand), variable prefix" id="amp-prefix"/><a data-type="indexterm" data-primary="ampersand (&amp;), variable prefix" id="amp-prefix-spelled"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="prefixes for" id="variables-types-prefix"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="prefixes for" id="types-prefixes"/>have to use a special prefix on the variable name, the ampersand (<code>&amp;</code>).</p>
+
+<p>I’ll go into the <code>&amp;</code> prefix in a lot more detail in <a data-type="xref" href="ch06.xhtml#smallerc-CHP-6">Chapter 6</a>, but it tells the compiler to use the address of the variable—perfect for <code>scanf()</code>. Take a look at this small snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">name</code><code class="p">[</code><code class="mi">20</code><code class="p">];</code>
+<code class="kt">int</code>  <code class="n">age</code><code class="p">;</code>
+
+<code class="n">printf</code><code class="p">(</code><code class="s">"Please enter your first name and age, separated by a space: "</code><code class="p">);</code>
+<code class="n">scanf</code><code class="p">(</code><code class="s">"%s %d"</code><code class="p">,</code> <code class="n">name</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">age</code><code class="p">);</code></pre>
+
+<p>Notice the difference in the use of the <code>name</code> variable in the <code>scanf()</code> line and the use of the <code>&amp;age</code> variable. That is solely down to <code>name</code> being an array and <code>age</code> being a simple integer. This is regrettably one of those things that is easy to forget. Not regrettably, it is easy to fix and the compiler will remind you if you forget:</p>
+
+<pre data-type="programlisting">warning: format '%d' expects argument of type 'int *',
+         but argument 3 has type 'int' [-Wformat=]
+   15 |   scanf("%s %d", name, age);
+      |             ~^         ~~~
+      |              |         |
+      |              |         int
+      |              int *</pre>
+
+<p>When<a data-type="indexterm" data-primary="error messages" data-secondary="expects type" id="idm45018735304104"/> you see this “expects type” error, just remember that <code>int</code>, <code>float</code>, <code>char</code>, and similar nonarray variables always need the <code>&amp;</code> prefix when used <a data-type="indexterm" data-primary="&amp; (ampersand), variable prefix" data-startref="amp-prefix" id="idm45018735300824"/><a data-type="indexterm" data-primary="ampersand (&amp;), variable prefix" data-startref="amp-prefix-spelled" id="idm45018735299848"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="prefixes for" data-startref="variables-types-prefix" id="idm45018735298936"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="prefixes for" data-startref="types-prefixes" id="idm45018735297448"/><a data-type="indexterm" data-primary="scanf() function" data-startref="scanf-parse" id="idm45018735296232"/><a data-type="indexterm" data-primary="functions" data-secondary="scanf()" data-startref="functions-scanf-parse" id="idm45018735295288"/><a data-type="indexterm" data-primary="input" data-secondary="parsing" data-startref="user-input-parsing" id="idm45018735294072"/><a data-type="indexterm" data-primary="parsing user input" data-startref="parsing-user-input" id="idm45018735292856"/>with <code>scanf()</code>.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Operators and Expressions"><div class="sect1" id="smallerc-CHP-2-SECT-4">
+<h1>Operators and Expressions</h1>
+
+<p>With <a data-type="indexterm" data-primary="statements" data-secondary="operators" data-see="operators" id="idm45018735289688"/>variables and I/O statements, we now have some really powerful building blocks
+in our programming toolbox. But storing and printing values is pretty boring as
+coding goes. We want to start doing some work with the contents of those variables.
+One of the first rungs up the code complexity ladder is the ability to calculate
+new values. In C (and many other languages), you can perform calculations with the
+help<a data-type="indexterm" data-primary="operators" data-secondary="described" id="idm45018735287848"/> of <em>operators</em>, symbols that allow you to do things like add, subtract,
+multiply, or compare (i.e., perform an “operation”) on two or more values.</p>
+
+<p>C includes several predefined operators for doing basic mathematic and logic work.
+(Advanced math and logic can be done by writing your own functions, which we’ll
+look at in <a data-type="xref" href="ch05.xhtml#smallerc-CHP-5">Chapter 5</a>.) With the exception of a special ternary operator (<code>?:</code>,
+discussed in <a data-type="xref" href="ch03.xhtml#smallerc-CHP-3-SECT-2.3">“The Ternary Operator and Conditional Assignment”</a>), C’s operators work with either one or two values. <a data-type="xref" href="#smallerc-CHP-2-FIG-binary-op">Figure 2-3</a> shows how these unary and binary operators
+fit with<a data-type="indexterm" data-primary="unary operators" id="idm45018735282424"/><a data-type="indexterm" data-primary="binary operators" id="idm45018735281752"/> values and expressions.</p>
+
+<figure><div id="smallerc-CHP-2-FIG-binary-op" class="figure">
+<img src="Images/smac_0203.png" alt="smac 0203" width="902" height="344"/>
+<h6><span class="label">Figure 2-3. </span>Binary operator syntax</h6>
+</div></figure>
+
+<p>Notice that you can
+use operators on more than two values in a sequence, but under the hood,
+C will be treating that sequence as a series of pairs. In general, <a data-type="indexterm" data-primary="expressions" data-secondary="described" id="idm45018735257352"/>operators work
+with <em>expressions</em>. The term “expression” is quite expansive. An expression can be as simple as a literal value or a single variable. It can also be so complex that it requires multiple lines of code to write down. The key thing to remember when you see discussions of expressions is that they have (or will produce) a value.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Arithmetic Operators"><div class="sect2" id="smallerc-CHP-2-SECT-4.1">
+<h2>Arithmetic Operators</h2>
+
+<p>Perhaps <a data-type="indexterm" data-primary="operators" data-secondary="arithmetic" data-tertiary="list of" id="operators-arithmetic-list"/><a data-type="indexterm" data-primary="arithmetic operators" data-secondary="list of" id="arithmetic-operators-list"/>the most intuitive operators in C are those used for mathematical calculations.
+<a data-type="xref" href="#smallerc-CHP-2-TABLE-math-ops">Table 2-6</a> shows the operators built into C.</p>
+<table id="smallerc-CHP-2-TABLE-math-ops" class="pagebreak-before less_space_table">
+<caption><span class="label">Table 2-6. </span>Arithmetic Operators</caption>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Operation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>+</code></p></td>
+<td><p>Addition</p></td>
+<td><p>Add two values</p></td>
+</tr>
+<tr>
+<td><p><code>-</code></p></td>
+<td><p>Subtraction</p></td>
+<td><p>Subtract the second value from the first</p></td>
+</tr>
+<tr>
+<td><p><code>*</code></p></td>
+<td><p>Multiplication</p></td>
+<td><p>Multiply two values</p></td>
+</tr>
+<tr>
+<td><p><code>/</code></p></td>
+<td><p>Division</p></td>
+<td><p>Divide the first value by the second</p></td>
+</tr>
+<tr>
+<td><p><code>%</code></p></td>
+<td><p>Remainder</p></td>
+<td><p>Find the remainder after dividing the first (integer) value by the second</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You can do math with literals or variables or expressions, or some combination of
+those things. Let’s try a simple program to ask the user for
+two integers and then use those values to do some calculations.</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter two numbers, separated by a space: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%d %d"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num1</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num2</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d + %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num1</code> <code class="o">+</code> <code class="n">num2</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d - %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num1</code> <code class="o">-</code> <code class="n">num2</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d * %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num1</code> <code class="o">*</code> <code class="n">num2</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d / %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num1</code> <code class="o">/</code> <code class="n">num2</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d %% %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num1</code> <code class="o">%</code> <code class="n">num2</code><code class="p">);</code>
+<code class="p">}</code>
+</pre>
+
+<p>Try this short program out yourself. You can type it in or open up the
+<a href="https://oreil.ly/w13kJ"><em>ch02/calcs.c</em></a>
+file. Compile and run and you should get output similar 
+<span class="keep-together">to this:</span></p>
+
+<pre data-type="programlisting">ch02$ gcc calcs.c
+ch02$ ./a.out
+Please enter two numbers, separated by a space: 233 17
+233 + 17 is 250
+233 - 17 is 216
+233 * 17 is 3961
+233 / 17 is 13
+233 % 17 is 12</pre>
+
+<p>Hopefully, most of those answers make sense and fit with your expectations. Some results that seem odd might be our attempt to divide two numbers. Instead of getting a floating point approximation of something like 8.33333, we got a flat-out 8.
+Remember that<a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="integers" id="idm45018735136568"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="integers" id="idm45018735135320"/><a data-type="indexterm" data-primary="integers" id="idm45018735134376"/><a data-type="indexterm" data-primary="int (variable type)" id="idm45018735133704"/><a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="int" id="idm45018735133032"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="int" id="idm45018735131816"/><a data-type="indexterm" data-primary="numbers" data-secondary="integers" id="idm45018735130872"/> the <code>int</code> type does not support fractions. If you divide two <code>int</code>s,
+you always get another <code>int</code> as the result and any decimal portion is simply dropped. And I do mean dropped, not rounded. A division result of 8.995, for example, would come back as simply 8, and a negative answer, say –7.89, would come back<a data-type="indexterm" data-primary="operators" data-secondary="arithmetic" data-tertiary="list of" data-startref="operators-arithmetic-list" id="idm45018735128264"/><a data-type="indexterm" data-primary="arithmetic operators" data-secondary="list of" data-startref="arithmetic-operators-list" id="idm45018735126776"/> as –7.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Order of Operations"><div class="sect2" id="smallerc-CHP-2-SECT-4.1.1">
+<h2>Order of Operations</h2>
+
+<p>But <a data-type="indexterm" data-primary="operators" data-secondary="arithmetic" data-tertiary="precedence" id="operators-arithmetic-precedence"/><a data-type="indexterm" data-primary="arithmetic operators" data-secondary="precedence" id="arithmetic-operators-precedence"/><a data-type="indexterm" data-primary="precedence (of operators)" id="precedence"/><a data-type="indexterm" data-primary="order of operations" id="order-operations"/><a data-type="indexterm" data-primary="expressions" data-secondary="order of operations" id="expressions-order"/>what if we make a more complex expression with two (or more) operators? We
+can upgrade our program a little to take three integers and combine them in
+different ways. Check out <a href="https://oreil.ly/wznGj"><em>ch02/calcs2.c</em></a>:</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">int</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num3</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter three numbers, separated by a space: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%d %d %d"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num1</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num2</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">num3</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d + %d + %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num3</code><code class="p">,</code> <code class="n">num1</code> <code class="o">+</code> <code class="n">num2</code> <code class="o">+</code> <code class="n">num3</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d + %d - %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num3</code><code class="p">,</code> <code class="n">num1</code> <code class="o">+</code> <code class="n">num2</code> <code class="o">-</code> <code class="n">num3</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d * %d / %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num3</code><code class="p">,</code> <code class="n">num1</code> <code class="o">*</code> <code class="n">num2</code> <code class="o">/</code> <code class="n">num3</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d + %d / %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num3</code><code class="p">,</code> <code class="n">num1</code> <code class="o">+</code> <code class="n">num2</code> <code class="o">/</code> <code class="n">num3</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"%d * %d %% %d is %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">num1</code><code class="p">,</code> <code class="n">num2</code><code class="p">,</code> <code class="n">num3</code><code class="p">,</code> <code class="n">num1</code> <code class="o">*</code> <code class="n">num2</code> <code class="o">%</code> <code class="n">num3</code><code class="p">);</code>
+<code class="p">}</code>
+</pre>
+
+<p>Feel free to tweak the code to try other combinations if you like. As it stands,
+you can compile and run this program to get the following output:</p>
+
+<pre data-type="programlisting">ch02$ gcc calcs2.c
+ch02$ ./a.out
+Please enter three numbers, separated by a space: 36 19 7
+36 + 19 + 7 is 62
+36 + 19 - 7 is 48
+36 * 19 / 7 is 97
+36 + 19 / 7 is 38
+36 * 19 % 7 is 5</pre>
+
+<p>Do these answers match what you expected? If not, it’s likely due to
+the <em>precedence</em> of different operators. C does not handle large expressions
+in a simple, left-to-right manner. Some operators are more important than
+others—they have precedence over lesser operators. C will perform the
+most important operations first, wherever they are in the expression, before
+moving on to do the remaining operations. You’ll often see the phrase
+“order of operations” used when talking about evaluating
+expressions with a mix of operators.</p>
+
+<p>Multiplication, division, and remainder (<code>*</code>, <code>/</code>, <code>%</code>) operations will all be done before
+addition and subtraction (<code>+</code>, <code>-</code>) operations. Where you have a series of the same or
+equivalent operators, then those calculations are done left to right. Usually that’s
+fine and we can get the answer we need by being a little careful in how we arrange the
+parts of our expression. When we can’t rely on a simple arrangement, we can use
+parentheses to create a specific, custom order of operations. Consider this snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">average1</code> <code class="o">=</code> <code class="mi">14</code> <code class="o">+</code> <code class="mi">20</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>    <code class="c1">// or 14 + 10 which is 24</code>
+<code class="kt">int</code> <code class="n">average2</code> <code class="o">=</code> <code class="mi">14</code> <code class="o">/</code> <code class="mi">2</code> <code class="o">+</code> <code class="mi">20</code><code class="p">;</code>    <code class="c1">// or  7 + 20 which is 27</code>
+<code class="kt">int</code> <code class="n">average3</code> <code class="o">=</code> <code class="p">(</code><code class="mi">14</code> <code class="o">+</code> <code class="mi">20</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code>  <code class="c1">// or 34 /  2 which is 17, yay!</code></pre>
+
+<p>Here <a data-type="indexterm" data-primary="parentheses (), order of operations" id="idm45018734940648"/><a data-type="indexterm" data-primary="() (parentheses), order of operations" id="idm45018734903112"/>we have three orderings, but only the final one, <code>average3</code>, is correct.
+The parenthetical expression, <code>14 + 20</code>, is evaluated first. One way to think
+about this is that parentheses have a higher order of precedence than
+arithmetic operations. You are free to use parentheses anywhere you like,
+by the way, even if it only adds visual clarity to an otherwise correctly
+ordered expression.</p>
+<div data-type="tip"><h6>Tip</h6>
+<p>The notion <a data-type="indexterm" data-primary="visual clarity" id="idm45018734900232"/>of “visual clarity” is very subjective. If the parentheses
+are necessary for calculating the correct answer, then of course you need to use
+them. If they are not strictly necessary, use them wherever they help you read
+the expression more easily. It is possible to have too many parentheses, making
+it more difficult to read your code. Above all, be consistent in your use.</p>
+</div>
+
+<p>Parentheses can also be <a data-type="indexterm" data-primary="nested parentheses" id="idm45018734829720"/>nested if you have particularly messy expressions similar to
+some of these:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">messy1</code> <code class="o">=</code> <code class="mi">6</code> <code class="o">*</code> <code class="mi">7</code> <code class="o">/</code> <code class="p">((</code><code class="mi">4</code> <code class="o">+</code> <code class="mi">5</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">);</code>
+<code class="kt">int</code> <code class="n">messy2</code> <code class="o">=</code> <code class="p">((((</code><code class="mi">1</code> <code class="o">+</code> <code class="mi">2</code><code class="p">)</code> <code class="o">*</code> <code class="mi">3</code><code class="p">)</code> <code class="o">+</code> <code class="mi">4</code><code class="p">)</code> <code class="o">/</code> <code class="mi">5</code><code class="p">);</code></pre>
+
+<p>In expressions like these, the innermost parenthetical expression, <code>(1 + 2)</code>,
+is evaluated first and then you work your way <a data-type="indexterm" data-primary="operators" data-secondary="arithmetic" data-tertiary="precedence" data-startref="operators-arithmetic-precedence" id="idm45018734779064"/><a data-type="indexterm" data-primary="arithmetic operators" data-secondary="precedence" data-startref="arithmetic-operators-precedence" id="idm45018734777704"/><a data-type="indexterm" data-primary="precedence (of operators)" data-startref="precedence" id="idm45018734776520"/><a data-type="indexterm" data-primary="order of operations" data-startref="order-operations" id="idm45018734775608"/><a data-type="indexterm" data-primary="expressions" data-secondary="order of operations" data-startref="expressions-order" id="idm45018734774664"/>back out.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Type Casting"><div class="sect2" id="smallerc-CHP-2-SECT-4.1.2">
+<h2>Type Casting</h2>
+
+<p>We’ve<a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="casting" id="variables-types-casting"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="casting" id="types-casting"/><a data-type="indexterm" data-primary="casting (types)" id="casting"/><a data-type="indexterm" data-primary="expressions" data-secondary="type casting" id="expressions-type-casting"/> talked about variable types quite a bit in this chapter, but expressions
+also have a type, and sometimes that leads to surprises for the uninitiated. Consider
+this following snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">double</code> <code class="n">one_third</code> <code class="o">=</code> <code class="mi">1</code> <code class="o">/</code> <code class="mi">3</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">x</code> <code class="o">=</code> <code class="mi">5</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">y</code> <code class="o">=</code> <code class="mi">12</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">x</code> <code class="o">+</code> <code class="n">y</code><code class="p">)</code> <code class="o">/</code> <code class="mi">2</code><code class="p">;</code></pre>
+
+<p>Any guesses at what will show up if we print out <code>one_third</code> and <code>average</code>? Try
+creating a small C program to test your theory. Your results should look like this:</p>
+
+<pre data-type="programlisting">One third: 0.000000
+Average: 8.000000</pre>
+
+<p>But “one third” should be 0.333333 and our average of 12 and 5 should be 8.5. What happened? Well, the compiler saw a bunch of integers and performed integer math. If you think back to grade school, you may have learned to do long division with remainders, i.e., “3 goes into 1 zero times with a remainder of 3.” For C, that means that integer 1 divided by integer 3 is integer 0.
+(Recall that the <code>%</code> operator will give you the remainder value if you need it.)</p>
+
+<p>Is there any way to get the floating point answer we want? Yes! In fact, there
+are a number of ways to get the right answer. Perhaps the simplest way to do this
+in our made-up examples is to use floating point literals in the initialization
+expressions:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">double</code> <code class="n">one_third</code> <code class="o">=</code> <code class="mf">1.0</code> <code class="o">/</code> <code class="mf">3.0</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">x</code> <code class="o">=</code> <code class="mi">5</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">y</code> <code class="o">=</code> <code class="mi">12</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="p">(</code><code class="n">x</code> <code class="o">+</code> <code class="n">y</code><code class="p">)</code> <code class="o">/</code> <code class="mf">2.0</code><code class="p">;</code></pre>
+
+<p>Try changing your program, and hopefully you’ll get new, correct output:</p>
+
+<pre data-type="programlisting">One third: 0.333333
+Average: 8.500000</pre>
+
+<p>But what about cases where we are not using literals? What if we change our
+average calculation in the snippet to use a third, <code>int</code> variable?</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">x</code> <code class="o">=</code> <code class="mi">5</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">y</code> <code class="o">=</code> <code class="mi">12</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="n">x</code> <code class="o">+</code> <code class="n">y</code> <code class="o">/</code> <code class="n">count</code><code class="p">;</code></pre>
+
+<p>How could we get the average to come out correctly in this case? C
+supports <em>type casting</em>, which allows you to tell the compiler to treat a value
+as if it had some other type. Very handy for just this type of situation. We
+can <em>cast</em> our <code>count</code> variable as a <code>float</code> like so:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">average</code> <code class="o">=</code> <code class="n">x</code> <code class="o">+</code> <code class="n">y</code> <code class="o">/</code> <code class="p">(</code><code class="kt">float</code><code class="p">)</code><code class="n">count</code><code class="p">;</code></pre>
+
+<p>You put the type you want in parentheses before the value or
+expression that you want to convert.
+And now that we have a floating point value in our calculation, the rest of the
+calculation will be “upgraded” to a floating point expression and
+we’ll get the correct answer. That process of upgrading is not just
+a happy accident. The compiler does this on purpose and the process even has
+a <a data-type="indexterm" data-primary="implicit type casting" id="idm45018734581800"/>name, <em>implicit type casting</em>.<sup><a data-type="noteref" id="idm45018734580792-marker" href="ch02.xhtml#idm45018734580792">7</a></sup>
+<a data-type="xref" href="#smallerc-CHP-2-FIG-promotions">Figure 2-4</a> shows you the upgrade path for many of the numeric
+types we have 
+<span class="keep-together">discussed</span>.</p>
+
+<p>In any expression with different types involved, the “biggest”
+type wins and everyone else will be promoted to that type. Notice that you can
+occasionally lose some important information in such conversions. A negative
+number will lose its sign if it gets promoted to an unsigned type. Or a long
+integer might be approximated rather poorly if it gets promoted to <code>float</code> or
+even to a <code>double</code>.</p>
+
+<figure><div id="smallerc-CHP-2-FIG-promotions" class="figure">
+<img src="Images/smac_0204.png" alt="smac 0204" width="1330" height="791"/>
+<h6><span class="label">Figure 2-4. </span>Implicit casting hierarchy</h6>
+</div></figure>
+
+<p>As with parentheses that add clarity without changing the calculation, you
+can always use an <a data-type="indexterm" data-primary="explicit type casting" id="idm45018734540216"/>explicit cast if it helps you understand what your
+expression is doing. But note that the order of operations
+is still in effect. For example, the following statements are <em>not</em> all
+the same:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">average1</code> <code class="o">=</code> <code class="p">(</code><code class="n">x</code> <code class="o">+</code> <code class="n">y</code><code class="p">)</code> <code class="o">/</code> <code class="p">(</code><code class="kt">float</code><code class="p">)</code><code class="n">count</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average2</code> <code class="o">=</code> <code class="p">(</code><code class="kt">float</code><code class="p">)(</code><code class="n">x</code> <code class="o">+</code> <code class="n">y</code><code class="p">)</code> <code class="o">/</code> <code class="n">count</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average3</code> <code class="o">=</code> <code class="p">(</code><code class="kt">float</code><code class="p">)((</code><code class="n">x</code> <code class="o">+</code> <code class="n">y</code><code class="p">)</code><code class="o">/</code> <code class="n">count</code><code class="p">);</code></pre>
+
+<p>If you add those lines to your testing program and then print out the three
+averages, you’ll notice that the first two work fine, but the third
+does not. Do you see why? The parentheses in the third calculation cause the
+original, wrong average with all integer types to be performed <em>before</em>
+that wrong answer is promoted to a <code>float</code>.</p>
+<div data-type="warning" epub:type="warning"><h6>Warning</h6>
+<p>I should also point out that any time you want to move down the promotion
+ladder to a “smaller” type, you must use an explicit cast. Luckily,
+the compiler can usually catch these situations and<a data-type="indexterm" data-primary="variables" data-secondary="types" data-tertiary="casting" data-startref="variables-types-casting" id="idm45018734477368"/><a data-type="indexterm" data-primary="types (variables)" data-secondary="casting" data-startref="types-casting" id="idm45018734475848"/><a data-type="indexterm" data-primary="casting (types)" data-startref="casting" id="idm45018734474632"/><a data-type="indexterm" data-primary="expressions" data-secondary="type casting" data-startref="expressions-type-casting" id="idm45018734473688"/> warn you.</p>
+</div>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" class="pagebreak-before less_space" data-pdf-bookmark="Next Steps"><div class="sect1" id="smallerc-CHP-2-SECT-5">
+<h1>Next Steps</h1>
+
+<p>Statements comprise the core of any computer language and we’ve seen the
+basic syntax for how C uses them to assign values, perform calculations, and print
+results. You may have to get used to including that semicolon at the end of
+statements, but that’ll start to feel natural before long. Typing in the
+examples and running them is your best route to that happy feeling.</p>
+
+<p>If you did try any of the calculating demo programs, you may have been tempted to enter a zero for one of the divisors. (If you weren’t tempted, go try it now!) However, C cannot divide by zero and gives up. You will get an error like “Floating point exception (core dumped)” or a result like “NaN” for “not a number.” How could we prevent such a crash? The next chapter will look at comparison operations and control statements that grant us exactly this ability.</p>
+</div></section>
+
+
+
+
+
+
+
+<div data-type="footnotes"><p data-type="footnote" id="idm45018742699768"><sup><a href="ch02.xhtml#idm45018742699768-marker">1</a></sup> While some support for wide characters was added to C in the1990s, C generally does not deal well with the more popular UTF character encodings such as UTF-8, UTF-16, etc. Those encodings allow for multibyte characters, and C’s <code>char</code> type was built with single bytes in mind. (More on types in <a data-type="xref" href="#smallerc-CHP-2-SECT-2.2">“Strings and Characters”</a>.) If you work with international or localized text, you’ll want to research some libraries to help. While I won’t cover localization in detail, I do go into more depth on libraries in general in <a data-type="xref" href="ch07.xhtml#smallerc-CHP-7">Chapter 7</a>.</p><p data-type="footnote" id="idm45018742586888"><sup><a href="ch02.xhtml#idm45018742586888-marker">2</a></sup> You might still see discussions online about including or excluding a “carriage return,” which is just old coder jargon for an end-of-line marker. It is a term inherited from early typewriters which had a literal mechanism to return the paper carriage to a starting position so you could begin the next line of text.</p><p data-type="footnote" id="idm45018742503880"><sup><a href="ch02.xhtml#idm45018742503880-marker">3</a></sup> American Standard Code for Information Interchange, originally a 7-bit encoding built for Teletype machines. Now with 8-bit variants, it is still based on English. Other, more extensible encodings such as  <span class="keep-together">Unicode</span> and its UTF-8 option have become the norm.</p><p data-type="footnote" id="idm45018742299128"><sup><a href="ch02.xhtml#idm45018742299128-marker">4</a></sup> The <code>char</code> type can actually be either signed or unsigned depending on your compiler.</p><p data-type="footnote" id="idm45018742233528"><sup><a href="ch02.xhtml#idm45018742233528-marker">5</a></sup> These formats were specified by the IEEE (Institute of Electrical and Electronics Engineers). The 32-bit version is called “single precision,” and the 64-bit version is “double.” Higher precisions exist, and the spec (<a href="https://oreil.ly/rxm00">IEEE 754</a>) continues to be developed.</p><p data-type="footnote" id="idm45018742180600"><sup><a href="ch02.xhtml#idm45018742180600-marker">6</a></sup> The GNU C compiler, for example, does not impose any limit. But for compatibility and conformity, sticking to much less than 31 characters is still advisable.</p><p data-type="footnote" id="idm45018734580792"><sup><a href="ch02.xhtml#idm45018734580792-marker">7</a></sup> Sometimes you may hear the terms “type promotion” or “automatic type conversion” as well.</p></div></div></section></div></body></html>

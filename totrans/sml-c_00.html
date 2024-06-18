@@ -1,0 +1,289 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="preface" epub:type="preface" data-pdf-bookmark="Preface"><div class="preface" id="idm45018747964744">
+<h1>Preface</h1>
+
+
+<p>In a world where new JavaScript frameworks come and go almost daily, why
+would you dive into an aging, bare-bones language like C? Well, for one, if you hope to
+keep up with all those framework fads (ouch, opinion alert), you might want a background
+in just such aging, bare-bones technologies that provide a foundation for so many
+“modern” languages. Did you look up popular programming languages on a site like
+<a href="https://oreil.ly/ZTdwN">TIOBE</a> and find C consistently at the top?
+Maybe you’re interested in the amazingly
+advanced video cards and want to see how the software that drives them works.
+Or perhaps you’re exploring newer—and much smaller—gadgets
+like Arduinos and heard that C is the right tool for the job.</p>
+
+<p>No matter the reason, it’s great to have you here. All of those reasons are valid ones,
+by the way. C is a foundational language and understanding its syntax and quirks will
+give you a very long-lived computer language literacy that will help you pick up new
+languages and styles more easily. C (and its cousin C++) are still widely used when
+writing low-level code for device drivers or operating systems. And the Internet of
+Things is breathing new life into microcontrollers with limited resources. C is a great
+fit for wringing the most of those tiny environments.</p>
+
+<p>While I’ll be focusing on that last idea of writing clean, tight code for tiny,
+limited machines, I’ll still start with the basics of computer programming and
+cover a variety of rules and patterns that apply to C anywhere you might find it.</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="How to Use This Book"><div class="sect1" id="idm45018747895144">
+<h1>How to Use This Book</h1>
+
+<p>This book aims to cover all the basics of good C programming for any of the
+situations mentioned above. We’ll look at control structures, operators,
+functions, and other elements of C’s syntax along with examples of alternate
+patterns that can shave a few bytes off the size of your compiled program.
+We’ll also be looking at the Arduino environment as a great application for
+lean C code. To best enjoy the Arduino section, you should have some basic experience
+with building simple circuits and using components like LEDs and resistors.</p>
+
+<p class="pagebreak-before less_space">Here’s a preview of the chapters:</p>
+<dl>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch01.xhtml#smallerc-CHP-1">Chapter 1, <em>The ABCs of C</em></a></dt>
+<dd>
+<p>A brief look at the history of the C language and steps to
+set up your development environment.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch02.xhtml#smallerc-CHP-2">Chapter 2, <em>Storing and Stating</em></a></dt>
+<dd>
+<p>An introduction to statements in C, including basic I/O,
+variables, and operators.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch03.xhtml#smallerc-CHP-3">Chapter 3, <em>Flow of Control</em></a></dt>
+<dd>
+<p>Here I cover branching and looping statements and go a
+little deeper on variables and their scope.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch04.xhtml#smallerc-CHP-4">Chapter 4, <em>Bits and (Many) Bytes</em></a></dt>
+<dd>
+<p>A quick return to storing data. I show you C’s facilities
+for manipulating individual bits and storing lots of bigger things in arrays.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch05.xhtml#smallerc-CHP-5">Chapter 5, <em>Functions</em></a></dt>
+<dd>
+<p>I’ll look at how to break up your code into manageable chunks.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch06.xhtml#smallerc-CHP-6">Chapter 6, <em>Pointers and References</em></a></dt>
+<dd>
+<p>Getting a little more advanced, I create more complex
+data structures and learn how to pass them to, and return them from, functions.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch07.xhtml#smallerc-CHP-7">Chapter 7, <em>Libraries</em></a></dt>
+<dd>
+<p>Learn how to find and use popular bits of code that can help you
+with common or intricate tasks.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch08.xhtml#smallerc-CHP-8">Chapter 8, <em>Real-World C With Arduino</em></a></dt>
+<dd>
+<p>The real fun begins! We’ll set up the Arduino
+development environment and make some LEDs blink.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch09.xhtml#smallerc-CHP-9">Chapter 9, <em>Smaller Systems</em></a></dt>
+<dd>
+<p>Try out several electronic peripherals including sensors,
+buttons, and LCD displays with complete Arduino projects.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch10.xhtml#smallerc-CHP-10">Chapter 10, <em>Faster Code</em></a></dt>
+<dd>
+<p>Learn some tricks for writing code especially designed to
+help small processors get the most out of their resources.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch11.xhtml#smallerc-CHP-11">Chapter 11, <em>Custom Libraries</em></a></dt>
+<dd>
+<p>Build on your C library skills with tips and tricks for
+writing friendly, well-documented libraries compatible with the Arduino IDE.</p>
+</dd>
+<dt><a data-type="xref" data-xrefstyle="chap-num-title" href="ch12.xhtml#smallerc-CHP-12">Chapter 12, <em>Next Next Steps</em></a></dt>
+<dd>
+<p>Try a quick Internet of Things project with a few parting thoughts
+and some ideas for what to try next as you continue to improve your lean coding skills.</p>
+</dd>
+</dl>
+
+<p>The appendices include a handy collection of links to the hardware and software I
+use, as well as information on downloading and configuring the C and Arduino examples
+shown throughout the book.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Conventions Used in This Book"><div class="sect1" id="idm45018742103832">
+<h1>Conventions Used in This Book</h1>
+
+<p>The following typographical conventions are used in this book:</p>
+<dl>
+<dt><em>Italic</em></dt>
+<dd>
+<p>Indicates new terms, URLs, email addresses, filenames, and file extensions.</p>
+</dd>
+<dt><code>Constant width</code></dt>
+<dd>
+<p>Used for program listings, as well as within paragraphs to refer to program elements such as variable or function names, databases, data types, environment variables, statements, and keywords.</p>
+</dd>
+<dt><strong><code>Constant width bold</code></strong></dt>
+<dd>
+<p>Shows commands or other text that should be typed literally by the user.</p>
+</dd>
+<dt><em><code>Constant width italic</code></em></dt>
+<dd>
+<p>Shows text that should be replaced with user-supplied values or by values determined by context.</p>
+</dd>
+</dl>
+<div data-type="tip"><h6>Tip</h6>
+<p>This element signifies a tip or suggestion.</p>
+</div>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>This element signifies a general note.</p>
+</div>
+<div data-type="warning" epub:type="warning"><h6>Warning</h6>
+<p>This element indicates a warning or caution.</p>
+</div>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Using Code Examples"><div class="sect1" id="idm45018747886744">
+<h1>Using Code Examples</h1>
+
+<p>Many of the code examples in this book are quite succinct, and you’ll often benefit
+from typing them in by hand. But that isn’t always fun and sometimes you want to start
+with a known, working copy and modify stuff. You can grab the source for all of the examples
+from GitHub at <a href="https://github.com/l0y/smallerc"><em class="hyperlink">https://github.com/l0y/smallerc</em></a>. <a data-type="xref" href="app01.xhtml#smallerc-APP-A">Appendix A</a> has detailed instructions
+on downloading the code and setting up the files for use with your development environment.</p>
+
+<p>If you have a technical question or a problem using the code examples, please send an email to <a class="email" href="mailto:bookquestions@oreilly.com"><em>bookquestions@oreilly.com</em></a>.</p>
+
+<p>This book is here to help you get your job done. In general, you may use the example code offered with this book in your programs and documentation. You do not need to contact us for permission unless you’re reproducing a significant portion of the code. For example, writing a program that uses several chunks of code from this book does not require permission. Selling or distributing examples from O’Reilly books does require permission. Answering a question by citing this book and quoting example code does not require permission. Incorporating a significant amount 
+<span class="keep-together">of example</span> code from this book into your product’s documentation does require 
+<span class="keep-together">permission</span>.</p>
+
+<p>We appreciate, but generally do not require, attribution. An attribution usually includes the title, author, publisher, and ISBN. For example: “<em>Smaller C</em> by Marc Loy (O’Reilly). Copyright 2021 Marc Loy, 978-1-098-10033-9.”</p>
+
+<p>If you feel your use of code examples falls outside fair use or the permission given above, feel free to contact us at <a class="email" href="mailto:permissions@oreilly.com"><em>permissions@oreilly.com</em></a>.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="O’Reilly Online Learning"><div class="sect1" id="idm45018747786792">
+<h1>O’Reilly Online Learning</h1>
+<div data-type="note" epub:type="note" class="ormenabled"><h6>Note</h6>
+<p>For more than 40 years, <a href="http://oreilly.com" class="orm:hideurl"><em class="hyperlink">O’Reilly Media</em></a> has provided technology and business training, knowledge, and insight to help companies succeed.</p>
+</div>
+
+<p>Our unique network of experts and innovators share their knowledge and expertise through books, articles, and our online learning platform. O’Reilly’s online learning platform gives you on-demand access to live training courses, in-depth learning paths, interactive coding environments, and a vast collection of text and video from O’Reilly and 200+ other publishers. For more information, visit <a href="http://oreilly.com" class="orm:hideurl"><em>http://oreilly.com</em></a>.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="How to Contact Us"><div class="sect1" id="idm45018747633688">
+<h1>How to Contact Us</h1>
+
+<p>Please address comments and questions concerning this book to the publisher:</p>
+<ul class="simplelist">
+  <li>O’Reilly Media, Inc.</li>
+  <li>1005 Gravenstein Highway North</li>
+  <li>Sebastopol, CA 95472</li>
+  <li class="pagebreak-before">800-998-9938 (in the United States or Canada)</li>
+  <li>707-829-0515 (international or local)</li>
+  <li>707-829-0104 (fax)</li>
+</ul>
+
+<p>We have a web page for this book, where we list errata, examples, and any additional information. You can access this page at <a href="https://oreil.ly/smaller-c"><em class="hyperlink">https://oreil.ly/smaller-c</em></a>.</p>
+<!--Don't forget to update the link above.-->
+
+<p>Email <a class="email" href="mailto:bookquestions@oreilly.com"><em>bookquestions@oreilly.com</em></a> to comment or ask technical questions about this book.</p>
+
+<p>For news and information about our books and courses, visit <a href="http://oreilly.com"><em class="hyperlink">http://oreilly.com</em></a>.</p>
+
+<p>Find us on Facebook: <a href="http://facebook.com/oreilly"><em class="hyperlink">http://facebook.com/oreilly</em></a>.</p>
+
+<p>Follow us on Twitter: <a href="http://twitter.com/oreillymedia"><em class="hyperlink">http://twitter.com/oreillymedia</em></a>.</p>
+
+<p>Watch us on YouTube: <a href="http://youtube.com/oreillymedia"><em class="hyperlink">http://youtube.com/oreillymedia</em></a>.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Acknowledgments"><div class="sect1" id="idm45018747633064">
+<h1>Acknowledgments</h1>
+
+<p>I would like to thank Amelia Blevins for shepherding another book for me through the publication
+process. Her project management skills are surpassed only by her ability to improve my writing
+through her artful suggestions. Thanks also go to Amanda Quinn and Suzanne McQuade for helping me
+get the project off the ground in the first place, and Danny Elfanbaum for his superb tech support.
+The entire crew at O’Reilly are peerless.</p>
+
+<p>Our technical reviewers brought a wide range of expertise to the table, and I could not have asked for better feedback.
+Tony Crawford tightened up my C code discussions, and I heartily recommend you read his book:
+<a href="https://www.oreilly.com/library/view/c-in-a/0596006977/" class="orm:hideurl"><em>C in a Nutshell</em></a>. Alex Faber ran every
+example in the book on multiple platforms and made sure I kept new programmers in mind. Eric Van Hoose
+made my writing clearer and helped focus the flow of the book overall. Chaim Krause filled in at the
+last minute and highlighted a few gaps that have been duly filled in turn.</p>
+
+<p>Personal thanks to my husband Ron for wordsmithing advice and general moral support. Reg Dyck also
+provided some welcome encouragement. If you ever want to really learn a topic, explain it to friends
+and family like Reg and Ron. Neither gent has much interest in programming or electronics, but their
+friendly questions helped me suss out the core of what I wanted to say on many difficult topics.</p>
+</div></section>
+
+
+
+
+
+
+
+</div></section></div></body></html>

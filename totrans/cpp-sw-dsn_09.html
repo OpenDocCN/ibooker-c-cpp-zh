@@ -1,0 +1,1271 @@
+<html><head></head><body>
+<div id="sbo-rt-content"><section data-pdf-bookmark="Chapter 9. The Decorator Design Pattern" data-type="chapter" epub:type="chapter"><div class="chapter" id="the_decorator_design_pattern">
+<h1><span class="label">Chapter 9. </span>The Decorator Design Pattern</h1>
+<p>This<a data-primary="Decorator design pattern" data-secondary="basic guidelines for" data-type="indexterm" id="idm45043077184912"/> chapter is dedicated to another classic design pattern: the Decorator design
+pattern. Over the years, Decorator has proven to be one of the most useful
+design patterns when it comes to combining and reusing different implementations. So
+it doesn’t come as a surprise that it is commonly used, even for one of the most
+impressive reworks of a C++ Standard Library feature. My primary objective
+in this chapter will be to give you a very good idea why, and when, Decorator is a
+great choice for designing software. Additionally, I will show you the modern, more
+value-based forms of Decorator.</p>
+<p>In <a data-type="xref" href="#use_decorators_to_add_customization_hierarchically">“Guideline 35: Use Decorators to Add Customization Hierarchically”</a>, we will dive into the
+design aspects of the Decorator design pattern. You will see when it is the right
+design choice and which benefits you’re gaining by using it. Additionally, you will
+learn about differences compared to other design patterns and its potential
+shortcomings.</p>
+<p>In <a data-type="xref" href="#understand_the_tradeoff_between_runtime_and_compile_time_abstraction">“Guideline 36: Understand the Trade-off Between Runtime and Compile Time Abstraction”</a>, we will
+take a look at two more implementations of the Decorator design pattern. Although
+both implementations will be firmly rooted in the realm of value semantics, the first
+one will be based on static polymorphism, while the second one will be based on dynamic
+polymorphism. Even though both have the same intent and thus implement Decorator,
+the contrast between these two will give you an impression of the vastness of the
+design space for design patterns.</p>
+<section class="less_space pagebreak-before" data-pdf-bookmark="Guideline 35: Use Decorators to Add Customization Hierarchically" data-type="sect1"><div class="sect1" id="use_decorators_to_add_customization_hierarchically">
+<h1>Guideline 35: Use Decorators to Add Customization Hierarchically</h1>
+<p>Ever<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-type="indexterm" id="DDPcustom09"/> since you solved the design problem of your team’s 2D graphics tool by proposing
+a solution based on the Strategy design pattern (remember
+<a data-type="xref" href="ch05.xhtml#use_strategy_to_isolate_how_things_are_done">“Guideline 19: Use Strategy to Isolate How Things Are Done”</a>), your reputation
+as design pattern expert has spread across the company. Therefore, it does not come as
+a surprise that other teams are seeking you out for guidance. One day, two developers
+of your companies merchandise management system come to your office and ask for your
+help.</p>
+<section data-pdf-bookmark="Your Coworkers’ Design Issue" data-type="sect2"><div class="sect2" id="idm45043077176528">
+<h2>Your Coworkers’ Design Issue</h2>
+<p>The<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="design issues" data-type="indexterm" id="idm45043077174704"/> team of the two developers is dealing with a lot of different <code>Item</code>s (see
+<a data-type="xref" href="#fig_decorator_item_hierarchy_1">Figure 9-1</a>). All of these items have one thing in common: they
+have a <code>price()</code> tag. The two developers try to explain their problem by means of two
+items taken from the C++ merchandise shop: a class representing a C++
+book (the <code>CppBook</code> class) and a C++ conference ticket (the <code>ConferenceTicket</code>
+class).</p>
+<figure><div class="figure" id="fig_decorator_item_hierarchy_1">
+<img alt="The initial +Item+ inheritance hierarchy." height="542" src="assets/cpsd_0901.png" width="738"/>
+<h6><span class="label">Figure 9-1. </span>The initial <code>Item</code> inheritance hierarchy</h6>
+</div></figure>
+<p>As the developers sketch their problem, you start to understand that their problem appears to be the
+many different ways to modify a price. Initially, they tell you, they only had to take taxes
+into account. For that reason, the <code>Item</code> base class was equipped with a 
+<span class="keep-together"><code>protected</code></span> data
+member to represent the tax rate:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Money.h&gt; ----------------</code>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Money</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="cm">/*...*/</code><code class="w"> </code><code class="p">};</code><code class="w"/>
+
+<code class="n">Money</code><code class="w"> </code><code class="k">operator</code><code class="o">*</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">money</code><code class="p">,</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">factor</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+<code class="n">Money</code><code class="w"> </code><code class="k">operator</code><code class="o">+</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">lhs</code><code class="p">,</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">rhs</code><code class="w"> </code><code class="p">);</code><code class="w"/>
+
+
+<code class="c1">//---- &lt;Item.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Item</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">Item</code><code class="p">()</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w"/>
+
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="nf">price</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ...</code>
+
+<code class="w"> </code><code class="k">protected</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">taxRate_</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>This apparently worked well for some time, until one day, when they were asked to also take
+different rates of discount into account. This apparently required a lot of effort to
+refactor the large amount of the existing classes for their numerous different items. You
+can easily imagine that this was necessary because all derived classes were accessing the
+<code>protected</code> data members. “Yes, you should always design for change…” you think to
+yourself.<sup><a data-type="noteref" href="ch09.xhtml#idm45043077162960" id="idm45043077162960-marker">1</a></sup></p>
+<p>They continue by admitting to their unfortunate misdesign. Of course they should
+have done a better job of encapsulating the tax rates in the <code>Item</code> base class. However,
+along with this realization came the understanding that when representing price modifiers
+by data members in the base class, any new kind of price modifier would always be an
+intrusive action and would always directly affect the <code>Item</code> class. For that reason, they
+started to think about how to avoid this kind of major refactoring in the future and how to
+enable the easy addition of new modifiers. “That’s the way to go!” you think to yourself.
+Unfortunately, the first approach that came to their mind was to factor out the different
+kinds of price modifiers by means of an inheritance hierarchy (see
+<a data-type="xref" href="#fig_decorator_item_hierarchy_2">Figure 9-2</a>).</p>
+<figure><div class="figure" id="fig_decorator_item_hierarchy_2">
+<img alt="The extended +Item+ inheritance hierarchy." height="762" src="assets/cpsd_0902.png" width="1442"/>
+<h6><span class="label">Figure 9-2. </span>The extended <code>Item</code> inheritance hierarchy</h6>
+</div></figure>
+<p>Instead of encapsulating the tax and discount values inside the base class, these modifiers are
+factored out into derived classes, which perform the required price adaptation. “Uh-oh…”
+you start to think. Apparently your look already gives away that you are not particularly
+fond of this idea, and so they are quick to tell you that they have already discarded the
+idea. Obviously they have realized on their own that this would cause even more problems:
+this solution would quickly cause an explosion of types and would provide only poor reuse of
+functionality. Unfortunately, a lot of code would be doubled, since for every specific
+<code>Item</code>, the code for taxes and discounts had to be duplicated. Most troublesome, however,
+would be the handling of <code>Item</code>s that are affected both by tax and some sort of discount:
+they neither liked the approach to provide classes to handle both, nor did they want to
+introduce another layer in the inheritance hierarchy (see <a data-type="xref" href="#fig_decorator_item_hierarchy_3">Figure 9-3</a>).</p>
+<figure><div class="figure" id="fig_decorator_item_hierarchy_3">
+<img alt="The problematic +Item+ inheritance hierarchy." height="1020" src="assets/cpsd_0903.png" width="1442"/>
+<h6><span class="label">Figure 9-3. </span>The problematic <code>Item</code> inheritance hierarchy</h6>
+</div></figure>
+<p>Apparently, and surprising for them, they couldn’t deal with the price modifiers in the
+base class or in the derived classes by means of direct inheritance. However, before you have
+the opportunity to make any comments about separating concerns, they explain that they have
+recently heard about your Strategy solution. This finally gave them an idea how to properly
+refactor the problem (see <a data-type="xref" href="#fig_decorator_item_hierarchy_4">Figure 9-4</a>).</p>
+<p>By extracting the price modifiers into a separate hierarchy, and by configuring <code>Items</code> upon
+construction by means of a <code>PriceStrategy</code>, they had finally found a working solution to
+nonintrusively add new price modifiers, which will save them a lot of refactoring work.
+“Well, this is the benefit of separating concerns and favoring composition over inheritance,”
+you think to yourself.<sup><a data-type="noteref" href="ch09.xhtml#idm45043077012624" id="idm45043077012624-marker">2</a></sup> And
+aloud you ask, “This is great, I’m really happy for you. Everything seems to work
+now, you’ve figured it out on your own! Why exactly are you here?”</p>
+<figure><div class="figure" id="fig_decorator_item_hierarchy_4">
+<img alt="The Strategy-based +Item+ inheritance hierarchy." height="669" src="assets/cpsd_0904.png" width="1442"/>
+<h6><span class="label">Figure 9-4. </span>The Strategy-based <code>Item</code> inheritance hierarchy</h6>
+</div></figure>
+<p>They tell you that your Strategy solution is by far the best approach they have
+(thankful looks included). However, they admit that they are not entirely happy with the
+approach. From their point of view, two problems remain and, of course, they are hoping that
+you have an idea how to fix them. The first issue they see is that every <code>Item</code> instance
+needs a Strategy class, even if no price modifier applies. While they agree that
+this can be solved by some kind of
+<a href="https://oreil.ly/9RX5N"><em>null object</em></a>, they feel that there
+should be a simpler solution:<sup><a data-type="noteref" href="ch09.xhtml#idm45043077006880" id="idm45043077006880-marker">3</a></sup></p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">class</code><code class="w"> </code><code class="nc">PriceStrategy</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">PriceStrategy</code><code class="p">()</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="nf">update</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ...</code>
+<code class="p">};</code><code class="w"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">NullPriceStrategy</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">PriceStrategy</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">update</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">price</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>The second problem they have appears to be a little more difficult to solve. Obviously
+they are interested in combining different kinds of modifiers (e.g., <code>Discount</code> and
+<code>Tax</code> into <code>DiscountAndTax</code>). Unfortunately, they experience some code duplication in
+their current implementation. For instance, both the <code>Tax</code> and the <code>DiscountAndTax</code>
+classes contain tax-related computations. And while right now, with only the two
+modifiers, there are reasonable solutions at hand to cope with the duplication,
+they are anticipating problems when adding more modifiers and arbitrary
+combinations of these. Therefore they are wondering if there is another, better
+solution for dealing with different kinds of price modifiers.</p>
+<p>This is indeed an intriguing problem, and you are happy to have taken the time to help
+them. They are absolutely correct:
+the Strategy design pattern is not the right solution for this problem. While Strategy
+is a great solution to remove dependencies on the complete implementation details of
+a function and to handle different implementations gracefully, it does not enable the
+easy combination and reuse of different implementations. Attempting to do this would
+quickly result in an undesirably complex Strategy inheritance hierarchy.</p>
+<p>What they need for their problem appears to be more like a hierarchical form of Strategy,
+a form that decouples the different price modifiers but also allows for a very flexible
+combination of them. Hence, one key to success is a consequent application of the separation
+of concerns: any rigid, manually encoded combination in the spirit of a <code>DiscountAndTax</code> class
+would be prohibitive. However, the solution should also be nonintrusive to enable
+them to implement new ideas at any time without the need to modify existing code. And finally,
+it should not be necessary to handle a default case by some artificial <em>null object</em>. Instead,
+it would be more reasonable to consequently build on composition instead of inheritance and
+implement a price modifier in the form of a wrapper. With this realization, you start to smile.
+Yes, there is just the right design pattern for this purpose: what your two guests need is
+an implementation of the Decorator design pattern.</p>
+</div></section>
+<section data-pdf-bookmark="The Decorator Design Pattern Explained" data-type="sect2"><div class="sect2" id="idm45043077175936">
+<h2>The Decorator Design Pattern Explained</h2>
+<p>The<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="Decorator explained" data-type="indexterm" id="idm45043076875792"/> Decorator design pattern also originates from the GoF book. Its primary focus is the
+flexible combination of different pieces of functionality through composition:</p>
+<div data-type="tip"><h1>The Decorator Design Pattern</h1>
+<p>Intent: “Attach<a data-primary="Decorator design pattern" data-secondary="intent of" data-type="indexterm" id="idm45043076873216"/> additional responsibilities to an object dynamically. Decorators provide
+a flexible alternative to subclassing for extending functionality.”<sup><a data-type="noteref" href="ch09.xhtml#idm45043076871952" id="idm45043076871952-marker">4</a></sup></p>
+</div>
+<p><a data-type="xref" href="#fig_decorator_item">Figure 9-5</a> shows the UML diagram for the given <code>Item</code> problem. As before,
+the <code>Item</code> base class represents the abstraction from all possible items. The deriving
+<code>CppBook</code> class, on the other hand, acts as a representative for different implementations
+of <code>Item</code>. The problem in this hierarchy is the difficult addition of new modifiers for
+the existing <code>price()</code> function(s). In the Decorator design pattern, this addition of
+new “responsibilities” is identified as a<a data-primary="variation points" data-secondary="in Decorator design pattern" data-secondary-sortas="Decorator design pattern" data-type="indexterm" id="idm45043076862704"/> <em>variation point</em> and extracted in the form of the
+<code>DecoratedItem</code> class. This class is a separate, special implementation of the <code>Item</code>
+base class and represents an added responsibility for any given item. On the one hand, a
+
+<span class="keep-together"><code>DecoratedItem</code></span> derives from <code>Item</code> and hence must adhere to all expectations of the
+<code>Item</code> abstraction (see <a data-type="xref" href="ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions">“Guideline 6: Adhere to the Expected Behavior of Abstractions”</a>). On the other
+hand, it also contains an <code>Item</code> (either through composition or aggregation). Due to that,
+a <code>DecoratedItem</code> acts as a wrapper around each and every item, potentially one that itself
+can extend the functionality. For that reason, it provides the foundation for a hierarchical
+application of modifiers. Two possible modifiers are represented by the <code>Discounted</code> class,
+which represents a discount for a specific item, and the <code>Taxed</code> class, which represents
+some kind of tax.<sup><a data-type="noteref" href="ch09.xhtml#idm45043076856336" id="idm45043076856336-marker">5</a></sup></p>
+<figure><div class="figure" id="fig_decorator_item">
+<img alt="The UML representation of the _Decorator_ design pattern." height="841" src="assets/cpsd_0905.png" width="1292"/>
+<h6><span class="label">Figure 9-5. </span>The UML representation of the Decorator design pattern</h6>
+</div></figure>
+<p>By<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="UML diagram" data-type="indexterm" id="idm45043076853392"/> introducing the <code>DecoratedItem</code> class and separating the aspect that’s required to
+change, you adhere to the SRP. By separating this
+concern and therefore allowing the easy addition of new price modifiers, you also adhere
+to the <em>Open-Closed Principle (OCP)</em>. Due to the hierarchical, recursive nature of the
+<code>DecoratedItem</code> class, and due to the gained ability to reuse and combine different
+modifiers easily, you also follow the advice of the <em>Don’t Repeat Yourself (DRY)</em>
+principle. Last but not least, because of the wrapper approach of Decorator, there’s
+no need to define any default behavior in the form of a <em>null object</em>. Any <code>Item</code> that
+does not require a modifier can be used as is.</p>
+<p><a data-type="xref" href="#fig_decorator_dependency_graph">Figure 9-6</a> illustrates the dependency graph of the Decorator
+design pattern. In this figure, the <code>Item</code> class resides on the highest level of the
+architecture. All other classes depend on it, including the <code>DecoratedItem</code> class,
+which resides one level below. Of course, this is not a requirement: it’s perfectly
+acceptable if both the <code>Item</code> and the <code>DecoratedItem</code> are introduced on the same
+architectural level. However, this example demonstrates that it’s always possible
+(anytime, anywhere) to introduce a new Decorator without needing to modify existing
+code. The concrete types of <code>Item</code>s are implemented on the lowest level of the
+architecture. Note that there is no dependency between these items: all items, including
+modifiers like <code>Discounted</code>, can be introduced independently by anyone at any time and,
+due to the structure of Decorator, be flexibly and arbitrarily combined.</p>
+<figure><div class="figure" id="fig_decorator_dependency_graph">
+<img alt="The dependency graph for the _Decorator_ design pattern." height="1100" src="assets/cpsd_0906.png" width="1439"/>
+<h6><span class="label">Figure 9-6. </span>Dependency graph for the Decorator design pattern</h6>
+</div></figure>
+</div></section>
+<section data-pdf-bookmark="A Classic Implementation of the Decorator Design Pattern" data-type="sect2"><div class="sect2" id="idm45043076842896">
+<h2>A Classic Implementation of the Decorator Design Pattern</h2>
+<p>Let<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="dependency graph" data-type="indexterm" id="idm45043076841264"/><a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="classic Decorator implementation" data-type="indexterm" id="idm45043076840048"/>’s take a look at a complete, GoF-style implementation of the Decorator design
+pattern by means of the given <code>Item</code> example:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Item.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Item</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">Item</code><code class="p">()</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="nf">price</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>The <code>Item</code> base class represents the abstraction for all possible items. The only
+requirement is defined by the pure virtual <code>price()</code> function, which can be used to query
+for the price of the given item. The <code>DecoratedItem</code> class represents one possible
+implementation of the <code>Item</code> class
+(<a class="co" href="#code_g35_1" id="para_g35_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;DecoratedItem.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Item.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;stdexcept&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">DecoratedItem</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Item</code><code class="w">  </code><a class="co" href="#para_g35_1" id="code_g35_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">DecoratedItem</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g35_3" id="code_g35_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="w"> </code><code class="o">!</code><code class="n">item_</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">throw</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">invalid_argument</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">Invalid item</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">protected</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="o">&amp;</code><code class="w">       </code><code class="n">item</code><code class="p">(</code><code class="p">)</code><code class="w">       </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="o">*</code><code class="n">item_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">  </code><a class="co" href="#para_g35_4" id="code_g35_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">item</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="o">*</code><code class="n">item_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item_</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_2" id="code_g35_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>A <code>DecoratedItem</code> derives from the <code>Item</code> class but also contains an <code>item_</code>
+(<a class="co" href="#code_g35_2" id="para_g35_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>).
+This <code>item_</code> is specified via the constructor, which accepts any non-null <code>std::unique_ptr</code>
+to another <code>Item</code>
+(<a class="co" href="#code_g35_3" id="para_g35_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>).
+Note that this <code>DecoratedItem</code> class is still abstract, since the pure virtual <code>price()</code>
+function is not yet defined. <code>DecoratedItem</code> provides only the necessary functionality to
+store an <code>Item</code> and to access the <code>Item</code> via <code>protected</code> member functions
+(<a class="co" href="#code_g35_4" id="para_g35_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a>).</p>
+<p>Equipped with these two classes, it’s possible to implement concrete <code>Item</code>s:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;CppBook.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Item.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">CppBook</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Item</code><code class="w">  </code><a class="co" href="#para_g35_5" id="code_g35_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">CppBook</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="n">title</code><code class="p">,</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">title_</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">title</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">price_</code><code class="p">{</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">title</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">title_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">price_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="n">title_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;ConferenceTicket.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Item.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">ConferenceTicket</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Item</code><code class="w">  </code><a class="co" href="#para_g35_6" id="code_g35_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">ConferenceTicket</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="n">name</code><code class="p">,</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">name_</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">name</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">price_</code><code class="p">{</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">name</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">name_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">price_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="w"> </code><code class="n">name_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p class="less_space pagebreak-before">The <code>CppBook</code> and <code>ConferenceTicket</code> classes represent possible specific <code>Item</code> implementations
+(<a class="co" href="#code_g35_5" id="para_g35_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a> and
+<a class="co" href="#code_g35_6" id="para_g35_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a>).
+While a C++ book is represented by means of the title of the book, a C++
+conference is represented by means of the name of the conference. Most importantly, both
+classes override the <code>price()</code> function by returning the specified <code>price_</code>.</p>
+<p>Both <code>CppBook</code> and <code>ConferenceTicket</code> are oblivious to any kind of tax or discount. But
+obviously, both kinds of <code>Item</code> are potentially subject to both. These price modifiers are
+implemented by means of the <code>Discounted</code> and <code>Taxed</code> classes:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Discounted.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;DecoratedItem.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Discounted</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">DecoratedItem</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">Discounted</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">discount</code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g35_7" id="code_g35_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">DecoratedItem</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">factor_</code><code class="p">(</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="o">-</code><code class="w"> </code><code class="n">discount</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="w"> </code><code class="o">!</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">isfinite</code><code class="p">(</code><code class="n">discount</code><code class="p">)</code><code class="w"> </code><code class="o">|</code><code class="o">|</code><code class="w"> </code><code class="n">discount</code><code class="w"> </code><code class="o">&lt;</code><code class="w"> </code><code class="mf">0.0</code><code class="w"> </code><code class="o">|</code><code class="o">|</code><code class="w"> </code><code class="n">discount</code><code class="w"> </code><code class="o">&gt;</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">throw</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">invalid_argument</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">Invalid discount</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">item</code><code class="p">(</code><code class="p">)</code><code class="p">.</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">*</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_8" id="code_g35_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>The <code>Discounted</code> class
+(<a class="co" href="#code_g35_7" id="para_g35_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a>)
+is initialized by passing a <code>std::unique_ptr</code> to an <code>Item</code> and a
+discount value, represented by a double value in the range of 0.0 to 1.0. While the
+given <code>Item</code> is immediately passed to the <code>DecoratedItem</code> base class, the given discount value
+is used to compute a discount <code>factor_</code>. This factor is used in the implementation of the
+<code>price()</code> function to modify the price of the given item
+(<a class="co" href="#code_g35_8" id="para_g35_8"><img alt="8" height="12" src="assets/8.png" width="12"/></a>).
+This can either be a specific item like <code>CppBook</code> or <code>ConferenceTicket</code> or any Decorator like 
+<span class="keep-together"><code>Discounted</code></span>, which in turn modifies the price of another <code>Item</code>.
+Thus, the <code>price()</code> function is the point where the hierarchical structure of Decorator
+is fully exploited.</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Taxed.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;DecoratedItem.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Taxed</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">DecoratedItem</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">Taxed</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">taxRate</code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g35_9" id="code_g35_9"><img alt="9" height="12" src="assets/9.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">DecoratedItem</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">factor_</code><code class="p">(</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="o">+</code><code class="w"> </code><code class="n">taxRate</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">if</code><code class="p">(</code><code class="w"> </code><code class="o">!</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">isfinite</code><code class="p">(</code><code class="n">taxRate</code><code class="p">)</code><code class="w"> </code><code class="o">|</code><code class="o">|</code><code class="w"> </code><code class="n">taxRate</code><code class="w"> </code><code class="o">&lt;</code><code class="w"> </code><code class="mf">0.0</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">throw</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">invalid_argument</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">Invalid tax</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">item</code><code class="p">(</code><code class="p">)</code><code class="p">.</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">*</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>The <code>Taxed</code> class is very similar to the <code>Discounted</code> class. The major difference is the
+evaluation of a tax-related factor in the constructor
+(<a class="co" href="#code_g35_9" id="para_g35_9"><img alt="9" height="12" src="assets/9.png" width="12"/></a>).
+Again, this factor is used in the <code>price()</code> function to modify the price of the wrapped
+<code>Item</code>.</p>
+<p>All of this functionality is put together in the <code>main()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;ConferenceTicket.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;CppBook.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Discounted.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Taxed.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="c1">// 7% tax: 19*1.07 = 20.33
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item1</code><code class="p">(</code><code class="w">  </code><a class="co" href="#para_g35_10" id="code_g35_10"><img alt="10" height="12" src="assets/10.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Taxed</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">0.07</code><code class="p">,</code><code class="w">
+</code><code class="w">         </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">CppBook</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">Effective C++</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="mf">19.0</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// 20% discount, 19% tax: (999*0.8)*1.19 = 951.05
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item2</code><code class="p">(</code><code class="w">  </code><a class="co" href="#para_g35_11" id="code_g35_11"><img alt="11" height="12" src="assets/11.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Taxed</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">0.19</code><code class="p">,</code><code class="w">
+</code><code class="w">         </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Discounted</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="mf">0.2</code><code class="p">,</code><code class="w">
+</code><code class="w">            </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">ConferenceTicket</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">CppCon</code><code class="s">"</code><code class="p">,</code><code class="w"> </code><code class="mf">999.0</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">totalPrice1</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">item1</code><code class="o">-</code><code class="o">&gt;</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">  </code><code class="c1">// Results in 20.33
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">totalPrice2</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">item2</code><code class="o">-</code><code class="o">&gt;</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">  </code><code class="c1">// Results in 951.05
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="w">
+</code><code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>As a first <code>Item</code>, we create a <code>CppBook</code>. Let’s assume that this book is subject
+to a 7% tax, which is applied by means of wrapping a <code>Taxed</code> decorator around the item. The
+resulting <code>item1</code> therefore represents a taxed C++ book
+(<a class="co" href="#code_g35_10" id="para_g35_10"><img alt="10" height="12" src="assets/10.png" width="12"/></a>).
+As a second <code>Item</code>, we create a <code>ConferenceTicket</code> instance, which represents
+<a href="https://cppcon.org">CppCon</a>. We were lucky to get one of the early-bird tickets, which means
+that we are granted a discount of 20%. This discount is wrapped around the <code>ConferenceTicket</code>
+instance by means of the 
+<span class="keep-together"><code>Discounted</code></span> class. The ticket is also subject to 19% tax, which,
+as before, is applied via the <code>Taxed</code> decorator. Hence, the resulting <code>item2</code> represents
+a discounted and taxed 
+<span class="keep-together">C++</span> conference ticket
+(<a class="co" href="#code_g35_11" id="para_g35_11"><img alt="11" height="12" src="assets/11.png" width="12"/></a>).</p>
+</div></section>
+<section data-pdf-bookmark="A Second Decorator Example" data-type="sect2"><div class="sect2" id="idm45043075516592">
+<h2>A Second Decorator Example</h2>
+<p>Another, impressive<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="Decorator example" data-type="indexterm" id="idm45043075531696"/> example that shows the benefits of the Decorator design pattern can
+be found in the C++17 rework of the STL allocators. Since the allocators’ implementation
+is based on Decorator, it’s possible to create arbitrarily complex hierarchies of allocators,
+which fulfill even the most special of memory requirements. Consider, for instance, the
+following example using a
+<a href="https://oreil.ly/UPPxK"><code>std::pmr::monotonic_buffer_resource</code></a>
+(<a class="co" href="#code_g35_12" id="para_g35_12"><img alt="12" height="12" src="assets/12.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;array&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstddef&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory_resource&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;vector&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">array</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">byte</code><code class="p">,</code><code class="mi">1000</code><code class="o">&gt;</code><code class="w"> </code><code class="n">raw</code><code class="p">;</code><code class="w">  </code><code class="c1">// Note: not initialized!
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">monotonic_buffer_resource</code><code class="w">
+</code><code class="w">      </code><code class="n">buffer</code><code class="p">{</code><code class="w"> </code><code class="n">raw</code><code class="p">.</code><code class="n">data</code><code class="p">(</code><code class="p">)</code><code class="p">,</code><code class="w"> </code><code class="n">raw</code><code class="p">.</code><code class="n">size</code><code class="p">(</code><code class="p">)</code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">null_memory_resource</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w"> </code><a class="co" href="#para_g35_12" id="code_g35_12"><img alt="12" height="12" src="assets/12.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">vector</code><code class="o">&lt;</code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">string</code><code class="o">&gt;</code><code class="w"> </code><code class="n">strings</code><code class="p">{</code><code class="w"> </code><code class="o">&amp;</code><code class="n">buffer</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">strings</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">String longer than what SSO can handle</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">strings</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">Another long string that goes beyond SSO</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">strings</code><code class="p">.</code><code class="n">emplace_back</code><code class="p">(</code><code class="w"> </code><code class="s">"</code><code class="s">A third long string that cannot be handled by SSO</code><code class="s">"</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="w">
+</code><code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p class="less_space pagebreak-before">The <code>std::pmr::monotonic_buffer_resource</code> is one of several available allocators 
+<span class="keep-together">in the</span>
+<code>std::pmr</code> namespace. In this example, it’s configured such that whenever the <code>strings</code>
+vector asks for memory, it will dispense only chunks of the given byte array <code>raw</code>.
+Memory requests that cannot be handled, for instance because the <code>buffer</code> is out of memory,
+are dealt with by throwing a <code>std::bad_alloc</code> exception. This behavior is specified by
+passing a
+<a href="https://oreil.ly/E1t7V"><code>std::pmr::null_memory_resource</code></a>
+during construction. There are many other possible applications for a
+<code>std::pmr::monotonic_buffer_resource</code>, though. For instance, it would also be possible
+to build on dynamic memory and to let it reallocate additional chunks of memory via <code>new</code>
+and <code>delete</code> by means of
+<a href="https://oreil.ly/0oSzS"><code>std::pmr::new_delete_resource()</code></a>
+(<a class="co" href="#code_g35_13" id="para_g35_13"><img alt="13" height="12" src="assets/13.png" width="12"/></a>):</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">// ...
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">monotonic_buffer_resource</code><code class="w">
+</code><code class="w">      </code><code class="n">buffer</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">new_delete_resource</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_13" id="code_g35_13"><img alt="13" height="12" src="assets/13.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="p">}</code><code class="w">
+</code></pre>
+<p>This flexibility and hierarchical configuration of allocators is made possible 
+<span class="keep-together">by means
+of the</span> Decorator design pattern. The <code>std::pmr::​monotonic_buffer_resource</code> is derived
+from the <a href="https://oreil.ly/8A1sk"><code>std::pmr::memory_resource</code></a>
+base class but, at the same time, also acts as a wrapper around another allocator derived from
+<code>std::pmr::memory_resource</code>. The upstream allocator, which is used whenever the <code>buffer</code> goes
+out of memory, is specified on construction of a <code>std::pmr::monotonic_buffer_resource</code>.</p>
+<p>Most impressive, however, is that you can easily and nonintrusively customize the allocation
+strategy. That might, for instance, be interesting to enable you to deal with requests for large
+chunks of memory differently than requests for small chunks. All you have to do is to
+provide your own, custom allocator. Consider the following sketch of a <code>CustomAllocator</code>:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;CustomAllocator.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory_resource&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">CustomAllocator</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">memory_resource</code><code class="w">  </code><a class="co" href="#para_g35_14" id="code_g35_14"><img alt="14" height="12" src="assets/14.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">CustomAllocator</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">memory_resource</code><code class="o">*</code><code class="w"> </code><code class="n">upstream</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g35_16" id="code_g35_16"><img alt="16" height="12" src="assets/16.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">upstream_</code><code class="p">{</code><code class="w"> </code><code class="n">upstream</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">do_allocate</code><code class="p">(</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">bytes</code><code class="p">,</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">alignment</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_17" id="code_g35_17"><img alt="17" height="12" src="assets/17.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">void</code><code class="w"> </code><code class="nf">do_deallocate</code><code class="p">(</code><code class="w"> </code><code class="kt">void</code><code class="o">*</code><code class="w"> </code><code class="n">ptr</code><code class="p">,</code><code class="w"> </code><code class="p">[</code><code class="p">[</code><code class="n">maybe_unused</code><code class="p">]</code><code class="p">]</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">bytes</code><code class="p">,</code><code class="w">  </code><a class="co" href="#para_g35_18" id="code_g35_18"><img alt="18" height="12" src="assets/18.png" width="12"/></a><code class="w">
+</code><code class="w">                       </code><code class="p">[</code><code class="p">[</code><code class="n">maybe_unused</code><code class="p">]</code><code class="p">]</code><code class="w"> </code><code class="kt">size_t</code><code class="w"> </code><code class="n">alignment</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="kt">bool</code><code class="w"> </code><code class="nf">do_is_equal</code><code class="p">(</code><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">memory_resource</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">other</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">noexcept</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_19" id="code_g35_19"><img alt="19" height="12" src="assets/19.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">memory_resource</code><code class="o">*</code><code class="w"> </code><code class="n">upstream_</code><code class="p">{</code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_15" id="code_g35_15"><img alt="15" height="12" src="assets/15.png" width="12"/></a><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>To be recognized as a C++17 allocator, the <code>CustomAllocator</code> class derives
+from the <code>std::pmr::memory_resource</code> class, which represents the set of requirements for all
+
+<span class="keep-together">C++17</span> allocators
+(<a class="co" href="#code_g35_14" id="para_g35_14"><img alt="14" height="12" src="assets/14.png" width="12"/></a>).
+Coincidentally, the <code>CustomAllocator</code> also owns a pointer to a <code>std::pmr::memory_resource</code>
+(<a class="co" href="#code_g35_15" id="para_g35_15"><img alt="15" height="12" src="assets/15.png" width="12"/></a>),
+which is initialized via its constructor
+(<a class="co" href="#code_g35_16" id="para_g35_16"><img alt="16" height="12" src="assets/16.png" width="12"/></a>).</p>
+<p>The set of requirements for C++17 allocators consists of the virtual functions
+<code>do_allocate()</code>, <code>do_deallocate()</code>, and <code>do_is_equal()</code>. The <code>do_allocate()</code> function is
+responsible for acquiring memory, potentially via its upstream allocator
+(<a class="co" href="#code_g35_17" id="para_g35_17"><img alt="17" height="12" src="assets/17.png" width="12"/></a>),
+while the <code>do_deallocate()</code> function is called whenever memory needs to be given back
+(<a class="co" href="#code_g35_18" id="para_g35_18"><img alt="18" height="12" src="assets/18.png" width="12"/></a>).
+Last but not least, the <code>do_is_equal()</code> function is called whenever the equality of two
+allocators needs to be checked
+(<a class="co" href="#code_g35_19" id="para_g35_19"><img alt="19" height="12" src="assets/19.png" width="12"/></a>).<sup><a data-type="noteref" href="ch09.xhtml#idm45043074899200" id="idm45043074899200-marker">6</a></sup></p>
+<p>By just introducing the <code>CustomAllocator</code> and without the need to change any 
+<span class="keep-together">other code, in</span>
+particular in the Standard Library, the new kind of allocator can be easily plugged in
+between the <code>std::pmr::monotonic_buffer_resource</code> and the <code>std::pmr::new_delete_resource()</code>
+(<a class="co" href="#code_g35_20" id="para_g35_20"><img alt="20" height="12" src="assets/20.png" width="12"/></a>),
+thus allowing you to nonintrusively extend the allocation behavior:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">// ...
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;CustomAllocator.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">(</code><code class="p">)</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w">   </code><code class="n">CustomAllocator</code><code class="w"> </code><code class="n">custom_allocator</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">new_delete_resource</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">pmr</code><code class="o">:</code><code class="o">:</code><code class="n">monotonic_buffer_resource</code><code class="w"> </code><code class="n">buffer</code><code class="p">{</code><code class="w"> </code><code class="o">&amp;</code><code class="n">custom_allocator</code><code class="w"> </code><code class="p">}</code><code class="p">;</code><code class="w">  </code><a class="co" href="#para_g35_20" id="code_g35_20"><img alt="20" height="12" src="assets/20.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="p">}</code><code class="w">
+</code></pre>
+</div></section>
+<section data-pdf-bookmark="Comparison Between Decorator, Adapter, and Strategy" data-type="sect2"><div class="sect2" id="idm45043075532768">
+<h2>Comparison Between Decorator, Adapter, and Strategy</h2>
+<p>With<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="Decorator versus Adapter and Strategy design patterns" data-type="indexterm" id="idm45043074836064"/><a data-primary="Adapter design pattern" data-secondary="versus Decorator and Strategy design patterns" data-secondary-sortas="Decorator and Strategy design patterns" data-type="indexterm" id="idm45043074848096"/><a data-primary="Strategy design pattern" data-secondary="versus Decorator design pattern" data-secondary-sortas="Decorator and Adapter design patterns" data-type="indexterm" id="idm45043074847008"/><a data-primary="Strategy design pattern" data-secondary="versus Adapter design pattern" data-secondary-sortas="Adapter design pattern" data-type="indexterm" id="idm45043074845920"/> the names <em>Decorator</em> and <em>Adapter</em>, these two design patterns sound like
+they have a similar purpose. On closer examination, however, these two patterns are very
+different and hardly related at all. The intent of the Adapter design pattern is to adapt
+and change a given interface to an expected interface. It is not concerned about adding any
+functionality but only about mapping one set of functions onto another (see also
+<a data-type="xref" href="ch06.xhtml#use_adapters_to_standardize_interfaces">“Guideline 24: Use Adapters to Standardize Interfaces”</a>). The Decorator design pattern,
+on the other hand, preserves a given interface and isn’t at all concerned about changing it.
+Instead, it provides the ability to add responsibilities and to extend and customize an
+existing set of functions.</p>
+<p>The Strategy design pattern is much more like Decorator. Both patterns provide the
+ability to customize functionality. However, both patterns are intended for different
+applications and therefore provide different benefits. The Strategy design pattern is focused
+on removing the dependencies on the implementation details of a specific functionality and
+enables you to define these details from the outside. Thus from this perspective, it
+represents the core—the “guts”—of this functionality. This form makes it particularly suited
+to represent different implementations and to switch between them (see
+<a data-type="xref" href="ch05.xhtml#use_strategy_to_isolate_how_things_are_done">“Guideline 19: Use Strategy to Isolate How Things Are Done”</a>). In comparison, the
+Decorator design pattern is focused on removing the dependency between attachable pieces
+of implementation. Due to its wrapper form, Decorator represents the “skin” of
+a functionality.<sup><a data-type="noteref" href="ch09.xhtml#idm45043074841888" id="idm45043074841888-marker">7</a></sup> In this form, it is particularly
+well suited to combine different implementations, which enables you to augment and extend
+functionality, rather than replacing it or switching between implementations.</p>
+<p>Obviously, both Strategy and Decorator have their individual strengths and should be
+selected accordingly. However, it’s also possible to combine these two design patterns
+to gain the best of both worlds. For instance, it would be possible to implement <code>Item</code>s
+in terms of the Strategy design patterns but allow for a more fine-grained configuration
+of Strategy by means of Decorator:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">class</code><code class="w"> </code><code class="nc">PriceStrategy</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">PriceStrategy</code><code class="p">()</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="nf">update</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ...</code>
+<code class="p">};</code><code class="w"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">DecoratedPriceStrategy</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">PriceStrategy</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ...</code>
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">PriceStrategy</code><code class="o">&gt;</code><code class="w"> </code><code class="n">priceModifier_</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">DiscountedPriceStrategy</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">DecoratedPriceStrategy</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">update</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="c1">// ...</code>
+<code class="p">};</code><code class="w"/></pre>
+<p>This combination of design patterns is particularly interesting if you already have a
+Strategy implementation in place: while Strategy is intrusive and requires the
+modification of a class, it’s always possible to nonintrusively add a Decorator
+such as the <code>DecoratedPriceStrategy</code> class. But of course it depends: whether or not
+this is the right solution is something you’ll have to decide on a case-by-case
+basis.</p>
+</div></section>
+<section data-pdf-bookmark="Analyzing the Shortcomings of the Decorator Design Pattern" data-type="sect2"><div class="sect2" id="idm45043074796128">
+<h2>Analyzing the Shortcomings of the Decorator Design Pattern</h2>
+<p>With<a data-primary="Decorator design pattern" data-secondary="adding customization with" data-tertiary="Decorator shortcomings" data-type="indexterm" id="idm45043074668848"/> its ability to hierarchically extend and customize behavior, the
+Decorator design pattern is clearly one of the most valuable and flexible patterns in
+the catalogue of design patterns. However, despite its benefits, it also comes with a
+couple of disadvantages. First and foremost, the flexibility of a Decorator comes with
+a price: every level in a given hierarchy adds one level of indirection. As a specific example,
+in the object-oriented implementation of the <code>Item</code> hierarchy, this indirection comes in
+the form of one virtual function call per Decorator. Thus an extensive use of Decorators
+may incur a potentially significant performance overhead. Whether or not this possible
+performance penalty poses a problem depends on the context. You’ll have to decide from
+case to case using benchmarks to determine whether the flexibility and the structural
+aspects of Decorator outweigh the performance problem.</p>
+<p>Another shortcoming is the potential danger of combining Decorators in a nonsensical
+way. For instance, it’s easily possible to wrap a <code>Taxed</code> Decorator around another
+<code>Taxed</code> Decorator or to apply a <code>Discounted</code> on an already-taxed <code>Item</code>. Both scenarios
+would make your government happy but still should never happen and therefore should be
+avoided by design. This rational is nicely expressed by Scott Meyers’s universal design
+principle:<sup><a data-type="noteref" href="ch09.xhtml#idm45043074664624" id="idm45043074664624-marker">8</a></sup></p>
+<blockquote>
+<p>Make interfaces easy to use correctly and hard to use incorrectly.</p></blockquote>
+<p class="less_space pagebreak-before">Thus the enormous flexibility of Decorators is extraordinary, but can also be dangerous
+(depending on the scenario, of course). Since in this scenario taxes appear to play a special
+role, it seems to be very reasonable not to deal with them as Decorator, but differently.
+Since in reality taxes turn out to be a rather complex topic, it appears to be reasonable to
+separate this concern via the Strategy design pattern:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;TaxStrategy.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">TaxStrategy</code><code class="w">  </code><a class="co" href="#para_g35_21" id="code_g35_21"><img alt="21" height="12" src="assets/21.png" width="12"/></a><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">TaxStrategy</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="k">virtual</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="nf">applyTax</code><code class="p">(</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;TaxedItem.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;TaxStrategy.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">TaxedItem</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">TaxedItem</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item</code><code class="w">
+</code><code class="w">                     </code><code class="p">,</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">TaxStrategy</code><code class="o">&gt;</code><code class="w"> </code><code class="n">taxer</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g35_22" id="code_g35_22"><img alt="22" height="12" src="assets/22.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">taxer_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">taxer</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="c1">// Check for a valid item and tax strategy
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">netPrice</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">  </code><code class="c1">// Price without taxes  </code><a class="co" href="#para_g35_23" id="code_g35_23"><img alt="23" height="12" src="assets/23.png" width="12"/></a><code class="c1">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">grossPrice</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w">  </code><code class="c1">// Price including taxes  </code><a class="co" href="#para_g35_24" id="code_g35_24"><img alt="24" height="12" src="assets/24.png" width="12"/></a><code class="c1">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">taxer_</code><code class="p">.</code><code class="n">applyTax</code><code class="p">(</code><code class="w"> </code><code class="n">item_</code><code class="p">.</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Item</code><code class="o">&gt;</code><code class="w"> </code><code class="n">item_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">TaxStrategy</code><code class="o">&gt;</code><code class="w"> </code><code class="n">taxer_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>The <code>TaxStrategy</code> class represents the many different ways to apply taxes to an <code>Item</code>
+(<a class="co" href="#code_g35_21" id="para_g35_21"><img alt="21" height="12" src="assets/21.png" width="12"/></a>).
+Such a <code>TaxStrategy</code> is combined with an <code>Item</code> in the <code>TaxedItem</code> class
+(<a class="co" href="#code_g35_22" id="para_g35_22"><img alt="22" height="12" src="assets/22.png" width="12"/></a>).
+Note that <code>TaxedItem</code> is not an <code>Item</code> itself and therefore cannot be decorated by means
+of another <code>Item</code>. It therefore serves as a kind of terminating Decorator, which can only
+be applied as the very last decorator. It also does not provide a <code>price()</code> function: instead,
+it provides the <code>netPrice()</code>
+(<a class="co" href="#code_g35_23" id="para_g35_23"><img alt="23" height="12" src="assets/23.png" width="12"/></a>)
+and <code>grossPrice()</code>
+(<a class="co" href="#code_g35_24" id="para_g35_24"><img alt="24" height="12" src="assets/24.png" width="12"/></a>)
+functions to enable queries for both the price including taxes and the original price of
+the wrapped <code>Item</code>.<sup><a data-type="noteref" href="ch09.xhtml#idm45043074358192" id="idm45043074358192-marker">9</a></sup></p>
+<p>The only other problem that you might see is the reference semantics–based
+implementation of the Decorator design pattern: lots of pointers, including <code>nullptr</code>
+checks and the danger of dangling pointers, explicit lifetime management by means of
+<code>std::unique_ptr</code> and <code>std::make_unique()</code>, and the many small, manual memory
+allocations. However, luckily you still have an ace up your sleeve and can show them
+how to implement Decorators based on value semantics (see the following guideline).</p>
+<p>To summarize, the Decorator design pattern is one of the essential design patterns and
+despite some drawbacks will prove to be a very valuable addition to your toolbox. Just make
+sure you’re not too excited about Decorator and start to use it for
+everything. After all, for every pattern there is a thin line between good use and overuse.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043074309280">
+<h5>Guideline 35: Use Decorators to Add Customization Hierarchically</h5>
+<ul>
+<li>
+<p>Understand that inheritance is rarely the answer.</p>
+</li>
+<li>
+<p>Apply the Decorator design pattern with the intent to nonintrusively and hierarchically extend and customize behavior.</p>
+</li>
+<li>
+<p>Consider Decorators for combining and reusing independent pieces of behavior.</p>
+</li>
+<li>
+<p>Understand the difference between the Decorator, Adapter, and Strategy design patterns.</p>
+</li>
+<li>
+<p>Utilize the extreme flexibility of Decorators, but know its shortcomings.</p>
+</li>
+<li>
+<p>Avoid nonsensical Decorators, but prefer design that is easy to use correctly.<a data-primary="" data-startref="DDPcustom09" data-type="indexterm" id="idm45043074303312"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<section class="less_space pagebreak-before" data-pdf-bookmark="Guideline 36: Understand the Trade-off Between Runtime and Compile Time Abstraction" data-type="sect1"><div class="sect1" id="understand_the_tradeoff_between_runtime_and_compile_time_abstraction">
+<h1>Guideline 36: Understand the Trade-off Between Runtime and Compile Time Abstraction</h1>
+<p>In<a data-primary="Decorator design pattern" data-secondary="runtime versus compile time abstraction" data-type="indexterm" id="DDPruntime09"/><a data-primary="abstractions" data-secondary="runtime versus compile time" data-type="indexterm" id="ABruntime09"/> <a data-type="xref" href="#use_decorators_to_add_customization_hierarchically">“Guideline 35: Use Decorators to Add Customization Hierarchically”</a>, I introduced you to the
+Decorator design pattern and hopefully gave you a strong incentive to add this design
+pattern to your toolbox. However, so far I have illustrated Decorator only by means of
+classic, object-oriented implementations and again not followed the advice of
+<a data-type="xref" href="ch05.xhtml#prefer_value_semantics_to_reference_semantics">“Guideline 22: Prefer Value Semantics over 
+<span class="keep-together">Reference Semantics</span>”</a>. Since I assume that you are eagerly waiting
+to see how to implement Decorator based on value semantics, it’s time to show you two
+possible approaches. Yes, <em>two</em> approaches: I will make up for the deferral by demonstrating
+two very different implementations. Both are firmly based on value semantics, but in
+comparison, they are almost on opposite sides of the design space. While the first approach
+will be an implementation based on static polymorphism, which enables you to exploit all
+compile-time information you may have, the second approach will rather exploit all the
+runtime advantages of dynamic polymorphism. Both approaches have their merits but, of course,
+also their characteristic demerits. Therefore, these examples will nicely demonstrate the
+broadness of design choices available to you.</p>
+<section data-pdf-bookmark="A Value-Based Compile Time Decorator" data-type="sect2"><div class="sect2" id="idm45043074296128">
+<h2>A Value-Based Compile Time Decorator</h2>
+<p>Let<a data-primary="Decorator design pattern" data-secondary="runtime versus compile time abstraction" data-tertiary="value-based compile time Decorator" data-type="indexterm" id="idm45043074293680"/><a data-primary="abstractions" data-secondary="runtime versus compile time" data-tertiary="value-based compile time Decorator" data-type="indexterm" id="idm45043074292528"/>’s start with the Decorator implementation based on static polymorphism. “I assume
+that this will again be very heavy on templates, right?” you ask. Yes, I will use
+templates as the primary abstraction mechanism, and yes, I will use a C++20 concept
+and even forwarding references. But no, I will try not to make it particularly heavy on
+templates. On the contrary, the major focus still lies on the design aspects of the Decorator
+design pattern and the goal to make it easy to add new kinds of Decorators and new
+kinds of regular items. One such item is the <code>ConferenceTicket</code> class:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;ConferenceTicket.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;string&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">ConferenceTicket</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">ConferenceTicket</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">string</code><code class="w"> </code><code class="n">name</code><code class="p">,</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">name_</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">move</code><code class="p">(</code><code class="n">name</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">price_</code><code class="p">{</code><code class="w"> </code><code class="n">price</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="p">{}</code><code class="w"/>
+
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">string</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">name</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">name_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">price_</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w"/>
+
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">std</code><code class="o">::</code><code class="n">string</code><code class="w"> </code><code class="n">name_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price_</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>The <code>ConferenceTicket</code> perfectly fulfills the expectations of a value type: there is no
+base class involved and there are no virtual functions. This indicates that items are no
+longer decorated via pointer-to-base, but instead by means of composition, or alternatively,
+by means of direct non-<code>public</code> inheritance. Two examples for this are the following
+implementations of the <code>Discounted</code> and <code>Taxed</code> classes:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;PricedItem.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="w"> </code><code class="nc">T</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="k">concept</code><code class="w"> </code><code class="nc">PricedItem</code><code class="w"> </code><code class="o">=</code><code class="w">  </code><a class="co" href="#para_g36_3" id="code_g36_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="k">requires</code><code class="w"> </code><code class="p">(</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w"> </code><code class="n">item</code><code class="p">.</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">}</code><code class="w"> </code><code class="o">-</code><code class="o">&gt;</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">same_as</code><code class="o">&lt;</code><code class="n">Money</code><code class="o">&gt;</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Discounted.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;PricedItem.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">discount</code><code class="p">,</code><code class="w"> </code><code class="n">PricedItem</code><code class="w"> </code><code class="n">Item</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Discounted</code><code class="w">  </code><code class="c1">// Using composition  </code><a class="co" href="#para_g36_1" id="code_g36_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a><code class="c1">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="p">.</code><code class="p">.</code><code class="p">.</code><code class="w"> </code><code class="n">Args</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Discounted</code><code class="p">(</code><code class="w"> </code><code class="n">Args</code><code class="o">&amp;</code><code class="o">&amp;</code><code class="p">.</code><code class="p">.</code><code class="p">.</code><code class="w"> </code><code class="n">args</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">forward</code><code class="o">&lt;</code><code class="n">Args</code><code class="o">&gt;</code><code class="p">(</code><code class="n">args</code><code class="p">)</code><code class="p">.</code><code class="p">.</code><code class="p">.</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">item_</code><code class="p">.</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">*</code><code class="w"> </code><code class="p">(</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="o">-</code><code class="w"> </code><code class="n">discount</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="w"> </code><code class="n">item_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">
+</code><code class="c1">//---- &lt;Taxed.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;PricedItem.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">taxRate</code><code class="p">,</code><code class="w"> </code><code class="n">PricedItem</code><code class="w"> </code><code class="n">Item</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Taxed</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">private</code><code class="w"> </code><code class="n">Item</code><code class="w">  </code><code class="c1">// Using inheritance  </code><a class="co" href="#para_g36_2" id="code_g36_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a><code class="c1">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="p">.</code><code class="p">.</code><code class="p">.</code><code class="w"> </code><code class="n">Args</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="w">   </code><code class="k">explicit</code><code class="w"> </code><code class="n">Taxed</code><code class="p">(</code><code class="w"> </code><code class="n">Args</code><code class="o">&amp;</code><code class="o">&amp;</code><code class="p">.</code><code class="p">.</code><code class="p">.</code><code class="w"> </code><code class="n">args</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">Item</code><code class="p">{</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">forward</code><code class="o">&lt;</code><code class="n">Args</code><code class="o">&gt;</code><code class="p">(</code><code class="n">args</code><code class="p">)</code><code class="p">.</code><code class="p">.</code><code class="p">.</code><code class="w"> </code><code class="p">}</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">Item</code><code class="o">:</code><code class="o">:</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">*</code><code class="w"> </code><code class="p">(</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="o">+</code><code class="w"> </code><code class="n">taxRate</code><code class="w"> </code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>Both <code>Discounted</code>
+(<a class="co" href="#code_g36_1" id="para_g36_1"><img alt="1" height="12" src="assets/1.png" width="12"/></a>)
+and <code>Taxed</code>
+(<a class="co" href="#code_g36_2" id="para_g36_2"><img alt="2" height="12" src="assets/2.png" width="12"/></a>)
+serve as Decorators for other kinds of <code>Item</code>s: the <code>Discounted</code>
+class represents a certain discount on a given item, and the <code>Taxed</code> class represents
+some kind of tax. This time, however, both are implemented in the form of class templates.
+The first template argument specifies the discount and the tax rate, respectively, and the
+second template argument specifies the type of the decorated <code>Item</code>.<sup><a data-type="noteref" href="ch09.xhtml#idm45043074027232" id="idm45043074027232-marker">10</a></sup></p>
+<p>Most noteworthy, however, is the <code>PricedItem</code> constraint on the second template argument
+(<a class="co" href="#code_g36_3" id="para_g36_3"><img alt="3" height="12" src="assets/3.png" width="12"/></a>).
+This constraint represents the set of semantic requirements, i.e. the expected behavior.
+Due to this constraint, you can only provide types that represent items with a <code>price()</code>
+member function. Using any other type would immediately result in a compilation error. Thus
+<code>PricedItem</code> plays the same role as the <code>Item</code> base class in the classic Decorator
+implementation in <a data-type="xref" href="#use_decorators_to_add_customization_hierarchically">“Guideline 35: Use Decorators to Add Customization Hierarchically”</a>. For the same reason,
+it also represents the separation of concerns based on the <em>Single-Responsibility Principle
+(SRP)</em>. Furthermore, if this constraint is owned by some high level in your architecture,
+then you, as well as anyone else, are able to add new kinds of items <em>and</em> new kinds of
+Decorators on any lower level. This feature perfectly fulfills the <em>Open-Closed Principle
+(OCP)</em>, and due to the proper ownership of the<a data-primary="Decorator design pattern" data-secondary="runtime versus compile time abstraction" data-tertiary="dependency graph" data-type="indexterm" id="idm45043073891872"/> abstraction, also the <em>Dependency Inversion
+Principle (DIP)</em> (see <a data-type="xref" href="#fig_decorator_static">Figure 9-7</a>).<sup><a data-type="noteref" href="ch09.xhtml#idm45043073889344" id="idm45043073889344-marker">11</a></sup></p>
+<figure><div class="figure" id="fig_decorator_static">
+<img alt="The dependency graph for the compile time _Decorator_." height="932" src="assets/cpsd_0907.png" width="1439"/>
+<h6><span class="label">Figure 9-7. </span>Dependency graph for the compile time Decorator</h6>
+</div></figure>
+<p>Both the <code>Discounted</code> and <code>Taxed</code> class templates are very similar, except for the way they
+handle the decorated <code>Item</code>: while the <code>Discounted</code> class template stores the <code>Item</code> in the form of
+a data member and therefore follows <a data-type="xref" href="ch05.xhtml#favor_composition_over_inheritance">“Guideline 20: Favor Composition over Inheritance”</a>, the <code>Taxed</code> class
+template privately inherits from the given <code>Item</code> class. Both approaches are possible,
+reasonable, and have their individual strengths, but you should consider the composition
+approach taken by the 
+<span class="keep-together"><code>Discounted</code></span> class template as the more common approach. As explained
+in <a data-type="xref" href="ch06.xhtml#use_adapters_to_standardize_interfaces">“Guideline 24: Use Adapters to Standardize Interfaces”</a>, there are only five reasons
+to prefer non-<code>public</code> inheritance to composition (some of them are <em>very</em> rare):</p>
+<ul>
+<li>
+<p>If you have to override a virtual function</p>
+</li>
+<li>
+<p>If you need access to a <code>protected</code> member function</p>
+</li>
+<li>
+<p>If you need the adapted type to be constructed <em>before</em> another base class</p>
+</li>
+<li>
+<p>If you need to share a common virtual base class or override the construction of a
+virtual base class</p>
+</li>
+<li>
+<p>If you can draw <em>significant</em> advantage from the
+<a href="https://oreil.ly/nvqMn"><em>Empty Base Optimization (EBO)</em></a></p>
+</li>
+</ul>
+<p>Arguably, for a large number of adapters, <em>EBO</em> may be a reason to favor inheritance, but
+you should make sure that your choice is backed up by numbers (for instance, by means of
+representative benchmarks).</p>
+<p>With these three classes in place, you’re able to specify a <code>ConferenceTicket</code> with a
+discount of 20% and a tax of 15%:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;ConferenceTicket.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Discounted.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Taxed.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;cstdlib&gt;</code><code class="cp"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="c1">// 20% discount, 15% tax: (499*0.8)*1.15 = 459.08</code>
+<code class="w">   </code><code class="n">Taxed</code><code class="o">&lt;</code><code class="mf">0.15</code><code class="p">,</code><code class="n">Discounted</code><code class="o">&lt;</code><code class="mf">0.2</code><code class="p">,</code><code class="n">ConferenceTicket</code><code class="o">&gt;&gt;</code><code class="w"> </code><code class="n">item</code><code class="p">{</code><code class="w"> </code><code class="s">"Core C++"</code><code class="p">,</code><code class="w"> </code><code class="mf">499.0</code><code class="w"> </code><code class="p">};</code><code class="w"/>
+
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">totalPrice</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">item</code><code class="p">.</code><code class="n">price</code><code class="p">();</code><code class="w">  </code><code class="c1">// Results in 459.08</code>
+
+<code class="w">   </code><code class="c1">// ...</code>
+
+<code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>The biggest advantage of this compile-time approach is the significant performance
+improvement: since there are no pointer indirections, and due to the possibility of inlining,
+the compiler is able to go all out on optimizing the resulting code. Also,
+the resulting code is arguably much shorter and not bloated with any boilerplate code, and therefore
+easier to read.</p>
+<p>“Could you be a little more specific about the performance results? In C++,
+developers are bickering about a 1% performance difference and call it <em>significant</em>.
+So seriously: how much faster is the compile-time approach?” I see, you seem familiar with the
+performance zeal of the C++ community. Well, as long as you
+promise me, again, that you won’t consider my results the definitive answer but only a
+single example, and if we agree that this comparison won’t evolve into a performance
+study, I can show you some numbers. But before I do, let me quickly outline the
+benchmark that I will use: I am comparing the classic object-oriented implementation from
+<a data-type="xref" href="#use_decorators_to_add_customization_hierarchically">“Guideline 35: Use Decorators to Add Customization Hierarchically”</a> with the described compile-time
+version. Of course, there is an arbitrary number of decorator combinations, but I am
+restricting myself to the following four item types:<sup><a data-type="noteref" href="ch09.xhtml#idm45043073557088" id="idm45043073557088-marker">12</a></sup></p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="k">using</code><code class="w"> </code><code class="n">DiscountedConferenceTicket</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">Discounted</code><code class="o">&lt;</code><code class="mf">0.2</code><code class="p">,</code><code class="n">ConferenceTicket</code><code class="o">&gt;</code><code class="p">;</code><code class="w"/>
+<code class="k">using</code><code class="w"> </code><code class="n">TaxedConferenceTicket</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">Taxed</code><code class="o">&lt;</code><code class="mf">0.19</code><code class="p">,</code><code class="n">ConferenceTicket</code><code class="o">&gt;</code><code class="p">;</code><code class="w"/>
+<code class="k">using</code><code class="w"> </code><code class="n">TaxedDiscountedConferenceTicket</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">Taxed</code><code class="o">&lt;</code><code class="mf">0.19</code><code class="p">,</code><code class="n">Discounted</code><code class="o">&lt;</code><code class="mf">0.2</code><code class="p">,</code><code class="n">ConferenceTicket</code><code class="o">&gt;&gt;</code><code class="p">;</code><code class="w"/>
+<code class="k">using</code><code class="w"> </code><code class="n">DiscountedTaxedConferenceTicket</code><code class="w"> </code><code class="o">=</code><code class="w"/>
+<code class="w">   </code><code class="n">Discounted</code><code class="o">&lt;</code><code class="mf">0.2</code><code class="p">,</code><code class="n">Taxed</code><code class="o">&lt;</code><code class="mf">0.19</code><code class="p">,</code><code class="n">ConferenceTicket</code><code class="o">&gt;&gt;</code><code class="p">;</code><code class="w"/></pre>
+<p>Since in the compile time solution these four types do not have a common base class,
+I am filling four specific <code>std::vector</code>s with these. In comparison, for the classic
+runtime solution, I use a single <code>std::vector</code> of <code>std::unique_ptr&lt;Item&gt;</code>s. In total,
+I am creating 10,000 items with random prices for both solutions and calling 
+<span class="keep-together"><code>std::accumulate()</code></span>
+5,000 times to compute the total price of all items.</p>
+<p>With this background information, let’s take a look at the performance results (<a data-type="xref" href="#table_decorator_benchmark_results_1">Table 9-1</a>). Again,
+I am normalizing the results, this time to the performance of the runtime implementation.</p>
+<table id="table_decorator_benchmark_results_1">
+<caption><span class="label">Table 9-1. </span>Performance results for the compile-time Decorator implementation (normalized performance)</caption>
+<thead>
+<tr>
+<th/>
+<th>GCC 11.1</th>
+<th>Clang 11.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>Classic Decorator</p></td>
+<td><p>1.0</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr>
+<td><p>Compile-time Decorator</p></td>
+<td><p>0.078067</p></td>
+<td><p>0.080313</p></td>
+</tr>
+</tbody>
+</table>
+<p>As stated before, the performance of the compile-time solution is significantly faster
+than the runtime solution: for both GCC and Clang, it only takes approximately 8% of the time
+of the runtime solution, and is therefore faster by more than one order of magnitude. I know,
+this sounds amazing. However, while the performance of the compile-time solution is
+extraordinary, it comes with a couple of potentially severe limitations: due to the complete
+focus on templates, there is no runtime flexibility left. Since even the discount and tax
+rates are realized via template parameters, a new type needs to be created for each different
+rate. This may lead to longer compile times and more generated code (i.e., larger
+executables). Additionally, it stands to reason that all class templates reside in header
+files, which again increases compile time and may reveal more implementation details
+than desired. More importantly, changes to the implementation details are widely visible and
+may cause massive recompilations. However, the most limiting factor appears to be
+that the solution can only be used in this form if all information is available at compile
+time. Thus, you may be able to get to this performance level for only a few special cases.</p>
+</div></section>
+<section data-pdf-bookmark="A Value-Based Runtime Decorator" data-type="sect2"><div class="sect2" id="idm45043074295216">
+<h2>A Value-Based Runtime Decorator</h2>
+<p>Since<a data-primary="Decorator design pattern" data-secondary="runtime versus compile time abstraction" data-tertiary="value-based run time Decorator" data-type="indexterm" id="idm45043073443328"/><a data-primary="abstractions" data-secondary="runtime versus compile time" data-tertiary="value-based run time Decorator" data-type="indexterm" id="idm45043073442240"/> the compile time Decorator may be fast but very inflexible at runtime, let’s
+turn our attention to the second value-based Decorator implementation. With this
+
+<span class="keep-together">implementation,</span> we will return to the realm of dynamic polymorphism, with all of its runtime
+flexibility.</p>
+<p>As you now know the Decorator design pattern, you realize that we need to be able to
+easily add new types: new kinds of <code>Item</code>, as well as new price modifiers. Therefore <em>the</em>
+design pattern of choice to turn the Decorator implementation from
+<a data-type="xref" href="#use_decorators_to_add_customization_hierarchically">“Guideline 35: Use Decorators to Add Customization Hierarchically”</a> into a value semantics–based
+implementation is Type Erasure.<sup><a data-type="noteref" href="ch09.xhtml#idm45043073438048" id="idm45043073438048-marker">13</a></sup> The following <code>Item</code>
+class implements an owning Type Erasure wrapper for our priced item example:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Item.h&gt; ----------------
+</code><code class="w">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;Money.h&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;memory&gt;</code><code class="cp">
+</code><code class="cp">#</code><code class="cp">include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp">
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Item</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">struct</code><code class="w"> </code><code class="nc">Concept</code><code class="w">  </code><a class="co" href="#para_g36_4" id="code_g36_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">virtual</code><code class="w"> </code><code class="o">~</code><code class="n">Concept</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="k">virtual</code><code class="w"> </code><code class="n">Money</code><code class="w"> </code><code class="nf">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="k">virtual</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Concept</code><code class="o">&gt;</code><code class="w"> </code><code class="n">clone</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="mi">0</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="w"> </code><code class="nc">T</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="w">   </code><code class="k">struct</code><code class="w"> </code><code class="nc">Model</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="k">public</code><code class="w"> </code><code class="n">Concept</code><code class="w">  </code><a class="co" href="#para_g36_5" id="code_g36_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="k">explicit</code><code class="w"> </code><code class="n">Model</code><code class="p">(</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">(</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">      </code><code class="k">explicit</code><code class="w"> </code><code class="n">Model</code><code class="p">(</code><code class="w"> </code><code class="n">T</code><code class="o">&amp;</code><code class="o">&amp;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">      </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">return</code><code class="w"> </code><code class="n">item_</code><code class="p">.</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">      </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Concept</code><code class="o">&gt;</code><code class="w"> </code><code class="n">clone</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="k">override</code><code class="w">
+</code><code class="w">      </code><code class="p">{</code><code class="w">
+</code><code class="w">         </code><code class="k">return</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Model</code><code class="o">&lt;</code><code class="n">T</code><code class="o">&gt;</code><code class="o">&gt;</code><code class="p">(</code><code class="o">*</code><code class="k">this</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">      </code><code class="n">T</code><code class="w"> </code><code class="n">item_</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">unique_ptr</code><code class="o">&lt;</code><code class="n">Concept</code><code class="o">&gt;</code><code class="w"> </code><code class="n">pimpl_</code><code class="p">;</code><code class="w">
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>In this implementation, the <code>Item</code> class defines a nested <code>Concept</code> base class in its
+
+<span class="keep-together"><code>private</code></span> section
+(<a class="co" href="#code_g36_4" id="para_g36_4"><img alt="4" height="12" src="assets/4.png" width="12"/></a>).
+As usual, the <code>Concept</code> base class represents the set of requirements (i.e. the expected
+behavior) for the wrapped types, which are expressed by the <code>price()</code> and <code>clone()</code> member
+functions. These requirements are implemented by the nested <code>Model</code> class template
+(<a class="co" href="#code_g36_5" id="para_g36_5"><img alt="5" height="12" src="assets/5.png" width="12"/></a>).
+<code>Model</code> implements the <code>price()</code> function by forwarding the call to the <code>price()</code> member
+function of the stored <code>item_</code> data member, and the <code>clone()</code> function by creating a copy
+of the stored item.</p>
+<p>The <code>public</code> section of the <code>Item</code> class should look familiar:</p>
+<pre data-code-language="cpp" data-type="programlisting">
+<code class="c1">//---- &lt;Item.h&gt; ----------------
+</code><code class="w">
+</code><code class="c1">// ...
+</code><code class="w">
+</code><code class="k">class</code><code class="w"> </code><code class="nc">Item</code><code class="w">
+</code><code class="p">{</code><code class="w">
+</code><code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="k">template</code><code class="o">&lt;</code><code class="w"> </code><code class="k">typename</code><code class="w"> </code><code class="nc">T</code><code class="w"> </code><code class="o">&gt;</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="p">(</code><code class="w"> </code><code class="n">T</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w">  </code><a class="co" href="#para_g36_6" id="code_g36_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a><code class="w">
+</code><code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">pimpl_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">make_unique</code><code class="o">&lt;</code><code class="n">Model</code><code class="o">&lt;</code><code class="n">T</code><code class="o">&gt;</code><code class="o">&gt;</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">:</code><code class="o">:</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="p">(</code><code class="w"> </code><code class="n">Item</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="o">:</code><code class="w"> </code><code class="n">pimpl_</code><code class="p">(</code><code class="w"> </code><code class="n">item</code><code class="p">.</code><code class="n">pimpl_</code><code class="o">-</code><code class="o">&gt;</code><code class="n">clone</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="p">{</code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="o">&amp;</code><code class="w"> </code><code class="k">operator</code><code class="o">=</code><code class="p">(</code><code class="w"> </code><code class="n">Item</code><code class="w"> </code><code class="k">const</code><code class="o">&amp;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w">
+</code><code class="w">   </code><code class="p">{</code><code class="w">
+</code><code class="w">      </code><code class="n">pimpl_</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">item</code><code class="p">.</code><code class="n">pimpl_</code><code class="o">-</code><code class="o">&gt;</code><code class="n">clone</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w">
+</code><code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="o">*</code><code class="k">this</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="p">}</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="o">~</code><code class="n">Item</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="p">(</code><code class="w"> </code><code class="n">Item</code><code class="o">&amp;</code><code class="o">&amp;</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">   </code><code class="n">Item</code><code class="o">&amp;</code><code class="w"> </code><code class="k">operator</code><code class="o">=</code><code class="p">(</code><code class="w"> </code><code class="n">Item</code><code class="o">&amp;</code><code class="o">&amp;</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="k">default</code><code class="p">;</code><code class="w">
+</code><code class="w">
+</code><code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="nf">price</code><code class="p">(</code><code class="p">)</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="p">{</code><code class="w"> </code><code class="k">return</code><code class="w"> </code><code class="n">pimpl_</code><code class="o">-</code><code class="o">&gt;</code><code class="n">price</code><code class="p">(</code><code class="p">)</code><code class="p">;</code><code class="w"> </code><code class="p">}</code><code class="w">  </code><a class="co" href="#para_g36_7" id="code_g36_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a><code class="w">
+</code><code class="w">
+</code><code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w">
+</code><code class="w">   </code><code class="c1">// ...
+</code><code class="p">}</code><code class="p">;</code><code class="w">
+</code></pre>
+<p>Next to the usual implementation of the
+<a href="https://oreil.ly/fzS3f">Rule of 5</a>,
+the class is again equipped with a templated constructor that accepts all kinds of items
+(<a class="co" href="#code_g36_6" id="para_g36_6"><img alt="6" height="12" src="assets/6.png" width="12"/></a>).
+Last but not least, the class provides a <code>price()</code> member function, which mimics the
+expected interface of all items
+(<a class="co" href="#code_g36_7" id="para_g36_7"><img alt="7" height="12" src="assets/7.png" width="12"/></a>).</p>
+<p>With this wrapper class in place, you are able to add new items easily: neither any
+intrusive modification of existing code nor any use of a base class is required. Any
+class that provides a <code>price()</code> member function and is copyable will work. Luckily, this
+includes the <code>ConferenceTicket</code> class from our compile-time Decorator 
+<span class="keep-together">implementation,</span>
+which provides everything we need and is firmly based on value semantics. Unfortunately,
+this is not true for the <code>Discounted</code> and <code>Taxed</code> classes, since they expect decorated
+items in the form of a template argument. Therefore, we re-implement <code>Discounted</code> and <code>Taxed</code>
+for use in the Type Erasure context:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="c1">//---- &lt;Discounted.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Item.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Discounted</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Discounted</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">discount</code><code class="p">,</code><code class="w"> </code><code class="n">Item</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">factor_</code><code class="p">(</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="o">-</code><code class="w"> </code><code class="n">discount</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{}</code><code class="w"/>
+
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">item_</code><code class="p">.</code><code class="n">price</code><code class="p">()</code><code class="w"> </code><code class="o">*</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Item</code><code class="w"> </code><code class="n">item_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/>
+
+
+<code class="c1">//---- &lt;Taxed.h&gt; ----------------</code>
+
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Item.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;utility&gt;</code><code class="cp"/>
+
+<code class="k">class</code><code class="w"> </code><code class="nc">Taxed</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w"> </code><code class="k">public</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Taxed</code><code class="p">(</code><code class="w"> </code><code class="kt">double</code><code class="w"> </code><code class="n">taxRate</code><code class="p">,</code><code class="w"> </code><code class="n">Item</code><code class="w"> </code><code class="n">item</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="o">:</code><code class="w"> </code><code class="n">item_</code><code class="p">(</code><code class="w"> </code><code class="n">std</code><code class="o">::</code><code class="n">move</code><code class="p">(</code><code class="n">item</code><code class="p">)</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">      </code><code class="p">,</code><code class="w"> </code><code class="n">factor_</code><code class="p">(</code><code class="w"> </code><code class="mf">1.0</code><code class="w"> </code><code class="o">+</code><code class="w"> </code><code class="n">taxRate</code><code class="w"> </code><code class="p">)</code><code class="w"/>
+<code class="w">   </code><code class="p">{}</code><code class="w"/>
+
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="n">price</code><code class="p">()</code><code class="w"> </code><code class="k">const</code><code class="w"/>
+<code class="w">   </code><code class="p">{</code><code class="w"/>
+<code class="w">      </code><code class="k">return</code><code class="w"> </code><code class="n">item_</code><code class="p">.</code><code class="n">price</code><code class="p">()</code><code class="w"> </code><code class="o">*</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="p">}</code><code class="w"/>
+
+<code class="w"> </code><code class="k">private</code><code class="o">:</code><code class="w"/>
+<code class="w">   </code><code class="n">Item</code><code class="w"> </code><code class="n">item_</code><code class="p">;</code><code class="w"/>
+<code class="w">   </code><code class="kt">double</code><code class="w"> </code><code class="n">factor_</code><code class="p">;</code><code class="w"/>
+<code class="p">};</code><code class="w"/></pre>
+<p>It’s particularly interesting to note that neither of these two classes are derived from
+any base class, yet both perfectly implement the Decorator design pattern. On the one
+hand, they implement the operations required by the <code>Item</code> wrapper to count as an item
+(in particular, the <code>price()</code> member function and the copy constructor), but on the other
+hand, they own an <code>Item</code>. Therefore, both enable you to combine Decorators arbitrarily, as
+demonstrated in the following <code>main()</code> function:</p>
+<pre data-code-language="cpp" data-type="programlisting"><code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;ConferenceTicket.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Discounted.h&gt;</code><code class="cp"/>
+<code class="cp">#include</code><code class="w"> </code><code class="cpf">&lt;Taxed.h&gt;</code><code class="cp"/>
+
+<code class="kt">int</code><code class="w"> </code><code class="nf">main</code><code class="p">()</code><code class="w"/>
+<code class="p">{</code><code class="w"/>
+<code class="w">   </code><code class="c1">// 20% discount, 15% tax: (499*0.8)*1.15 = 459.08</code>
+<code class="w">   </code><code class="n">Item</code><code class="w"> </code><code class="n">item</code><code class="p">(</code><code class="n">Taxed</code><code class="p">(</code><code class="mf">0.19</code><code class="p">,</code><code class="w"> </code><code class="n">Discounted</code><code class="p">(</code><code class="mf">0.2</code><code class="p">,</code><code class="w"> </code><code class="n">ConferenceTicket</code><code class="p">{</code><code class="s">"Core C++"</code><code class="p">,</code><code class="mf">499.0</code><code class="p">})));</code><code class="w"/>
+
+<code class="w">   </code><code class="n">Money</code><code class="w"> </code><code class="k">const</code><code class="w"> </code><code class="n">totalPrice</code><code class="w"> </code><code class="o">=</code><code class="w"> </code><code class="n">item</code><code class="p">.</code><code class="n">price</code><code class="p">();</code><code class="w"/>
+
+<code class="w">   </code><code class="c1">// ...</code>
+
+<code class="w">   </code><code class="k">return</code><code class="w"> </code><code class="n">EXIT_SUCCESS</code><code class="p">;</code><code class="w"/>
+<code class="p">}</code><code class="w"/></pre>
+<p>“Wow, this is beautiful: there are no pointers, no manual allocations, and it feels
+very natural and intuitive. But at the same time, it’s extremely flexible. This is
+too good to be true—there must be a catch. What about the performance?” you say.
+Well, you sound like you expect a total performance breakdown. So let’s benchmark
+this solution. Of course, I’m using the same benchmark as for the compile-time
+version of Decorator and just adding the third solution based on Type Erasure.
+The performance numbers are shown in <a data-type="xref" href="#table_decorator_benchmark_results_2">Table 9-2</a>.</p>
+<table id="table_decorator_benchmark_results_2">
+<caption><span class="label">Table 9-2. </span>Performance results for the Type Erasure Decorator implementation (normalized performance)</caption>
+<thead>
+<tr>
+<th/>
+<th>GCC 11.1</th>
+<th>Clang 11.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>Classic Decorator</p></td>
+<td><p>1.0</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr>
+<td><p>Compile-time Decorator</p></td>
+<td><p>0.078067</p></td>
+<td><p>0.080313</p></td>
+</tr>
+<tr>
+<td><p>Type Erasure Decorator</p></td>
+<td><p>0.997510</p></td>
+<td><p>0.971875</p></td>
+</tr>
+</tbody>
+</table>
+<p>As you can see, the performance is not worse than the performance of the other, classic
+runtime solution. In fact, the performance even appears to be a tiny bit better, but although
+this is an average of many runs, I wouldn’t put too much emphasis on that. However, remember
+that there are multiple options to improve the performance of the Type Erasure solution,
+as demonstrated in <a data-type="xref" href="ch08.xhtml#know_about_the_optimization_potential_of_type_erasure">“Guideline 33: Be Aware of the Optimization Potential of Type Erasure”</a>.</p>
+<p>While performance may not be the primary strength of the runtime solution(s) (at least
+in comparison to a compile-time solution), it definitely shines when it comes to runtime
+flexibility. For instance, it is possible to decide at runtime to wrap any <code>Item</code> in another
+Decorator (based on user input, based on the result of a computation, …). This,
+of course, will again yield an <code>Item</code>, which, together with many other <code>Item</code>s, can be
+stored in a single container. It indeed gives you an enormous runtime flexibility.</p>
+<p>Another strength is the ability to hide implementation details in source files more easily.
+While this may result in a loss of runtime performance, it will likely result in better
+compile times. Most importantly: any modification to the hidden code will not affect any
+other code and thus save you a lot of recompilations, because the implementation details are
+more strongly encapsulated.</p>
+<p>In summary, both the compile-time and runtime solutions are value based and lead
+to simpler, more comprehensible user code. However, they also come with individual strengths
+and weaknesses: while the runtime approach offers more flexibility, the compile-time
+approach dominates with respect to performance. In reality, you will rarely end
+up with a pure compile time or runtime approach, but you will very often find yourself
+somewhere between these two extremes. Make sure you know your options: weigh them against
+each other and find a compromise that perfectly combines the best of both worlds and
+fits your particular situation.</p>
+<aside data-type="sidebar" epub:type="sidebar"><div class="sidebar" id="idm45043072419168">
+<h5>Guideline 36: Understand the Trade-off between Runtime and Compile-Time Abstraction</h5>
+<ul>
+<li>
+<p>Be aware of both runtime and compile-time implementations of the Decorator design pattern.</p>
+</li>
+<li>
+<p>Understand that compile-time solutions usually perform better but limit runtime flexibility and encapsulation.</p>
+</li>
+<li>
+<p>Understand that runtime solutions are more flexible and are good at hiding details but perform worse.</p>
+</li>
+<li>
+<p>Prefer a <em>value semantics</em> solution to a <em>reference semantics</em> solution.<a data-primary="" data-startref="DDPruntime09" data-type="indexterm" id="idm45043072413712"/><a data-primary="" data-startref="ABruntime09" data-type="indexterm" id="idm45043072412704"/></p>
+</li>
+</ul>
+</div></aside>
+</div></section>
+</div></section>
+<div data-type="footnotes"><p data-type="footnote" id="idm45043077162960"><sup><a href="ch09.xhtml#idm45043077162960-marker">1</a></sup> Remember <a data-type="xref" href="ch01.xhtml#design_for_change">“Guideline 2: Design for Change”</a> and <a href="https://oreil.ly/SrAkz">Core Guideline C.133</a>: “Avoid <code>protected</code> data.”</p><p data-type="footnote" id="idm45043077012624"><sup><a href="ch09.xhtml#idm45043077012624-marker">2</a></sup> See <a data-type="xref" href="ch05.xhtml#favor_composition_over_inheritance">“Guideline 20: Favor Composition over Inheritance”</a> for a discussion on why so many design patterns draw their power from composition rather than inheritance.</p><p data-type="footnote" id="idm45043077006880"><sup><a href="ch09.xhtml#idm45043077006880-marker">3</a></sup> A <em>null object</em> represents an object with neutral (null) behavior. As such, it can be seen as a default for a Strategy implementation.</p><p data-type="footnote" id="idm45043076871952"><sup><a href="ch09.xhtml#idm45043076871952-marker">4</a></sup> Erich Gamma et al., <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>.</p><p data-type="footnote" id="idm45043076856336"><sup><a href="ch09.xhtml#idm45043076856336-marker">5</a></sup> You may be wondering if this is the most reasonable approach for dealing with taxes. No, unfortunately it’s not. That’s because first, as usual, reality is so much more complex than this simple, educational example, and second, because in this form it’s easy to apply taxes incorrectly. While I can’t help with the first point (I’m just a mere mortal), I will go into detail about the second point at the end of this guideline.</p><p data-type="footnote" id="idm45043074899200"><sup><a href="ch09.xhtml#idm45043074899200-marker">6</a></sup> If you’re wondering about the incomplete implementation: the focus here is entirely on how to <em>design</em> allocators, not on how to <em>implement</em> an allocator. For a thorough introduction on how to implement a C++17 allocator, see Nicolai Josuttis’s <em>C++17 - The Complete Guide</em>.</p><p data-type="footnote" id="idm45043074841888"><sup><a href="ch09.xhtml#idm45043074841888-marker">7</a></sup> The metaphor of Strategy being the guts of an object and Decorator being the skin originates from the GoF book.</p><p data-type="footnote" id="idm45043074664624"><sup><a href="ch09.xhtml#idm45043074664624-marker">8</a></sup> Scott Meyers, <em>Effective C++</em>, 3rd ed. (Addison-Wesley, 2005).</p><p data-type="footnote" id="idm45043074358192"><sup><a href="ch09.xhtml#idm45043074358192-marker">9</a></sup> If you’re thinking that the original <code>price()</code> function should be renamed <code>netPrice()</code> to reflect its true purpose, then I agree.</p><p data-type="footnote" id="idm45043074027232"><sup><a href="ch09.xhtml#idm45043074027232-marker">10</a></sup> Note that it is only possible to use floating-point values as <a href="https://oreil.ly/peHM2">non-type template parameters (NTTPs)</a> since  <span class="keep-together">C++20.</span> Alternatively, you could store the discount and tax rates in the form of data members.</p><p data-type="footnote" id="idm45043073889344"><sup><a href="ch09.xhtml#idm45043073889344-marker">11</a></sup> Alternatively, in particular if you cannot use C++20 concepts yet, this is an opportunity to use the <em>Curiously Recurring Template Pattern (CRTP)</em>; see <a data-type="xref" href="ch06.xhtml#use_crtp_to_introduce_static_type_categories">“Guideline 26: Use CRTP to Introduce Static Type Categories”</a>.</p><p data-type="footnote" id="idm45043073557088"><sup><a href="ch09.xhtml#idm45043073557088-marker">12</a></sup> To avoid a visit from the tax collection office, I should explicitly state that I’m aware of the questionable nature of the <code>Discounted&lt;0.2,Taxed&lt;0.19,ConferenceTicket&gt;&gt;</code> class (see also the list of potential problems of Decorator at the end of <a data-type="xref" href="#use_decorators_to_add_customization_hierarchically">“Guideline 35: Use Decorators to Add Customization Hierarchically”</a>). In my defense: it’s an obvious permutation of decorators, which is well suited for this benchmark.</p><p data-type="footnote" id="idm45043073438048"><sup><a href="ch09.xhtml#idm45043073438048-marker">13</a></sup> For a thorough overview of Type Erasure, see <a data-type="xref" href="ch08.xhtml#type_erasure">Chapter 8</a> and in particular <a data-type="xref" href="ch08.xhtml#consider_replacing_inheritance_hierarchies_with_type_erasure">“Guideline 32: Consider Replacing Inheritance Hierarchies with Type Erasure”</a>.</p></div></div></section></div></body></html>

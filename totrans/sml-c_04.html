@@ -1,0 +1,1508 @@
+<html><head></head><body><div id="sbo-rt-content"><section data-type="chapter" epub:type="chapter" data-pdf-bookmark="Chapter 4. Bits and (Many) Bytes"><div class="chapter" id="smallerc-CHP-4">
+<h1><span class="label">Chapter 4. </span>Bits and (Many) Bytes</h1>
+
+
+<p>Before we start building more complex programs with things like functions
+in <a data-type="xref" href="ch05.xhtml#smallerc-CHP-5">Chapter 5</a>, we should cover two more useful storage categories in C:
+arrays<a data-type="indexterm" data-primary="variables" data-secondary="arrays" data-see="arrays" id="idm45018730667912"/> and individual bits. These aren’t really distinct types like
+<code>int</code> or <code>double</code>, but they are useful when
+dealing with tiny things or with lots of things. Indeed, the notion of an
+<em>array</em>, a sequential list of items, is so useful we had to cheat back in
+<a data-type="xref" href="ch02.xhtml#smallerc-CHP-2-SECT-2.1">“Getting User Input”</a> and use it without much explanation
+to store user input in the form of 
+<span class="keep-together">a string.</span></p>
+
+<p>We have also discussed the idea of Boolean values that are either yes or no,
+true or false, 1 or 0. When dealing with microcontrollers in particular, you
+will regularly have a small collection of sensors or switches that are providing
+on/off values. C’s normal storage options would mean devoting an entire
+<code>char</code> (8 bits) or <code>int</code> (16 bits) to keeping track of such tiny values. That feels like a bit (ha!) of a waste, and it is. C has a few tricks you can employ to store this type of information more efficiently. In this 
+<span class="keep-together">chapter</span>, we’ll tackle both the big stuff by declaring arrays and then accessing and manipulating their contents, as well as how to work with the smallest bits (ahem). (And I promise not to make more bit puns. Mostly.)</p>
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Storing Multiple Things with Arrays"><div class="sect1" id="smallerc-CHP-4-SECT-1">
+<h1>Storing Multiple Things with Arrays</h1>
+
+<p>It is almost impossible to find a C program tackling real-world problems that
+does not use arrays. If you have to work with any collection of values of any
+type at all, those values will almost certainly wind up in an array. A list
+of grades, a list of students, the list of US state abbreviations,
+etc., etc., etc. Even our tiny machines can use arrays to track the colors on
+a strip of LEDs. It is not an exaggeration to say arrays are ubiquitous in C, so
+let’s take a closer look at how to use them.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Creating and Manipulating Arrays"><div class="sect2" id="smallerc-CHP-4-SECT-1.1">
+<h2>Creating and Manipulating Arrays</h2>
+
+<p>As I <a data-type="indexterm" data-primary="arrays" data-secondary="creating" id="arrays-creating"/><a data-type="indexterm" data-primary="null character (\0)" id="null-spelled"/><a data-type="indexterm" data-primary="\0 (null character)" id="null"/><a data-type="indexterm" data-primary="strings" data-secondary="as arrays" data-secondary-sortas="arrays" id="strings-arrays"/>mentioned, we used an array back in <a data-type="xref" href="ch02.xhtml#smallerc-CHP-2">Chapter 2</a> (in <a data-type="xref" href="ch02.xhtml#smallerc-CHP-2-SECT-2.1">“Getting User Input”</a>)
+to allow for some user input. Let’s revisit that code
+(<a href="https://oreil.ly/HnAfB"><em>ch04/hello2.c</em></a>)
+and pay more attention to the array of characters:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">name</code><code class="p">[</code><code class="mi">20</code><code class="p">];</code>
+
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Enter your name: "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%s"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Well hello, %s!</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">name</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>So what exactly does that <code>char name[20]</code> declaration do? It creates a variable
+named “name” with a base type of <code>char</code>, but it is an array, so you
+get space to store multiple <code>char</code>s. In this case, we asked for 20 bytes, as
+illustrated in <a data-type="xref" href="#smallerc-CHP-4-FIG-char-array">Figure 4-1</a>.</p>
+
+<figure><div id="smallerc-CHP-4-FIG-char-array" class="figure">
+<img src="Images/smac_0401.png" alt="smac 0401" width="1412" height="128"/>
+<h6><span class="label">Figure 4-1. </span>An empty array of type <code>char</code> called <code>name</code></h6>
+</div></figure>
+
+<p>And what happens with this array variable when we run the program?
+When you type in a name and hit Return on your keyboard, the characters
+you typed get placed in the array. Since we used <code>scanf()</code> and its string (<code>%s</code>)
+format field, we will automatically get a trailing null character (<code>'\0'</code> or
+sometimes <code>'\000'</code>) that marks the end of the string. In memory,
+the <code>name</code> variable now looks like <a data-type="xref" href="#smallerc-CHP-4-FIG-grace-array">Figure 4-2</a>.</p>
+
+<figure><div id="smallerc-CHP-4-FIG-grace-array" class="figure">
+<img src="Images/smac_0402.png" alt="smac 0402" width="1412" height="217"/>
+<h6><span class="label">Figure 4-2. </span>A char array with a string</h6>
+</div></figure>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>The null character at the end of the array is
+a peculiarity of strings; it is not how other types of arrays are managed.
+Strings are often stored in arrays that are set up before the length
+of the string is known, and use this <code>'\0'</code> sentinel much like we
+did in <a data-type="xref" href="ch03.xhtml#smallerc-CHP-3-SECT-3.2">“The while Statement”</a> to mark the end of useful input.
+All string-processing functions in C expect to see this terminating character,
+and you can count on its existence in your own work with strings.</p>
+</div>
+
+<p>Now when we use the <code>name</code> variable again in the subsequent <code>printf()</code> call, we
+can echo back all of the letters that were stored and the null character
+tells <code>printf()</code> when to stop, even if the name doesn’t occupy the entire
+array. Conversely, printing a string that does <em>not</em> have the
+terminating character will cause <code>printf()</code> to keep going after the end of
+the array and likely cause a <a data-type="indexterm" data-primary="arrays" data-secondary="creating" data-startref="arrays-creating" id="idm45018730609448"/><a data-type="indexterm" data-primary="null character (\0)" data-startref="null-spelled" id="idm45018730608200"/><a data-type="indexterm" data-primary="\0 (null character)" data-startref="null" id="idm45018730607256"/><a data-type="indexterm" data-primary="strings" data-secondary="as arrays" data-secondary-sortas="arrays" data-startref="strings-arrays" id="idm45018730606312"/>crash.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Length versus capacity"><div class="sect3" id="smallerc-CHP-4-SECT-1.1.1">
+<h3>Length versus capacity</h3>
+
+<p>Didn’t <a data-type="indexterm" data-primary="arrays" data-secondary="length versus capacity" id="arrays-length-capacity"/><a data-type="indexterm" data-primary="length of arrays, capacity versus" id="length-arrays-capacity"/><a data-type="indexterm" data-primary="capacity of arrays, length versus" id="capacity-arrays-length"/>we allocate 20 character slots? What are they doing if
+our name (such as “Grace”) doesn’t occupy all of the slots?
+Happily, that final, null character solves this quandary rather neatly. We
+do indeed have room for longer names like “Alexander” or
+even “Grace Hopper”; the null character always marks the end,
+no matter how big the array is.</p>
+<div data-type="warning" epub:type="warning"><h6>Warning</h6>
+<p>If you haven’t worked with characters before in C or another language,
+the notion of a null character can be confusing. It is the character with the
+numeric value of 0 (zero). That is not the same thing as a space character
+(ASCII 32) or the digit 0 (ASCII 48) or a newline (<code>'\n'</code> ASCII 10).
+You usually don’t have to worry
+about adding or placing these nulls by hand, but it is important to remember
+they occur at the end of strings, even though they are never printed.</p>
+</div>
+
+<p>But what if the name was too long for the allocated array? Let’s
+find out! Run the program again and type in a longer name:</p>
+
+<pre data-type="programlisting">ch04$ ./a.out
+Enter your name: @AdmiralGraceMurrayHopper
+Well hello, @AdmiralGraceMurrayHopper!
+*** stack smashing detected ***: terminated
+Aborted (core dumped)</pre>
+
+<p>Interesting. So the capacity we declared is a fairly hard limit—things go wrong if
+we overflow<a data-type="indexterm" data-primary="arrays" data-secondary="overflowing" id="idm45018730594968"/><a data-type="indexterm" data-primary="overflowing arrays" id="idm45018730558984"/> an array.<sup><a data-type="noteref" id="idm45018730558248-marker" href="ch04.xhtml#idm45018730558248">1</a></sup>
+Good to know! We always need to reserve sufficent space before
+we use it.<sup><a data-type="noteref" id="idm45018730557384-marker" href="ch04.xhtml#idm45018730557384">2</a></sup></p>
+
+<p>What if we didn’t know ahead of time how many slots were
+in an array? The<a data-type="indexterm" data-primary="sizeof operator" id="sizeof"/> C <code>sizeof</code> operator can help. It can tell you (in bytes) the
+size of variables or types. For simple types, that is the length of an <code>int</code> or <code>char</code> or
+<code>double</code>. For arrays, it is the total memory allocated. That means we can tell
+how many slots we have in an array as long as we know its base type. Let’s
+try making an array of <code>double</code> values, say, for an accounting ledger. We’ll
+pretend we don’t know how many values we can store and use <code>sizeof</code> to find
+out. Take a look at <a href="https://oreil.ly/O3DfB"><em>ch04/capacity.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">double</code> <code class="n">ledger</code><code class="p">[</code><code class="mi">100</code><code class="p">];</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Size of a double: %li</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="k">sizeof</code> <code class="p">(</code><code class="kt">double</code><code class="p">));</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Size of ledger: %li</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="k">sizeof</code> <code class="n">ledger</code><code class="p">);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Calculated ledger capacity: %li</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="k">sizeof</code> <code class="n">ledger</code> <code class="o">/</code> <code class="p">(</code><code class="k">sizeof</code> <code class="p">(</code><code class="kt">double</code><code class="p">)));</code>
+<code class="p">}</code></pre>
+
+<p>Notice that when asking about the size of a type, you need parentheses. The compiler
+needs this extra bit of context to treat the keyword as an expression. For variables
+like <code>ledger</code> that already fit the expression definition, we can leave them off.
+Let’s run our tiny program. Here’s the output:</p>
+
+<pre data-type="programlisting">ch04$ gcc capacity.c
+ch04$ ./a.out
+Size of a double: 8
+Size of ledger: 800
+Calculated ledger capacity: 100</pre>
+
+<p>Nice. Since <a data-type="indexterm" data-primary="sizeof operator" data-startref="sizeof" id="idm45018730499784"/>we actually do know how big we made our array, we can just compare
+that chosen size to our calculated results. They match. (Whew!) But there are
+situations where you are given information from an independent source and won’t
+always know the size of the array. Remember
+that tools like <code>sizeof</code> exist and can help you understand that<a data-type="indexterm" data-primary="arrays" data-secondary="length versus capacity" data-startref="arrays-length-capacity" id="idm45018730497960"/><a data-type="indexterm" data-primary="length of arrays, capacity versus" data-startref="length-arrays-capacity" id="idm45018730496712"/><a data-type="indexterm" data-primary="capacity of arrays, length versus" data-startref="capacity-arrays-length" id="idm45018730495800"/> information.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Initializing arrays"><div class="sect3" id="smallerc-CHP-4-SECT-1.1.2">
+<h3>Initializing arrays</h3>
+
+<p>So <a data-type="indexterm" data-primary="arrays" data-secondary="initializing" id="arrays-initial"/><a data-type="indexterm" data-primary="initializing" data-secondary="arrays" id="initial-arrays"/>far, we’ve created empty arrays or loaded <code>char</code> arrays with input
+from the user at runtime. Just like simpler variable types, C allows you to
+initialize arrays when you define them.</p>
+
+<p>For any array, you can supply a list of values inside a pair of curly braces,
+separated by commas. Here are a few examples:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">days_in_month</code><code class="p">[</code><code class="mi">12</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">28</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code> <code class="p">};</code>
+<code class="kt">char</code> <code class="n">vowels</code><code class="p">[</code><code class="mi">6</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="sc">'a'</code><code class="p">,</code> <code class="sc">'e'</code><code class="p">,</code> <code class="sc">'i'</code><code class="p">,</code> <code class="sc">'o'</code><code class="p">,</code> <code class="sc">'u'</code><code class="p">,</code> <code class="sc">'y'</code> <code class="p">};</code>
+<code class="kt">float</code> <code class="n">readings</code><code class="p">[</code><code class="mi">7</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="mf">8.9</code><code class="p">,</code> <code class="mf">8.6</code><code class="p">,</code> <code class="mf">8.5</code><code class="p">,</code> <code class="mf">8.7</code><code class="p">,</code> <code class="mf">8.9</code><code class="p">,</code> <code class="mf">8.8</code><code class="p">,</code> <code class="mf">8.5</code> <code class="p">};</code></pre>
+
+<p>Notice that the declared size of the array matches the number of values
+supplied to initialize the array. In this situation, C allows a nice
+shorthand: you can omit the explicit size in between the square brackets.
+The compiler will allocate the correct amount of memory to fit the
+initialization list exactly. This means we could rewrite our previous
+snippet like this:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">days_in_month</code><code class="p">[]</code> <code class="o">=</code> <code class="p">{</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">28</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code><code class="p">,</code> <code class="mi">30</code><code class="p">,</code> <code class="mi">31</code> <code class="p">};</code>
+<code class="kt">char</code> <code class="n">vowels</code><code class="p">[]</code> <code class="o">=</code> <code class="p">{</code> <code class="sc">'a'</code><code class="p">,</code> <code class="sc">'e'</code><code class="p">,</code> <code class="sc">'i'</code><code class="p">,</code> <code class="sc">'o'</code><code class="p">,</code> <code class="sc">'u'</code><code class="p">,</code> <code class="sc">'y'</code> <code class="p">};</code>
+<code class="kt">float</code> <code class="n">readings</code><code class="p">[]</code> <code class="o">=</code> <code class="p">{</code> <code class="mf">8.9</code><code class="p">,</code> <code class="mf">8.6</code><code class="p">,</code> <code class="mf">8.5</code><code class="p">,</code> <code class="mf">8.7</code><code class="p">,</code> <code class="mf">8.9</code><code class="p">,</code> <code class="mf">8.8</code><code class="p">,</code> <code class="mf">8.5</code> <code class="p">};</code></pre>
+
+<p>Strings, <a data-type="indexterm" data-primary="string literals" id="idm45018730386040"/><a data-type="indexterm" data-primary="strings" data-secondary="initializing" id="idm45018730385432"/><a data-type="indexterm" data-primary="initializing" data-secondary="strings" id="idm45018730263496"/>however, are a special case. C supports the notion of <em>string literals</em>. This means you can use a sequence of characters between
+double quotes as a value. You can use a string literal to initialize a <code>char[]</code>
+variable. You can also use it almost anywhere a string
+variable would be allowed. (We saw this in <a data-type="xref" href="ch03.xhtml#smallerc-CHP-3-SECT-2.3">“The Ternary Operator and Conditional Assignment”</a> where
+we used the terneray operator (<code>?:</code>) to print true and false values as words instead
+of as 1 or 0.)</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="c1">// Special initialization of a char array with a string literal</code>
+<code class="kt">char</code> <code class="n">secret</code><code class="p">[]</code> <code class="o">=</code> <code class="s">"password1"</code><code class="p">;</code>
+
+<code class="c1">// The printf() format string is usually a string literal</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"Hello, world!</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+
+<code class="c1">// And we can print literals, too</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"The value stored in %s is '%s'</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="s">"secret"</code><code class="p">,</code> <code class="n">secret</code><code class="p">);</code></pre>
+
+<p>You can also initialize a string by supplying individual characters inside
+curly braces, but that is generally harder to read. You have to remember to
+include the terminating null character, and this verbose option doesn’t provide
+any other real advantage over the use of a <a data-type="indexterm" data-primary="arrays" data-secondary="initializing" data-startref="arrays-initial" id="idm45018730247544"/><a data-type="indexterm" data-primary="initializing" data-secondary="arrays" data-startref="initial-arrays" id="idm45018730246680"/>string literal.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Accessing array elements"><div class="sect3" id="smallerc-CHP-4-SECT-1.1.3">
+<h3>Accessing array elements</h3>
+
+<p>Once<a data-type="indexterm" data-primary="arrays" data-secondary="accessing elements" id="arrays-accessing"/><a data-type="indexterm" data-primary="accessing" data-secondary="array elements" id="access-arrays"/><a data-type="indexterm" data-primary="[] (square brackets), array elements" id="square-brackets"/><a data-type="indexterm" data-primary="square brackets ([]), array elements" id="square-brackets-spelled"/> you have an array created, you can access individual elements inside
+the array using square brackets. You give an index number inside the square
+brackets, where the first element has an index value of 0. To print the
+second vowel or the days in July from our earlier arrays, for example:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">printf</code><code class="p">(</code><code class="s">"The second vowel is: %c</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">vowels</code><code class="p">[</code><code class="mi">1</code><code class="p">]);</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"July has %d days.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">days_in_month</code><code class="p">[</code><code class="mi">6</code><code class="p">]);</code></pre>
+
+<p>These statements would produce the following output if bundled into a
+complete program:</p>
+
+<pre data-type="programlisting">The second vowel is: e
+July has 31 days.</pre>
+
+<p>But the value we supply inside the square brackets does not need to be
+a fixed number. It can be any expression that results in an integer.
+(If you have enough memory, it could be a <code>long</code> or other, larger integer
+type.) This means you can use a calculation or a variable as your index.
+For example, if we store the “current month” in a variable
+and use the typical values for months—January is 1, February is 2,
+and so on—then we could print the number of days in July using
+the following code:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="kt">int</code> <code class="n">month</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"July (month %d) has %d days."</code><code class="p">,</code> <code class="n">month</code><code class="p">,</code> <code class="n">days_in_month</code><code class="p">[</code><code class="n">month</code> <code class="o">-</code> <code class="mi">1</code><code class="p">]);</code></pre>
+
+<p>The ease and flexibility of accessing these members is part of what makes
+arrays so popular. After a bit of practice, you’ll find them
+indispensible!</p>
+<div data-type="warning" epub:type="warning"><h6>Warning</h6>
+<p>The value inside the square brackets needs to be “in bounds”
+or you’ll get a an error at runtime. For example if you tried
+printing the days in the 15th month like we tried for July, you’d see
+something like “Invalid (month 15) has -1574633234 days.”
+C won’t stop you—note we did not cause a crash—but
+neither did we get a usable value. And <em>assigning</em> values
+(which we discuss next) to invalid
+slots in an array is how you <a data-type="indexterm" data-primary="buffer overflows" id="idm45018730147224"/><a data-type="indexterm" data-primary="arrays" data-secondary="overflowing" id="idm45018730146520"/><a data-type="indexterm" data-primary="overflowing arrays" id="idm45018730145576"/>cause a <em>buffer overflow</em>. This classic
+security exploit gets its name from the notion of an array as a storage
+buffer. You “overflow” it exactly by assigning values to
+the array outside the actual array. If you get lucky (or are very
+devious), you can write executable code and trick the computer into
+running your commands instead of the intended<a data-type="indexterm" data-primary="arrays" data-secondary="accessing elements" data-startref="arrays-accessing" id="idm45018730107384"/><a data-type="indexterm" data-primary="accessing" data-secondary="array elements" data-startref="access-arrays" id="idm45018730106136"/><a data-type="indexterm" data-primary="[] (square brackets), array elements" data-startref="square-brackets" id="idm45018730104920"/><a data-type="indexterm" data-primary="square brackets ([]), array elements" data-startref="square-brackets-spelled" id="idm45018730104008"/> program.</p>
+</div>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Changing array elements"><div class="sect3" id="smallerc-CHP-4-SECT-1.1.4">
+<h3>Changing array elements</h3>
+
+<p>You <a data-type="indexterm" data-primary="arrays" data-secondary="changing elements" id="idm45018730101192"/><a data-type="indexterm" data-primary="changing array elements" id="idm45018730100184"/>can also change the value of a given array position using the square
+bracket notation. For example, we could alter the number of days in February
+to accommodate a leap year:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="k">if</code> <code class="p">(</code><code class="n">year</code> <code class="o">%</code> <code class="mi">4</code> <code class="o">==</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+  <code class="c1">// Forgive the naive leap year calculation :)</code>
+  <code class="n">days_in_month</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code> <code class="o">=</code> <code class="mi">29</code><code class="p">;</code>
+<code class="p">}</code></pre>
+
+<p>This type of post-declaration assignment is handy (or often even necessary)
+when you have more dynamic data. With the Arduino projects we’ll cover later,
+for example, you might want to keep the 10 most recent sensor readings.
+You won’t have those readings when you declare your array. So you
+can set aside 10 slots, and just fill them in later:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">readings</code><code class="p">[</code><code class="mi">10</code><code class="p">];</code>
+<code class="c1">// ... interesting stuff goes here to set up the sensor and read it</code>
+<code class="n">readings</code><code class="p">[</code><code class="mi">7</code><code class="p">]</code> <code class="o">=</code> <code class="n">latest_reading</code><code class="p">;</code></pre>
+
+<p>Just make sure you supply a value of the same type as (or at least compatible with)
+the array. Our <code>readings</code>
+array, for example, is expecting floating point numbers. If we were to assign
+a character to one of the slots, it would “fit” in that slot, but
+it would produce a strange answer. Assigning the letter <code><em>x</em></code> to <code>readings[8]</code>
+would end up putting the ASCII value of lowercase x (120) in the slot as a <code>float</code>
+value of 120.0.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Iterating through arrays"><div class="sect3" id="smallerc-CHP-4-SECT-1.1.5">
+<h3>Iterating through arrays</h3>
+
+<p>The<a data-type="indexterm" data-primary="arrays" data-secondary="looping through" id="idm45018730049144"/><a data-type="indexterm" data-primary="looping" data-secondary="through arrays" id="idm45018730010136"/> ability to use a variable as an index makes working with an entire array
+a simple loop task. We could print out all the <code>days_in_month</code> counts using
+a <code>for</code> loop, for example:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">m</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">m</code> <code class="o">&lt;</code> <code class="mi">12</code><code class="p">;</code> <code class="n">m</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+  <code class="c1">// remember the array starts at 0, but humans start at 1</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Days in month %d is %d.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">m</code> <code class="o">+</code> <code class="mi">1</code><code class="p">,</code> <code class="n">days_in_month</code><code class="p">[</code><code class="n">m</code><code class="p">]);</code>
+<code class="p">}</code></pre>
+
+<p>This snippet produces the following output. We can get a sense of just how
+powerful the combination of arrays and loops could be. With just a tiny
+bit of code, we get some fairly interesting output:</p>
+
+<pre data-type="programlisting">Days in month 1 is 31.
+Days in month 2 is 28.
+Days in month 3 is 31.
+Days in month 4 is 30.
+Days in month 5 is 31.
+Days in month 6 is 30.
+Days in month 7 is 31.
+Days in month 8 is 31.
+Days in month 9 is 30.
+Days in month 10 is 31.
+Days in month 11 is 30.
+Days in month 12 is 31.</pre>
+
+<p>You’re free to use the elements of your array however you need to.
+You aren’t limited to printing them out. As another example, we could
+calculate the average reading from our <code>readings</code> array like so:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">float</code> <code class="n">readings</code><code class="p">[]</code> <code class="o">=</code> <code class="p">{</code> <code class="mf">8.9</code><code class="p">,</code> <code class="mf">8.6</code><code class="p">,</code> <code class="mf">8.5</code><code class="p">,</code> <code class="mf">8.7</code><code class="p">,</code> <code class="mf">8.9</code><code class="p">,</code> <code class="mf">8.8</code><code class="p">,</code> <code class="mf">8.5</code> <code class="p">};</code>
+
+<code class="c1">// Use our sizeof trick to get the number of elements</code>
+<code class="kt">int</code> <code class="n">count</code> <code class="o">=</code> <code class="k">sizeof</code> <code class="n">readings</code> <code class="o">/</code> <code class="k">sizeof</code> <code class="p">(</code><code class="kt">float</code><code class="p">);</code>
+<code class="kt">float</code> <code class="n">total</code> <code class="o">=</code> <code class="mf">0.0</code><code class="p">;</code>
+<code class="kt">float</code> <code class="n">average</code><code class="p">;</code>
+<code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">r</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">r</code> <code class="o">&lt;</code> <code class="n">count</code><code class="p">;</code> <code class="n">r</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+  <code class="n">total</code> <code class="o">+=</code> <code class="n">readings</code><code class="p">[</code><code class="n">r</code><code class="p">];</code>
+<code class="p">}</code>
+<code class="n">average</code> <code class="o">=</code> <code class="n">total</code> <code class="o">/</code> <code class="n">count</code><code class="p">;</code>
+<code class="n">printf</code><code class="p">(</code><code class="s">"The average reading is %0.2f</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">average</code><code class="p">);</code></pre>
+
+<p>This example highlights just how much C you have learned in only a few
+chapters! If you want some more practice, build this snippet into a
+complete program. Compile and run it to make sure you have it working.
+(The average should be 8.70, by the way.) Then add some more variables
+to capture the highest and lowest readings. You’ll need some <code>if</code>
+statements to help there. You can see one possible solution in <em>arrays.c</em>
+in the examples for this chapter.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Review of Strings"><div class="sect2" id="smallerc-CHP-4-SECT-1.2">
+<h2>Review of Strings</h2>
+
+<p>I have noted that strings are really just arrays of type <code>char</code> with some
+extra features supported by the language itself, such as literals. But since
+strings represent the easiest way to communicate with users, I want to
+highlight more of what you can do with strings in C.</p>
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Initializing strings"><div class="sect3" id="smallerc-CHP-4-SECT-1.2.1">
+<h3>Initializing strings</h3>
+
+<p>We <a data-type="indexterm" data-primary="strings" data-secondary="initializing" id="idm45018729846760"/><a data-type="indexterm" data-primary="initializing" data-secondary="strings" id="idm45018729845752"/><a data-type="indexterm" data-primary="string literals" id="idm45018729844808"/>have already seen how to declare and initialize a string. If you know
+the value of the string ahead of time, you can use a literal. If you
+don’t know the value, you can still declare the variable and then
+use <code>scanf()</code> to ask the user what text to store. But what if you wanted
+to do both? Assign an initial default and then let the user supply an
+optional new value that overrides the default?</p>
+
+<p>Happily, you can get there, but you do have to plan ahead a little. It might
+be tempting to use the default value when you first declare your variable,
+and then let the user provide a different value at runtime if they want.
+This works, but it requires an extra question to the user (“Do you
+want to change the background color, yes or no?”) and also assumes
+the user will supply a valid value as an alternative. Such assumptions are
+often safe as you are likely the only user while you’re learning a
+new language. But in programs you share with others, it’s better not
+to assume what the user will do.</p>
+
+<p>String literals also make it tempting to think you can simply overwrite
+an existing string just like you can with <code>int</code> or <code>float</code> variables.
+But a string really is just a <code>char[]</code>, and arrays are not assignable
+beyond the optional initialization when you declare them.</p>
+
+<p>These limitations can all be overcome with the use of things like functions,
+which we’ll explore in <a data-type="xref" href="ch05.xhtml#smallerc-CHP-5">Chapter 5</a>. In fact, the need for the
+functions that make it possible to manipulate strings at runtime are so useful,
+they have been bundled up into their own library, which I cover in <a data-type="xref" href="ch07.xhtml#smallerc-CHP-7-SECT-1.2">“stdlib.h”</a>.</p>
+
+<p>For now, I want you to remember that string literals can make the initialization
+of character arrays simple and readable, but that at their heart, strings in C
+are not like numbers and individual characters.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect3" data-pdf-bookmark="Accessing individual characters"><div class="sect3" id="smallerc-CHP-4-SECT-1.2.2">
+<h3>Accessing individual characters</h3>
+
+<p>But<a data-type="indexterm" data-primary="strings" data-secondary="accessing characters" id="strings-accessing"/><a data-type="indexterm" data-primary="accessing" data-secondary="string characters" id="access-strings"/><a data-type="indexterm" data-primary="characters" data-secondary="accessing in strings" id="characters-accessing"/> I do want to reiterate that strings are just arrays. You can access individual
+characters in your string using the same syntax you use to access the members of
+any other array. For example, we could find out if a given phrase contains a comma
+by looking at each character in the phrase. Here’s
+<a href="https://oreil.ly/UWgY6"><em>ch04/comma.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c" class="pagebreak-before less_space"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">phrase</code><code class="p">[]</code> <code class="o">=</code> <code class="s">"Hello, world!"</code><code class="p">;</code>
+  <code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+  <code class="c1">// keep looping until the end of the string</code>
+  <code class="k">while</code> <code class="p">(</code><code class="n">phrase</code><code class="p">[</code><code class="n">i</code><code class="p">]</code> <code class="o">!=</code> <code class="sc">'\0'</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="n">phrase</code><code class="p">[</code><code class="n">i</code><code class="p">]</code> <code class="o">==</code> <code class="sc">','</code><code class="p">)</code> <code class="p">{</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"Found a comma at position %d.</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">i</code><code class="p">);</code>
+      <code class="k">break</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="c1">// try the next character</code>
+    <code class="n">i</code><code class="o">++</code><code class="p">;</code>
+  <code class="p">}</code>
+  <code class="k">if</code> <code class="p">(</code><code class="n">phrase</code><code class="p">[</code><code class="n">i</code><code class="p">]</code> <code class="o">==</code> <code class="sc">'\0'</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Rats. Made it to the end of the string without a match.</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"No comma found in %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">phrase</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>This program actually uses the array nature of the string a few times. Our
+loop condition depends on accessing a single character of the string just
+like the <code>if</code> condition that helps answer our original question. And we test
+an individual character at the very end to see if we found something or not.
+We’ll look at several string-related functions in <a data-type="xref" href="ch07.xhtml#smallerc-CHP-7">Chapter 7</a>,
+but hopefully you see how you could accomplish things like copying or
+comparing strings using a good loop and the square brackets to march one
+character at a time through your<a data-type="indexterm" data-primary="strings" data-secondary="accessing characters" data-startref="strings-accessing" id="idm45018729701160"/><a data-type="indexterm" data-primary="accessing" data-secondary="string characters" data-startref="access-strings" id="idm45018729700008"/><a data-type="indexterm" data-primary="characters" data-secondary="accessing in strings" data-startref="characters-accessing" id="idm45018729698792"/> array.</p>
+</div></section>
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Multidimensional Arrays"><div class="sect2" id="smallerc-CHP-4-SECT-2">
+<h2>Multidimensional Arrays</h2>
+
+<p>It<a data-type="indexterm" data-primary="arrays" data-secondary="multidimensional" data-tertiary="creating" id="arrays-multi-creating"/><a data-type="indexterm" data-primary="multidimensional arrays" data-secondary="creating" id="multi-arrays-creating"/><a data-type="indexterm" data-primary="strings" data-secondary="multidimensional arrays of" data-tertiary="creating" id="strings-multi-creating"/><a data-type="indexterm" data-primary="initializing" data-secondary="multidimensional arrays" id="initial-multi-arrays"/> may not be obvious since strings are already an array, but you can store
+an array of strings in C. But because there is no “string type”
+that you can use when declaring such an array, how do you do it? Turns out
+C supports the idea of a <em>multidimensional array</em> so you can create an
+array of <code>char[]</code> just like other arrays:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">month_names</code><code class="p">[][];</code></pre>
+
+<p>Seems fair. But what is not obvious in that declaration is what the pair
+of square bracket pairs refer to. When declaring a two-dimensional array
+like this, the first square bracket pair can be thought of as the row
+index, and the second is the column. Another way to think about it is
+the first index tells you <em>how many</em> character arrays we’ll be
+storing and the second index tells you <em>how long</em> each of those arrays
+can be.</p>
+
+<p>We know how many months there are and a little research tells us the longest
+name is September, with nine letters. Add on one more for our terminating
+null character, and we could precisely define our <code>month_names</code> array like
+this:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">month_names</code><code class="p">[</code><code class="mi">12</code><code class="p">][</code><code class="mi">11</code><code class="p">];</code></pre>
+
+<p>You could also initialize this two-dimensional array since we know the names
+of the months and don’t require user input:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">month_names</code><code class="p">[</code><code class="mi">12</code><code class="p">][</code><code class="mi">11</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code>
+  <code class="s">"January"</code><code class="p">,</code> <code class="s">"February"</code><code class="p">,</code> <code class="s">"March"</code><code class="p">,</code> <code class="s">"April"</code><code class="p">,</code> <code class="s">"May"</code><code class="p">,</code> <code class="s">"June"</code><code class="p">,</code> <code class="s">"July"</code><code class="p">,</code>
+  <code class="s">"August"</code><code class="p">,</code> <code class="s">"September"</code><code class="p">,</code> <code class="s">"October"</code><code class="p">,</code> <code class="s">"November"</code><code class="p">,</code> <code class="s">"December"</code>
+<code class="p">};</code></pre>
+
+<p>But here I cheated a little with the initialization by using string literals,
+so the second dimension of the <code>month_names</code> array isn’t readily apparent.
+The first dimension is the months, and the second (hidden) dimension is the individual
+characters that make up the month names. If you are working with other data types
+that don’t have this string literal shortcut,
+you can use nested curly brace lists like this:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">multiplication</code><code class="p">[</code><code class="mi">5</code><code class="p">][</code><code class="mi">5</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code>
+  <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code>  <code class="mi">0</code><code class="p">,</code>  <code class="mi">0</code> <code class="p">},</code>
+  <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code>  <code class="mi">3</code><code class="p">,</code>  <code class="mi">4</code> <code class="p">},</code>
+  <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">4</code><code class="p">,</code>  <code class="mi">6</code><code class="p">,</code>  <code class="mi">8</code> <code class="p">},</code>
+  <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">3</code><code class="p">,</code> <code class="mi">6</code><code class="p">,</code>  <code class="mi">9</code><code class="p">,</code> <code class="mi">12</code> <code class="p">},</code>
+  <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">4</code><code class="p">,</code> <code class="mi">8</code><code class="p">,</code> <code class="mi">12</code><code class="p">,</code> <code class="mi">16</code> <code class="p">}</code>
+<code class="p">};</code></pre>
+
+<p>It might be tempting to assume the compiler can determine the size of the multi-dimensional structure, but sadly, you must supply the capacity for each dimension beyond the first. For our month names, for example, we could start off without the “12” for how many names, but not without the “11” indicating the maximum length of any individual name:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="c1">// This shortcut is ok</code>
+<code class="kt">char</code> <code class="n">month_names</code><code class="p">[][</code><code class="mi">11</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="s">"January"</code><code class="p">,</code> <code class="s">"February"</code> <code class="cm">/* ... */</code> <code class="p">};</code>
+
+<code class="c1">// This shortcut is NOT</code>
+<code class="kt">char</code> <code class="n">month_names</code><code class="p">[][]</code> <code class="o">=</code> <code class="p">{</code> <code class="s">"January"</code><code class="p">,</code> <code class="s">"February"</code> <code class="cm">/* ... */</code> <code class="p">};</code></pre>
+
+<p>You’ll eventually internalize these rules, but the compiler (and many editors)
+will always be there to catch you if you make a <a data-type="indexterm" data-primary="arrays" data-secondary="multidimensional" data-tertiary="creating" data-startref="arrays-multi-creating" id="idm45018729467576"/><a data-type="indexterm" data-primary="multidimensional arrays" data-secondary="creating" data-startref="multi-arrays-creating" id="idm45018729444840"/><a data-type="indexterm" data-primary="strings" data-secondary="multidimensional arrays of" data-tertiary="creating" data-startref="strings-multi-creating" id="idm45018729443624"/><a data-type="indexterm" data-primary="initializing" data-secondary="multidimensional arrays" data-startref="initial-multi-arrays" id="idm45018729442168"/>small mistake.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Accessing Elements in Multidimensional Arrays"><div class="sect2" id="smallerc-CHP-4-SECT-2.1">
+<h2>Accessing Elements in Multidimensional Arrays</h2>
+
+<p>With <a data-type="indexterm" data-primary="arrays" data-secondary="multidimensional" data-tertiary="accessing elements" id="arrays-multi-access"/><a data-type="indexterm" data-primary="multidimensional arrays" data-secondary="accessing elements" id="multi-arrays-access"/><a data-type="indexterm" data-primary="strings" data-secondary="multidimensional arrays of" data-tertiary="accessing elements" id="strings-multi-access"/><a data-type="indexterm" data-primary="accessing" data-secondary="multidimensional array elements" id="access-multi-arrays"/>our array of month names, it is straightforward getting access to any
+particular month. It looks just like accessing the element of any other
+one-dimensional array:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="n">printf</code><code class="p">(</code><code class="s">"The name of the first month is: %s</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">month_names</code><code class="p">[</code><code class="mi">0</code><code class="p">]);</code>
+
+<code class="c1">// Output: The name of the first month is: January</code></pre>
+
+<p>But how would we access an element in the <code>multiplication</code> two-dimensional
+array? We use two indices:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="n">printf</code><code class="p">(</code><code class="s">"Looking up 3 x 4: %d</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">multiplication</code><code class="p">[</code><code class="mi">3</code><code class="p">][</code><code class="mi">4</code><code class="p">]);</code>
+
+<code class="c1">// Output: Looking up 3 x 4: 12</code></pre>
+
+<p>Notice that in this multiplication table, the potentially strange use of
+zero as the first index value turns out to be a useful element. Index
+“0” gives us a row—or column—of valid multiplication
+answers.</p>
+
+<p>And with two indices, you’ll need two loops if you want to print out all
+of the data. We can take the work we did in <a data-type="xref" href="ch03.xhtml#smallerc-CHP-3-SECT-4.1">“Nested Loops and Tables”</a> and use
+it to access our stored values rather than generating the numbers directly. Here’s
+the printing snippet from
+<a href="https://oreil.ly/3gr8L"><em>ch04/print2d.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">row</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">row</code> <code class="o">&lt;</code> <code class="mi">5</code><code class="p">;</code> <code class="n">row</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">col</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">col</code> <code class="o">&lt;</code> <code class="mi">5</code><code class="p">;</code> <code class="n">col</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"%3d"</code><code class="p">,</code> <code class="n">multiplication</code><code class="p">[</code><code class="n">row</code><code class="p">][</code><code class="n">col</code><code class="p">]);</code>
+    <code class="p">}</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="p">}</code></pre>
+
+<p>And here is our nicely formatted table:</p>
+
+<pre data-type="programlisting">ch04$ gcc print2d.c
+ch04$ ./a.out
+  0  0  0  0  0
+  0  1  2  3  4
+  0  2  4  6  8
+  0  3  6  9 12
+  0  4  8 12 16</pre>
+
+<p>We’ll see some other options in <a data-type="xref" href="ch06.xhtml#smallerc-CHP-6">Chapter 6</a> for more tailored
+multidimensional storage. In the near term, just remember that you can create
+more dimensions with more pairs of square brackets. While you’ll likely
+use one-dimensional arrays most of the time, tables are common enough and
+spatial data often fits in three-dimensional “cubes.” Few
+programmers will ever need it, especially those of us concentrating on
+microcontrollers, but C does support higher orders of<a data-type="indexterm" data-primary="arrays" data-secondary="multidimensional" data-tertiary="accessing elements" data-startref="arrays-multi-access" id="idm45018729237352"/><a data-type="indexterm" data-primary="multidimensional arrays" data-secondary="accessing elements" data-startref="multi-arrays-access" id="idm45018729235864"/><a data-type="indexterm" data-primary="strings" data-secondary="multidimensional arrays of" data-tertiary="accessing elements" data-startref="strings-multi-access" id="idm45018729234648"/><a data-type="indexterm" data-primary="accessing" data-secondary="multidimensional array elements" data-startref="access-multi-arrays" id="idm45018729233192"/> arrays.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Storing Bits"><div class="sect1" id="smallerc-CHP-4-SECT-3">
+<h1>Storing Bits</h1>
+
+<p>Arrays allow us to store truly vast quantities of data with relative ease.
+At the other end of the spectrum, C has several operators that you can use
+to manipulate very small amounts of data. Indeed, you can work with the
+absolute smallest pieces of data: individual bits.</p>
+
+<p>When C was developed in the 1970s, every byte of memory was expensive, and
+therefore precious. As I noted at the beginning of the chapter, if you had
+a particular variable that stored Boolean
+answers, using 16 bits for an <code>int</code> or even just 8 bits for a <code>char</code> would
+be a little wasteful. If you had an array of such variables, it could become
+very wasteful. Desktop computers these days can manage that type of waste
+without blinking an eye (or an LED), but our microcontrollers often need
+all the storage help they can get.</p>
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Binary, Octal, Hexadecimal"><div class="sect2" id="smallerc-CHP-4-SECT-3.1">
+<h2>Binary, Octal, Hexadecimal</h2>
+
+<p>Before <a data-type="indexterm" data-primary="binary numbers, comparison with other bases" id="binary-compare"/><a data-type="indexterm" data-primary="decimal numbers" data-secondary="comparison with other bases" id="decimal-compare"/><a data-type="indexterm" data-primary="octal numbers" data-secondary="comparison with other bases" id="octal-compare"/><a data-type="indexterm" data-primary="hexadecimal numbers" data-secondary="comparison with other bases" id="hex-compare"/><a data-type="indexterm" data-primary="numbers" data-secondary="bases, compared" id="numbers-bases"/>we tackle the operators in C that access and manipulate bits, let’s
+review some notation for discussing binary values. If we have a single bit,
+a 0 or a 1 are sufficient and that’s easy enough. However, if we want to
+store a dozen bits inside one <code>int</code> variable, we need a way to describe the
+value of that <code>int</code>. Technically, the <code>int</code> will have a decimal (base 10)
+representation, but base 10 does not map cleanly to individual bits. For
+that, octal and hexadecimal notation is much clearer. (Binary, or base 2,
+notation would obviously be clearest, but large numbers get very long
+in binary. Octal and hexadecimal—often just “hex”—are
+a good compromise.)</p>
+
+<p>When we talk about numbers, we often implicitly use base 10, thanks to the
+digits (ooh, get it?) on our hands. Computers don’t have hands (discounting
+robots, of course) and don’t count in base 10. They use binary. Two digits,
+0 and 1, make up the entirety of their world. If you group three binary digits,
+you can represent the decimal numbers 0 through 7, which is eight total numbers,
+so this is base 8, or octal. Add a fourth bit and you can represent 0 through 15,
+which covers the individual “digits” in hexadecimal.
+<a data-type="xref" href="#smallerc-CHP-4-TAB-binary-octal-hex">Table 4-1</a> shows these first 16
+values in all four bases.</p>
+<table id="smallerc-CHP-4-TAB-binary-octal-hex">
+<caption><span class="label">Table 4-1. </span>Numbers in decimal, binary, octal, and hexadecimal</caption>
+<thead>
+<tr>
+<th>Decimal</th>
+<th>Binary</th>
+<th>Octal</th>
+<th>Hexadecimal</th>
+<th/>
+<th>Decimal</th>
+<th>Binary</th>
+<th>Octal</th>
+<th>Hexadecimal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code> 0</code></p></td>
+<td><p><code>0000 0000</code></p></td>
+<td><p><code>000</code></p></td>
+<td><p><code>0x00</code></p></td>
+<td/>
+<td><p><code> 8</code></p></td>
+<td><p><code>0000 1000</code></p></td>
+<td><p><code>010</code></p></td>
+<td><p><code>0x08</code></p></td>
+</tr>
+<tr>
+<td><p><code> 1</code></p></td>
+<td><p><code>0000 0001</code></p></td>
+<td><p><code>001</code></p></td>
+<td><p><code>0x01</code></p></td>
+<td/>
+<td><p><code> 9</code></p></td>
+<td><p><code>0000 1001</code></p></td>
+<td><p><code>011</code></p></td>
+<td><p><code>0x09</code></p></td>
+</tr>
+<tr>
+<td><p><code> 2</code></p></td>
+<td><p><code>0000 0010</code></p></td>
+<td><p><code>002</code></p></td>
+<td><p><code>0x02</code></p></td>
+<td/>
+<td><p><code>10</code></p></td>
+<td><p><code>0000 1010</code></p></td>
+<td><p><code>012</code></p></td>
+<td><p><code>0x0A / 0x0a</code></p></td>
+</tr>
+<tr>
+<td><p><code> 3</code></p></td>
+<td><p><code>0000 0011</code></p></td>
+<td><p><code>003</code></p></td>
+<td><p><code>0x03</code></p></td>
+<td/>
+<td><p><code>11</code></p></td>
+<td><p><code>0000 1011</code></p></td>
+<td><p><code>013</code></p></td>
+<td><p><code>0x0B / 0x0b</code></p></td>
+</tr>
+<tr>
+<td><p><code> 4</code></p></td>
+<td><p><code>0000 0100</code></p></td>
+<td><p><code>004</code></p></td>
+<td><p><code>0x04</code></p></td>
+<td/>
+<td><p><code>12</code></p></td>
+<td><p><code>0000 1100</code></p></td>
+<td><p><code>014</code></p></td>
+<td><p><code>0x0C / 0x0c</code></p></td>
+</tr>
+<tr>
+<td><p><code> 5</code></p></td>
+<td><p><code>0000 0101</code></p></td>
+<td><p><code>005</code></p></td>
+<td><p><code>0x05</code></p></td>
+<td/>
+<td><p><code>13</code></p></td>
+<td><p><code>0000 1101</code></p></td>
+<td><p><code>015</code></p></td>
+<td><p><code>0x0D / 0x0d</code></p></td>
+</tr>
+<tr>
+<td><p><code> 6</code></p></td>
+<td><p><code>0000 0110</code></p></td>
+<td><p><code>006</code></p></td>
+<td><p><code>0x06</code></p></td>
+<td/>
+<td><p><code>14</code></p></td>
+<td><p><code>0000 1110</code></p></td>
+<td><p><code>016</code></p></td>
+<td><p><code>0x0E / 0x0e</code></p></td>
+</tr>
+<tr>
+<td><p><code> 7</code></p></td>
+<td><p><code>0000 0111</code></p></td>
+<td><p><code>007</code></p></td>
+<td><p><code>0x07</code></p></td>
+<td/>
+<td><p><code>15</code></p></td>
+<td><p><code>0000 1111</code></p></td>
+<td><p><code>017</code></p></td>
+<td><p><code>0x0F / 0x0f</code></p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You might notice that I always showed eight numbers for the binary column, three for octal, and two for hex. The byte (8 bits) is a very common unit to work with in C. Binary numbers often get shown in groups of four, with as many groups as required to cover the largest number being discussed. So for a full byte of 8 bits, which can store any value between 0 to 255, for example, you would see a binary value with two groupings of four digits. Similarly, octal values with three digits can display any byte’s value, and hexadecimal numbers need two digits. Note also that hexadecimal literals are not case sensitive. (Neither is the “x” in the hexadecimal prefix, but an uppercase “X” can be harder to distinguish.)</p>
+
+<p>We’ll be using binary notation from time to time when working with microcontrollers in the latter half of this book, but you may have already run into hexadecimal numbers if you have written any styled text in HTML or CSS or similar markup languages. Colors in these documents are often represented with the hex values for a byte of red, a byte of green, a byte of blue, and occasionally a byte of alpha (transparency). So a full red that ignores the alpha channel would be <code>FF0000</code>. Now that you know two hex digits can represent one byte, it may be easier to read such color values.</p>
+
+<p>To help you get accustomed to these different bases, try filling out the missing
+values in <a data-type="xref" href="#smallerc-CHP-4-TAB-conversion-homework">Table 4-2</a>. (You can check your answers
+with the <a data-type="xref" href="#smallerc-CHP-4-TAB-conversion-answers">Table 4-4</a> table at the end of the chapter.)
+The numbers are not in any particular order, by the way. I want to keep you on your toes!</p>
+<table id="smallerc-CHP-4-TAB-conversion-homework" class="border-all space-out">
+<caption><span class="label">Table 4-2. </span>Converting between bases</caption>
+<thead>
+<tr>
+<th>Decimal</th>
+<th>Binary</th>
+<th>Octal</th>
+<th>Hexadecimal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p><code>14</code></p></td>
+<td/>
+<td><p><code>016</code></p></td>
+<td/>
+</tr>
+<tr>
+<td/>
+<td><p><code>0010</code> <code>0000</code></p></td>
+<td/>
+<td/>
+</tr>
+<tr>
+<td/>
+<td/>
+<td><p><code>021</code></p></td>
+<td><p><code>11</code></p></td>
+</tr>
+<tr>
+<td><p><code>50</code></p></td>
+<td/>
+<td/>
+<td><p><code>32</code></p></td>
+</tr>
+<tr>
+<td/>
+<td/>
+<td><p><code>052</code></p></td>
+<td/>
+</tr>
+<tr>
+<td/>
+<td/>
+<td/>
+<td><p><code>13</code></p></td>
+</tr>
+<tr>
+<td><p><code>167</code></p></td>
+<td/>
+<td/>
+<td/>
+</tr>
+<tr>
+<td/>
+<td><p><code>1111 1001</code></p></td>
+<td/>
+<td/>
+</tr>
+</tbody>
+</table>
+
+<p>Modern browsers can convert bases for you right in the search bar, so you probably
+won’t need to memorize the full 256 values possible in a byte. But it will
+still be useful if you can estimate the size of a hex value or determine if an
+octal ASCII code is probably a letter or a <a data-type="indexterm" data-primary="binary numbers, comparison with other bases" data-startref="binary-compare" id="idm45018729111112"/><a data-type="indexterm" data-primary="decimal numbers" data-secondary="comparison with other bases" data-startref="decimal-compare" id="idm45018729110008"/><a data-type="indexterm" data-primary="octal numbers" data-secondary="comparison with other bases" data-startref="octal-compare" id="idm45018729108824"/><a data-type="indexterm" data-primary="hexadecimal numbers" data-secondary="comparison with other bases" data-startref="hex-compare" id="idm45018729107640"/><a data-type="indexterm" data-primary="numbers" data-secondary="bases, compared" data-startref="numbers-bases" id="idm45018729106456"/>number.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Octal and Hexadecimal Literals in C"><div class="sect2" id="smallerc-CHP-4-SECT-3.2">
+<h2>Octal and Hexadecimal Literals in C</h2>
+
+<p>The<a data-type="indexterm" data-primary="octal numbers" data-secondary="as literals" data-secondary-sortas="literals" id="octal-literals"/><a data-type="indexterm" data-primary="hexadecimal numbers" data-secondary="as literals" data-secondary-sortas="literals" id="hex-literals"/><a data-type="indexterm" data-primary="numbers" data-secondary="octal/hex literals" id="numbers-literals"/> C language has special options for expressing numeric literals in octal
+and hex. Octal literals start with a simple 0 as a prefix, although you can
+have multiple zeroes if you are keeping all of your values the same width, like
+we did in our base tables. For hex values, you use the prefix <code>0x</code> or <code>0X</code>. You
+typically match the case of the ‘X’ character to the case of
+any of the <code>A-F</code> digits in your hex value, but this is just a convention.</p>
+
+<p>Here’s a snippet showing how to use some of these prefixes:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">int</code> <code class="n">line_feed</code> <code class="o">=</code> <code class="mo">012</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">carriage_return</code> <code class="o">=</code> <code class="mo">015</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">red</code> <code class="o">=</code> <code class="mh">0xff</code><code class="p">;</code>
+<code class="kt">int</code> <code class="n">blue</code> <code class="o">=</code> <code class="mh">0x7f</code><code class="p">;</code></pre>
+
+<p>Some compilers support nonstandard prefixes or suffixes for representing binary
+literals, but as the “nonstandard” qualifier suggests, they are not
+part of the official C <a data-type="indexterm" data-primary="octal numbers" data-secondary="as literals" data-secondary-sortas="literals" data-startref="octal-literals" id="idm45018729073112"/><a data-type="indexterm" data-primary="hexadecimal numbers" data-secondary="as literals" data-secondary-sortas="literals" data-startref="hex-literals" id="idm45018729071752"/><a data-type="indexterm" data-primary="numbers" data-secondary="octal/hex literals" data-startref="numbers-literals" id="idm45018729070264"/>language.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Input and Output of Octal and Hex Values"><div class="sect2" id="smallerc-CHP-4-SECT-3.3">
+<h2>Input and Output of Octal and Hex Values</h2>
+
+<p>The<a data-type="indexterm" data-primary="octal numbers" data-secondary="input/output" id="octal-inout"/><a data-type="indexterm" data-primary="hexadecimal numbers" data-secondary="input/output" id="hex-inout"/><a data-type="indexterm" data-primary="input" data-secondary="octal/hex values" id="input-octhex"/><a data-type="indexterm" data-primary="output" data-secondary="octal/hex values" id="output-octhex"/><a data-type="indexterm" data-primary="printf() function" id="printf-octhex"/><a data-type="indexterm" data-primary="functions" data-secondary="printf()" id="functions-printf-octhex"/><a data-type="indexterm" data-primary="scanf() function" id="scanf-octhex"/><a data-type="indexterm" data-primary="functions" data-secondary="scanf()" id="functions-scanf-octhex"/><a data-type="indexterm" data-primary="format specifiers" id="format-specifier-octhex"/> <code>printf()</code> function has built-in format specifiers to help you produce octal
+or hexadecimal output. Octal value can be printed with the <code>%o</code> specifier and
+hex can be shown with either <code>%x</code> or <code>%X</code>, depending on whether you want lower- or
+uppercase output. These specifiers can be used with variables or expressions of
+any of the integer types in any base, which makes <code>printf()</code> a pretty easy way
+to convert from decimal to octal or hex. We could easily produce a table similar to
+<a data-type="xref" href="#smallerc-CHP-4-TAB-binary-octal-hex">Table 4-1</a> (minus the binary column) using a loop
+and a single <code>printf()</code>. We can take advantage of the width and padding options
+of the format specifier to get our desired three octal digits and two hex digits.
+Take a look at <a href="https://oreil.ly/59f56"><em>ch04/dec_oct_hex.c</em></a>:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">" Dec  Oct  Hex</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="mi">16</code><code class="p">;</code> <code class="n">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">" %3d  %03o  0x%02X</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">i</code><code class="p">,</code> <code class="n">i</code><code class="p">,</code> <code class="n">i</code><code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code></pre>
+
+<p>Notice that we just reuse the exact same variable for each of the three
+columns. Also notice that when printing the hexadecimal version, I manually
+added the “0x” prefix—it is not included in the <code>%x</code> or <code>%X</code>
+formats. Here are a few of the first and last lines:</p>
+
+<pre data-type="programlisting">ch04$ gcc dec_oct_hex.c
+ch04$ ./a.out
+ Dec  Oct  Hex
+   0  000  0x00
+   1  001  0x01
+   2  002  0x02
+   3  003  0x03
+ ...
+  13  015  0x0D
+  14  016  0x0E
+  15  017  0x0F</pre>
+
+<p>Neat. Just the output we wanted. On the input side using <code>scanf()</code>, the format specifiers work in an interesting way. They are all still used to get numeric input from the user. The different specifiers now perform base conversion on the number you enter. If you specify decimal input (<code>%d</code>), you cannot use hex values. Conversely, if you specify hex input (<code>%x</code> or <code>%X</code>) and only enter numbers (i.e., you don’t use any of the <code>A-F</code> digits), the number will still be
+converted from base 16.</p>
+<div data-type="note" epub:type="note"><h6>Note</h6>
+<p>The specifiers <code>%d</code> and <code>%i</code> are normally interchangeable. In a <code>printf()</code> call, they
+will result in identical output. In a <code>scanf()</code> call, however, the <code>%d</code> option
+requires you to enter a simple base 10 number. The <code>%i</code> specifier allows you to use
+the various C literal perfixes to enter a value in a different base such as <code>0x</code> to
+enter a hexadecimal number.</p>
+</div>
+
+<p>We can illustrate this with a simple converter program,
+<a href="https://oreil.ly/NU9Wc"><em>ch04/rosetta.c</em></a>,
+that will translate different inputs to all three bases on output. We can set which
+type of input we expect in the program but use an <code>if/else if/else</code> block to make
+it easy to adjust. (Although recompiling will still be required.)</p>
+<pre data-type="programlisting" data-code-language="c">
+<code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="kt">char</code> <code class="n">base</code><code class="p">;</code>
+  <code class="kt">int</code> <code class="n">input</code><code class="p">;</code>
+
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Convert from? (d)ecimal, (o)ctal, he(x): "</code><code class="p">);</code>
+  <code class="n">scanf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">base</code><code class="p">);</code>
+
+  <code class="k">if</code> <code class="p">(</code><code class="n">base</code> <code class="o">==</code> <code class="sc">'o'</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Get octal input</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a number in octal: "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%o"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">input</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">base</code> <code class="o">==</code> <code class="sc">'x'</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Get hex input</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a number in hexadecimal: "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%x"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">input</code><code class="p">);</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="c1">// assume decimal input</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"Please enter a number in decimal: "</code><code class="p">);</code>
+    <code class="n">scanf</code><code class="p">(</code><code class="s">"%d"</code><code class="p">,</code> <code class="o">&amp;</code><code class="n">input</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"Dec: %d,  Oct: %o,  Hex: %x</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">input</code><code class="p">,</code> <code class="n">input</code><code class="p">,</code> <code class="n">input</code><code class="p">);</code>
+<code class="p">}</code>
+</pre>
+
+<p>Here are a few example runs:</p>
+
+<pre data-type="programlisting">ch04$ gcc rosetta.c
+
+ch04$ ./a.out
+Convert from? (d)ecimal, (o)ctal, he(x): d
+Please enter a number in decimal: 55
+Dec: 55,  Oct: 67,  Hex: 37
+
+ch04$ ./a.out
+Convert from? (d)ecimal, (o)ctal, he(x): x
+Please enter a number in hexadecimal: 37
+Dec: 55,  Oct: 67,  Hex: 37
+
+ch04$ ./a.out
+Convert from? (d)ecimal, (o)ctal, he(x): d
+Please enter a number in decimal: 0x37
+Dec: 0,  Oct: 0,  Hex: 0</pre>
+
+<p>Interesting. The first two runs went according to plan. The third run didn’t create
+an error but didn’t really work, either. What happened here is a sort of
+“feature” of <code>scanf()</code>. It tried very hard to bring in a decimal
+number. It found the character <em>0</em> in our input, which is a valid decimal digit, so it started
+parsing that character. But it next encountered the <em>x</em> character which is <em>not</em>
+valid for a base 10 number. So that was the end of the parsing and our program
+converted the value 0 into each of the three bases.</p>
+
+<p>Try running this program yourself and switch the mode a few times. Do you get the
+behavior you expect? Can you cause any errors?</p>
+
+<p>Knowing what we do about the difference between <code>%i</code> and other numeric specifiers
+in <code>scanf()</code>, can you see how to make this program a little simpler? It should be
+possible to accept any of the three bases for input without the big <code>if</code> statement.
+I’ll leave this problem to you as an exercise, but you can see one possible
+solution in the <em>rosetta2.c</em> file in the code examples for<a data-type="indexterm" data-primary="octal numbers" data-secondary="input/output" data-startref="octal-inout" id="idm45018728843144"/><a data-type="indexterm" data-primary="hexadecimal numbers" data-secondary="input/output" data-startref="hex-inout" id="idm45018728841896"/><a data-type="indexterm" data-primary="input" data-secondary="octal/hex values" data-startref="input-octhex" id="idm45018728840680"/><a data-type="indexterm" data-primary="output" data-secondary="octal/hex values" data-startref="output-octhex" id="idm45018728839464"/><a data-type="indexterm" data-primary="printf() function" data-startref="printf-octhex" id="idm45018728838248"/><a data-type="indexterm" data-primary="functions" data-secondary="printf()" data-startref="functions-printf-octhex" id="idm45018728837304"/><a data-type="indexterm" data-primary="scanf() function" data-startref="scanf-octhex" id="idm45018728836088"/><a data-type="indexterm" data-primary="functions" data-secondary="scanf()" data-startref="functions-scanf-octhex" id="idm45018728835144"/><a data-type="indexterm" data-primary="format specifiers" data-startref="format-specifier-octhex" id="idm45018728833928"/> this chapter.</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect2" data-pdf-bookmark="Bitwise Operators"><div class="sect2" id="smallerc-CHP-4-SECT-3.4">
+<h2>Bitwise Operators</h2>
+
+<p>Starting<a data-type="indexterm" data-primary="operators" data-secondary="bitwise" id="operators-bitwise"/><a data-type="indexterm" data-primary="bitwise operators" id="bitwise-operators"/> out on limited hardware like C did means occasionally working with data
+at the bit level quite apart from printing or reading in binary data. C supports
+this work with <em>bitwise operators</em>. These operators allow you to tweak individual
+bits inside <code>int</code> variables (or <code>char</code> or <code>long</code>, of course). We’ll see
+some fun uses of these features with the Arduino microcontroller in <a data-type="xref" href="ch10.xhtml#smallerc-CHP-10">Chapter 10</a>.</p>
+
+<p><a data-type="xref" href="#smallerc-CHP-4-TAB-bitwise-operators">Table 4-3</a> describes these operators and shows some
+examples that make use of the following two variables:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">a</code> <code class="o">=</code> <code class="mh">0xD</code><code class="p">;</code> <code class="c1">// 1101 in binary</code>
+<code class="kt">char</code> <code class="n">b</code> <code class="o">=</code> <code class="mh">0x7</code><code class="p">;</code> <code class="c1">// 0111 in binary</code></pre>
+<table id="smallerc-CHP-4-TAB-bitwise-operators">
+<caption><span class="label">Table 4-3. </span>Bitwise operators in C</caption>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Name</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>&amp;</p></td>
+<td><p>bitwise and</p></td>
+<td><p>Both bits must be 1 to yield a 1</p></td>
+<td><p>a &amp; b == 0101</p></td>
+</tr>
+<tr>
+<td><p>|</p></td>
+<td><p>bitwise or</p></td>
+<td><p>Either bit can be 1 to yield a 1</p></td>
+<td><p>a | b == 1111</p></td>
+</tr>
+<tr>
+<td><p>!</p></td>
+<td><p>bitwise not</p></td>
+<td><p>Yields the opposite of the input bit</p></td>
+<td><p>~a == 0010</p></td>
+</tr>
+<tr>
+<td><p>^</p></td>
+<td><p>bitwise xor</p></td>
+<td><p>eXclusive OR, bits that don’t match yield a 1</p></td>
+<td><p>a ^ b == 1010</p></td>
+</tr>
+<tr>
+<td><p>&lt;&lt;</p></td>
+<td><p>left shift</p></td>
+<td><p>Move bits to the left by a number of places</p></td>
+<td><p>a &lt;&lt; 3 == 0110 1000</p></td>
+</tr>
+<tr>
+<td><p>&gt;&gt;</p></td>
+<td><p>right shift</p></td>
+<td><p>Move bits to the right by a number of places</p></td>
+<td><p>b &gt;&gt; 2 == 0001</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>You can technically apply bitwise operators to any variable type to tweak
+particular bits. They are rarely used on floating point types, though. You
+usually pick an integral type that is big enough to hold however many individual
+bits you need. Because they are “editing” the bits of a given
+variable, you often see them used with compound assignment operators (<code>op=</code>).
+If you have five LEDs, for example, you could keep track of
+their on/off state with a single <code>char</code> type variable, as in this snippet:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">char</code> <code class="n">leds</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>  <code class="c1">// Start with everyone off, 0000 0000</code>
+
+<code class="n">leds</code> <code class="o">|=</code> <code class="mi">8</code><code class="p">;</code>    <code class="c1">// Turn on the 4th led from the right, 0000 1000</code>
+<code class="n">leds</code> <code class="o">^=</code> <code class="mh">0x1f</code><code class="p">;</code> <code class="c1">// Toggle all lights, 0001 0111</code>
+<code class="n">leds</code> <code class="o">&amp;=</code> <code class="mh">0x0f</code><code class="p">;</code> <code class="c1">// Turn off 5th led, leave others as is, 0000 0111</code></pre>
+
+<p>Five <code>int</code> or <code>char</code> values likely won’t make the difference
+in whether you can store or run a program on a microcontroller, even ones
+with only one or two kilobytes of memory, but
+those small storage needs do add up. If you’re tracking a panel of
+LEDs with hundreds or thousands of lights, it makes a difference how
+tightly you can store their state. One size rarely fits all, so
+remember your options and pick one that balances between ease of use
+and any resource constraints you <a data-type="indexterm" data-primary="operators" data-secondary="bitwise" data-startref="operators-bitwise" id="idm45018728700536"/><a data-type="indexterm" data-primary="bitwise operators" data-startref="bitwise-operators" id="idm45018728699288"/>have.</p>
+</div></section>
+
+
+
+
+
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Mixing Bits and Bytes"><div class="sect1" id="smallerc-CHP-4-SECT-4">
+<h1>Mixing Bits and Bytes</h1>
+
+<p>We <a data-type="indexterm" data-primary="bits, byte conversion" id="bit-byte-convert"/><a data-type="indexterm" data-primary="bytes, bit conversion" id="bytes-bits-convert"/><a data-type="indexterm" data-primary="base64 encoding" id="base64"/>now have enough elements of C under our belts to start writing some
+really interesting code. We can combine all of our previous discussions on
+bits, arrays, types, looping, and branching to tackle a popular way of
+encoding binary data in text. One format for transmitting binary data
+through networks of devices with potentially limited resources is to
+convert it to simple lines of text. This is known as “base64”
+encoding and is still used in things like inline email attachments for
+images. The 64 comes from the fact that this encoding uses 6-bit chunks,
+and 2 to the 6th power is 64. We use numbers, lowercase letters, uppercase
+letters, and other characters more or less arbitrarily chosen, typically
+the plus (<code>+</code>) and the forward slash (<code>/</code>).<sup><a data-type="noteref" id="idm45018728687848-marker" href="ch04.xhtml#idm45018728687848">3</a></sup></p>
+
+<p>For this encoding, values 0 through 25 are the uppercase letters A through Z.
+Values 26 through 51 are the lowercase letters a through z. Values 52 through
+61 are the digits 0 through 9, and finally, value 62 is the plus sign, and 63
+is the forward slash.</p>
+
+<p>But aren’t bytes 8 bits long? Yes, they are. That’s exactly where
+all of our recent topics come into play! We can use this new knowledge to change
+those 8-bit chunks into 6-bit chunks.</p>
+
+<p class="pagebreak-before less_space"><a data-type="xref" href="#smallerc-CHP-4-FIG-base64-text">Figure 4-3</a> shows a small example of converting three bytes
+into a string of base64 text. These happen to be the first few bytes of a
+valid JPEG file, but you could work on any source you like. This is a fairly trivial bit of binary
+data, of course, but it will validate our algorithm.</p>
+
+<figure><div id="smallerc-CHP-4-FIG-base64-text" class="figure">
+<img src="Images/smac_0403.png" alt="smac 0403" width="956" height="460"/>
+<h6><span class="label">Figure 4-3. </span>Going from 8-bit to 6-bit chunks with encoding</h6>
+</div></figure>
+
+<p>We have nine bytes total to encode in our example,
+but really we just want to take things three bytes at a time, like the
+illustration, and repeat. Sounds like a job for a loop! We could use any of our
+loops, but we’ll go with a <code>for</code> loop since we know where to start and
+end, and we can count up by threes. We’ll pull out three bytes from
+the source array into three variables, just for convenience of discussion.</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">source</code><code class="p">[</code><code class="mi">9</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="mh">0xd8</code><code class="p">,</code><code class="mh">0xff</code><code class="p">,</code><code class="mh">0xe0</code><code class="p">,</code><code class="mh">0xff</code><code class="p">,</code><code class="mh">0x10</code><code class="p">,</code><code class="mh">0x00</code><code class="p">,</code><code class="mh">0x46</code><code class="p">,</code><code class="mh">0x4a</code><code class="p">,</code><code class="mh">0x46</code> <code class="p">};</code>
+<code class="kt">char</code> <code class="n">buffer</code><code class="p">[</code><code class="mi">4</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code> <code class="p">};</code>
+
+<code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="mi">9</code><code class="p">;</code> <code class="n">i</code> <code class="o">+=</code> <code class="mi">3</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">byte1</code> <code class="o">=</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code><code class="p">];</code>
+  <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">byte2</code> <code class="o">=</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code> <code class="o">+</code> <code class="mi">1</code><code class="p">];</code>
+  <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">byte3</code> <code class="o">=</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code> <code class="o">+</code> <code class="mi">2</code><code class="p">];</code>
+  <code class="c1">// ...</code>
+<code class="p">}</code></pre>
+
+<p>The next big step is getting the four 6-bit chunks into our <code>buffer</code>. We
+can use our bitwise operators to grab what we need. Look back at
+<a data-type="xref" href="#smallerc-CHP-4-TAB-bitwise-operators">Table 4-3</a>. The leftmost six bits of <code>byte1</code>
+make up our first 6-bit chunk.
+In this case, we can just shift those six bits to the right two slots:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">buffer</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="o">=</code> <code class="n">byte1</code> <code class="o">&gt;&gt;</code> <code class="mi">2</code><code class="p">;</code></pre>
+
+<p>Neat! One down, three to go. The second 6-bit chunk, though, is a little
+messy because it uses the two remaining bits from <code>byte1</code> and four bits from
+<code>byte2</code>. There are several ways to do this, but we’ll process the bits
+in order and just break up the assignment to the next slot in <code>buffer</code> into
+two steps:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code>  </code><code class="n">buffer</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code><code> </code><code class="o">=</code><code> </code><code class="p">(</code><code class="n">byte1</code><code> </code><code class="o">&amp;</code><code> </code><code class="mh">0x03</code><code class="p">)</code><code> </code><code class="o">&lt;</code><code class="o">&lt;</code><code> </code><code class="mi">4</code><code class="p">;</code><code>   </code><a class="co" id="co_bits_and__many__bytes_CO1-1" href="#callout_bits_and__many__bytes_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a><code>
+  </code><code class="n">buffer</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code><code> </code><code class="o">|</code><code class="o">=</code><code> </code><code class="p">(</code><code class="n">byte2</code><code> </code><code class="o">&amp;</code><code> </code><code class="mh">0xf0</code><code class="p">)</code><code> </code><code class="o">&gt;</code><code class="o">&gt;</code><code> </code><code class="mi">4</code><code class="p">;</code><code>  </code><a class="co" id="co_bits_and__many__bytes_CO1-2" href="#callout_bits_and__many__bytes_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a></pre>
+<dl class="calloutlist">
+<dt><a class="co" id="callout_bits_and__many__bytes_CO1-1" href="#co_bits_and__many__bytes_CO1-1"><img src="Images/1.png" alt="1" width="12" height="12"/></a></dt>
+<dd><p>First, take the right two bits from <code>byte1</code> and scoot them to the left
+four spaces to make room for the rest of our 6-bit chunk.</p></dd>
+<dt><a class="co" id="callout_bits_and__many__bytes_CO1-2" href="#co_bits_and__many__bytes_CO1-2"><img src="Images/2.png" alt="2" width="12" height="12"/></a></dt>
+<dd><p>Now, take the left four bits from <code>byte2</code>, scoot them to the right four
+spaces, and put them into <code>buffer[1]</code> without disturbing the upper half of
+that variable.</p></dd>
+</dl>
+
+<p>Halfway there! We can do something very similar for the third 6-bit chunk:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">buffer</code><code class="p">[</code><code class="mi">2</code><code class="p">]</code> <code class="o">=</code> <code class="p">(</code><code class="n">byte2</code> <code class="o">&amp;</code> <code class="mh">0x0f</code><code class="p">)</code> <code class="o">&lt;&lt;</code> <code class="mi">2</code><code class="p">;</code>
+  <code class="n">buffer</code><code class="p">[</code><code class="mi">2</code><code class="p">]</code> <code class="o">|=</code> <code class="p">(</code><code class="n">byte3</code> <code class="o">&amp;</code> <code class="mh">0xc0</code><code class="p">)</code> <code class="o">&gt;&gt;</code> <code class="mi">6</code><code class="p">;</code></pre>
+
+<p>In this case, we take and scoot the right four bits of <code>byte2</code> and scoot them
+over two slots to make room for the left two bits of <code>byte3</code>. But like before,
+we have to scoot those two bits all the way to the right first.
+Our last 6-bit chunk is another easy one. We just want the right six bits of
+<code>byte4</code>, no scooting required:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="n">buffer</code><code class="p">[</code><code class="mi">3</code><code class="p">]</code> <code class="o">=</code> <code class="n">byte3</code> <code class="o">&amp;</code> <code class="mh">0x3f</code><code class="p">;</code></pre>
+
+<p>Hooray! We have successfully done the 3x8-bit to 4x6-bit conversion! Now we just need to print out each of the values in our <code>buffer</code> array. Sounds like another loop. And if you recall that we have five ranges for our base 64 “digits,” that calls for a conditional of some sort. We could list out all 64 cases in a <code>switch</code>, but that feels tedious. (It would be very self-documenting, at least.) An <code>if/else if</code> chain should do nicely. Inside any particular branch, we’ll do a little character math to get the correct value. As you read this next snippet, see if you can figure out how that character math is working its magic:</p>
+
+<pre data-type="programlisting" data-code-language="c">  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">b</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">b</code> <code class="o">&lt;</code> <code class="mi">4</code><code class="p">;</code> <code class="n">b</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">26</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// value 0 - 25, so uppercase letter</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="sc">'A'</code> <code class="o">+</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">52</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// value 26 - 51, so lowercase letter</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="sc">'a'</code> <code class="o">+</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">-</code> <code class="mi">26</code><code class="p">));</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">62</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// value 52 - 61, so a digit</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="sc">'0'</code> <code class="o">+</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">-</code> <code class="mi">52</code><code class="p">));</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">==</code> <code class="mi">62</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// our "+" case, no need for math, just print it</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"+"</code><code class="p">);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">==</code> <code class="mi">63</code><code class="p">)</code> <code class="p">{</code>
+      <code class="c1">// our "/" case, no need for math, just print it</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"/"</code><code class="p">);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+      <code class="c1">// Yikes! Error. We should never get here.</code>
+      <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n\n</code><code class="s"> Error! Bad 6-bit value: %c</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]);</code>
+    <code class="p">}</code>
+  <code class="p">}</code></pre>
+
+<p>Does the character math make sense? Since <code>char</code> is an integer type, you can
+“add” to characters. If we add one to the character <em>A</em>, we get
+<em>B</em>. Add two to <em>A</em> and we get <em>C</em>, etc. For the lowercase letters and the
+digits, we first have to realign our buffered value so it is in a range
+starting at zero. The last two cases are easy, since we have one value that
+maps directly to one character. Hopefully, we never hit our <code>else</code> clause, but that is exactly what those clauses are for. If we got something wrong, print out a warning!</p>
+
+<p>Whew! Those are some impressive moving parts. And if you want to build tiny
+devices that communicate with other tiny devices or the cloud, like a tiny
+security camera sending a picture to your phone, these are exactly the
+kind of moving parts you’ll bump into.</p>
+
+<p>Let’s assemble them in one listing
+(<a href="https://oreil.ly/Ibp52"><em>ch04/encode64.c</em></a>)
+with the other bits we need for a valid C program:</p>
+
+<pre data-type="programlisting" data-code-language="c"><code class="cp">#include &lt;stdio.h&gt;</code>
+
+<code class="kt">int</code> <code class="nf">main</code><code class="p">()</code> <code class="p">{</code>
+  <code class="c1">// Manually specify a few bytes to encode for now</code>
+  <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">source</code><code class="p">[</code><code class="mi">9</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="mh">0xd8</code><code class="p">,</code><code class="mh">0xff</code><code class="p">,</code><code class="mh">0xe0</code><code class="p">,</code><code class="mh">0xff</code><code class="p">,</code><code class="mh">0x10</code><code class="p">,</code><code class="mh">0x00</code><code class="p">,</code><code class="mh">0x46</code><code class="p">,</code><code class="mh">0x4a</code><code class="p">,</code><code class="mh">0x46</code> <code class="p">};</code>
+  <code class="kt">char</code> <code class="n">buffer</code><code class="p">[</code><code class="mi">4</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">0</code> <code class="p">};</code>
+
+  <code class="c1">// sizeof(char) == 1 byte, so the array's size in bytes is also its length</code>
+  <code class="kt">int</code> <code class="n">source_length</code> <code class="o">=</code> <code class="k">sizeof</code><code class="p">(</code><code class="n">source</code><code class="p">);</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="n">source_length</code><code class="p">;</code> <code class="n">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="n">printf</code><code class="p">(</code><code class="s">"0x%02x "</code><code class="p">,</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code><code class="p">]);</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"==&gt; "</code><code class="p">);</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">i</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">i</code> <code class="o">&lt;</code> <code class="n">source_length</code><code class="p">;</code> <code class="n">i</code> <code class="o">+=</code> <code class="mi">3</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">byte1</code> <code class="o">=</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code><code class="p">];</code>
+    <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">byte2</code> <code class="o">=</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code> <code class="o">+</code> <code class="mi">1</code><code class="p">];</code>
+    <code class="kt">unsigned</code> <code class="kt">char</code> <code class="n">byte3</code> <code class="o">=</code> <code class="n">source</code><code class="p">[</code><code class="n">i</code> <code class="o">+</code> <code class="mi">2</code><code class="p">];</code>
+
+    <code class="c1">// Now move the appropriate bits into our buffer</code>
+    <code class="n">buffer</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="o">=</code> <code class="n">byte1</code> <code class="o">&gt;&gt;</code> <code class="mi">2</code><code class="p">;</code>
+    <code class="n">buffer</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code> <code class="o">=</code> <code class="p">(</code><code class="n">byte1</code> <code class="o">&amp;</code> <code class="mh">0x03</code><code class="p">)</code> <code class="o">&lt;&lt;</code> <code class="mi">4</code><code class="p">;</code>
+    <code class="n">buffer</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code> <code class="o">|=</code> <code class="p">(</code><code class="n">byte2</code> <code class="o">&amp;</code> <code class="mh">0xf0</code><code class="p">)</code> <code class="o">&gt;&gt;</code> <code class="mi">4</code><code class="p">;</code>
+    <code class="n">buffer</code><code class="p">[</code><code class="mi">2</code><code class="p">]</code> <code class="o">=</code> <code class="p">(</code><code class="n">byte2</code> <code class="o">&amp;</code> <code class="mh">0x0f</code><code class="p">)</code> <code class="o">&lt;&lt;</code> <code class="mi">2</code><code class="p">;</code>
+    <code class="n">buffer</code><code class="p">[</code><code class="mi">2</code><code class="p">]</code> <code class="o">|=</code> <code class="p">(</code><code class="n">byte3</code> <code class="o">&amp;</code> <code class="mh">0xc0</code><code class="p">)</code> <code class="o">&gt;&gt;</code> <code class="mi">6</code><code class="p">;</code>
+    <code class="n">buffer</code><code class="p">[</code><code class="mi">3</code><code class="p">]</code> <code class="o">=</code> <code class="n">byte3</code> <code class="o">&amp;</code> <code class="mh">0x3f</code><code class="p">;</code>
+
+    <code class="k">for</code> <code class="p">(</code><code class="kt">int</code> <code class="n">b</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="n">b</code> <code class="o">&lt;</code> <code class="mi">4</code><code class="p">;</code> <code class="n">b</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+      <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">26</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// value 0 - 25, so uppercase letter</code>
+        <code class="n">printf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="sc">'A'</code> <code class="o">+</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]);</code>
+      <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">52</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// value 26 - 51, so lowercase letter</code>
+        <code class="n">printf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="sc">'a'</code> <code class="o">+</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">-</code> <code class="mi">26</code><code class="p">));</code>
+      <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">62</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// value 52 - 61, so a digit</code>
+        <code class="n">printf</code><code class="p">(</code><code class="s">"%c"</code><code class="p">,</code> <code class="sc">'0'</code> <code class="o">+</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">-</code> <code class="mi">52</code><code class="p">));</code>
+      <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">==</code> <code class="mi">62</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// our "+" case, no need for math, just print it</code>
+        <code class="n">printf</code><code class="p">(</code><code class="s">"+"</code><code class="p">);</code>
+      <code class="p">}</code> <code class="k">else</code> <code class="k">if</code> <code class="p">(</code><code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]</code> <code class="o">==</code> <code class="mi">63</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// our "/" case, no need for math, just print it</code>
+        <code class="n">printf</code><code class="p">(</code><code class="s">"/"</code><code class="p">);</code>
+      <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="c1">// Yikes! Error. We should never get here.</code>
+        <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n\n</code><code class="s"> Error! Bad 6-bit value: %c</code><code class="se">\n</code><code class="s">"</code><code class="p">,</code> <code class="n">buffer</code><code class="p">[</code><code class="n">b</code><code class="p">]);</code>
+      <code class="p">}</code>
+    <code class="p">}</code>
+  <code class="p">}</code>
+  <code class="n">printf</code><code class="p">(</code><code class="s">"</code><code class="se">\n</code><code class="s">"</code><code class="p">);</code>
+<code class="p">}</code></pre>
+
+<p>As always, I encourage you to type in the program yourself, making any
+adjustments you want or adding any comments to help you remember what
+you learned. You can also compile the <em>encode64.c</em> file and then run it.
+Here’s the output:</p>
+
+<pre data-type="programlisting">ch04$ gcc encode64.c
+ch04$ ./a.out
+0xd8 0xff 0xe0 0xff 0x10 0x00 0x46 0x4a 0x46  ==&gt; 2P/g/xAARkpG</pre>
+
+<p>Very, very cool. Congratulations, by the way! That is a nontrivial bit
+of code there. You should be proud. But if you want to really test your
+skills, try writing your own decoder to reverse this process. If
+you start with the output above, do you get the original<a data-type="indexterm" data-primary="bits, byte conversion" data-startref="bit-byte-convert" id="idm45018728170664"/><a data-type="indexterm" data-primary="bytes, bit conversion" data-startref="bytes-bits-convert" id="idm45018728169720"/><a data-type="indexterm" data-primary="base64 encoding" data-startref="base64" id="idm45018728168776"/> nine bytes?
+(You can check your answer against mine:
+<a href="https://oreil.ly/exGqM"><em>ch04/decode64.c</em></a>.)</p>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Conversion Answers"><div class="sect1" id="smallerc-CHP-4-SECT-5">
+<h1>Conversion Answers</h1>
+
+<p>Whether or not you tackle decoding the base64 encoded string, hopefully
+you tried converting the values in <a data-type="xref" href="#smallerc-CHP-4-TAB-conversion-homework">Table 4-2</a>
+yourself. You can compare your answers here. Or use the <em>rosetta.c</em> program!</p>
+<table id="smallerc-CHP-4-TAB-conversion-answers">
+<caption><span class="label">Table 4-4. </span>Base conversion answers</caption>
+<thead>
+<tr>
+<th>Decimal</th>
+<th>Binary</th>
+<th>Octal</th>
+<th>Hexadecimal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><p>14</p></td>
+<td><p>0000 1110</p></td>
+<td><p>016</p></td>
+<td><p>0E</p></td>
+</tr>
+<tr>
+<td><p>32</p></td>
+<td><p>0010 0000</p></td>
+<td><p>040</p></td>
+<td><p>20</p></td>
+</tr>
+<tr>
+<td><p>17</p></td>
+<td><p>0001 0001</p></td>
+<td><p>021</p></td>
+<td><p>11</p></td>
+</tr>
+<tr>
+<td><p>50</p></td>
+<td><p>0011 0010</p></td>
+<td><p>062</p></td>
+<td><p>32</p></td>
+</tr>
+<tr>
+<td><p>42</p></td>
+<td><p>0010 1010</p></td>
+<td><p>052</p></td>
+<td><p>2A</p></td>
+</tr>
+<tr>
+<td><p>35</p></td>
+<td><p>0001 0011</p></td>
+<td><p>023</p></td>
+<td><p>13</p></td>
+</tr>
+<tr>
+<td><p>167</p></td>
+<td><p>1010 0111</p></td>
+<td><p>247</p></td>
+<td><p>A7</p></td>
+</tr>
+<tr>
+<td><p>249</p></td>
+<td><p>1111 1001</p></td>
+<td><p>371</p></td>
+<td><p>F9</p></td>
+</tr>
+</tbody>
+</table>
+</div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section data-type="sect1" data-pdf-bookmark="Next Steps"><div class="sect1" id="smallerc-CHP-4-SECT-6">
+<h1>Next Steps</h1>
+
+<p>C’s support of simple arrays opens up a wide world of storage and
+retrieval options for just about any type of data. You do have to pay attention to the number of elements that you expect to use, but within those bounds, C’s arrays are quite efficient. And if you are only storing small, yes or no, on or off type values, C has several operators that make it possible to squeeze those values into the individual bits of a larger data type like an <code>int</code>. Modern desktops rarely require that much attention to detail, but some of our Arduino options in the latter half of this book care very much!</p>
+
+<p>So what’s next? Well, our programs are getting interesting enough that we’ll want to start breaking the logic up into manageable slices. Think about this book, for example. It is not made up of one, excessive run-on sentence. It is broken into chapters. Those chapters, in turn, are broken into sections. Those sections are broken into paragraphs. It is usually easier to discuss a single paragraph than it is an entire book. C allows you to perform this type of breakdown for your own logic. And once you have the logic in digestible blocks, you can use those blocks just like we have been doing with the <code>printf()</code> and <code>scanf()</code> functions. Let’s dive in!</p>
+</div></section>
+
+
+
+
+
+
+
+<div data-type="footnotes"><p data-type="footnote" id="idm45018730558248"><sup><a href="ch04.xhtml#idm45018730558248-marker">1</a></sup> Exactly how things go wrong may vary. Your operating system or version, compiler version, or even the conditions on your system at runtime can all affect the output. The point is to be careful not to overflow your arrays.</p><p data-type="footnote" id="idm45018730557384"><sup><a href="ch04.xhtml#idm45018730557384-marker">2</a></sup> The <code>gcc</code> <code>stack-protector</code> option can be used to detect some buffer overflows and abort the program before the overflow can be used maliciously. This is a compile-time flag that is off by default.</p><p data-type="footnote" id="idm45018728687848"><sup><a href="ch04.xhtml#idm45018728687848-marker">3</a></sup> As an example of an alternative pair of extra characters, the <em>base64url</em> variation uses a minus (“-”) and underscore (“_”).</p></div></div></section></div></body></html>
