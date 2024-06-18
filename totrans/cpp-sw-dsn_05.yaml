@@ -287,15 +287,18 @@
   id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 不是在派生类中实现虚`draw()`函数，而是引入另一个目的是绘制形状的类。在经典的面向对象形式的策略设计模式中，通过引入`DrawStrategy`基类来实现这一点（参见[图5-4](#fig_strategy_shape_2)）。
 - en: '![The UML representation of the _Strategy_ design pattern.](assets/cpsd_0504.png)'
   id: totrans-37
   prefs: []
   type: TYPE_IMG
+  zh: '![策略设计模式的UML表示](assets/cpsd_0504.png)'
 - en: Figure 5-4\. The UML representation of the *Strategy* design pattern
   id: totrans-38
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图5-4\. 策略设计模式的UML表示
 - en: The isolation of the drawing aspect now allows us to change the implementation
     of drawing without having to modify the shape classes. This fulfills the idea
     of the SRP. You are now also able to introduce new implementations of `draw()`
@@ -304,11 +307,13 @@
   id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在隔离绘图方面使得我们能够在不修改形状类的情况下更改绘制实现。这符合SRP的理念。现在，您还能够引入新的`draw()`实现而无需修改任何其他代码。这符合开闭原则（OCP）。在这个OO设置中，再次强调，SRP是OCP的实现者。
 - en: The following code snippet shows a naive implementation of the `DrawStrategy`
     base class:^([5](ch05.xhtml#idm45043109508880))
   id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 以下代码片段展示了`DrawStrategy`基类的简单实现：^([5](ch05.xhtml#idm45043109508880))
 - en: '[PRE3]'
   id: totrans-41
   prefs: []
@@ -321,6 +326,7 @@
   id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: '`DrawStrategy`类带有虚析构函数和两个纯虚`draw()`函数，一个用于圆形（[![5](assets/5.png)](#code_g19_5)）和一个用于正方形（[![6](assets/6.png)](#code_g19_6)）。为了使这个基类编译通过，你需要提前声明`Circle`和`Square`类。'
 - en: The `Shape` base class does not change due to the Strategy design pattern. It
     still represents an abstraction for all shapes and thus offers a pure virtual
     `draw()` member function. Strategy aims at extracting implementation details and
@@ -328,6 +334,7 @@
   id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于策略设计模式，`Shape`基类没有变化。它仍然代表所有形状的抽象，并因此提供了一个纯虚的`draw()`成员函数。策略旨在提取实现细节，因此仅影响派生类：^([6](ch05.xhtml#idm45043109417808))
 - en: '[PRE4]'
   id: totrans-44
   prefs: []
@@ -338,6 +345,7 @@
   id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然由于策略模式，`Shape`基类没有变化，但`Circle`和`Square`类受到影响：
 - en: '[PRE5]'
   id: totrans-46
   prefs: []
@@ -355,11 +363,13 @@
   id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Circle`和`Square`现在在它们的构造函数中期望一个`unique_ptr`指向一个`DrawStrategy`（[![7](assets/7.png)](#code_g19_7)）。这使得我们可以从外部配置绘图行为，通常称为*依赖注入*。`unique_ptr`被移动到同类型的新数据成员中（[![8](assets/8.png)](#code_g19_8)）。还可以提供相应的设置函数，允许稍后更改绘图行为。现在，`draw()`成员函数不必自己实现绘图，而只需调用给定`DrawStrategy`的`draw()`函数（[![10](assets/10.png)](#code_g19_10)）。^([7](ch05.xhtml#idm45043108959024))'
 - en: Analyzing the Shortcomings of the Naive Solution
   id: totrans-48
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析简单解决方案的缺点
 - en: 'Wonderful! With this implementation in place, you are now able to locally,
     in isolation, change the behavior of how shapes are drawn, and you enable everyone
     to implement the new drawing behavior. However, as it is right now, our Strategy
@@ -431,12 +441,14 @@
   id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 对于`Circle`类，您必须引入`DrawCircleStrategy`基类（[![11](assets/11.png)](#code_g19_11)），对于`Square`类，则是`DrawSquareStrategy`基类（[![12](assets/12.png)](#code_g19_12)）。随着`Triangle`类的添加，您还必须添加`DrawTriangleStrategy`基类。只有这样，您才能正确地分离关注点，并仍然允许每个人为形状的绘制添加新类型和新实现。
 - en: 'With this functionality in place, you can easily implement new Strategy classes
     for drawing circles, squares, and eventually triangles. As an example, consider
     the `OpenGLCircleStrategy`, which implements the `DrawCircleStrategy` interface:'
   id: totrans-56
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个功能，您可以轻松实现新的策略类来绘制圆形、正方形，以及最终三角形。例如，考虑实现`DrawCircleStrategy`接口的`OpenGLCircleStrategy`：
 - en: '[PRE7]'
   id: totrans-57
   prefs: []
@@ -454,12 +466,14 @@
   id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[图5-5](#fig_strategy_dependency_graph)中，您可以看到`Circle`类的依赖图。请注意，`Circle`和`DrawCircleStrategy`类位于相同的架构层级上。更值得注意的是它们之间的循环依赖：`Circle`依赖于`DrawCircleStrategy`，但`DrawCircleStrategy`也依赖于`Circle`。但不要担心：尽管乍看起来可能会有问题，但事实并非如此。这是一种必要的关系，显示了`Circle`确实拥有`DrawCircleStrategy`，从而创建了所需的依赖倒置，正如在[“准则9：注意抽象的所有权”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)中讨论的那样。
 - en: “Wouldn’t it be possible to implement the different draw Strategy classes using
     a class template? I’m imagining something similar to the Visitor class used for
     the Acyclic Visitor”:^([8](ch05.xhtml#idm45043108775712))
   id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: “是否可能使用类模板来实现不同的绘制策略类？我想象中的情况类似于非循环访问者使用的访问者类”:^([8](ch05.xhtml#idm45043108775712))
 - en: '[PRE8]'
   id: totrans-60
   prefs: []
@@ -469,11 +483,13 @@
   id: totrans-61
   prefs: []
   type: TYPE_IMG
+  zh: '![策略设计模式的依赖图](assets/cpsd_0505.png)'
 - en: Figure 5-5\. Dependency graph for the *Strategy* design pattern
   id: totrans-62
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图5-5\. *策略*设计模式的依赖图
 - en: This is a great idea and exactly what you should do. By means of this class
     template, you can lift the `DrawStrategy` up into a higher architectural level,
     reuse code, and follow the DRY principle (see [Figure 5-6](#fig_strategy_dependency_graph_2)).
@@ -483,6 +499,7 @@
   id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是一个很好的想法，也是您应该采取的方法。通过这个类模板，您可以将`DrawStrategy`提升到更高的架构层级，重用代码，并遵循DRY原则（参见[图5-6](#fig_strategy_dependency_graph_2)）。此外，如果从一开始就采用了这种方法，我们就不会陷入人为耦合不同形状类型的陷阱。是的，我真的很喜欢这个！
 - en: 'Although this is how we would implement such a Strategy class, you still should
     not expect that this will reduce the number of base classes (it’s still the same,
     just generated) or that it will save you a lot of work. The implementations of
@@ -491,6 +508,7 @@
   id: totrans-64
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管这是我们实现此类策略类的方式，但您仍不应期望这将减少基类的数量（仍然是相同的数量，只是生成的）或者它会为您节省大量工作。`DrawStrategy`的实现，如`OpenGLCircleStrategy`类，代表了大部分工作，并且几乎不会改变：
 - en: '[PRE9]'
   id: totrans-65
   prefs: []
@@ -500,17 +518,20 @@
   id: totrans-66
   prefs: []
   type: TYPE_IMG
+  zh: '![策略设计模式的更新依赖图](assets/cpsd_0506.png)'
 - en: Figure 5-6\. Updated dependency graph for the *Strategy* design pattern
   id: totrans-67
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图5-6\. *策略*设计模式的更新依赖图
 - en: 'Assuming a similar implementation for the `OpenGLSquareStrategy`, we can now
     put everything together and draw shapes again but this time properly decoupled
     with the Strategy design pattern:'
   id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设对于`OpenGLSquareStrategy`的类似实现，现在我们可以将所有内容整合在一起，并再次绘制形状，但这次使用了策略设计模式进行适当解耦：
 - en: '[PRE10]'
   id: totrans-69
   prefs: []
@@ -521,6 +542,7 @@
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 访问者和策略的比较
 - en: As you have now learned about both the Visitor and Strategy design patterns,
     you might wonder what the difference between the two is. After all, the implementation
     looks fairly similar. But while there are parallels in implementation, the properties
@@ -841,11 +863,13 @@
   id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 到了这一点，你可能会有这样的印象，即我试图完全贬低继承。嗯，老实说，我确实试图让它看起来有点不好，但只要有必要。明确地说：继承不是坏事，使用它也不是错的。相反，继承是一个非常强大的特性，如果正确使用，你可以做出令人难以置信的事情。然而，当然，你记得彼得·帕克原则：
 - en: With great power comes great responsibility.
   id: totrans-105
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 伴随强大的力量而来的是巨大的责任。
 - en: ''
   id: totrans-106
   prefs:
@@ -856,6 +880,7 @@
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 彼得·帕克，又名蜘蛛侠
 - en: The problem is the “if used properly” part. Inheritance has proven to be hard
     to use properly (definitely harder than we are led to believe; see my previous
     reasonings), and thus is misused unintentionally. It is also overused, as many
@@ -864,6 +889,7 @@
   id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 问题在于“如果正确使用”部分。继承已被证明很难正确使用（绝对比我们被引导相信的要难；见我的先前推理），因此不经意地被误用。它也被过度使用，因为许多开发人员有将其用于各种问题的习惯。
 - en: '[Programming by difference]^([16](ch05.xhtml#idm45043106558560)) fell out of
     favor in the 1990s when many people in the OO community noticed that inheritance
     can be rather problematic if it is overused.'
@@ -871,6 +897,7 @@
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: '[差异化编程](https://wiki.example.org/programming_by_difference)在20世纪90年代失宠了，当时OO社区的许多人注意到，如果过度使用继承，可能会带来很多问题。'
 - en: In many situations, inheritance is neither the right approach nor the right
     tool. Most of the time it is preferable to use composition instead. You should
     not be surprised by that revelation, though, because you have already seen it
@@ -884,11 +911,13 @@
   id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 在许多情况下，继承既不是正确的方法，也不是正确的工具。大多数时候，最好使用组合而不是继承。尽管如此，你不应该对此感到惊讶，因为你已经看到它是正确的。组合是OO形式的策略设计模式如此成功的原因，而不是继承。策略设计模式之所以如此强大，是因为引入了抽象和相关数据成员的聚合，而不是基于继承的实现不同策略。实际上，你会发现许多设计模式都坚定地基于组合，而不是继承。所有这些都通过继承实现扩展，但它们本身是通过组合实现的。
 - en: 'Delegate to Services: Has-A Trumps Is-A.'
   id: totrans-111
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 委托给服务：拥有-优于-是。
 - en: ''
   id: totrans-112
   prefs:
@@ -899,6 +928,7 @@
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: Andrew Hunt 和 David Thomas，《实用程序员》
 - en: This is a general takeaway for many design patterns. I suggest you keep this
     insight close at hand, as it will prove very useful in understanding the design
     patterns that you will see in the remainder of this book, and will improve the
@@ -906,11 +936,13 @@
   id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 这是许多设计模式的普遍启示。我建议你紧握这一洞察力，因为它将在理解本书其余部分中所见的设计模式时非常有用，并且将提高你的实现质量。
 - en: 'Guideline 21: Use Command to Isolate What Things Are Done'
   id: totrans-115
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指导原则21：使用命令隔离所做的事情
 - en: 'Before we get started with this guideline, let’s try an experiment. Open your
     preferred email client and write an email to me. Add the following content: “I
     love your book! It keeps me up all night and makes me forget all my troubles.”
@@ -1883,11 +1915,14 @@
   id: totrans-228
   prefs: []
   type: TYPE_NORMAL
+  zh: 在语义上，这相当于指针方法，但我们不付出动态内存分配的代价，也不必处理生命周期管理。^([35](ch05.xhtml#idm45043102922992))
+    这种解决方案在语义上清晰、易理解且高效。
 - en: Prefer to Use Value Semantics to Implement Design Patterns
   id: totrans-229
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 偏爱使用值语义来实现设计模式。
 - en: '“And what about design patterns?” you ask. “Almost all GoF patterns are based
     on inheritance hierarchies and therefore reference semantics. How should we deal
     with this?” That is an excellent question. And it provides us with a perfect bridge
@@ -1897,11 +1932,13 @@
   id: totrans-230
   prefs: []
   type: TYPE_NORMAL
+  zh: “那设计模式呢？”你问道。“几乎所有GoF模式都基于继承层次结构，因此使用引用语义。我们应该如何处理这个问题？”这是一个很好的问题。它为我们提供了一个完美的过渡到下一个指南。简短地回答：您应该优先使用值语义解决方案来实现设计模式。是的，认真的！这些解决方案通常会导致更全面、可维护的代码，而且（通常）性能更好。
 - en: 'Guideline 23: Prefer a Value-Based Implementation of Strategy and Command'
   id: totrans-231
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 23：偏爱基于值的策略和命令实现。
 - en: 'In [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done),
     I introduced you to the Strategy design pattern, and in [“Guideline 21: Use Command
     to Isolate What Things Are Done”](#use_commands_to_isolate_what_things_are_done),
@@ -1915,11 +1952,15 @@
   id: totrans-232
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 19：使用策略隔离操作的方式”](#use_strategy_to_isolate_how_things_are_done)中，我向您介绍了策略设计模式，在[“指南
+    21：使用命令隔离所做的操作”](#use_commands_to_isolate_what_things_are_done)中，我向您介绍了命令设计模式。我展示了这两种设计模式是您日常工具箱中必不可少的解耦工具。然而，在[“指南
+    22：偏爱值语义而非引用语义”](#prefer_value_semantics_to_reference_semantics)中，我向您提出了使用值语义而非引用语义的建议。当然，这引发了一个问题：您如何将这一智慧应用于策略和命令设计模式？好吧，这里有一个可能的值语义解决方案：利用`std::function`的抽象能力。
 - en: Introduction to std::function
   id: totrans-233
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: std::function简介
 - en: 'In case you have not yet heard about `std::function`, allow me to introduce
     you. `std::function` represents an abstraction for a callable (e.g., a function
     pointer, function object, or lambda). The only requirement is that the callable
@@ -1928,6 +1969,7 @@
   id: totrans-234
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你还没有听说过`std::function`，请允许我向您介绍。`std::function`代表了一个可调用对象（例如函数指针、函数对象或lambda表达式）的抽象。唯一的要求是可调用对象满足特定的函数类型，这个函数类型作为唯一的模板参数传递给`std::function`。以下代码给出了一个印象：
 - en: '[PRE43]'
   id: totrans-235
   prefs: []
@@ -1944,6 +1986,8 @@
   id: totrans-236
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`main()`函数中，我们创建了一个`std::function`的实例，称为`f` ([![1](assets/1.png)](#code_g23_1))。模板参数指定所需的函数类型。在我们的例子中，这是`void(int)`。“函数类型……”你说。“你难道不是指函数
+    *指针* 类型吗？”嗯，因为这确实是你可能很少见到的东西，让我解释一下函数类型是什么，与你可能更常见的函数指针进行对比。以下示例同时使用了函数类型和函数指针类型：
 - en: '[PRE44]'
   id: totrans-237
   prefs: []
@@ -1962,6 +2006,10 @@
   id: totrans-238
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一行显示一个函数类型。这种类型表示*任何*接受`double`并返回`double`的函数。这种函数类型的例子包括对应的 [`std::sin`](https://oreil.ly/1n7fa)，[`std::cos`](https://oreil.ly/LuGeK)，[`std::log`](https://oreil.ly/ZBNt3)，或
+    [`std::sqrt`](https://oreil.ly/V1XOS) 的重载。第二行显示一个函数指针类型。注意括号中的小星号—它使它成为指针类型。这种类型表示函数类型
+    `FunctionType` 的一个函数的地址。因此，函数类型和函数指针类型之间的关系非常类似于 `int` 和指向 `int` 的指针之间的关系：虽然有很多
+    `int` 值，但指向 `int` 的指针存储的是确切一个 `int` 的地址。
 - en: 'Back to the `std::function` example: initially, the instance is empty, therefore
     you cannot call it. If you still try to do so, the `std::function` instance will
     throw the `std::bad_function_call` exception at you. Better not provoke it. Let’s
@@ -1972,6 +2020,8 @@
   id: totrans-239
   prefs: []
   type: TYPE_NORMAL
+  zh: 回到`std::function`的例子：最初，实例是空的，因此无法调用它。如果你仍然尝试调用，`std::function`实例将抛出`std::bad_function_call`异常。最好不要挑衅它。让我们更好地为其分配一些满足函数类型要求的可调用对象，例如一个（可能是有状态的）lambda（[![2](assets/2.png)](#code_g23_2)）。该
+    lambda 接受一个`int`，不返回任何东西。相反，它通过描述性输出消息打印出已被调用的信息（[![3](assets/3.png)](#code_g23_3)）：
 - en: '[PRE45]'
   id: totrans-240
   prefs: []
@@ -1987,6 +2037,7 @@
   id: totrans-241
   prefs: []
   type: TYPE_NORMAL
+  zh: 好的，这个工作得很好。让我们尝试其他事情：现在我们通过`f`创建另一个`std::function`实例`g`（[![4](assets/4.png)](#code_g23_4)）。然后我们将另一个可调用对象分配给`f`（[![5](assets/5.png)](#code_g23_5)）。这次，我们分配一个指向函数`foo()`的指针。再次，这个可调用对象满足`std::function`实例的要求：它接受一个`int`并返回空。在赋值后，直接调用`f`并传入整数`2`，触发预期的输出（[![6](assets/6.png)](#code_g23_6)）。
 - en: '[PRE46]'
   id: totrans-242
   prefs: []
@@ -1998,6 +2049,7 @@
   id: totrans-243
   prefs: []
   type: TYPE_NORMAL
+  zh: 这可能是一个容易的例子。然而，下一个函数调用就有趣多了。如果你使用整数`3`调用`g`（[![7](assets/7.png)](#code_g23_7)），输出表明`std::function`坚定地基于值语义：
 - en: '[PRE47]'
   id: totrans-244
   prefs: []
@@ -2013,6 +2065,8 @@
   id: totrans-245
   prefs: []
   type: TYPE_NORMAL
+  zh: 在初始化`g`时，实例`f`被复制了。它被复制为应当复制的值：并不执行“浅复制”，即在后续更改`f`时影响`g`，而是执行完全复制（深复制），包括 lambda
+    的复制。^([36](ch05.xhtml#idm45043102297200)) 因此，更改`f`不会影响`g`。这就是值语义的好处：代码简单直观，你不必担心无意中在其他地方破坏了什么。
 - en: 'At this point, the functionality of `std::function` may feel a little like
     magic: how is it possible that the `std::function` instance can take any kind
     of callable, including things like lambdas? How can it store any possible type,
@@ -2023,11 +2077,14 @@
   id: totrans-246
   prefs: []
   type: TYPE_NORMAL
+  zh: 此时，`std::function`的功能可能感觉有点像魔法：`std::function`实例如何能接受任何类型的可调用对象，包括像 lambda 这样的东西？它如何存储任何可能的类型，即使它不能知道这些类型，而这些类型显然没有任何共同之处？别担心：在[第
+    8 章](ch08.xhtml#type_erasure)中，我将为你介绍一种称为*类型擦除*的技术，这是`std::function`背后的魔法。
 - en: Refactoring the Drawing of Shapes
   id: totrans-247
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 重构形状的绘制
 - en: '`std::function` provides everything we need to refactor our shape-drawing example
     from [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done):
     it represents the abstraction of a single callable, which is pretty much exactly
@@ -2037,6 +2094,7 @@
   id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::function` 提供了重构我们的形状绘制示例的一切需要，来自于[“指导原则 19：使用策略隔离事务的执行方式”](#use_strategy_to_isolate_how_things_are_done)：它表示单个可调用对象的抽象，这正是我们需要替换`DrawCircleStrategy`和`DrawSquareStrategy`层次结构的东西，每个都包含一个虚函数。因此，我们依赖于`std::function`的抽象能力：'
 - en: '[PRE48]'
   id: totrans-249
   prefs: []
@@ -2055,6 +2113,7 @@
   id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，在`Circle`类中，我们为`std::function`的预期类型添加了一个类型别名([![8](assets/8.png)](#code_g23_8))。这个`std::function`类型代表任何可调用对象，它可以接受一个`Circle`以及可能还有其他几个与绘图相关的参数，并且不返回任何内容。当然，在`Square`类中我们也添加了相应的类型别名([![9](assets/9.png)](#code_g23_9))。在`Circle`和`Square`的构造函数中，我们现在接受一个`std::function`类型的实例([![10](assets/10.png)](#code_g23_10))，作为替换指向策略基类的指针（`DrawCircleStrategy`或`DrawSquareStrategy`）。这个实例立即被移动([![11](assets/11.png)](#code_g23_11))到`drawer_`数据成员中，它也是`DrawStrategy`类型的([![12](assets/12.png)](#code_g23_12))。
 - en: '“Hey, why are you taking the `std::function` instance by value? Isn’t that
     terribly inefficient? Shouldn’t we prefer to pass by reference-to-`const`?” In
     short: no, passing by value is not inefficient, but an elegant compromise to the
@@ -2063,6 +2122,7 @@
   id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: “嘿，为什么你通过值来接受`std::function`实例？这不是非常低效吗？我们难道不应该优先通过引用传递到`const`吗？”简而言之：不，通过值传递并不低效，而是一种优雅的折中方案。尽管我承认，这可能令人惊讶。由于这绝对是值得注意的实现细节，让我们更仔细地看一看。
 - en: 'If we used a reference-to-`const`, we would experience the disadvantage that
     *rvalues* would be unnecessarily copied. If we were passed an rvalue, this rvalue
     would bind to the (*lvalue*) reference-to-`const`. However, when passing this
@@ -2076,6 +2136,7 @@
   id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果我们使用了对`const`的引用，我们将会遇到*rvalues*不必要被复制的缺点。如果我们传递的是右值，该右值将绑定到对`const`的引用。然而，当将这个对`const`的引用传递给数据成员时，它将被复制。这并不是我们的意图：我们自然希望它被移动。简单的原因是，我们无法从`const`对象中移动（即使使用`std::move`）。因此，为了有效处理右值，我们需要为`Circle`和`Square`的构造函数提供接受`DrawStrategy`的右值引用（`DrawStrategy&&`）的重载。出于性能考虑，我们将为`Circle`和`Square`都提供两个构造函数。^([37](ch05.xhtml#idm45043101840800))
 - en: 'The approach to provide two constructors (one for lvalues, one for rvalues)
     does work and is efficient, but I would not necessarily call it elegant. Also,
     we should probably save our colleagues the trouble of having to deal with that.^([38](ch05.xhtml#idm45043101839408))
@@ -2093,6 +2154,8 @@
   id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: 提供两个构造函数的方法（一个用于左值，一个用于右值）确实有效且高效，但我不一定会称其为优雅。此外，我们可能应该避免同事们必须处理这个问题。^([38](ch05.xhtml#idm45043101839408))
+    因此，我们利用了`std::function`的实现。`std::function`提供了复制构造函数和移动构造函数，因此我们知道它可以高效地移动。当我们按值传递`std::function`时，将调用复制构造函数或移动构造函数。如果我们传递的是左值，则调用复制构造函数，复制该左值。然后我们将该副本移动到数据成员中。总之，我们将执行一次复制和一次移动来初始化`drawer_`数据成员。如果我们传递的是右值，则调用移动构造函数，移动该右值。然后将结果参数`strategy`移动到数据成员`drawer_`中。总之，我们将执行两次移动操作来初始化`drawer_`数据成员。因此，这种形式代表了一个很好的折衷：它既优雅，又在效率上几乎没有区别。
 - en: 'Once we’ve refactored the `Circle` and `Square` classes, we can implement different
     drawing strategies in any form we like (in the form of a function, a function
     object, or a lambda). For instance, we can implement the following `OpenGLCircleStrategy`
@@ -2100,6 +2163,7 @@
   id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦我们重构了`Circle`和`Square`类，我们可以以任何形式实现不同的绘制策略（函数、函数对象或lambda表达式）。例如，我们可以将以下`OpenGLCircleStrategy`实现为函数对象：
 - en: '[PRE49]'
   id: totrans-255
   prefs: []
@@ -2112,12 +2176,15 @@
   id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们唯一需要遵循的约定是，我们需要提供一个调用运算符，该运算符接受一个`Circle`和可能还有几个与绘制相关的参数，并且不返回任何内容（满足函数类型`void(Circle
+    const&, /*…*/)`）([![13](assets/13.png)](#code_g23_13))。
 - en: 'Assuming a similar implementation for an `OpenGLSquareStrategy`, we can now
     create different kinds of shapes, configure them with the desired drawing behavior,
     and finally draw them:'
   id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设我们为`OpenGLSquareStrategy`实现了类似的方法，现在我们可以创建不同类型的形状，配置它们所需的绘制行为，最终绘制它们：
 - en: '[PRE50]'
   id: totrans-258
   prefs: []
@@ -2136,20 +2203,26 @@
   id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: '`main()` 函数与使用经典策略实现的原始实现非常相似（参见“指导原则 19：使用策略隔离如何完成事情”）。然而，这种非侵入式、无基类的 `std::function`
+    方法进一步减少了耦合。这在该解决方案的依赖图中变得明显（参见[图 5-9](#fig_function_dependency_graph)）：我们可以以任何形式实现绘图功能（作为自由函数、函数对象或
+    lambda），而不必遵守基类的要求。此外，通过 `std::function`，我们自动反转了依赖关系（参见“指导原则 9：注意抽象的所有权”）。'
 - en: '![Dependency graph for the +std::function+ solution.](assets/cpsd_0509.png)'
   id: totrans-260
   prefs: []
   type: TYPE_IMG
+  zh: '![`std::function` 解决方案的依赖图。](assets/cpsd_0509.png)'
 - en: Figure 5-9\. Dependency graph for the `std::function` solution
   id: totrans-261
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 5-9\. `std::function` 解决方案的依赖图
 - en: Performance Benchmarks
   id: totrans-262
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 性能基准
 - en: '“I like the flexibility, the freedom. This is great! But what about performance?”
     Yes, spoken like a true C++ developer. Of course performance is important. Before
     showing you the performance results, though, let me remind you of the benchmark
@@ -2164,40 +2237,55 @@
   id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: “我喜欢这种灵活性，这种自由。这太棒了！但性能如何？” 是的，说得像一个真正的 C++ 开发者。当然性能很重要。在展示性能结果之前，让我提醒你一下我们用来获取
+    [表 4-2](ch04.xhtml#table_cyclic_visitor_benchmark_results) 中数字的基准场景，这也是我们用来获取“指导原则
+    16：使用访问者扩展操作”中的数字的基准场景。对于基准测试，我实现了四种不同类型的形状（圆形、正方形、椭圆和矩形）。再次运行 25,000 次转换操作，对
+    10,000 个随机创建的形状进行操作。我同时使用 GCC 11.1 和 Clang 11.1，对于两个编译器，我只添加了 `-O3` 和 `-DNDEBUG`
+    编译标志。我使用的平台是 macOS Big Sur（版本 11.4），配备 8 核 Intel Core i7 处理器，主频 3.8 GHz，64 GB
+    主内存。
 - en: With this information in mind, you are ready for the performance results. [Table 5-1](#table_strategy_benchmark_results)
     shows the performance numbers for the Strategy-based implementation of the drawing
     example and the resulting solution using `std::function`.
   id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这些信息，你就准备好看性能结果了。[表 5-1](#table_strategy_benchmark_results) 展示了基于策略的绘图示例实现和使用
+    `std::function` 的结果解决方案的性能数据。
 - en: Table 5-1\. Performance results for different *Strategy* implementations
   id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 5-1\. 不同*策略*实现的性能结果
 - en: '| Strategy implementations | GCC 11.1 | Clang 11.1 |'
   id: totrans-266
   prefs: []
   type: TYPE_TB
+  zh: '| 策略实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
   id: totrans-267
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
   id: totrans-268
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象的解决方案 | 1.5205 秒 | 1.1480 秒 |'
 - en: '| `std::function` | 2.1782 s | 1.4884 s |'
   id: totrans-269
   prefs: []
   type: TYPE_TB
+  zh: '| `std::function` | 2.1782 秒 | 1.4884 秒 |'
 - en: '| Manual implementation of `std::function` | 1.6354 s | 1.4465 s |'
   id: totrans-270
   prefs: []
   type: TYPE_TB
+  zh: '| 手动实现 `std::function` | 1.6354 秒 | 1.4465 秒 |'
 - en: '| Classic Strategy | 1.6372 s | 1.4046 s |'
   id: totrans-271
   prefs: []
   type: TYPE_TB
+  zh: '| 经典策略 | 1.6372 秒 | 1.4046 秒 |'
 - en: 'For reference purposes, the first line shows the performance of the object-oriented
     solution from [“Guideline 15: Design for the Addition of Types or Operations”](ch04.xhtml#design_for_the_addition_of_types_or_operations).
     As you can see, this solution gives the best performance. This is not unexpected,
@@ -2206,6 +2294,7 @@
   id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: 供参考，第一行显示了来自“指导原则 15：为类型或操作的添加设计”中的面向对象解决方案的性能。正如你所见，这个解决方案提供了最佳性能。然而，这并不意外：由于策略设计模式，无论实际实现如何，都会引入额外的开销，因此性能预计会降低。
 - en: What is not expected, though, is that the `std::function` implementation incurs
     a performance overhead (even a significant one in case of GCC). But wait, before
     you throw this approach into your mental trash can, consider the third line. It
@@ -2220,11 +2309,16 @@
   id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，让人意外的是，`std::function` 实现会产生性能开销（即使在 GCC 中可能相当大）。但在您将这种方法抛弃之前，请先考虑第三行。它展示了使用类型擦除手动实现
+    `std::function` 的技术，在[第 8 章](ch08.xhtml#type_erasure)中我将详细解释这一技术。事实上，这种实现的性能要好得多，事实上与经典的策略设计模式实现相当（对于
+    Clang 来说几乎一样好，参见第四行）。这个结果表明问题不在于值语义，而是在于 `std::function` 的具体实现细节。^[39](ch05.xhtml#idm45043101384208)
+    总之，就性能而言，值语义方法不比经典方法差，反而如前所述，它改善了代码的许多重要方面。
 - en: Analyzing the Shortcomings of the std::function Solution
   id: totrans-274
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析 `std::function` 解决方案的缺点
 - en: 'Overall, the `std::function` implementation of the Strategy design pattern
     provides a number of benefits. First, your code gets cleaner and more readable
     since you don’t have to deal with pointers and the associated lifetime management
@@ -2238,6 +2332,9 @@
   id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: 总体而言，`std::function` 实现的策略设计模式提供了许多好处。首先，您的代码变得更清晰、更易读，因为您不必处理指针及其相关的生命周期管理（例如，使用
+    `std::unique_ptr`），也不会遇到与引用语义相关的常见问题（参见[“指南 22：优先选择值语义而不是引用语义”](#prefer_value_semantics_to_reference_semantics)）。其次，它促进了松散耦合。实际上是非常松散的耦合。在这种情况下，`std::function`
+    就像一个编译防火墙，保护您免受不同策略实现的具体细节影响，同时为开发人员提供了在如何实现不同策略解决方案方面的巨大灵活性。
 - en: Despite these upsides, no solution comes without downsides—even the `std::function`
     approach has its disadvantages. I have already pointed out the potential performance
     disadvantage if you rely on the standard implementation. While there are solutions
@@ -2246,6 +2343,8 @@
   id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管有这些优点，没有一种解决方案是没有缺点的 —— 即使 `std::function` 方法也有其劣势。我已经指出了如果依赖标准实现可能存在的性能劣势。虽然有方法可以最小化这种影响（参见[第
+    8 章](ch08.xhtml#type_erasure)），但这仍然是您在代码库中需要考虑的问题。
 - en: 'There is also a design-related issue. `std::function` can replace only a single
     virtual function. If you need to abstract multiple virtual functions, which could
     occur if you want to configure multiple aspects using the Strategy design pattern,
@@ -2262,6 +2361,7 @@
   id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: 还有一个与设计相关的问题。`std::function`只能替换一个虚函数。如果你需要抽象多个虚函数，比如你想使用策略设计模式配置多个方面，或者在命令设计模式中需要一个`undo()`函数，你将需要使用多个`std::function`实例。这不仅会因为多个数据成员而增加类的大小，还会因为如何优雅地处理传递多个`std::function`实例的问题而带来接口负担。因此，对于替换单个或非常少量虚函数，`std::function`方法是最佳选择。但这并不意味着你不能为多个虚函数使用值语义方法：如果遇到这种情况，请考虑通过将直接应用于你的类型的`std::function`技术来泛化该方法。我将在[第8章](ch08.xhtml#type_erasure)中解释如何做到这一点。
 - en: Despite these shortcomings, the value semantics approach proves to be a terrific
     choice for the Strategy design pattern. The same is true for the Command design
     pattern. Therefore, keep this guideline in mind as an essential step towards modern
@@ -2269,10 +2369,12 @@
   id: totrans-278
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管存在这些缺点，值语义方法仍然是策略设计模式的一个绝佳选择。命令设计模式也是如此。因此，请将这个准则牢记，作为迈向现代C++的重要步骤。
 - en: '^([1](ch05.xhtml#idm45043109967248-marker)) See [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change).'
   id: totrans-279
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch05.xhtml#idm45043109967248-marker)) 参见[“准则 2：为变更设计”](ch01.xhtml#design_for_change)。
 - en: '^([2](ch05.xhtml#idm45043109965312-marker)) You may correctly argue that there
     are multiple solutions for this problem: you could have one source file per graphics
     library, you could rely on the preprocessor by sprinkling a couple of `#ifdef`s
@@ -2284,16 +2386,19 @@
   id: totrans-280
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch05.xhtml#idm45043109965312-marker)) 你可能会正确地认为，对于这个问题有多种解决方案：你可以为每个图形库有一个源文件，你可以在代码中加入一些`#ifdef`来依赖预处理器，或者你可以在图形库周围实现一个抽象层。前两个选项感觉像是对有缺陷设计的技术性变通。然而，后一种选择是我将提出的一个合理的替代解决方案。这是一个基于*Facade*设计模式的解决方案，不幸的是，我在本书中没有涵盖这个模式。
 - en: ^([3](ch05.xhtml#idm45043109522832-marker)) David Thomas and Andrew Hunt, *The
     Pragmatic Programmer*.
   id: totrans-281
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch05.xhtml#idm45043109522832-marker)) 大卫·托马斯和安德鲁·亨特，《实用程序员》。
 - en: '^([4](ch05.xhtml#idm45043109517728-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
   id: totrans-282
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch05.xhtml#idm45043109517728-marker)) 埃里希·伽马等，《设计模式：可复用面向对象软件的元素》。
 - en: ^([5](ch05.xhtml#idm45043109508880-marker)) Please explicitly note that I said
     *naive*. Although the code example is didactically a little questionable, I will
     show a common misconception before showing a proper implementation. My hope is
@@ -2301,6 +2406,7 @@
   id: totrans-283
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch05.xhtml#idm45043109508880-marker)) 请明确注意，我说的是*天真的*。虽然这个代码示例在教学上可能有些问题，但我会展示一个常见误解，然后展示一个正确的实现。我希望通过这种方式，你永远不会陷入这个常见的陷阱。
 - en: ^([6](ch05.xhtml#idm45043109417808-marker)) Although this is not a book about
     implementation details, please allow me to highlight one implementation detail
     that I find to be the source of many questions in my training classes. I’m certain
@@ -2313,6 +2419,7 @@
   id: totrans-284
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch05.xhtml#idm45043109417808-marker)) 虽然这不是一本关于实现细节的书籍，但请允许我强调一个我在培训课程中发现是许多问题源头的实现细节。我确信你已经听说过五则法则——如果没有，请参阅[C++核心指南](https://oreil.ly/fzS3f)。因此，你会意识到声明虚析构函数会禁用移动操作。严格来说，这违反了五则法则。然而，正如[核心指南C.21](https://oreil.ly/fzS3f)解释的那样，对于基类而言，这并不被认为是一个问题，只要基类不包含任何数据成员。
 - en: ^([7](ch05.xhtml#idm45043108959024-marker)) As I have referenced Core Guideline
     C.21 before, it is also worth mentioning that both the `Circle` and `Square` classes
     fulfill the *Rule of 0*; see [Core Guideline C.20](https://oreil.ly/Gt5Sz). By
@@ -2322,28 +2429,33 @@
   id: totrans-285
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch05.xhtml#idm45043108959024-marker)) 正如我之前引用过的核心指南C.21，同样值得一提的是`Circle`和`Square`类都符合*零号法则*；参见[核心指南C.20](https://oreil.ly/Gt5Sz)。通过不习惯性地添加析构函数，编译器本身为两个类生成所有特殊成员函数。是的，不用担心——析构函数仍然是虚的，因为基类的析构函数是虚的。
 - en: '^([8](ch05.xhtml#idm45043108775712-marker)) See [“Guideline 18: Beware the
     Performance of Acyclic Visitor”](ch04.xhtml#beware_the_performance_of_acyclic_visitors)
     for a discussion about the Acyclic Visitor design pattern.'
   id: totrans-286
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch05.xhtml#idm45043108775712-marker)) 请参阅[“指南18：警惕非循环访问者的性能问题”](ch04.xhtml#beware_the_performance_of_acyclic_visitors)讨论非循环访问者设计模式。
 - en: ^([9](ch05.xhtml#idm45043107792496-marker)) I should explicitly state that it
     does not work in dynamic polymorphism. It does work in static polymorphism, even
     quite well. Consider, for instance, templates and function overloading.
   id: totrans-287
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch05.xhtml#idm45043107792496-marker)) 我应明确说明它在动态多态性中不起作用。它在静态多态性中确实起作用，而且效果相当好。例如，模板和函数重载。
 - en: '^([10](ch05.xhtml#idm45043107080048-marker)) Andrei Alexandrescu, *Modern C++
     Design: Generic Programming and Design Patterns Applied* (Addison-Wesley, 2001).'
   id: totrans-288
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch05.xhtml#idm45043107080048-marker)) Andrei Alexandrescu，《现代C++设计：泛型编程与设计模式实践》（Addison-Wesley，2001年）。
 - en: ^([11](ch05.xhtml#idm45043106795536-marker)) Sean Parent, [“Inheritance Is the
     Base Class Of Evil”](https://oreil.ly/F8FDL), GoingNative, 2013.
   id: totrans-289
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch05.xhtml#idm45043106795536-marker)) Sean Parent，《继承是邪恶的基类》（[链接](https://oreil.ly/F8FDL)），GoingNative，2013年。
 - en: '^([12](ch05.xhtml#idm45043106632784-marker)) According to Sean Parent, there
     are no polymorphic types, only polymorphic usage of similar types; see [“Better
     Code: Runtime Polymorphism”](https://oreil.ly/5HwgM) from the NDC London conference
@@ -2351,23 +2463,28 @@
   id: totrans-290
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch05.xhtml#idm45043106632784-marker)) 根据Sean Parent的说法，没有多态类型，只有类似类型的多态用法；参见2017年NDC伦敦会议上的[“更好的代码：运行时多态性”](https://oreil.ly/5HwgM)。我的声明支持这种观点。
 - en: '^([13](ch05.xhtml#idm45043106629568-marker)) Another example of inheritance
     creating coupling is discussed in Herb Sutter’s *Exceptional C++: 47 Engineering
     Puzzles, Programming Problems, and Exception-Safety Solutions* (Pearson Education).'
   id: totrans-291
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch05.xhtml#idm45043106629568-marker)) 另一个继承导致耦合的例子在Herb Sutter的《卓越C++：47个工程难题、编程问题和异常安全解决方案》（Pearson
+    Education）中有所讨论。
 - en: ^([14](ch05.xhtml#idm45043106561024-marker)) Are they really to blame for this
     habit? Since they’ve been taught that this is the way to go for decades, who can
     blame them for thinking this way?
   id: totrans-292
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([14](ch05.xhtml#idm45043106561024-marker)) 他们真的要因这个习惯受到指责吗？因为他们几十年来一直被教导这是正确的方法，谁能因他们这样思考而责备他们呢？
 - en: ^([15](ch05.xhtml#idm45043106560240-marker)) Michael C. Feathers, *Working Effectively
     with Legacy Code*.
   id: totrans-293
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([15](ch05.xhtml#idm45043106560240-marker)) Michael C. Feathers，《与遗留代码有效工作》。
 - en: ^([16](ch05.xhtml#idm45043106558560-marker)) Programming by difference is a
     rather extreme form of inheritance-based programming, where even small differences
     are expressed by introducing a new derived class. See Michael’s book for more
@@ -2375,6 +2492,7 @@
   id: totrans-294
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([16](ch05.xhtml#idm45043106558560-marker)) 通过差异编程是一种基于继承的极端形式，甚至小的差异都通过引入新的派生类来表达。详见Michael的书籍了解更多详情。
 - en: '^([17](ch05.xhtml#idm45043106557328-marker)) See, for instance, the Strategy
     design pattern in [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done),
     the Observer design pattern in [“Guideline 25: Apply Observers as an Abstract
@@ -2387,11 +2505,13 @@
   id: totrans-295
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([17](ch05.xhtml#idm45043106557328-marker)) 例如，查看策略设计模式在[“指导原则19：使用策略隔离操作方式”](#use_strategy_to_isolate_how_things_are_done)，观察者设计模式在[“指导原则25：将观察者应用为抽象通知机制”](ch06.xhtml#apply_observers_as_an_abstract_notification_mechanism)，适配器设计模式在[“指导原则24：使用适配器标准化接口”](ch06.xhtml#use_adapters_to_standardize_interfaces)，装饰器设计模式在[“指导原则35：使用装饰器以分级方式添加定制化”](ch09.xhtml#use_decorators_to_add_customization_hierarchically)，或桥接设计模式在[“指导原则28：建立桥接以消除物理依赖”](ch07.xhtml#build_bridges_to_remove_physical_dependencies)。
 - en: '^([18](ch05.xhtml#idm45043106526608-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
   id: totrans-296
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([18](ch05.xhtml#idm45043106526608-marker)) Erich Gamma 等人，《设计模式：可复用面向对象软件的基本元素》。
 - en: '^([19](ch05.xhtml#idm45043105484832-marker)) Yes, it follows the SOLID principles,
     although of course by means of the classic form of the Command design pattern.
     If you are right now biting your fingernails in frustration or simply wondering
@@ -2401,6 +2521,7 @@
   id: totrans-297
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([19](ch05.xhtml#idm45043105484832-marker)) 是的，它遵循SOLID原则，尽管当然是通过经典形式的命令设计模式。如果你现在在为这些问题感到沮丧或者只是想知道是否有更好的解决方法，请耐心等待。我将在[“指导原则22：更喜欢值语义而不是引用语义”](#prefer_value_semantics_to_reference_semantics)中展示一个更加优美、更加“现代”的解决方案。
 - en: ^([20](ch05.xhtml#idm45043105381936-marker)) The given `ThreadPool` class is
     far from being complete and primarily serves as an illustration for the Command
     design pattern. For a working, professional implementation of a thread pool, please
@@ -2408,22 +2529,28 @@
   id: totrans-298
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([20](ch05.xhtml#idm45043105381936-marker)) 所提供的 `ThreadPool` 类远非完整，主要作为命令设计模式的示例。如需工作中的专业线程池实现，请参考
+    Anthony William 的书籍，《C++并发实战》，第二版 (Manning)。
 - en: '^([21](ch05.xhtml#idm45043104876160-marker)) This is another example of my
     statement that design patterns are not about implementation details; see [“Guideline
     12: Beware of Design Pattern Misconceptions”](ch03.xhtml#beware_of_design_pattern_misconceptions).'
   id: totrans-299
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([21](ch05.xhtml#idm45043104876160-marker)) 这是我关于设计模式不涉及实现细节的另一个例子；参见[“指导原则12：警惕设计模式的误解”](ch03.xhtml#beware_of_design_pattern_misconceptions)。
 - en: '^([22](ch05.xhtml#idm45043104697792-marker)) For the complete shape example,
     see [“Guideline 19: Use Strategy to Isolate How Things Are Done”](#use_strategy_to_isolate_how_things_are_done).'
   id: totrans-300
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([22](ch05.xhtml#idm45043104697792-marker)) 完整的形状示例，请参见[“指导原则19：使用策略隔离操作方式”](#use_strategy_to_isolate_how_things_are_done)。
 - en: ^([23](ch05.xhtml#idm45043104345904-marker)) Margaret A. Ellis and Bjarne Stroustrup,
     *The Annotated C++ Reference Manual* (Addison-Wesley, 1990).
   id: totrans-301
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([23](ch05.xhtml#idm45043104345904-marker)) Margaret A. Ellis 和 Bjarne Stroustrup，《C++注释参考手册》(Addison-Wesley,
+    1990)。
 - en: ^([24](ch05.xhtml#idm45043104344576-marker)) To get an overview of C++ performance
     aspects in general and performance-related issues with inheritance hierarchies
     in particular, refer to Kurt Guntheroth’s book, [*Optimized C{plus}{plus}*](https://learning.oreilly.com/library/view/optimized-c/9781491922057/)
@@ -2431,12 +2558,15 @@
   id: totrans-302
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([24](ch05.xhtml#idm45043104344576-marker)) 要全面了解 C++ 性能方面的概述，特别是关于继承层次结构的性能相关问题，请参阅
+    Kurt Guntheroth 的书籍，《*优化的C{plus}{plus}*》(O’Reilly)。
 - en: '^([25](ch05.xhtml#idm45043104340000-marker)) A possible solution for that is
     to employ techniques from data-oriented design; see Richard Fabian, *Data-Oriented
     Design: Software Engineering for Limited Resources and Short Schedules*.'
   id: totrans-303
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([25](ch05.xhtml#idm45043104340000-marker)) 解决方案之一是采用数据导向设计技术；参见 Richard Fabian，《数据导向设计：面向有限资源和紧张进度的软件工程》。
 - en: '^([26](ch05.xhtml#idm45043103810576-marker)) Mark my choice of words: “We might
     get the following output.” Indeed, we might get this output but also something
     else. It depends, as we have inadvertently entered the realm of undefined behavior.
@@ -2444,16 +2574,19 @@
   id: totrans-304
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([26](ch05.xhtml#idm45043103810576-marker)) 记住我的措辞：“我们可能会得到以下输出。”确实，我们可能会得到这个输出，但也可能得到其他输出。这取决于我们不经意地进入了未定义行为的领域。因此，这个输出是我的最佳猜测，而不是保证。
 - en: ^([27](ch05.xhtml#idm45043103808768-marker)) Now not only your manicurist but
     also your hairdresser has work to do…
   id: totrans-305
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([27](ch05.xhtml#idm45043103808768-marker)) 现在不仅你的美甲师，还有你的理发师也有工作要做了…
 - en: ^([28](ch05.xhtml#idm45043103549472-marker)) More gray hairs, more work for
     your hairdresser.
   id: totrans-306
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([28](ch05.xhtml#idm45043103549472-marker)) 多了几根白发，理发师要多做些工作了。
 - en: '^([29](ch05.xhtml#idm45043103166160-marker)) I should explicitly point out
     that the notion of a “deep copy” depends on the type `T` of elements in the vector:
     if `T` performs a deep copy, then so does the `std::vector`, but if `T` performs
@@ -2461,34 +2594,42 @@
   id: totrans-307
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([29](ch05.xhtml#idm45043103166160-marker)) 我应该明确指出，“深拷贝”的概念取决于向量中元素类型`T`：如果`T`执行深拷贝，那么`std::vector`也会执行深拷贝，但如果`T`执行浅拷贝，那么语义上`std::vector`也会执行浅拷贝。
 - en: ^([30](ch05.xhtml#idm45043103081488-marker)) The best and most complete introduction
     to move semantics is Nicolai Josuttis’s book on the subject, *C++ Move Semantics
     - The Complete Guide* (NicoJosuttis, 2020).
   id: totrans-308
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([30](ch05.xhtml#idm45043103081488-marker)) 关于移动语义的最佳和最完整的介绍是Nicolai Josuttis的书籍《C++
+    Move Semantics - The Complete Guide》（NicoJosuttis, 2020）。
 - en: ^([31](ch05.xhtml#idm45043103076080-marker)) See Patrice Roy’s CppCon 2016 talk,
     [“The Exception Situation”](https://oreil.ly/REqOG), for a similar example and
     discussion.
   id: totrans-309
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([31](ch05.xhtml#idm45043103076080-marker)) 查看Patrice Roy在CppCon 2016年的演讲[“异常情况”](https://oreil.ly/REqOG)，有类似的例子和讨论。
 - en: ^([32](ch05.xhtml#idm45043103053328-marker)) Yet this is exactly the approach
     taken by the [`std::atoi()` function](https://oreil.ly/fByFB).
   id: totrans-310
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([32](ch05.xhtml#idm45043103053328-marker)) 然而，这正是[`std::atoi()`函数](https://oreil.ly/fByFB)采取的方法。
 - en: ^([33](ch05.xhtml#idm45043103051664-marker)) In his standard proposal [P0709](https://oreil.ly/E6Qd7),
     Herb Sutter explains that 52% of C++ developers have no or limited access to exceptions.
   id: totrans-311
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([33](ch05.xhtml#idm45043103051664-marker)) 在他的标准提案[P0709](https://oreil.ly/E6Qd7)中，Herb
+    Sutter解释了52%的C++开发人员没有或只有有限的异常访问权限。
 - en: ^([34](ch05.xhtml#idm45043102967280-marker)) The experienced C++ developer also
     knows that C++23 will bless us with a very similar type called `std::expected`.
     In a few years, this might be the appropriate way to write the `to_int()` function.
   id: totrans-312
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([34](ch05.xhtml#idm45043102967280-marker)) 有经验的C++开发人员也知道，C++23将为我们带来一个非常类似的类型，称为`std::expected`。在未来几年内，这可能是编写`to_int()`函数的适当方式。
 - en: ^([35](ch05.xhtml#idm45043102922992-marker)) From a functional programming point
     of view, `std::optional` represents a [*monad*](https://oreil.ly/IowBp). You’ll
     find much more valuable information on *monad*s and functional programming in
@@ -2496,6 +2637,8 @@
   id: totrans-313
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([35](ch05.xhtml#idm45043102922992-marker)) 从函数式编程的角度来看，`std::optional`代表一个[*monad*](https://oreil.ly/IowBp)。在Ivan
+    Čukić的书籍《C++中的函数式编程》中，你会找到更多有价值的信息关于*monad*和函数式编程的一般知识。
 - en: ^([36](ch05.xhtml#idm45043102297200-marker)) In this example, the `std::function`
     object performs a deep copy, but generally speaking, `std::function` copies the
     contained callable according to its copy semantics (“deep” or “shallow”). `std::function`
@@ -2503,17 +2646,21 @@
   id: totrans-314
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([36](ch05.xhtml#idm45043102297200-marker)) 在这个例子中，`std::function`对象执行深拷贝，但一般来说，`std::function`根据其拷贝语义（“深”或“浅”）复制包含的可调用对象。`std::function`没有强制执行深拷贝的方法。
 - en: ^([37](ch05.xhtml#idm45043101840800-marker)) This implementation detail is explained
     thoroughly by Nicolai Josuttis in this CppCon 2017 talk, [“The Nightmare of Move
     Semantics for Trivial Classes”](https://oreil.ly/IbZHb).
   id: totrans-315
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([37](ch05.xhtml#idm45043101840800-marker)) 这个实现细节在Nicolai Josuttis在CppCon
+    2017年的演讲[“Move语义对于平凡类的噩梦”](https://oreil.ly/IbZHb)中有详细解释。
 - en: ^([38](ch05.xhtml#idm45043101839408-marker)) One more example of the [*KISS*
     principle](https://oreil.ly/N7c3B).
   id: totrans-316
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([38](ch05.xhtml#idm45043101839408-marker)) 另一个[*KISS*原则](https://oreil.ly/N7c3B)的例子。
 - en: ^([39](ch05.xhtml#idm45043101384208-marker)) A discussion about the reasons
     for the performance deficiencies of some `std::function` implementations would
     go beyond the scope and purpose of this book. Still, please keep this detail in
@@ -2521,3 +2668,4 @@
   id: totrans-317
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([39](ch05.xhtml#idm45043101384208-marker)) 关于一些`std::function`实现性能缺陷的讨论超出了本书的范围和目的。但是，请记住这个细节，尤其是代码性能关键部分。
