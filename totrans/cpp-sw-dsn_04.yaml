@@ -1,7 +1,9 @@
 - en: Chapter 4\. The Visitor Design Pattern
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第4章 访问者设计模式
 - en: This entire chapter is focused on the *Visitor* design pattern. If you’ve already
     heard about the Visitor design pattern or even used it in your own designs, you
     might be wondering why I have chosen Visitor as the first design pattern to explain
@@ -10,69 +12,95 @@
     you have when implementing a design pattern and how different these implementations
     can be. It will also serve as an effective example of advertising the advantages
     of modern C++.
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: 整个章节都集中讨论*访问者*设计模式。如果您已经听说过访问者设计模式，甚至在自己的设计中使用过它，您可能会想知道为什么我选择访问者作为首个详细解释的设计模式。是的，访问者绝对不是最引人注目的设计模式之一。但是，它确实将作为一个很好的例子，展示您在实现设计模式时有多少选择，以及这些实现有多么不同。它还将作为一个有效的示例，宣传现代C++的优势。
 - en: 'In [“Guideline 15: Design for the Addition of Types or Operations”](#design_for_the_addition_of_types_or_operations),
     we first talk about the fundamental design decision you’ll need to make when walking
     in the realm of dynamic polymorphism: focus on either types or operations. In
     that guideline, we will also talk about the intrinsic strengths and weaknesses
     of programming paradigms.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“第15条指南：为类型或操作的添加进行设计”](#design_for_the_addition_of_types_or_operations)，我们首先讨论您在动态多态性领域中需要做出的基本设计决策：专注于类型还是操作。在该指南中，我们还将讨论编程范式的固有优势和劣势。
 - en: 'In [“Guideline 16: Use Visitor to Extend Operations”](#use_visitors_to_extend_operations),
     I will introduce you to the Visitor design pattern. I will explain its intent
     to extend operations instead of types, and show you both the advantages and the
     shortcomings of the classic Visitor pattern.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“第16条指南：使用访问者扩展操作”](#use_visitors_to_extend_operations)，我将向您介绍访问者设计模式。我将解释其意图是扩展操作而不是类型，并向您展示经典访问者模式的优势和缺点。
 - en: 'In [“Guideline 17: Consider std::variant for Implementing Visitor”](#consider_std_variant_for_implementing_visitors),
     you will make the acquaintance of the modern implementation of the Visitor design
     pattern. I will introduce you to `std::variant` and explain the many advantages
     of that particular implementation.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“第17条指南：考虑使用std::variant来实现访问者”](#consider_std_variant_for_implementing_visitors)，您将会认识到访问者设计模式的现代实现。我将向您介绍`std::variant`，并解释该特定实现的诸多优势。
 - en: 'In [“Guideline 18: Beware the Performance of Acyclic Visitor”](#beware_the_performance_of_acyclic_visitors),
     I will introduce you to the *Acyclic Visitor*. At first glance, this approach
     appears to resolve some fundamental problems of the Visitor pattern, but on closer
     inspection we will find that the runtime overhead may disqualify this implementation.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“第18条指南：警惕无环访问器的性能”](#beware_the_performance_of_acyclic_visitors)，我将向您介绍*无环访问器*。乍一看，这种方法似乎解决了访问者模式的一些根本问题，但仔细检查后，我们会发现运行时开销可能会使此实现失效。
 - en: 'Guideline 15: Design for the Addition of Types or Operations'
+  id: totrans-6
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南15：为类型或操作的添加进行设计
 - en: 'To you, the term *dynamic polymorphism* may sound like a lot of freedom. It
     may feel similar to when you were still a kid: endless possibilities, no limitations!
     Well, you have grown older and faced reality: you can’t have everything, and there
     is always a choice to be made. Unfortunately, it’s similar with dynamic polymorphism.
     Despite the fact that it sounds like complete freedom, there is a limiting choice:
     do you want to extend types or operations?'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 对您来说，术语*动态多态性*可能听起来像是很大的自由。这可能感觉像当你还是个孩子时一样：无限的可能性，没有限制！然而，您已经长大并面对现实：您不能拥有一切，总是需要做出选择。不幸的是，动态多态性也是如此。尽管听起来像是完全的自由，但实际上有一个限制性选择：您想扩展类型还是操作？
 - en: 'To see what I mean, let’s return to the scenario from [Chapter 3](ch03.xhtml#the_purpose_of_design_patterns):
     we want to draw a given shape.^([1](ch04.xhtml#idm45043116032320)) We stick to
     dynamic polymorphism, and for our initial try, we implement this problem with
     good old procedural programming.'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 要了解我的意思，让我们回到[第3章](ch03.xhtml#the_purpose_of_design_patterns)的场景：我们想要绘制一个给定的形状。^([1](ch04.xhtml#idm45043116032320))我们坚持动态多态性，并且在我们的初次尝试中，我们使用了古老的过程化编程来解决这个问题。
 - en: A Procedural Solution
+  id: totrans-9
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 过程化解决方案
 - en: 'The first header file `Point.h` provides a fairly simple `Point` class. This
     will mainly serve to make the code complete, but also gives us the idea that we’re
     dealing with 2D shapes:'
+  id: totrans-10
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一个头文件`Point.h`提供了一个非常简单的`Point`类。这主要是为了使代码完整，但也让我们明白我们在处理二维形状：
 - en: '[PRE0]'
+  id: totrans-11
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'The second conceptual header file `Shape.h` proves to be much more interesting:'
+  id: totrans-12
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个概念性头文件`Shape.h`证明更加有趣：
 - en: '[PRE1]'
+  id: totrans-13
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: 'First, we introduce the enumeration `ShapeType`, which currently lists the
     two enumerators, `circle` and `square` ([![1](assets/1.png)](#code_g15_1)). Apparently,
     we are initially dealing with only circles and squares. Second, we introduce the
@@ -83,49 +111,71 @@
     This data member is initialized via the constructor ([![5](assets/5.png)](#code_g15_5))
     and can be queried via the `getType()` member function ([![6](assets/6.png)](#code_g15_6)).
     Apparently, a `Shape` stores its type in the form of the `ShapeType` enumeration.'
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我们引入了枚举`ShapeType`，目前列出了两个枚举器，`circle`和`square`（[![1](assets/1.png)](#code_g15_1)）。显然，我们最初只处理圆形和正方形。其次，我们引入了`Shape`类（[![2](assets/2.png)](#code_g15_2)）。考虑到受保护的构造函数和虚析构函数（[![3](assets/3.png)](#code_g15_3)），您可以预期`Shape`应该作为基类工作。但这并不是关于`Shape`的令人惊讶的细节：`Shape`有一个类型为`ShapeType`的数据成员（[![4](assets/4.png)](#code_g15_4)）。这个数据成员通过构造函数初始化（[![5](assets/5.png)](#code_g15_5)），并且可以通过`getType()`成员函数查询（[![6](assets/6.png)](#code_g15_6)）。显然，一个`Shape`以`ShapeType`枚举的形式存储其类型。
 - en: 'One example of the use of the `Shape` base class is the `Circle` class:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Shape`基类的使用示例之一是`Circle`类：'
 - en: '[PRE2]'
+  id: totrans-16
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: '`Circle` publicly inherits from `Shape` ([![7](assets/7.png)](#code_g15_7)),
     and for that reason, and due to the lack of a default constructor in `Shape`,
     needs to initialize the base class ([![8](assets/8.png)](#code_g15_8)). Since
     it’s a circle, it uses the `circle` enumerator as an argument to the base class
     constructor.'
+  id: totrans-17
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Circle`公开继承自`Shape`（[![7](assets/7.png)](#code_g15_7)），因此，由于`Shape`中没有默认构造函数，需要初始化基类（[![8](assets/8.png)](#code_g15_8)）。由于它是一个圆，它使用`circle`枚举器作为基类构造函数的参数。'
 - en: 'As stated before, we want to draw shapes. We therefore introduce the `draw()`
     function for circles. Since we don’t want to couple too strongly to any implementation
     details of drawing, the `draw()` function is declared in the conceptual header
     file `DrawCircle.h` and defined in the corresponding source file:'
+  id: totrans-18
   prefs: []
   type: TYPE_NORMAL
+  zh: 如前所述，我们希望绘制形状。因此，我们引入了`draw()`函数用于圆形。由于我们不想过于依赖任何绘图的具体实现细节，`draw()`函数在概念性头文件`DrawCircle.h`中声明，并在相应的源文件中定义：
 - en: '[PRE3]'
+  id: totrans-19
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'Of course, there are not only circles. As indicated by the `square` enumerator,
     there is also a `Square` class:'
+  id: totrans-20
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，并不只有圆形。如`square`枚举器所示，还有一个`Square`类：
 - en: '[PRE4]'
+  id: totrans-21
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: The `Square` class looks very similar to the `Circle` class ([![9](assets/9.png)](#code_g15_9)).
     The major difference is that a `Square` initializes its base class with the `square`
     enumerator ([![10](assets/10.png)](#code_g15_10)).
+  id: totrans-22
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Square`类看起来非常类似于`Circle`类（[![9](assets/9.png)](#code_g15_9)）。主要区别在于`Square`使用`square`枚举器初始化其基类（[![10](assets/10.png)](#code_g15_10)）。'
 - en: 'With both circles and squares available, we now want to draw an entire vector
     of different shapes. For that reason, we introduce the `drawAllShapes()` function:'
+  id: totrans-23
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在有了圆形和正方形，我们现在想要绘制一个完整的不同形状的向量。因此，我们引入了`drawAllShapes()`函数：
 - en: '[PRE5]'
+  id: totrans-24
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: '`drawAllShapes()` takes a vector of shapes in the form of `std::unique_ptr<Shape>`
     ([![11](assets/11.png)](#code_g15_11)). The pointer to the base class is necessary
     to hold different kinds of concrete shapes, and the `std::unique_ptr` in particular
@@ -136,15 +186,21 @@
     what kind of shape are you? If the shape replies with `circle`, we know that we
     have to draw it as a `Circle` and perform the corresponding `static_cast`. If
     the shape replies with `square`, we draw it as a `Square`.'
+  id: totrans-25
   prefs: []
   type: TYPE_NORMAL
+  zh: '`drawAllShapes()`接受一个形状向量，形式为`std::unique_ptr<Shape>`（[![11](assets/11.png)](#code_g15_11)）。必须使用基类指针来保存不同类型的具体形状，特别是使用`std::unique_ptr`自动管理形状，通过*RAII习惯用法*。在函数内部，我们首先遍历向量以绘制每个形状。不幸的是，此时我们只有`Shape`指针。因此，我们必须通过`getType()`函数（[![12](assets/12.png)](#code_g15_12)）礼貌地询问每个形状：你是什么类型的？如果形状回答`circle`，我们知道必须将其作为`Circle`绘制并执行相应的`static_cast`。如果形状回答`square`，我们将其作为`Square`绘制。'
 - en: 'I can feel that you’re not particularly happy about this solution. But before
     talking about the shortcomings, let’s consider the `main()` function:'
+  id: totrans-26
   prefs: []
   type: TYPE_NORMAL
+  zh: 我感觉到你对这个解决方案并不是特别满意。但在讨论缺点之前，让我们先考虑`main()`函数：
 - en: '[PRE6]'
+  id: totrans-27
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: 'It works! With this `main()` function, the code compiles and draws three shapes
     (two circles and a square). Isn’t that great? It is, but it won’t stop you from
     going into a rant: “What a primitive solution! Not only is the `switch` a bad
@@ -152,26 +208,35 @@
     have a default case! And who had this crazy idea to encode the type of the shapes
     by means of an unscoped enumeration?”^([2](ch04.xhtml#idm45043114704048)) You’re
     looking suspiciously in my direction…'
+  id: totrans-28
   prefs: []
   type: TYPE_NORMAL
+  zh: 它有效！使用这个`main()`函数，代码编译并绘制了三个形状（两个圆和一个正方形）。是不是很棒？但是，这并不能阻止你发泄：“多么原始的解决方案！`switch`语句不仅是区分不同形状的糟糕选择，而且还没有默认情况！谁有这么疯狂的想法，通过无作用域枚举来编码形状的类型？”^([2](ch04.xhtml#idm45043114704048))
+    你怀疑地看着我……
 - en: 'Well, I can understand your reaction. But let’s analyze the problem in a little
     more detail. Let me guess: you remember [“Guideline 5: Design for Extension”](ch01.xhtml#design_for_extension).
     And you now imagine what you would have to do to add a third kind of shape. First,
     you would have to extend the enumeration. For instance, we would have to add the
     new enumerator `triangle` ([![13](assets/13.png)](#code_g15_13)):'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 嗯，我能理解你的反应。但让我们更详细地分析一下问题。让我猜猜：你记得[“指南5：设计以便扩展”](ch01.xhtml#design_for_extension)。现在想象一下，要添加第三种形状你将要做什么。首先，你必须扩展枚举。例如，我们将不得不添加新的枚举值`triangle`（[![13](assets/13.png)](#code_g15_13)）：
 - en: '[PRE7]'
+  id: totrans-30
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: Note that this addition would have an impact not only on the `switch` statement
     in the `drawAllShapes()` function (it is now truly incomplete), but also on all
     classes derived from `Shape` (`Circle` and `Square`). These classes depend on
     the enumeration since they depend on the `Shape` base class and also use the enumeration
     directly. Therefore, changing the enumeration would result in a recompilation
     of *all* your source files.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 请注意，这种添加不仅会影响`drawAllShapes()`函数中的`switch`语句（现在它确实不完整了），还会影响所有派生自`Shape`的类（`Circle`和`Square`）。这些类依赖于枚举，因为它们依赖于`Shape`基类，并直接使用枚举。因此，更改枚举将导致*所有*源文件重新编译。
 - en: 'That should strike you as a serious issue. And it is indeed. The heart of the
     problem is the direct dependency of all shape classes and functions on the enumeration.
     Any change to the enumeration results in a ripple effect that requires the dependent
@@ -179,16 +244,22 @@
     (OCP) (see [“Guideline 5: Design for Extension”](ch01.xhtml#design_for_extension)).
     This doesn’t seem right: adding a `Triangle` shouldn’t result in a recompilation
     of the `Circle` and `Square` classes.'
+  id: totrans-32
   prefs: []
   type: TYPE_NORMAL
+  zh: 这应该让你感到严重。而且确实如此。问题的核心是所有形状类和函数对枚举的直接依赖性。对枚举的任何更改都会产生连锁反应，需要重新编译依赖文件。显然，这直接违反了开闭原则（OCP）（参见[“指南5：设计以便扩展”](ch01.xhtml#design_for_extension)）。这似乎不对：添加一个`Triangle`不应该导致`Circle`和`Square`类重新编译。
 - en: 'There is more, though. In addition to actually writing a `Triangle` class (something
     that I leave to your imagination), you have to update the `switch` statement to
     handle triangles ([![14](assets/14.png)](#code_g15_14)):'
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 不过，除此之外还有更多。除了实际编写一个`Triangle`类（这部分留给你的想象力），你还得更新`switch`语句来处理三角形（[![14](assets/14.png)](#code_g15_14)）：
 - en: '[PRE8]'
+  id: totrans-34
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: 'I can imagine your outcry: “Copy-and-paste! Duplication!” Yes, in this situation
     it is very likely that a developer will use copy-and-paste to implement the new
     logic. It’s just so convenient because the new case is so similar to the previous
@@ -200,52 +271,74 @@
     you with this task. Perhaps with the switches, yes, but what if there are also
     if-else-if cascades? And then, after this update marathon, when you think you
     are done, how do you guarantee that you have truly updated all the necessary sections?'
+  id: totrans-35
   prefs: []
   type: TYPE_NORMAL
+  zh: 我能想象你会惊呼：“复制粘贴！重复！”是的，在这种情况下，开发者很可能会使用复制粘贴来实现新逻辑。因为新情况与之前的两种情况如此相似，所以这样做非常方便。实际上，这表明设计可以改进。然而，我看到一个更为严重的缺陷：我认为在更大的代码库中，这并不是唯一的`switch`语句。相反，还会有其他需要更新的。有多少个？十几个？五十个？一百多个？那么，你怎么找到所有这些？好吧，你可能会争辩说编译器会帮助你完成这项任务。也许对于`switch`语句来说是这样，但如果还有if-else-if级联呢？然后，在这次更新马拉松之后，当你认为自己已经完成时，你如何保证你确实更新了所有必要的部分？
 - en: 'Yes, I can understand your reaction and why you prefer not to have this kind
     of code: this explicit handling of types is a maintenance nightmare. To quote
     Scott Meyers:^([3](ch04.xhtml#idm45043114533408))'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 是的，我能理解你的反应，以及为什么你不喜欢这种代码：这种明确处理类型的方式是维护的噩梦。引用Scott Meyers的话：^([3](ch04.xhtml#idm45043114533408))
 - en: This kind of type-based programming has a long history in C, and one of the
     things we know about it is that it yields programs that are essentially unmaintainable.
+  id: totrans-37
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 这种基于类型的编程在C语言中有着悠久的历史，其中我们知道的一件事是，它产生的程序基本上是难以维护的。
 - en: An Object-Oriented Solution
+  id: totrans-38
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 面向对象的解决方案
 - en: 'So let me ask: what would you have done? How would you have implemented the
     drawing of shapes? Well, I can imagine you would have used an object-oriented
     approach. That means you would scratch the enumeration and add a pure virtual
     `draw()` function to the `Shape` base class. This way, `Shape` doesn’t have to
     remember its type anymore:'
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 所以让我问问：你会怎么做？你会如何实现形状的绘制？好吧，我可以想象你会采用面向对象的方法。这意味着你会放弃枚举，并向`Shape`基类添加一个纯虚拟的`draw()`函数。这样一来，`Shape`就不必再记住它的类型了：
 - en: '[PRE9]'
+  id: totrans-40
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: 'Given this base class, derived classes now would have to implement only the
     `draw()` member function ([![15](assets/15.png)](#code_g15_15)):'
+  id: totrans-41
   prefs: []
   type: TYPE_NORMAL
+  zh: 给定这个基类，派生类现在只需实现`draw()`成员函数（[![15](assets/15.png)](#code_g15_15)）：
 - en: '[PRE10]'
+  id: totrans-42
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: 'Once the virtual `draw()` function is in place and implemented by all derived
     classes, it can be used to refactor the `drawAllShapes()` function:'
+  id: totrans-43
   prefs: []
   type: TYPE_NORMAL
+  zh: 一旦虚拟的`draw()`函数被所有派生类放置并实现，它可以被用来重构`drawAllShapes()`函数：
 - en: '[PRE11]'
+  id: totrans-44
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: I can see you relax and start smiling again. This is so much nicer, so much
     cleaner. While I understand that you prefer this solution and that you would like
     to stay in this comfort zone a little while longer, I unfortunately have to point
     out a flaw. Yes, this solution might also come with a disadvantage.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 我可以看到你放松下来，重新露出笑容。这样要好得多，干净得多。虽然我理解你更喜欢这种解决方案，而且你想在这个舒适区停留更长时间，但我不得不指出一个缺陷。是的，这种解决方案可能也会带来一个缺点。
 - en: As indicated in the introduction to this section, with an object-oriented approach,
     we are now able to add new types very easily. All we have to do is write a new
     derived class. We don’t have to modify or recompile any exiasting code (with the
@@ -254,8 +347,10 @@
     let’s assume we need a virtual `serialize()` function to convert a `Shape` into
     bytes. How can we add this without modifying existing code? How can anyone easily
     add this operation without having to touch the `Shape` base class?
+  id: totrans-46
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如本节开头所示，通过面向对象的方法，我们现在能够非常轻松地添加新类型。我们只需编写一个新的派生类即可。我们不需要修改或重新编译任何现有代码（除了`main()`函数）。这完全符合OCP。但是，你注意到我们现在无法轻松地再添加操作了吗？例如，假设我们需要一个虚拟的`serialize()`函数将`Shape`转换为字节。我们如何在不修改现有代码的情况下添加这个功能？任何人如何能够轻松地添加这个操作而不必触及`Shape`基类呢？
 - en: Unfortunately, that isn’t possible anymore. We are now dealing with a *closed
     set* of operations, which means that we violate the OCP in relation to addition
     operations. To add a virtual function, the base class needs to be modified, and
@@ -263,8 +358,10 @@
     even though the function might never be called. In summary, the object-oriented
     solution fulfills the OCP with respect to adding types but violates it in relation
     to operations.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 不幸的是，这不再可能了。我们现在处理的是*封闭集*的操作，这意味着我们在添加操作方面违反了OCP。要添加一个虚函数，需要修改基类，并且所有派生类（如圆形、正方形等）都需要实现新函数，即使这个函数可能永远不会被调用。总结一下，面向对象解决方案在添加类型方面满足了OCP，但在操作方面却违反了它。
 - en: I know you thought we left the procedural solution behind for good, but let’s
     take a second look. In the procedural approach, adding a new operation was actually
     very simple. New operations could be added in the form of free functions or separate
@@ -273,19 +370,25 @@
     the OCP with respect to adding operations. But as we’ve seen, the procedural solution
     violates the OCP in relation to adding types. Thus, it appears to be an inversion
     of the object-oriented solution, which is the other way around.
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 我知道你以为我们已经彻底放弃了过程化解决方案，但让我们再来看一眼。在过程化方法中，添加新操作实际上非常简单。新操作可以以自由函数或单独的类的形式添加，例如。不需要修改`Shape`基类或任何派生类。因此，在过程化解决方案中，我们在添加操作方面实现了OCP。但正如我们所见，过程化解决方案在添加类型方面违反了OCP。因此，它似乎是面向对象解决方案的倒置。
 - en: Be Aware of the Design Choice in Dynamic Polymorphism
+  id: totrans-49
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 要注意动态多态性中的设计选择
 - en: 'The takeaway of this example is that there is a design choice when using dynamic
     polymorphism: either you can add types easily by fixing the number of operations
     or you can add operations easily by fixing the number of types. Thus, the OCP
     has two dimensions: when designing software, you have to make a conscious decision
     about which kind of extension you expect.'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个例子的要点是，在使用动态多态性时存在一个设计选择：你可以通过固定操作数量来轻松添加类型，或者通过固定类型数量来轻松添加操作。因此，OCP有两个方面：在设计软件时，你必须对你期望的扩展类型做出明智的决策。
 - en: 'The strength of object-oriented programming is the easy addition of new types,
     but its weakness is that the addition of operations becomes much more difficult.
     The strength of procedural programming is the easy addition of operations, but
@@ -297,79 +400,112 @@
     set* and operations as an *open set*. If you make the right choice, you will economize
     your time and the time of your colleagues, and extensions will feel natural and
     easy.^([4](ch04.xhtml#idm45043113723744))'
+  id: totrans-51
   prefs: []
   type: TYPE_NORMAL
+  zh: 面向对象编程的优势是容易添加新类型，但其弱点是添加操作变得更加困难。过程化编程的优势是轻松添加操作，但添加类型则是真正的痛点（[表 4-1](#table_strengths_and_weaknesses)）。这取决于您的项目：如果您预计会频繁添加新类型而不是操作，则应该努力寻求OCP解决方案，将操作视为*封闭集*，类型视为*开放集*。如果您预计会添加操作，则应该努力寻求过程化解决方案，将类型视为*封闭集*，操作视为*开放集*。如果您做出正确选择，将节省您和同事的时间，扩展将感觉自然而容易。^([4](ch04.xhtml#idm45043113723744))
 - en: Table 4-1\. Strengths and weaknesses of different programming paradigms
+  id: totrans-52
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 4-1\. 不同编程范式的优势和弱点
 - en: '| Programming paradigm | Strength | Weakness |'
+  id: totrans-53
   prefs: []
   type: TYPE_TB
+  zh: '| 编程范式 | 优势 | 弱点 |'
 - en: '| --- | --- | --- |'
+  id: totrans-54
   prefs: []
   type: TYPE_TB
+  zh: '| 过程化编程 | 添加操作 | 添加（多态）类型 |'
 - en: '| Procedural programming | Addition of operations | Addition of (polymorphic)
     types |'
+  id: totrans-55
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Object-oriented programming | Addition of (polymorphic) types | Addition
     of operations |'
+  id: totrans-56
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象编程 | 添加（多态）类型 | 添加操作 |'
 - en: 'Be aware of these strengths: based on your expectation on how a codebase will
     evolve, choose the right approach to design for extensions. Do not ignore the
     weaknesses, and do not put yourself in an unfortunate maintenance hell.'
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 要注意这些优势：根据您对代码库演变的期望，选择适合扩展设计的正确方法。不要忽略弱点，并且不要让自己陷入不幸的维护地狱。
 - en: 'I assume that at this point you’re wondering if it’s possible to have two *open
     sets*. Well, to the best of my knowledge, this is not impossible but it’s usually
     impractical. As an example, in [“Guideline 18: Beware the Performance of Acyclic
     Visitor”](#beware_the_performance_of_acyclic_visitors), I will show you that performance
     might take a significant hit.'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 此时你可能在想，是否可能有两个*开放集*。据我所知，这并非不可能，但通常是不切实际的。例如，在[“指南 18：警惕无环访问者的性能”](#beware_the_performance_of_acyclic_visitors)中，我将向你展示性能可能会受到显著影响。
 - en: Since you might be a fan of template-based programming and similar compile time
     endeavors, I should also make the explicit note that static polymorphism does
     not have the same limitations. While in dynamic polymorphism, one of the design
     axes (types and operations) needs to be fixed, in static polymorphism, both pieces
     of information are available at compile-time. Therefore, both aspects can be extended
     easily (if you do it properly).^([5](ch04.xhtml#idm45043113710320))
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于您可能是基于模板的编程和类似的编译时努力的粉丝，我应该明确指出，静态多态性并不具有相同的限制。在动态多态性中，设计轴（类型和操作）中的一个需要固定，而在静态多态性中，这两个信息在编译时都是可用的。因此，如果你做得正确，这两个方面都可以很容易地扩展。^([5](ch04.xhtml#idm45043113710320))
 - en: 'Guideline 16: Use Visitor to Extend Operations'
+  id: totrans-60
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 16：使用访问者扩展操作
 - en: 'In the previous section, you saw that the strength of object-oriented programming
     (OOP) is the addition of types and its weakness is the addition of operations.
     Of course, OOP has an answer to that weakness: the Visitor design pattern.'
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 在前一节中，您看到面向对象编程（OOP）的优势是添加类型，其弱点是添加操作。当然，OOP 对这一弱点有解决方案：访问者设计模式。
 - en: 'The Visitor design pattern is one of the classic design patterns described
     by the Gang of Four (GoF). Its focus is on allowing you to frequently add operations
     instead of types. Allow me to explain the Visitor design pattern using the previous
     toy example: the drawing of shapes.'
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 访问者设计模式是由四人组（GoF）描述的经典设计模式之一。它的重点是允许您频繁添加操作而不是类型。请允许我使用之前的玩具例子来解释访问者设计模式：形状的绘制。
 - en: In [Figure 4-1](#fig_shape_hierarchy), you see the `Shape` hierarchy. The `Shape`
     class is again the base class for a certain number of concrete shapes. In this
     example, there are only the two classes, `Circle` and `Square`, but of course
     it’s possible to have more shapes. In addition, you might imagine `Triangle`,
     `Rectangle`, or `Ellipse` classes.
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 在 [Figure 4-1](#fig_shape_hierarchy) 中，您可以看到 `Shape` 层次结构。`Shape` 类再次是某些具体形状的基类。在本例中，只有两个类，`Circle`
+    和 `Square`，但当然也可能有更多形状。此外，您可能会想象到 `Triangle`、`Rectangle` 或 `Ellipse` 类。
 - en: '![](assets/cpsd_0401.png)'
+  id: totrans-64
   prefs: []
   type: TYPE_IMG
+  zh: '![](assets/cpsd_0401.png)'
 - en: Figure 4-1\. The UML representation of a shape hierarchy with two derived classes
     ( `Circle` and `Square`)
+  id: totrans-65
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-1\. 形状层次结构的 UML 表示，具有两个派生类 (`Circle` 和 `Square`)
 - en: Analyzing the Design Issues
+  id: totrans-66
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析设计问题
 - en: Let’s assume you are certain that you already have all the shapes you’ll ever
     need. That is, you consider the set of shapes a *closed set*. What you are missing,
     though, are additional operations. For instance, you’re missing an operation to
@@ -377,8 +513,10 @@
     to convert the instance of a shape into bytes. And of course, you want to draw
     shapes. In addition, you want to enable anybody to add new operations. Therefore,
     you expect an *open set* of operations.^([6](ch04.xhtml#idm45043113684976))
+  id: totrans-67
   prefs: []
   type: TYPE_NORMAL
+  zh: 假设您确定您已经拥有所有您将来可能需要的形状。也就是说，您认为形状集合是一个*封闭集*。但您确实缺少额外的操作。例如，您缺少一个旋转形状的操作。此外，您希望序列化形状，即您希望将形状实例转换为字节。当然，您还希望绘制形状。此外，您希望任何人都能添加新操作。因此，您期望有一个*开放集*的操作。^([6](ch04.xhtml#idm45043113684976))
 - en: Every new operation now requires you to insert a new virtual function into the
     base class. Unfortunately, that can be troublesome in different ways. Most obviously,
     not everyone is able to add a virtual function to the `Shape` base class. I, for
@@ -386,8 +524,10 @@
     would not meet the expectation that everyone can add operations. While you can
     already see this as a final negative verdict, let’s still analyze the problem
     of virtual functions in more detail.
+  id: totrans-68
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在每个新操作都要求您向基类中插入一个新的虚函数。不幸的是，这可能以不同的方式带来麻烦。最明显的是，并非每个人都能够向 `Shape` 基类添加虚函数。例如，我就不能随意更改您的代码。因此，这种方法不符合每个人都能够添加操作的期望。尽管您现在可能认为这是最终的消极结论，让我们仍然更详细地分析虚函数的问题。
 - en: 'If you decide to use a pure virtual function, you would have to implement the
     function in every derived class. For your own derived types, you could shrug this
     off as just a little bit of extra effort. But you might also cause extra work
@@ -395,8 +535,11 @@
     class.^([7](ch04.xhtml#idm45043113680528)) And that is very much expected, since
     this is the strength of OOP: anyone can add new types easily. Since this is to
     be expected, it may be a reason to not use a pure virtual function.'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果您决定使用纯虚函数，那么您将不得不在每个派生类中实现该函数。对于您自己的派生类型，您可能认为这只是额外的一点点努力。但您也可能给其他通过从 `Shape`
+    基类继承创建形状的人带来额外的工作量。^([7](ch04.xhtml#idm45043113680528)) 这是完全可以预料的，因为这正是面向对象编程的优势：任何人都可以轻松添加新类型。鉴于这一点，这可能是不使用纯虚函数的一个理由。
 - en: 'As an alternative, you could introduce a regular virtual function, i.e., a
     virtual function with a default implementation. While a default behavior for a
     `rotate()` function sounds like a very reasonable idea, a default implementation
@@ -406,77 +549,110 @@
     must again implement the missing behavior, and it would be a pure virtual function
     in disguise, or a clear violation of the Liskov Substitution Principle (see [“Guideline
     6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)).'
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: '作为替代方案，您可以引入一个普通虚函数，即带有默认实现的虚函数。虽然为 `rotate()` 函数提供默认行为听起来是一个非常合理的主意，但为 `serialize()`
+    函数提供默认实现听起来并不容易。我承认我必须认真思考如何实现这样一个函数。您现在可能建议简单地抛出异常作为默认行为。但是，这意味着派生类必须再次实现缺失的行为，这实际上是一个伪装的纯虚函数，或者是对里氏替换原则的明显违反（参见
+    [“Guideline 6: Adhere to the Expected Behavior of Abstractions”](ch02.xhtml#adhere_to_the_expected_behavior_of_abstractions)）。'
 - en: Either way, adding a new operation into the `Shape` base class is difficult
     or not even possible at all. The underlying reason is that adding virtual functions
     violates the OCP. If you really need to add new operations frequently, then you
     should design so that the extension of operations is easy. That is what the Visitor
     design pattern tries to achieve.
+  id: totrans-71
   prefs: []
   type: TYPE_NORMAL
+  zh: 无论如何，向`Shape`基类添加新操作都很困难，甚至根本不可能。其根本原因在于添加虚函数违反了OCP。如果确实需要经常添加新操作，那么应该设计以便轻松扩展操作。这就是访问者设计模式试图实现的目标。
 - en: The Visitor Design Pattern Explained
+  id: totrans-72
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 解析访问者设计模式
 - en: The intent of the Visitor design pattern is to enable the addition of operations.
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 访问者设计模式的目的是使添加操作变得容易。
 - en: The Visitor Design Pattern
+  id: totrans-74
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 访问者设计模式
 - en: 'Intent: “Represent an operation to be performed on the elements of an object
     structure. Visitor lets you define a new operation without changing the classes
     of the elements on which it operates.”^([8](ch04.xhtml#idm45043113671408))'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 意图：“表示对对象结构的元素执行的操作。访问者模式使您能够定义新的操作，而无需更改它所操作的元素的类。”^([8](ch04.xhtml#idm45043113671408))
 - en: 'In addition to the `Shape` hierarchy, I now introduce the `ShapeVisitor` hierarchy
     on the lefthand side of [Figure 4-2](#fig_visitor_shape). The `ShapeVisitor` base
     class represents an abstraction of shape operations. For that reason, you could
     argue that `ShapeOperation` might be a better name for that class. It is beneficial,
     however, to apply [“Guideline 14: Use a Design Pattern’s Name to Communicate Intent”](ch03.xhtml#use_a_design_patterns_name_to_communicate_intent).
     The name Visitor will help others understand the design.'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了`Shape`层次结构外，我现在在[图 4-2](#fig_visitor_shape)的左侧引入了`ShapeVisitor`层次结构。`ShapeVisitor`基类代表了形状操作的抽象。因此，你可以说`ShapeOperation`可能是该类的更好名称。然而，应用[“指南
+    14：使用设计模式的名称来传达意图”](ch03.xhtml#use_a_design_patterns_name_to_communicate_intent)是有益的。Visitor这个名称将帮助他人理解设计。
 - en: '![](assets/cpsd_0402.png)'
+  id: totrans-77
   prefs: []
   type: TYPE_IMG
+  zh: '![](assets/cpsd_0402.png)'
 - en: Figure 4-2\. The UML representation of the Visitor design pattern
+  id: totrans-78
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-2\. 访问者设计模式的UML表示
 - en: 'The `ShapeVisitor` base class comes with one pure virtual `visit()` function
     for every concrete shape in the `Shape` hierarchy:'
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ShapeVisitor`基类为`Shape`层次结构中的每个具体形状提供了一个纯虚拟的`visit()`函数：'
 - en: '[PRE12]'
+  id: totrans-80
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: In this example, there is one `visit()` function for `Circle` ([![1](assets/1.png)](#code_g16_1))
     and one for `Square` ([![2](assets/2.png)](#code_g16_2)). Of course, there could
     be more `visit()` functions—for instance, one for `Triangle`, one for `Rectangle`,
     and one for `Ellipse`—given that these are also classes derived from the `Shape`
     base class.
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个例子中，为`Circle`（[![1](assets/1.png)](#code_g16_1)）和`Square`（[![2](assets/2.png)](#code_g16_2)）各有一个`visit()`函数。当然，还可以有更多的`visit()`函数，例如一个用于`Triangle`，一个用于`Rectangle`，一个用于`Ellipse`，因为这些也是从`Shape`基类派生的类。
 - en: 'With the `ShapeVisitor` base class in place, you can now add new operations
     easily. All you have to do to add an operation is add a new derived class. For
     instance, to enable rotating shapes, you can introduce the `Rotate` class and
     implement all `visit()` functions. To enable drawing shapes, all you have to do
     is introduce a `Draw` class:'
+  id: totrans-82
   prefs: []
   type: TYPE_NORMAL
+  zh: 使用了`ShapeVisitor`基类后，现在可以轻松添加新的操作。要添加一个操作，只需添加一个新的派生类即可。例如，为了实现旋转形状，可以引入`Rotate`类并实现所有的`visit()`函数。要启用绘制形状，只需引入一个`Draw`类：
 - en: '[PRE13]'
+  id: totrans-83
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: And you can think about introducing multiple `Draw` classes, one for each graphics
     library you need to support. You can do that easily, because you don’t have to
     modify any *existing code*. It is only necessary to extend the `ShapeVisitor`
     hierarchy by adding *new code*. Therefore, this design fulfills the OCP with respect
     to adding operations.
+  id: totrans-84
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可以考虑引入多个`Draw`类，每个类对应一个需要支持的图形库。你可以轻松地做到这一点，因为你不必修改任何*现有代码*。只需通过添加*新代码*来扩展`ShapeVisitor`层次结构。因此，这种设计在添加操作方面符合OCP原则。
 - en: 'To completely understand the software design characteristics of Visitor, it
     is important to understand why the Visitor design pattern is able to fulfill the
     OCP. The initial problem was that every new operation required a change to the
@@ -486,24 +662,35 @@
     change for every new operation. This avoids frequent modifications of the `Shape`
     hierarchy and enables the easy addition of new operations. The SRP therefore acts
     as an enabler for the OCP.'
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 要完全理解访问者的软件设计特性，重要的是理解访问者设计模式能够如何满足开放封闭原则。最初的问题在于每个新操作都需要更改`Shape`基类。访问者将添加操作识别为*变化点*。通过提取这个变化点，即通过将其作为单独的类，您遵循单一职责原则（SRP）：`Shape`不需要为每个新操作而更改。这避免了频繁修改`Shape`层次结构，并使得轻松添加新操作成为可能。因此，SRP充当了OCP的促进者。
 - en: 'To use visitors (classes derived from the `ShapeVisitor` base class) on shapes,
     you now have to add one last function to the `Shape` hierarchy: the `accept()`
     function ([![3](assets/3.png)](#code_g16_3)):⁠^([9](ch04.xhtml#idm45043113428544))'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: 要在形状上使用访问者（从`ShapeVisitor`基类派生的类），您现在必须向`Shape`层次结构添加最后一个函数：`accept()`函数（[![3](assets/3.png)](#code_g16_3)）：⁠^([9](ch04.xhtml#idm45043113428544))
 - en: '[PRE14]'
+  id: totrans-87
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: 'The `accept()` function is introduced as a pure virtual function in the base
     class and therefore has to be implemented in every derived class ([![4](assets/4.png)](#code_g16_4)
     and [![5](assets/5.png)](#code_g16_5)):'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: '`accept()` 函数在基类中被引入为纯虚函数，因此必须在每个派生类中实现（[![4](assets/4.png)](#code_g16_4) 和
+    [![5](assets/5.png)](#code_g16_5)）：'
 - en: '[PRE15]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: The implementation of `accept()` is easy; however, it merely needs to call the
     corresponding `visit()` function on the given visitor based on the type of the
     concrete `Shape`. This is achieved by passing the `this` pointer as an argument
@@ -511,33 +698,45 @@
     class, but due to a different type of the `this` pointer, it will trigger a different
     overload of the `visit()` function in the given visitor. Therefore, the `Shape`
     base class cannot provide a default implementation.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: '`accept()`的实现很简单；然而，它仅需要调用给定访问者上的相应`visit()`函数，基于具体`Shape`类型传递`this`指针作为参数。因此，每个派生类中`accept()`的实现是相同的，但由于`this`指针的不同类型，它将触发给定访问者的不同重载`visit()`函数。因此，`Shape`基类无法提供默认实现。'
 - en: 'This `accept()` function can now be used where you need to perform an operation.
     For instance, the `drawAllShapes()` function uses `accept()` to draw all shapes
     in a given vector of shapes:'
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在可以在需要执行操作的地方使用`accept()`函数。例如，`drawAllShapes()`函数使用`accept()`来绘制给定形状向量中的所有形状：
 - en: '[PRE16]'
+  id: totrans-92
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE16]'
 - en: With the addition of the `accept()` function, you are now able to extend your
     `Shape` hierarchy easily with operations. You have now designed for an *open set*
     of operations. Amazing! However, there is no silver bullet, and there is no design
     that always works. Every design comes with advantages, but also disadvantages.
     So before you start to celebrate, I should tell you about the shortcomings of
     the Visitor design pattern to give you the complete picture.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 添加了`accept()`函数后，您现在可以轻松扩展操作的`Shape`层次结构。您现在设计了一个*开放集*的操作。太棒了！然而，没有银弹，也没有一种设计能够始终奏效。每种设计都有其优势，但也有其劣势。因此，在您开始庆祝之前，我应该告诉您访问者设计模式的缺点，以便您全面了解。
 - en: Analyzing the Shortcomings of the Visitor Design Pattern
+  id: totrans-94
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析访问者设计模式的缺点
 - en: The Visitor design pattern is unfortunately far from perfect. This should be
     expected, considering Visitor is a workaround for an intrinsic OOP weakness, instead
     of building on OOP strengths.
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 访问者设计模式遗憾地远非完美。考虑到访问者是一种对面向对象编程弱点的变通方法，而不是建立在面向对象编程优势基础上的。
 - en: 'The first disadvantage is a low implementation flexibility. It becomes obvious
     if you consider the implementation of a `Translate` visitor. The `Translate` visitor
     needs to move the center point of each shape by a given offset. For that, `Translate`
@@ -551,17 +750,24 @@
     the strict requirements imposed by the base class do not give you the freedom
     to implement these `visit()` functions as one. The result is some boilerplate
     code:'
+  id: totrans-96
   prefs: []
   type: TYPE_NORMAL
+  zh: 第一个缺点是低灵活性的实现。如果考虑实现`Translate`访问者，这一点就变得显而易见。`Translate`访问者需要将每个形状的中心点按给定偏移量移动。为此，`Translate`需要为每个具体的`Shape`实现一个`visit()`函数。特别是对于`Translate`来说，可以想象这些`visit()`函数的实现会非常相似，如果不是完全相同的话：从翻译`Circle`到翻译`Square`并没有什么不同。尽管如此，你仍然需要编写所有的`visit()`函数。当然，你可以从`visit()`函数中提取逻辑，并根据DRY原则实现到第三个单独的函数中以最小化重复。^([10](ch04.xhtml#idm45043112966976))
+    但不幸的是，基类施加的严格要求不允许你将这些`visit()`函数实现为一个函数。结果就是一些样板代码：
 - en: '[PRE17]'
+  id: totrans-97
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE17]'
 - en: A similar implementation inflexibility is the return type of the `visit()` functions.
     The decision on what the function returns is made in the `ShapeVisitor` base class.
     Derived classes cannot change that. The usual approach is to store the result
     in the visitor and access it later.
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 类似的实现不灵活之处在于`visit()`函数的返回类型。决定函数返回内容的是`ShapeVisitor`基类。派生类无法改变这一点。通常的做法是将结果存储在访问者中，并稍后访问它。
 - en: 'The second disadvantage is that with the Visitor design pattern in place, it
     becomes difficult to add new types. Previously, we made the assumption that you’re
     certain you have all the shapes you will ever need. This assumption has now become
@@ -573,20 +779,29 @@
     their operations.^([11](ch04.xhtml#idm45043112860032)) Thus, the Visitor design
     pattern requires a *closed set* of types and in exchange provides an *open set*
     of operations.'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个缺点是使用访问者设计模式后，添加新类型变得困难。先前我们假设你确定已经拥有了所有可能需要的形状。这一假设现在已成为一种限制。在`Shape`层次结构中添加新形状将需要更新整个`ShapeVisitor`层次结构：你必须向`ShapeVisitor`基类添加一个新的纯虚函数，并且所有派生类都必须实现这个虚函数。当然，这带来了我们之前讨论过的所有缺点。特别是，你将强制其他开发人员更新他们的操作。^([11](ch04.xhtml#idm45043112860032))
+    因此，访问者设计模式要求*类型集合为封闭*，而提供*操作集合为开放*。
 - en: The underlying reason for this restriction is that there is a cyclic dependency
     among the `ShapeVisitor` base class, the concrete shapes (`Circle`, `Square`,
     etc.), and the `Shape` base class (see [Figure 4-3](#fig_visitor_dependency_graph)).
+  id: totrans-100
   prefs: []
   type: TYPE_NORMAL
+  zh: 该限制的根本原因是`ShapeVisitor`基类、具体形状（如`Circle`、`Square`等）和`Shape`基类之间存在循环依赖（参见[图 4-3](#fig_visitor_dependency_graph)）。
 - en: '![](assets/cpsd_0403.png)'
+  id: totrans-101
   prefs: []
   type: TYPE_IMG
+  zh: '![](assets/cpsd_0403.png)'
 - en: Figure 4-3\. Dependency graph for the Visitor design pattern
+  id: totrans-102
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-3\. 访问者设计模式的依赖图
 - en: The `ShapeVisitor` base class depends on the concrete shapes, since it provides
     a `visit()` function for each of these shapes. The concrete shapes depend on the
     `Shape` base class, since they have to fulfill all the expectations and requirements
@@ -596,8 +811,10 @@
     of a dependency inversion), but we cannot add types easily anymore (because that
     would have to happen on the high level of our architecture). For that reason,
     we call the classic Visitor design pattern *Cyclic Visitor*.
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: '`ShapeVisitor`基类依赖于具体的形状，因为它为每个形状提供了一个`visit()`函数。具体形状依赖于`Shape`基类，因为它们必须满足基类的所有期望和要求。而`Shape`基类由于`accept()`函数的存在，依赖于`ShapeVisitor`基类。因此，由于这种循环依赖，我们现在能够在我们架构的较低层轻松添加新的操作（由于依赖反转），但我们不再能够轻松地添加类型（因为那必须发生在我们架构的高层）。因此，我们将经典的访问者设计模式称为*循环访问者*。'
 - en: 'The third disadvantage is the intrusive nature of a visitor. To add a visitor
     to an existing hierarchy, you need to add the virtual `accept()` to the base class
     of that hierarchy. While this is often possible, it still suffers from the usual
@@ -607,8 +824,10 @@
     is not an option. If that’s the case, don’t worry: we will see another, nonintrusive
     form of the Visitor design pattern in [“Guideline 17: Consider std::variant for
     Implementing Visitor”](#consider_std_variant_for_implementing_visitors).'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 第三个缺点是访问者的侵入性。要将访问者添加到现有的层次结构中，您需要将虚拟的`accept()`函数添加到该层次结构的基类中。虽然这通常是可能的，但仍然会遭受向现有层次结构添加纯虚拟函数的通常问题（参见[“指南15：为类型或操作的添加进行设计”](#design_for_the_addition_of_types_or_operations)）。然而，如果无法添加`accept()`函数，这种形式的访问者就不是一个选项。如果是这种情况，不要担心：我们将在[“指南17：考虑使用std::variant实现访问者”](#consider_std_variant_for_implementing_visitors)中看到另一种非侵入性的访问者设计模式。
 - en: A fourth, albeit admittedly more obscure, disadvantage is that the `accept()`
     function is inherited by deriving classes. If someone later adds another layer
     of derived classes (and that someone might be you) and forgets to override the
@@ -617,8 +836,10 @@
     new types has become more difficult. A possible solution for this would be to
     declare the `Circle` and `Square` classes as `final`, which would, however, limit
     future extensions.
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 第四个，尽管较为隐晦的缺点是`accept()`函数被派生类继承。如果稍后有人（也可能是您）添加另一层派生类并忘记重写`accept()`函数，访问者将应用于错误的类型。不幸的是，您将得不到任何有关此问题的警告。这只是更多证据表明，添加新类型变得更加困难。对此的一个可能解决方案是将`Circle`和`Square`类声明为`final`，然而这将限制未来的扩展。
 - en: “Wow, that’s a lot of disadvantages. Are there any more?” Yes, unfortunately
     there are two more. The fifth disadvantage is obvious when we consider that for
     every operation, we’re now required to call two virtual functions. Initially,
@@ -630,16 +851,22 @@
     *double dispatch* is unfortunately not free. On the contrary, performance-wise,
     you should consider the Visitor design pattern as rather slow. I will provide
     some performance numbers in the next guideline.
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: “哇，这有很多缺点。还有其他的吗？”是的，不幸的是还有两个。第五个缺点很明显，因为我们现在对每个操作都需要调用两个虚函数。最初，我们既不知道操作的类型，也不知道形状的类型。第一个虚函数是`accept()`函数，它接受一个抽象的`ShapeVisitor`。`accept()`函数现在解析形状的具体类型。第二个虚函数是`visit()`函数，它接受一个具体类型的`Shape`。`visit()`函数现在解析操作的具体类型。这种所谓的*双重分派*是不可避免的。相反，在性能方面，你应该将访问者设计模式视为相当慢的一种模式。我将在下一个指南中提供一些性能数据。
 - en: 'While talking about performance, I should also mention two other aspects that
     have a negative impact on performance. First, we usually allocate every single
     shape and visitor individually. Consider the following `main()` function:'
+  id: totrans-107
   prefs: []
   type: TYPE_NORMAL
+  zh: 谈到性能时，我还应该提到另外两个对性能有负面影响的方面。首先，我们通常会单独为每个形状和访问者分配内存。考虑下面的`main()`函数：
 - en: '[PRE18]'
+  id: totrans-108
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE18]'
 - en: In this `main()` function, all allocations happen by means of `std::make_unique()`
     ([![6](assets/6.png)](#code_g16_6), [![7](assets/7.png)](#code_g16_7), and [![8](assets/8.png)](#code_g16_8)).
     These many, small allocations cost runtime on their own and will in the long run
@@ -649,14 +876,18 @@
     indirections make it much harder for a compiler to perform any kind of optimization
     and will show up in performance benchmarks. However, to be honest, this is not
     a Visitor-specific problem, but these two aspects are quite common to OOP in general.
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这个`main()`函数中，所有的分配都是通过`std::make_unique()`来完成的（[![6](assets/6.png)](#code_g16_6)，[![7](assets/7.png)](#code_g16_7)和[![8](assets/8.png)](#code_g16_8)）。这些大量的小内存分配会消耗运行时，并且最终会导致内存碎片化。^([12](ch04.xhtml#idm45043112718640))此外，内存可能以一种不利于缓存的方式布局。因此，我们通常使用指针来处理生成的形状和访问者。这些额外的间接引用会大大增加编译器进行任何优化的难度，并且会在性能基准测试中显现出来。但是，老实说，这并不是访问者模式特有的问题，但这两个方面在面向对象编程中却很常见。
 - en: The last disadvantage of the Visitor design pattern is that experience has proven
     this design pattern to be rather hard to fully understand and maintain. This is
     a rather subjective disadvantage, but the complexity of the intricate interplay
     of the two hierarchies often feels more like a burden than a real solution.
+  id: totrans-110
   prefs: []
   type: TYPE_NORMAL
+  zh: 访问者设计模式的最后一个缺点是，实践经验表明这种设计模式相对难以完全理解和维护。这是一个相当主观的缺点，但这两个层次结构的错综复杂互动往往更像是一种负担，而不是真正的解决方案。
 - en: 'In summary, the Visitor design pattern is the OOP solution to allow for the
     easy extension of operations instead of types. That is achieved by introducing
     an abstraction in the form of the `ShapeVisitor` base class, which enables you
@@ -665,17 +896,23 @@
     in both inheritance hierarchies due to a strong coupling to the requirements of
     the base classes, rather bad performance, and the intrinsic complexity of Visitor
     make it a rather unpopular design pattern.'
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下，访问者设计模式是面向对象编程中允许轻松扩展操作而不是类型的解决方案。这通过引入`ShapeVisitor`基类的抽象实现，使您能够在另一组类型上添加操作来实现。虽然这是访问者的独特优势，但不幸的是，它也伴随着几个不足之处：由于与基类要求的强耦合，实现上的不灵活性在两个继承层次结构中，性能较差以及访问者的内在复杂性使其成为一个相对不受欢迎的设计模式。
 - en: If you’re now undecided whether or not to use a classic Visitor, take the time
     to read the next section. I will show you a different way to implement a Visitor—a
     solution that will much more likely be to your satisfaction.
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 如果你现在还在犹豫是否要使用经典的访问者模式，请花点时间阅读下一节。我将向你展示一种实现访问者模式的不同方式——一种更有可能让你满意的解决方案。
 - en: 'Guideline 17: Consider std::variant for Implementing Visitor'
+  id: totrans-113
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 准则 17：考虑使用 std::variant 实现访问者
 - en: 'In [“Guideline 16: Use Visitor to Extend Operations”](#use_visitors_to_extend_operations),
     I introduced you to the Visitor design pattern. I imagine that you did not immediately
     fall in love: while Visitor most certainly has a couple of unique properties,
@@ -684,12 +921,16 @@
     classic form is not the only way you can implement the Visitor design pattern.
     In this section, I would like to introduce you to a different way to implement
     Visitor. And I am certain that this approach will be much more to your liking.'
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“准则 16：使用访问者扩展操作”](#use_visitors_to_extend_operations)中，我向您介绍了访问者设计模式。我想你并不立刻喜欢它：虽然访问者确实有一些独特的特性，但它也是一种相当复杂的设计模式，内部耦合度高且性能有缺陷。不，绝对不是一见钟情！但是，不要担心，经典形式并不是您实现访问者设计模式的唯一方式。在这一节中，我想向您介绍一种不同的实现访问者的方法。我确信这种方法会更符合您的口味。
 - en: Introduction to std::variant
+  id: totrans-115
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 引入 std::variant
 - en: 'At the beginning of this chapter, we talked about the strengths and weaknesses
     of the different paradigms (OOP versus procedural programming). In particular,
     we talked about the fact that procedural programming was particularly good at
@@ -697,11 +938,15 @@
     workarounds in OOP, how about we exploit the strength of procedural programming?
     No, don’t worry; of course I’m not suggesting a return to our initial solution.
     That approach was just too error prone. Instead I’m talking about `std::variant`:'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 在本章开头，我们讨论了不同范式（面向对象编程与过程化编程）的优劣。特别是，我们谈到过程化编程特别擅长向现有类型集合添加新操作。因此，与其在面向对象编程中寻找变通方法，不如我们利用过程化编程的优势如何？不，别担心；当然我不是建议回到我们最初的解决方案。那种方法实在太容易出错了。相反，我谈论的是`std::variant`：
 - en: '[PRE19]'
+  id: totrans-117
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE19]'
 - en: 'Since you might not have had the pleasure of being introduced to the C++17
     `std::variant` yet, allow me to give you an introduction in a nutshell, just in
     case. A variant represents one of several alternatives. The variant at the beginning
@@ -711,8 +956,10 @@
     of them, and under usual circumstances, it should never contain nothing. For that
     reason, we call a variant a *sum type*: the set of possible states is the sum
     of possible states of the alternatives.'
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 既然您可能还没有享受过介绍C++17 `std::variant`的乐趣，让我简要地给您介绍一下，以防万一。变体表示几个备选项中的一个。在代码示例的`main()`函数开始时，变体可以包含一个`int`、一个`double`或一个`std::string`（[![1](assets/1.png)](#code_g17_1)）。请注意，我说的是*或*：变体只能包含这三个备选项中的一个。它不可能同时包含它们，且在通常情况下，不应为空。因此，我们称变体为*和类型*：可能状态的集合是备选项可能状态的总和。
 - en: 'A default variant is also not empty. It is initialized to the default value
     of the first alternative. In the example, a default variant contains an integer
     of value 0\. Changing the value of a variant is simple: you can just assign new
@@ -723,8 +970,11 @@
     that is not one of the possible alternatives, the usual conversion rules apply.
     For instance, if you want to assign a `float`, based on the regular conversion
     rules it would be promoted to a `double` ([![4](assets/4.png)](#code_g17_4)).'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 默认变体也不是空的。它被初始化为第一个备选项的默认值。在例子中，一个默认变体包含值为0的整数。更改变体的值很简单：您只需分配新值。例如，我们可以分配值42，这意味着变体现在存储了一个值为42的整数（[![2](assets/2.png)](#code_g17_2)）。如果随后分配`double`
+    3.14，那么变体将存储值为3.14的`double`（[![3](assets/3.png)](#code_g17_3)）。如果您希望分配的类型不是可能的备选项之一，则适用通常的转换规则。例如，如果您想分配一个`float`，基于常规转换规则，它将被提升为`double`（[![4](assets/4.png)](#code_g17_4)）。
 - en: To store the alternatives, the variant provides just enough internal buffer
     to hold the largest of the alternatives. In our case, the largest alternative
     is the `std::string`, which is usually between 24 and 32 bytes (depending on the
@@ -736,8 +986,10 @@
     the variant will properly destroy the `std::string` by means of its destructor
     and reuse the internal buffer for the integer. Marvelous, is it not? The variant
     is type safe and always properly initialized. What more could we ask for?
+  id: totrans-120
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了存储这些备选项，变体提供了足够的内部缓冲区来容纳最大的备选项之一。在我们的情况下，最大的备选项是`std::string`，通常在24到32字节之间（取决于标准库的实现）。因此，当您分配字符串字面量`"Bjarne"`时，变体将首先清除先前的值（没有太多工作；它只是一个`double`），然后，因为它是唯一有效的备选项，将在其自身缓冲区内直接构造`std::string`（[![5](assets/5.png)](#code_g17_5)）。当您改变主意并分配整数43时（[![6](assets/6.png)](#code_g17_6)），变体将通过其析构函数适当地销毁`std::string`并重用内部缓冲区以存储整数。不可思议，不是吗？变体是类型安全的，并且始终正确初始化。我们还能要求什么呢？
 - en: 'Well, of course you want to do something with the values inside the variant.
     It would not be of any use if we just store the value. Unfortunately, you cannot
     simply assign a variant to any other value, e.g., an `int`, to get your value
@@ -757,8 +1009,10 @@
     `std::visit()` allows you to perform any operation on the stored value. Or more
     precisely, it allows you to pass a custom visitor to perform any operation on
     the stored value of a *closed set* of types. Sound familiar?'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 当然，你肯定希望对variant内部的值进行一些操作。如果我们只是存储值而不做任何处理，那是没有用处的。不幸的是，你不能简单地将variant分配给其他任何值（例如`int`），以获取你想要的值。访问这个值更为复杂一些。有几种方式可以访问存储的值，最直接的方法是`std::get()`（[![7](assets/7.png)](#code_g17_7)）。使用`std::get()`可以查询特定类型的值。如果variant包含该类型的值，则返回对其的引用。如果不包含，则抛出`std::bad_variant_exception`异常。这似乎是一个相当粗鲁的响应，考虑到你已经礼貌地询问。但我们应该庆幸variant在确实不包含值时并不会假装拥有一些值。至少它是诚实的。还有一种更好的方式，即`std::get_if()`（[![8](assets/8.png)](#code_g17_8)）。与`std::get()`相比，`std::get_if()`不返回引用，而是返回一个指针。如果请求variant当前不包含的类型，则它不会抛出异常，而是返回`nullptr`。然而，还有第三种方式，这种方式对我们的目的尤为有趣：`std::visit()`（[![9](assets/9.png)](#code_g17_9)）。`std::visit()`允许您对存储的值执行任何操作。或者更确切地说，它允许您传递自定义访问者来对*封闭类型集*中存储的值执行任何操作。听起来耳熟能详吗？
 - en: 'The `Print` visitor ([![10](assets/10.png)](#code_g17_10)) that we pass as
     the first argument must provide a function call operator (`operator()`) for every
     possible alternative. In this example, that is fulfilled by providing three `operator()`s:
@@ -767,11 +1021,15 @@
     not have any virtual functions. Therefore, there is no strong coupling to any
     requirements. If we wanted to, we could also collapse the function call operators
     for `int` and `double` into one, since an `int` can be converted to a `double`:'
+  id: totrans-122
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们传递的`Print`访问者（[![10](assets/10.png)](#code_g17_10)）必须为每种可能的替代方案提供一个函数调用操作符（`operator()`）。在这个例子中，通过提供三个`operator()`来实现：一个用于`int`，一个用于`double`，一个用于`std::string`。特别值得注意的是，`Print`不必继承任何基类，也没有任何虚函数。因此，与任何要求的强耦合不存在。如果愿意的话，我们也可以将`int`和`double`的函数调用操作符合并为一个，因为`int`可以转换为`double`：
 - en: '[PRE20]'
+  id: totrans-123
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE20]'
 - en: 'While the question about which version we should prefer is not of particular
     interest for us at this moment, you’ll notice that we have a lot of implementation
     flexibility. There is only a very loose coupling based on the convention that
@@ -783,34 +1041,48 @@
     add new operations. No existing code needs to be modified. With this, we can argue
     that this is a procedural solution, just much more elegant than the initial enum-based
     approach, which used a base class to hold a discriminator.'
+  id: totrans-124
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然关于我们应该偏好哪个版本的问题对我们来说并不是特别重要，但你会注意到我们有很多实现灵活性。只有根据每个备选项都需要有一个`operator()`的约定，存在非常松散的耦合。我们不再有强制我们以非常特定方式做事情的`Visitor`基类。我们也没有任何备选项的基类：我们可以自由使用基本类型如`int`和`double`，以及任意的类类型如`std::string`。而且也许最重要的是，任何人都可以轻松添加新操作。不需要修改任何现有代码。因此，我们可以说这是一个过程化解决方案，只是比最初基于枚举的方法更加优雅，而那种方法使用基类来保存鉴别器。
 - en: Refactoring the Drawing of Shapes as a Value-Based, Nonintrusive Solution
+  id: totrans-125
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 将形状的绘制重构为基于值的、非侵入式解决方案
 - en: 'With these properties, `std::variant` is perfectly suited for our drawing example.
     Let’s re-implement the drawing of shapes with `std::variant`. First, we refactor
     the `Circle` and `Square` classes:'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 凭借这些特性，`std::variant`非常适合我们的绘图示例。让我们使用`std::variant`重新实现形状的绘制。首先，我们重构`Circle`和`Square`类：
 - en: '[PRE21]'
+  id: totrans-127
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE21]'
 - en: 'Both `Circle` and `Square` are significantly simplified: no more `Shape` base
     class, no more need to implement any virtual functions—in particular the `accept()`
     function. Thus, this Visitor approach is nonintrusive: this form of Visitor can
     be easily added to existing types! And there is no need to prepare these classes
     for any upcoming operations. We can focus entirely on implementing these two classes
     as what they are: geometric primitives.'
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: '`Circle`和`Square`都显著简化了：不再有`Shape`基类，也不再需要实现任何虚函数，特别是`accept()`函数。因此，这种访问者（Visitor）方法是非侵入式的：这种形式的访问者可以轻松添加到现有类型中！而且无需为这些类准备任何即将进行的操作。我们可以完全专注于实现这两个类作为它们本身：几何原语。'
 - en: 'The most beautiful part of the refactoring, however, is the actual use of `std::variant`:'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 重构中最美的部分，然而，是实际使用`std::variant`：
 - en: '[PRE22]'
+  id: totrans-130
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE22]'
 - en: 'Since our *closed set* of types is a set of shapes, variant will now contain
     either a `Circle` or `Square`. And what is a good name for an abstraction of a
     set of types that represent shapes? Well…`Shape` ([![11](assets/11.png)](#code_g17_11)).
@@ -821,16 +1093,24 @@
     was to enable us to store different kinds of shapes in the same vector. But now
     that `std::variant` enables us to do the same, we can simply store variant objects
     inside a single vector ([![12](assets/12.png)](#code_g17_12)).'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于我们*封闭的类型集合*是一组形状，variant 现在将包含`Circle`或`Square`。那么，什么是一个代表形状类型集合的抽象良好名称？嗯...`Shape`
+    ([![11](assets/11.png)](#code_g17_11))。现在，`std::variant`承担起了这个任务，而不是一个从实际形状类型抽象出来的基类。如果这是你第一次看到这个，你可能完全惊讶了。但等等，还有更多：这也意味着我们现在可以抛弃`std::unique_ptr`。记住：我们使用（智能）指针的唯一原因是使我们能够在同一个向量中存储不同类型的形状。但是现在，由于`std::variant`使我们能够做同样的事情，我们可以简单地将
+    variant 对象存储在单个向量中 ([![12](assets/12.png)](#code_g17_12))。
 - en: 'With this functionality in place, we can write custom operations on shapes.
     We’re still interested in drawing shapes. For that purpose, we now implement the
     `Draw` visitor:'
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了这个功能，我们可以对形状编写自定义操作。我们仍然对绘制形状感兴趣。为此，我们现在实现`Draw`访问者：
 - en: '[PRE23]'
+  id: totrans-133
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE23]'
 - en: 'Again, we are following the expectation to implement one `operator()` for every
     alternative: one for `Circle` and one for `Square`. But this time we have a choice.
     There is no need to implement any base class, and for that reason, no need to
@@ -841,28 +1121,40 @@
     We can locally decide what we should return, and it is not a base class that,
     independent from the specific operation, makes a global decision. Implementation
     flexibility. Loose coupling. Amazing!'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: 再次，我们遵循为每个备选实现一个`operator()`的预期：一个用于`Circle`，一个用于`Square`。但是这次我们有选择。没有必要实现任何基类，因此也没有必要覆盖任何虚函数。因此，也没有必要为每个备选实现一个`operator()`。虽然在这个例子中有两个函数感觉是合理的，但我们可以选择将两个`operator()`合并成一个函数。在操作的返回类型方面，我们也有选择。我们可以在本地决定应该返回什么，而不是一个基类在不考虑特定操作的情况下做出全局决定。实现的灵活性。松散的耦合。太棒了！
 - en: 'The last piece of the puzzle is the `drawAllShapes()` function:'
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个谜题的最后一部分是`drawAllShapes()`函数：
 - en: '[PRE24]'
+  id: totrans-136
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE24]'
 - en: The `drawAllShapes()` function is refactored to make use of `std::visit()`.
     In this function, we now apply the `Draw` visitor onto all variants stored in
     a vector.
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: 函数`drawAllShapes()`被重构，以利用`std::visit()`。在这个函数中，我们现在将`Draw`访问器应用于存储在向量中的所有变体。
 - en: 'The job of `std::visit()` is to perform the necessary type dispatch for you.
     If the given `std::variant` contains a `Circle`, it will call the `Draw::operator()`
     for circles. Otherwise it will call the `Draw::operator()` for squares. If you
     wanted to, you could manually implement the same dispatch with `std::get_if()`:'
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::visit()`的工作是为您执行必要的类型分派。如果给定的`std::variant`包含一个`Circle`，它将调用圆形的`Draw::operator()`。否则，它将调用正方形的`Draw::operator()`。如果你愿意，你可以使用`std::get_if()`手动实现相同的分派：'
 - en: '[PRE25]'
+  id: totrans-139
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE25]'
 - en: 'I know what you’re thinking: “Nonsense! Why would I ever want to do that? That
     would result in the same maintenance nightmare as an enum-based solution.” I completely
     agree with you: from a software design perspective, this would be a terrible idea.
@@ -871,18 +1163,24 @@
     now I’ve piqued your interest, but since we are almost ready to talk about performance
     anyway, allow me to defer this discussion for just a few paragraphs. I will come
     back to this, I promise!'
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: 我知道你在想什么：“胡说八道！为什么我要那样做？那会导致与基于枚举的解决方案一样的维护噩梦。” 我完全同意你的观点：从软件设计的角度来看，这将是一个糟糕的主意。但是，我不得不承认，在这本书的背景下，有时可能有一个很好的理由做这样的事情：性能。我知道，现在我引起了你的兴趣，但既然我们几乎已经准备好讨论性能了，让我稍微推迟一下这个讨论，只需要几段话。我会回到这个话题的，我保证！
 - en: 'With all of these details in place, we can finally refactor the `main()` function.
     But there isn’t a lot of work to do: instead of creating circles and squares by
     means of `std::make_unique()`, we simply create circles and squares directly,
     and add them to the vector. This works thanks to the nonexplicit constructor of
     variant, which allows implicit conversion of any of the alternatives:'
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: 有了所有这些细节，我们最终可以重构`main()`函数。但要做的工作并不多：不再通过`std::make_unique()`创建圆和正方形，而是直接创建圆和正方形，并将它们添加到向量中。这得益于variant的非显式构造函数，它允许任何备选的隐式转换：
 - en: '[PRE26]'
+  id: totrans-142
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE26]'
 - en: 'The end result of this value-based solution is stunningly fascinating: no base
     classes anywhere. No virtual functions. No pointers. No manual memory allocations.
     Things are as straightforward as they could be, and there is very little boilerplate
@@ -890,15 +1188,21 @@
     previous solutions, the architectural properties are identical: everyone is able
     to add new operations without the need to modify existing code (see [Figure 4-4](#fig_variant_dependency_graph)).
     Therefore, we still fulfill the OCP in respect to adding operations.'
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种基于值的解决方案的最终结果非常迷人：任何地方都没有基类。没有虚函数。没有指针。没有手动内存分配。一切都如此直接，而且几乎没有样板代码。此外，尽管代码看起来与以前的解决方案非常不同，但架构属性是相同的：每个人都能够添加新的操作，而无需修改现有的代码（见[图 4-4](#fig_variant_dependency_graph)）。因此，我们仍然遵守OCP原则，可以添加操作。
 - en: '![](assets/cpsd_0404.png)'
+  id: totrans-144
   prefs: []
   type: TYPE_IMG
+  zh: '![](assets/cpsd_0404.png)'
 - en: Figure 4-4\. Dependency graph for the `std::variant` solution
+  id: totrans-145
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-4\. `std::variant`解决方案的依赖图
 - en: 'As already mentioned, this Visitor approach is nonintrusive. From an architectural
     point of view, this gives you another, significant advantage compared to the classic
     Visitor. If you compare the dependency graph of the classic Visitor (see [Figure 4-3](#fig_visitor_dependency_graph))
@@ -910,11 +1214,15 @@
     may look like a little detail is actually a huge architectural advantage. HUGE!
     As an example, you could create an abstraction based on `std::variant` on the
     fly:'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: 如前所述，这种Visitor方法是非侵入式的。从架构的角度来看，与经典Visitor相比，这给你带来了另一个显著的优势。如果你将经典Visitor的依赖图（见[图 4-3](#fig_visitor_dependency_graph)）与`std::variant`解决方案的依赖图（见[图 4-4](#fig_variant_dependency_graph)）进行比较，你会发现`std::variant`解决方案的依赖图具有第二个架构边界。这意味着`std::variant`和其备选方案之间不存在循环依赖。我应该重复一下以强调其重要性：`std::variant`和其备选方案之间*没有*循环依赖！看起来可能是个小细节，实际上是一个巨大的架构优势。巨大的！例如，你可以根据`std::variant`即时创建一个抽象化：
 - en: '[PRE27]'
+  id: totrans-147
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE27]'
 - en: In addition to the `Shape` abstraction we have already created ([![13](assets/13.png)](#code_g17_13)),
     you can create the `std::variant` for all round shapes ([![14](assets/14.png)](#code_g17_14)),
     and you can create a `std::variant` for all angular shapes ([![15](assets/15.png)](#code_g17_15)),
@@ -922,20 +1230,26 @@
     there is no need to derive from multiple Visitor base classes. On the contrary,
     the shape classes would be unaffected. Thus, the fact that the `std::variant`
     solution is nonintrusive is of the highest architectural value!
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: 除了我们已经创建的`Shape`抽象化（[![13](assets/13.png)](#code_g17_13)）之外，你可以为所有圆形创建`std::variant`（[![14](assets/14.png)](#code_g17_14)），也可以为所有角形创建`std::variant`（[![15](assets/15.png)](#code_g17_15)），这两者可能远离`Shape`抽象化。你可以轻松做到这一点，因为不需要从多个Visitor基类派生。相反，形状类将不受影响。因此，`std::variant`解决方案非侵入性的事实具有最高的架构价值！
 - en: Performance Benchmarks
+  id: totrans-149
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 性能基准
 - en: I know how you feel right now. Yes, that’s what love at first sight feels like.
     But believe it or not, there’s more. There is one topic that we haven’t discussed
     yet, a topic that is dear to every C++ developer, and that is, of course, performance.
     While this is not really a book about performance, it’s still worth mentioning
     that you do not have to worry about the performance of `std::variant`. I can already
     promise you that it’s fast.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: 我知道你现在的感受。是的，这就是一见钟情的感觉。但信不信由你，还有更多。还有一个我们尚未讨论的话题，这个话题对每个C++开发者来说都很重要，那就是性能。虽然这并不是一本关于性能的书，但还是值得一提的是，你不必担心`std::variant`的性能。我可以向你保证，它很快。
 - en: 'Before I show you the benchmark results, however, allow me a couple of comments
     about the benchmarks. Performance—*sigh*. Unfortunately, performance is always
     a difficult topic. There is always someone who complains about performance. For
@@ -948,39 +1262,61 @@
     in the right direction. And second, you will not launch a protest in front of
     my house because I didn’t use your favorite compiler, or compilation flag, or
     IDE. Promise?'
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: 然而，在我展示给你基准结果之前，请允许我对基准进行几点评论。性能——*叹气*。不幸的是，性能总是一个棘手的话题。总会有人抱怨性能。因此，我很愿意完全跳过这个话题。但是还有其他人抱怨缺少性能数字。*叹气*。好吧，看起来总会有人抱怨，而且由于结果实在是太好了，我将向你展示一些基准结果。但有两个条件：首先，你不会把它们视为代表绝对真理的定量值，而只是指向正确方向的定性值。其次，你不会因为我没有使用你最喜欢的编译器、编译标志或IDE而在我家门前抗议。保证？
 - en: 'You: nodding and vowing to not complain about trivial things!'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: 你：点头并发誓不抱怨琐事！
 - en: OK, great, then [Table 4-2](#table_cyclic_visitor_benchmark_results) gives you
     the benchmark results.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: 好的，太好了，那么[表 4-2](#table_cyclic_visitor_benchmark_results)给出了基准结果。
 - en: Table 4-2\. Benchmark results for different Visitor implementations
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: 表4-2\. 不同访问者实现的基准结果
 - en: '| Visitor implementation | GCC 11.1 | Clang 11.1 |'
+  id: totrans-155
   prefs: []
   type: TYPE_TB
+  zh: '| 访问者实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-156
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Classic Visitor design pattern | 1.6161 s | 1.8015 s |'
+  id: totrans-157
   prefs: []
   type: TYPE_TB
+  zh: '| 经典访问者设计模式 | 1.6161 s | 1.8015 s |'
 - en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
+  id: totrans-158
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象的解决方案 | 1.5205 s | 1.1480 s |'
 - en: '| Enum solution | 1.2179 s | 1.1200 s |'
+  id: totrans-159
   prefs: []
   type: TYPE_TB
+  zh: '| 枚举解决方案 | 1.2179 s | 1.1200 s |'
 - en: '| `std::variant` (with `std::visit()`) | 1.1992 s | 1.2279 s |'
+  id: totrans-160
   prefs: []
   type: TYPE_TB
+  zh: '| `std::variant`（使用`std::visit()`） | 1.1992 s | 1.2279 s |'
 - en: '| `std::variant` (with `std::get_if()`) | 1.0252 s | 0.6998 s |'
+  id: totrans-161
   prefs: []
   type: TYPE_TB
+  zh: '| `std::variant`（使用`std::get_if()`） | 1.0252 s | 0.6998 s |'
 - en: To make sense of these numbers, I should give you a little more background.
     To make the scenario a little more realistic, I used not only circles and squares
     but also rectangles and ellipses. Then I ran 25,000 operations on 10,000 randomly
@@ -993,8 +1329,12 @@
     GCC 11.1 and Clang 11.1, and for both compilers I added only the `-O3` and `-DNDEBUG`
     compilation flags. The platform I used was macOS Big Sur (version 11.4) on an
     8-Core Intel Core i7 with 3.8 GHz and 64 GB of main memory.
+  id: totrans-162
   prefs: []
   type: TYPE_NORMAL
+  zh: 要理解这些数字，我应该给您更多背景信息。为了使场景更真实，我不仅使用了圆和正方形，还使用了矩形和椭圆。然后我对10,000个随机创建的形状运行了25,000次操作。我没有绘制这些形状，而是用随机向量更新了它们的中心点。^([13](ch04.xhtml#idm45043111022096))这是因为这种平移操作非常便宜，可以更好地显示所有这些解决方案的固有开销（如间接引用和虚函数调用的开销）。一个昂贵的操作，比如`draw()`，会掩盖这些细节，并可能给出所有方法几乎相似的印象。我同时使用了GCC
+    11.1和Clang 11.1，并且对于这两个编译器，我只添加了`-O3`和`-DNDEBUG`编译标志。我使用的平台是macOS Big Sur（版本11.4），配备了8核Intel
+    Core i7处理器，主频3.8 GHz和64 GB主内存。
 - en: 'The most obvious takeaway from the benchmark results is that the variant solution
     is far more efficient than the classic Visitor solution. This should not come
     as a surprise: due to the double dispatch, the classic Visitor implementation
@@ -1008,22 +1348,30 @@
     much slower code when using `std::visit()`. I assume that `std::visit()` is not
     perfectly implemented and optimized at that point. But, as I said before, performance
     is always difficult, and I don’t try to venture any deeper into this mystery.^([14](ch04.xhtml#idm45043111016176))'
+  id: totrans-163
   prefs: []
   type: TYPE_NORMAL
+  zh: 从基准结果中最明显的收获是，变体解决方案比经典的访问者模式解决方案效率要高得多。这并不奇怪：由于双重调度，经典的访问者模式实现包含了大量的间接引用，因此也很难优化。此外，形状对象的内存布局非常完美：与包括基于枚举的解决方案在内的所有其他解决方案相比，所有形状都是以连续的方式存储在内存中，这是你可以选择的最友好缓存的布局。第二个收获是，如果不出奇的话，`std::variant`确实非常高效。然而，令人惊讶的是，效率很大程度上取决于我们使用`std::get_if()`还是`std::visit()`（我答应会回到这一点）。当使用`std::visit()`时，无论是GCC还是Clang都会生成更慢的代码。我认为`std::visit()`在那时可能没有被完美实现和优化。但正如我之前所说，性能总是很难把握的，我不打算深入探讨这个谜团。^([14](ch04.xhtml#idm45043111016176))
 - en: 'Most importantly, the beauty of `std::variant` is not messed up by bad performance
     numbers. On the contrary: the performance results help intensify your newfound
     relationship with `std::variant`.'
+  id: totrans-164
   prefs: []
   type: TYPE_NORMAL
+  zh: 最重要的是，`std::variant`的美丽并没有被糟糕的性能数字所混淆。相反，性能结果帮助加深您与`std::variant`的新发现关系。
 - en: Analyzing the Shortcomings of the std::variant Solution
+  id: totrans-165
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 分析`std::variant`解决方案的缺陷
 - en: While I don’t want to endanger this relationship, I consider it my duty to also
     point out a couple of disadvantages that you will have to deal with if you use
     the solution based on `std::variant`.
+  id: totrans-166
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然我不想危及这种关系，但我认为也是我的职责指出使用基于`std::variant`的解决方案时您将不得不处理的一些缺点。
 - en: 'First, I should again point out the obvious: as a solution similar to the Visitor
     design pattern and based on procedural programming, `std::variant` is also focused
     on providing an *open set* of operations. The downside is that you will have to
@@ -1038,8 +1386,11 @@
     will not produce a nice, legible error message, but something that is a little
     closer to the mother of all template-related error messages. Altogether it really
     feels pretty much like our previous experience with the enum-based solution.'
+  id: totrans-167
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，我应该再次指出显而易见的事实：作为类似于访问者设计模式并基于过程化编程的解决方案，`std::variant`也专注于提供一组*开放的*操作。缺点是你必须处理一组*封闭的*类型。添加新类型将导致类似于我们在[“指南
+    15：为类型或操作的添加设计”](#design_for_the_addition_of_types_or_operations)中枚举解决方案中遇到的问题。首先，你必须更新变体本身，这可能会触发使用变体类型的所有代码的重新编译（还记得更新枚举吗？）。此外，你还必须更新所有操作，并为新的备选类型添加可能缺少的`operator()`。好的一面是，如果缺少其中一个操作符，编译器会抱怨。坏的一面是，编译器不会生成漂亮、易读的错误消息，而是更接近于所有与模板相关的错误消息的母版。总的来说，这确实感觉非常类似于我们以前使用枚举解决方案的经验。
 - en: A second potential problem that you should keep in mind is that you should avoid
     putting types of very different sizes inside a variant. If at least one of the
     alternatives is much bigger than the others, you might waste a lot of space storing
@@ -1049,8 +1400,10 @@
     Of course, this would introduce an indirection, which also costs performance.
     Whether this is a disadvantage in terms of performance in comparison to storing
     values of different size is something that you will have to benchmark.
+  id: totrans-168
   prefs: []
   type: TYPE_NORMAL
+  zh: 第二个潜在的问题是，你应该避免在变体中放置非常不同大小的类型。如果至少一个备选类型比其他类型大得多，你可能会浪费大量空间来存储许多小的备选类型。这将对性能产生负面影响。解决方案是不直接存储大型备选类型，而是通过指针、*代理*对象或使用*桥接*设计模式[^15]进行存储。当然，这会引入一种间接性，这也会消耗性能。关于这是否在性能方面与存储不同大小的值相比具有不利因素，这是你需要进行基准测试的问题。
 - en: Last but not least, you should always be aware of the fact that a variant can
     reveal a lot of information. While it represents a runtime abstraction, the contained
     types are still plainly visible. This can create physical dependencies on the
@@ -1060,28 +1413,38 @@
     that would also impact performance, since a lot of the performance gains come
     from the compiler knowing about the details and optimizing for them accordingly.
     Thus, there is always a compromise between performance and encapsulation.
+  id: totrans-169
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后但并非最不重要的是，你应该始终意识到一个变体可以揭示大量信息的事实。虽然它代表了一个运行时的抽象，但包含的类型仍然是明显可见的。这可能会在变体上创建物理依赖性，即当修改其中一个备选类型时，可能需要重新编译任何依赖的代码。解决方案再次是存储指针或*代理*对象，这样可以隐藏实现细节。不幸的是，这也会影响性能，因为很多性能优势来自于编译器了解这些细节并进行相应的优化。因此，在性能和封装性之间总是需要权衡。
 - en: Despite these shortcomings, in summary, `std::variant` proves to be a wonderful
     replacement for the OOP-based Visitor design pattern. It simplifies the code a
     lot, removes almost all boilerplate code and encapsulates the ugly and maintenance-intensive
     parts, and comes with superior performance. In addition, `std::variant` proves
     to be another great example of the fact that a design pattern is about an intent,
     not about implementation details.
+  id: totrans-170
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管存在这些缺点，总结来说，`std::variant` 确实是面向对象编程 Visitor 设计模式的一个很好的替代品。它大大简化了代码，几乎消除了所有样板代码和封装了丑陋且维护成本高的部分，并且具有优越的性能。此外，`std::variant`
+    也证明了设计模式是意图而非实现细节的又一个极好例子。
 - en: 'Guideline 18: Beware the Performance of Acyclic Visitor'
+  id: totrans-171
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 18：注意 Acyclic Visitor 的性能
 - en: 'As you saw in [“Guideline 15: Design for the Addition of Types or Operations”](#design_for_the_addition_of_types_or_operations),
     you have to make a decision when using dynamic polymorphism: you can support an
     open set of *types* or an open set of *operations*. You cannot have both. Well,
     I specifically said that, to my best knowledge, having both is not actually impossible
     but usually impractical. To demonstrate, allow me to introduce you to yet another
     variation of the Visitor design pattern: the *Acyclic Visitor*.^([16](ch04.xhtml#idm45043110980400))'
+  id: totrans-172
   prefs: []
   type: TYPE_NORMAL
+  zh: 正如你在[“指南 15：为类型或操作的添加设计”](#design_for_the_addition_of_types_or_operations)中所看到的，当使用动态多态性时，你必须做出决策：你可以支持开放的*类型*集合或开放的*操作*集合，但不能两者兼得。嗯，我特意说过，据我所知，同时拥有两者实际上并不不可能，但通常是不切实际的。为了演示，让我向你介绍访问者设计模式的又一变体：*Acyclic
+    Visitor*。^([16](ch04.xhtml#idm45043110980400))
 - en: 'In [“Guideline 16: Use Visitor to Extend Operations”](#use_visitors_to_extend_operations),
     you saw that there is a cyclic dependency among the key players of the Visitor
     design pattern: the `Visitor` base class depends on the concrete types of shapes
@@ -1090,8 +1453,12 @@
     to that cyclic dependency, which locks all those key players onto one level in
     the architecture, it is hard to add new types to a Visitor. The idea of the Acyclic
     Visitor is to break this dependency.'
+  id: totrans-173
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 16：使用访问者扩展操作”](#use_visitors_to_extend_operations)中，你看到访问者设计模式的关键参与者之间存在循环依赖：`Visitor`
+    基类依赖于形状的具体类型（`Circle`、`Square` 等），形状的具体类型依赖于`Shape` 基类，而`Shape` 基类又依赖于`Visitor`
+    基类。由于这种循环依赖，将所有这些关键参与者锁定在架构的一个层次上，难以向访问者添加新类型。Acyclic Visitor 的理念就是打破这种依赖。
 - en: '[Figure 4-5](#fig_acyclic_visitor_shape) shows a UML diagram for the Acyclic
     Visitor. In comparison to the GoF Visitor, while there are only small differences
     on the righthand side of the picture, there are some fundamental changes on the
@@ -1103,22 +1470,35 @@
     operation wants to support circles, it inherits from the `Circle​Visi⁠tor` base
     class and implements the `visit()` function for `Circle`. If it does not want
     to support circles, it simply does not inherit from `CircleVisitor`.'
+  id: totrans-174
   prefs: []
   type: TYPE_NORMAL
+  zh: '[图 4-5](#fig_acyclic_visitor_shape) 展示了 Acyclic Visitor 的 UML 图。与 GoF Visitor
+    相比，虽然图片右侧只有小幅差异，但左侧却有一些根本性变化。最重要的是，`Visitor` 基类被拆分为几个基类：`AbstractVisitor` 基类和每个形状具体类型的基类（在这个示例中，`CircleVisitor`
+    和 `SquareVisitor`）。所有访问者都必须继承自 `AbstractVisitor` 基类，但现在还可以选择继承特定形状的访问者基类。如果一个操作需要支持圆形，它就继承自
+    `CircleVisitor` 基类，并为 `Circle` 实现 `visit()` 函数。如果不需要支持圆形，它就简单地不继承 `CircleVisitor`。'
 - en: '![](assets/cpsd_0405.png)'
+  id: totrans-175
   prefs: []
   type: TYPE_IMG
+  zh: '![](assets/cpsd_0405.png)'
 - en: Figure 4-5\. The UML representation of an Acyclic Visitor
+  id: totrans-176
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-5\. Acyclic Visitor 的 UML 表示
 - en: 'The following code snippet shows a possible implementation of the `Visitor`
     base classes:'
+  id: totrans-177
   prefs: []
   type: TYPE_NORMAL
+  zh: 下面的代码片段展示了 `Visitor` 基类的一个可能实现：
 - en: '[PRE28]'
+  id: totrans-178
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE28]'
 - en: The `AbstractVisitor` base class is nothing but an empty base class with a virtual
     destructor ([![1](assets/1.png)](#code_g18_1)). No other function is necessary.
     As you will see, `AbstractVisitor` serves only as a general tag to identify visitors
@@ -1126,44 +1506,66 @@
     the shape-specific visitor base classes in the form of a class template ([![2](assets/2.png)](#code_g18_2)).
     The `Visitor` class template is parameterized on a specific shape type and introduces
     the pure virtual `visit()` for that particular shape.
+  id: totrans-179
   prefs: []
   type: TYPE_NORMAL
+  zh: '`AbstractVisitor` 基类只是一个空的基类，具有虚析构函数（[![1](assets/1.png)](#code_g18_1)）。不需要其他函数。正如您将看到的，`AbstractVisitor`
+    只作为一个通用标签来标识访问者，不必自身提供任何操作。在 C++ 中，我们倾向于以类模板的形式实现特定形状访问者基类（[![2](assets/2.png)](#code_g18_2)）。`Visitor`
+    类模板是基于特定形状类型参数化的，并为该特定形状引入纯虚拟的 `visit()` 函数。'
 - en: 'In the implementation of our `Draw` visitor, we would now inherit from three
     base classes: the `AbstractVisitor`, from `Visitor<Circle>` and `Visitor<Square>`,
     since we want to support both `Circle` and `Square`:'
+  id: totrans-180
   prefs: []
   type: TYPE_NORMAL
+  zh: 在我们的 `Draw` 访问者的实现中，我们现在会从三个基类继承：`AbstractVisitor`，`Visitor<Circle>` 和 `Visitor<Square>`，因为我们希望支持
+    `Circle` 和 `Square` 两者：
 - en: '[PRE29]'
+  id: totrans-181
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE29]'
 - en: This choice of implementation breaks the cyclic dependency. As [Figure 4-6](#fig_acyclic_visitor_dependency_graph)
     demonstrates, the high level of the architecture does not depend on the concrete
     shape types anymore. Both the shapes (`Circle` and `Square`) and the operations
     are now on the low level of the architectural boundary. We can now add both types
     and operations.
+  id: totrans-182
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种实现选择打破了循环依赖。如[图 4-6](#fig_acyclic_visitor_dependency_graph)所示，架构的高层不再依赖于具体的形状类型。现在，形状（`Circle`
+    和 `Square`）和操作都位于架构边界的低层。我们现在可以添加两种类型和操作。
 - en: At this point, you’re looking very suspiciously, almost accusingly, in my direction.
     Didn’t I say that having both would not be possible? Obviously, it is possible,
     right? Well, once again, I didn’t claim that it was impossible. I rather said
     that this might be impractical. Now that you’ve seen the advantage of an Acyclic
     Visitor, let me show you the downsides of this approach.
+  id: totrans-183
   prefs: []
   type: TYPE_NORMAL
+  zh: 此时，你看起来非常怀疑，几乎在指责我的方向看。我不是说过同时拥有两者是不可能的吗？显然，这是可能的，对吧？嗯，再说一遍，我并没有声称这是不可能的。我更多的是说这可能是不实际的。既然你已经看到了无环访问者的优势，那就让我展示一下这种方法的缺点吧。
 - en: '![](assets/cpsd_0406.png)'
+  id: totrans-184
   prefs: []
   type: TYPE_IMG
+  zh: '![](assets/cpsd_0406.png)'
 - en: Figure 4-6\. Dependency graph for the Acyclic Visitor
+  id: totrans-185
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 4-6\. 无环访问者的依赖图
 - en: 'First, let’s take a look at the implementation of the `accept()` function in
     `Circle`:'
+  id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，让我们来看一下 `Circle` 中 `accept()` 函数的实现：
 - en: '[PRE30]'
+  id: totrans-187
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE30]'
 - en: 'You might have noticed the one small change in the `Shape` hierarchy: the virtual
     `accept()` function now accepts an `AbstractVisitor` ([![3](assets/3.png)](#code_g18_3)).
     You also remember that the `AbstractVisitor` does not implement any operation
@@ -1174,8 +1576,14 @@
     either a valid pointer to a `Visitor<Circle>` or a `nullptr`. If it returns a
     valid pointer to a `Visitor<Circle>`, it calls the corresponding `visit()` function
     ([![5](assets/5.png)](#code_g18_5)).'
+  id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 您可能已经注意到`Shape` 层次结构中的一个小改变：虚拟的 `accept()` 函数现在接受 `AbstractVisitor`（[![3](assets/3.png)](#code_g18_3)）。您还记得
+    `AbstractVisitor` 并不实现任何自己的操作。因此，不再在 `AbstractVisitor` 上调用 `visit()` 函数，而是 `Circle`
+    通过执行 `dynamic_cast` 到 `Visitor<Circle>` 来确定给定的访问者是否支持圆形（[![4](assets/4.png)](#code_g18_4)）。请注意，它执行的是指针转换，这意味着
+    `dynamic_cast` 返回一个有效的 `Visitor<Circle>` 指针或 `nullptr`。如果返回一个有效的 `Visitor<Circle>`
+    指针，则调用相应的 `visit()` 函数（[![5](assets/5.png)](#code_g18_5)）。
 - en: While this approach most certainly works and is part of breaking the cyclic
     dependency of the Visitor design pattern, a `dynamic_cast` always leaves a bad
     feeling. A `dynamic_cast` should always feel a little suspicious, because, if
@@ -1185,8 +1593,10 @@
     it’s actually OK to use it, since the use happens on the low level of our architecture.
     Thus, we do not break the architecture by inserting knowledge about a lower level
     into the high level.
+  id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: 尽管这种方法肯定有效，并且是打破访问者设计模式循环依赖的一部分，`dynamic_cast` 总是让人感觉不好。`dynamic_cast` 应该总是让人感到有些怀疑，因为如果使用不当，它可能会破坏架构。如果我们在架构的高层中执行从高层架构到低层架构的转换，那么这种情况就会发生⁠^([17](ch04.xhtml#idm45043110457632))。在我们的情况下，实际上可以使用它，因为使用发生在我们架构的低层。因此，我们不会通过将关于低层的知识插入到高层来破坏架构。
 - en: 'The real deficiency lies in the runtime penalty. When running the same benchmark
     as in [“Guideline 17: Consider std::variant for Implementing Visitor”](#consider_std_variant_for_implementing_visitors)
     for an Acyclic Visitor, you realize that the runtime is almost one order of magnitude
@@ -1196,135 +1606,199 @@
     casting down to a particular derived class, but we are casting into another branch
     of the inheritance hierarchy. This cross cast, followed by a virtual function
     call, is significantly more costly than a simple downcast.'
+  id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: 真正的不足在于运行时惩罚。当在[“指导原则 17：考虑使用 std::variant 实现访问者”](#consider_std_variant_for_implementing_visitors)中运行与循环访问者相同的基准测试时，你会意识到运行时几乎比循环访问者的运行时高一个数量级（见[表
+    4-3](#table_acyclic_visitor_benchmark_results)）。原因是 `dynamic_cast` 很慢。非常慢。而且对于这个应用程序来说特别慢。我们在这里做的是一个交叉转换。我们不仅仅是向下转型到一个特定的派生类，而是转换到继承层次结构的另一个分支。这种交叉转换，接着是一个虚函数调用，比简单的向下转型显著昂贵。
 - en: Table 4-3\. Performance results for different Visitor implementations
+  id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: 表 4-3\. 不同访问者实现的性能结果
 - en: '| Visitor implementation | GCC 11.1 | Clang 11.1 |'
+  id: totrans-192
   prefs: []
   type: TYPE_TB
+  zh: '| 访问者实现 | GCC 11.1 | Clang 11.1 |'
 - en: '| --- | --- | --- |'
+  id: totrans-193
   prefs: []
   type: TYPE_TB
+  zh: '| --- | --- | --- |'
 - en: '| Acyclic Visitor | 14.3423 s | 7.3445 s |'
+  id: totrans-194
   prefs: []
   type: TYPE_TB
+  zh: '| 非循环访问者 | 14.3423 s | 7.3445 s |'
 - en: '| Cyclic Visitor | 1.6161 s | 1.8015 s |'
+  id: totrans-195
   prefs: []
   type: TYPE_TB
+  zh: '| 循环访问者 | 1.6161 s | 1.8015 s |'
 - en: '| Object-oriented solution | 1.5205 s | 1.1480 s |'
+  id: totrans-196
   prefs: []
   type: TYPE_TB
+  zh: '| 面向对象的解决方案 | 1.5205 s | 1.1480 s |'
 - en: '| Enum solution | 1.2179 s | 1.1200 s |'
+  id: totrans-197
   prefs: []
   type: TYPE_TB
+  zh: '| 枚举解决方案 | 1.2179 s | 1.1200 s |'
 - en: '| `std::variant` (with `std::visit()`) | 1.1992 s | 1.2279 s |'
+  id: totrans-198
   prefs: []
   type: TYPE_TB
+  zh: '| `std::variant`（使用 `std::visit()`） | 1.1992 s | 1.2279 s |'
 - en: '| `std::variant` (with `std::get()`) | 1.0252 s | 0.6998 s |'
+  id: totrans-199
   prefs: []
   type: TYPE_TB
+  zh: '| `std::variant`（使用 `std::get()`） | 1.0252 s | 0.6998 s |'
 - en: While architecturally, an Acylic Visitor is a very interesting alternative,
     from a practical point of view, these performance results might disqualify it.
     This does not mean that you shouldn’t use it, but at least be aware that the bad
     performance might be a very strong argument for another solution.
+  id: totrans-200
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然从架构上看，非循环访问者是一个非常有趣的替代方案，但从实际的角度来看，这些性能结果可能会使它失去资格。这并不意味着你不应该使用它，但至少要意识到糟糕的性能可能是选择其他解决方案的一个很强的论据。
 - en: ^([1](ch04.xhtml#idm45043116032320-marker)) I can see you rolling your eyes!
     “Oh, that boring example again!” But do consider readers who skipped [Chapter 3](ch03.xhtml#the_purpose_of_design_patterns).
     They’re now happy that they can read this section without a lengthy explanation
     about the scenario.
+  id: totrans-201
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch04.xhtml#idm45043116032320-marker)) 我看到你在翻白眼！“哦，那个无聊的例子又来了！” 但请考虑那些跳过了[第三章](ch03.xhtml#the_purpose_of_design_patterns)的读者。他们现在很高兴可以阅读这一节，而不需要关于场景的冗长解释。
 - en: ^([2](ch04.xhtml#idm45043114704048-marker)) Since C++11, we have [scoped enumerations](https://oreil.ly/EP4eR),
     sometimes also called *class enumerations* because of the syntax `enum class`,
     at our disposal. This would, for instance, help the compiler to better warn about
     incomplete `switch` statements. If you spotted this imperfection, you’ve earned
     yourself a bonus point!
+  id: totrans-202
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch04.xhtml#idm45043114704048-marker)) 自从 C++11 开始，我们有了[作用域枚举](https://oreil.ly/EP4eR)，有时也称为*类枚举*，因为它们的语法是
+    `enum class`。例如，这将帮助编译器更好地警告不完整的 `switch` 语句。如果你发现了这个缺陷，那么你就赚到了一个额外的分数！
 - en: '^([3](ch04.xhtml#idm45043114533408-marker)) Scott Meyers, *More Effective C++:
     35 New Ways to Improve Your Programs and Designs*, Item 31 (Addison-Wesley, 1995).'
+  id: totrans-203
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch04.xhtml#idm45043114533408-marker)) Scott Meyers，《更有效的C++：改进程序和设计的35种新方法》，第31项（Addison-Wesley，1995年）。
 - en: ^([4](ch04.xhtml#idm45043113723744-marker)) Note that the mathematical notion
     of [open and closed sets](https://oreil.ly/nt4f4) is something completely different.
+  id: totrans-204
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch04.xhtml#idm45043113723744-marker)) 注意，数学上的[开放和闭合集合](https://oreil.ly/nt4f4)是完全不同的概念。
 - en: ^([5](ch04.xhtml#idm45043113710320-marker)) As an example of design with static
     polymorphism, consider the algorithms from the Standard Template Library (STL).
     You can easily add new operations, i.e., algorithms, but also easily add new types
     that can be copied, sorted, etc.
+  id: totrans-205
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch04.xhtml#idm45043113710320-marker)) 作为静态多态设计的一个例子，请考虑标准模板库（STL）中的算法。你可以轻松添加新操作，即算法，也可以轻松添加可以复制、排序等的新类型。
 - en: '^([6](ch04.xhtml#idm45043113684976-marker)) It’s always hard to make predictions.
     But we usually have a pretty good idea about how our codebase will evolve. In
     case you have no idea how things will move along, you should wait for the first
     change or extension, learn from that, and make a more informed decision. This
     philosophy is part of the commonly known [YAGNI principle](https://oreil.ly/stXoI),
     which warns you about overengineering; see also [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change).'
+  id: totrans-206
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch04.xhtml#idm45043113684976-marker)) 做预测总是很困难的。但我们通常对我们的代码库将如何发展有一个很好的想法。如果你完全不知道事情将如何发展，你应该等待第一个变化或扩展，从中学习，然后做出更明智的决策。这一哲学思想是众所周知的[YAGNI原则](https://oreil.ly/stXoI)，它警告你不要过度设计；还请参阅[“指导方针2：为变更设计”](ch01.xhtml#design_for_change)。
 - en: ^([7](ch04.xhtml#idm45043113680528-marker)) I wouldn’t be happy about it—perhaps
     I would even be seriously unhappy—but I probably wouldn’t get angry. But your
     other colleagues? Worst case, you might be excluded from the next team barbecue.
+  id: totrans-207
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch04.xhtml#idm45043113680528-marker)) 对此我可能不会感到高兴——甚至可能会非常不开心——但我可能不会生气。但你的其他同事呢？最糟糕的情况是，你可能会被排除在下次团队烧烤会上。
 - en: '^([8](ch04.xhtml#idm45043113671408-marker)) Erich Gamma et al., *Design Patterns:
     Elements of Reusable Object-Oriented Software*.'
+  id: totrans-208
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch04.xhtml#idm45043113671408-marker)) Erich Gamma等，《设计模式：可复用面向对象软件的元素》。
 - en: '^([9](ch04.xhtml#idm45043113428544-marker)) `accept()` is the name used in
     the GoF book. It is the traditional name in the context of the Visitor design
     pattern. Of course, you are free to use any other name, such as `apply()`. But
     before you rename, consider the advice from [“Guideline 14: Use a Design Pattern’s
     Name to Communicate Intent”](ch03.xhtml#use_a_design_patterns_name_to_communicate_intent).'
+  id: totrans-209
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch04.xhtml#idm45043113428544-marker)) `accept()`是GoF书中使用的名称。在访问者设计模式的上下文中，这是传统名称。当然，你可以自由地使用任何其他名称，比如`apply()`。但在重命名之前，请考虑来自[“指导方针14：使用设计模式名称传达意图”](ch03.xhtml#use_a_design_patterns_name_to_communicate_intent)的建议。
 - en: '^([10](ch04.xhtml#idm45043112966976-marker)) It really is advisable to extract
     the logic into a single function. The reason is change: if you have to update
     the implementation later, you don’t want to perform the change multiple times.
     That is the idea of the DRY (Don’t Repeat Yourself) principle. So please remember
     [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change).'
+  id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch04.xhtml#idm45043112966976-marker)) 确实建议将逻辑提取到单个函数中。原因在于变更：如果以后必须更新实现，你不希望多次执行更改。这就是DRY（不要重复自己）原则的理念。因此，请记住[“指导方针2：为变更设计”](ch01.xhtml#design_for_change)。
 - en: '^([11](ch04.xhtml#idm45043112860032-marker)) Consider the risk: this might
     exclude you from team barbecues for life!'
+  id: totrans-211
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch04.xhtml#idm45043112860032-marker)) 请考虑风险：这可能会使你终身被排除在团队烧烤之外！
 - en: ^([12](ch04.xhtml#idm45043112718640-marker)) Memory fragmentation is much more
     likely when you use `std::make_unique()`, which encapsulates a call to `new`,
     instead of some special-purpose allocation schemes.
+  id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch04.xhtml#idm45043112718640-marker)) 使用`std::make_unique()`而不是一些特定用途的分配方案时，内存碎片化更有可能发生，因为它封装了对`new`的调用。
 - en: ^([13](ch04.xhtml#idm45043111022096-marker)) I am indeed using random vectors,
     created by means of `std::mt19937` and `std::uniform_real_distribution`, but only
     after proving to myself that the performance does not change for GCC 11.1, and
     only slightly for Clang 11.1\. Apparently, creating random numbers is not particularly
     expensive in itself (at least on my machine). Since you promised to consider these
     as qualitative results, we should be good.
+  id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch04.xhtml#idm45043111022096-marker)) 我确实使用了随机向量，通过 `std::mt19937` 和
+    `std::uniform_real_distribution` 创建，但在验证了对于 GCC 11.1 没有性能变化，对于 Clang 11.1 只有轻微变化之后才使用。显然，创建随机数本身并不特别昂贵（至少在我的机器上是这样）。既然你答应将其视为定性结果，那我们应该没问题了。
 - en: '^([14](ch04.xhtml#idm45043111016176-marker)) There are other open source alternative
     implementations of `variant`. The [Boost library](https://www.boost.org) provides
     two implementations: [Abseil](https://oreil.ly/FTtxY) provides a variant implementation,
     and it pays to take a look at the implementation of [Michael Park](https://oreil.ly/EXCYj).'
+  id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([14](ch04.xhtml#idm45043111016176-marker)) 还有其他开源的 `variant` 替代实现。[Boost 库](https://www.boost.org)
+    提供了两种实现：[Abseil](https://oreil.ly/FTtxY) 提供了一种 variant 实现，值得看看 [Michael Park](https://oreil.ly/EXCYj)
+    的实现。
 - en: '^([15](ch04.xhtml#idm45043111003840-marker)) The *Proxy* pattern is another
     one of the GoF design patterns, which I unfortunately do not cover in this book
     because of limited pages. I will, however, go into detail about the *Bridge* design
     pattern; see [“Guideline 28: Build Bridges to Remove Physical Dependencies”](ch07.xhtml#build_bridges_to_remove_physical_dependencies).'
+  id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([15](ch04.xhtml#idm45043111003840-marker)) *代理* 模式是 GoF 设计模式之一，可惜本书由于页面限制未能详细涵盖。不过我会详细讲解
+    *桥接* 设计模式；详见[“准则 28：建立桥接以消除物理依赖”](ch07.xhtml#build_bridges_to_remove_physical_dependencies)。
 - en: '^([16](ch04.xhtml#idm45043110980400-marker)) For more information on the Acyclic
     Visitor pattern by its inventor, see Robert C. Martin, *Agile Software Development:
     Principles, Patterns, and Practices* (Pearson).'
+  id: totrans-216
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([16](ch04.xhtml#idm45043110980400-marker)) 欲了解 Acyclic Visitor 模式及其发明者的更多信息，请参阅
+    Robert C. Martin 的 *Agile Software Development: Principles, Patterns, and Practices*（Pearson）。'
 - en: '^([17](ch04.xhtml#idm45043110457632-marker)) Please refer to [“Guideline 9:
     Pay Attention to the Ownership of Abstractions”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)
     for a definition of the terms *high level* and *low level*.'
+  id: totrans-217
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([17](ch04.xhtml#idm45043110457632-marker)) 请参考[“准则 9：关注抽象层次的所有权”](ch02.xhtml#pay_attention_to_the_ownership_of_abstractions)以了解
+    *高级* 和 *低级* 这两个术语的定义。
