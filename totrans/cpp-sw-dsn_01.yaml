@@ -1732,6 +1732,7 @@
   id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: “你不是认真的吧！”你惊叹道。“这不是最糟糕的选择吗？我们难道不是在人为地将本应该在一起的两个东西分开吗？单一责任原则（SRP）不是告诉我们应该将属于一起的东西保持在一起吗？”嗯，我不这么认为。相反，我坚信现在我们才真正遵循了SRP：SRP规定我们应该隔离不属于一起的东西，即因不同原因可能会发生变化的东西。诚然，乍一看，`Widget`和`updateCollection()`似乎应该放在一起，毕竟，`blob_`数据成员偶尔也需要更新。然而，`updateCollection()`函数无法得到恰当的测试是一个明显的迹象，表明设计尚不完善：如果任何需要显式测试的东西都无法测试，那么肯定出了些问题。为什么要让我们的生活变得更加艰难，把需要测试的函数隐藏在`Widget`类的`private`部分呢？由于测试在变化的存在中起着至关重要的作用，测试只是另一种帮助确定哪些东西应该在一起的方式。如果`updateCollection()`函数足够重要，我们希望单独测试它，那显然是因为它因为某种与`Widget`无关的原因而变化。这表明`Widget`和`updateCollection()`不应该放在一起。根据SRP，应该从类中提取`updateCollection()`函数。
 - en: '“But isn’t this against the idea of encapsulation?” you ask. “And don’t you
     dare wave away encapsulation. I consider encapsulation to be very important!”
     I agree, it is very important, fundamentally so! However, encapsulation is just
@@ -1749,6 +1750,9 @@
   id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: “这可不违背封装的理念吗？”你问道。“你可别轻视封装。我认为封装非常重要！”我同意，它确实非常重要，从根本上说！然而，封装只是分离关注点的另一个理由。正如Scott
+    Meyers在他的书*《Effective C++》*中所述，从类中提取函数是增加封装性的一步。根据Meyers的说法，通常应优先选择非成员非`friend`函数而不是成员函数。⁠^([36](ch01.xhtml#idm45043121978352))
+    这是因为每个成员函数都可以完全访问类的每个成员，甚至是`private`成员。然而，在提取的形式中，`updateCollection()`函数仅限于`Widget`类的`public`接口，无法访问`private`成员。因此，这些`private`成员的封装性增强了一点。请注意，对于提取`BlobCollection`类，相同的论点同样适用：`BlobCollection`类无法访问`Widget`类的非公共成员，因此`Widget`也变得更加封装了。
 - en: 'By separating concerns and extracting this piece of functionality, you now
     gain several advantages. First, as just discussed, the `Widget` class becomes
     more encapsulated. Fewer members can access the `private` members. Second, the
@@ -1923,12 +1927,14 @@
   id: totrans-210
   prefs: []
   type: TYPE_NORMAL
+  zh: 此示例中的问题可以解释为违反了开闭原则（OCP）。OCP是SOLID原则中的第二条。它建议我们设计软件，使得必要的扩展变得容易：^（[37](ch01.xhtml#idm45043121676880)）
 - en: Software artifacts (classes, modules, functions, etc.) should be open for extension,
     but closed for modification.
   id: totrans-211
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 软件构件（类、模块、函数等）应该对扩展开放，但对修改关闭。
 - en: The OCP tells us that we should be able to extend our software (open for extension).
     However, the extension should be easy and, in the best case, possible by just
     adding new code. In other words, we shouldn’t have to modify existing code (closed
@@ -1936,6 +1942,7 @@
   id: totrans-212
   prefs: []
   type: TYPE_NORMAL
+  zh: OCP告诉我们，我们应该能够扩展我们的软件（开放性扩展）。然而，扩展应该是简单的，在最好的情况下，只需添加新的代码即可。换句话说，我们不应该修改现有的代码（关闭修改）。
 - en: 'In theory, the extension should be easy: we should only have to add the new
     derived class `XML`. This new class alone would not require any modifications
     in any other piece of code. Unfortunately, the `serialize()` function artificially
@@ -1945,11 +1952,13 @@
   id: totrans-213
   prefs: []
   type: TYPE_NORMAL
+  zh: 理论上，扩展应该很容易：我们只需添加新的派生类`XML`。这个新类本身不需要在任何其他代码中进行修改。不幸的是，`serialize()`函数人为地耦合了不同类型的文档，并且需要修改`DocumentType`枚举。而这种修改又会对其他类型的`Document`产生影响，这正是OCP所反对的。
 - en: Luckily, we’ve already seen a solution for how to achieve that for the `Document`
     example. In this case, the right thing to do is to separate concerns (see [Figure 1-6](#fig_ocp_weak_coupling)).
   id: totrans-214
   prefs: []
   type: TYPE_NORMAL
+  zh: 幸运的是，我们已经看到了如何在`Document`示例中实现这一点的解决方案。在这种情况下，正确的做法是分离关注点（见[图 1-6](#fig_ocp_weak_coupling)）。
 - en: By separating concerns, by grouping the things that truly belong together, the
     accidental coupling between different kinds of documents is gone. All code dealing
     with serialization is now properly grouped inside the `Serialization` component,
@@ -1960,15 +1969,18 @@
   id: totrans-215
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过分离关注点，通过将真正属于一起的东西进行分组，消除了不同种类文档之间的偶然耦合。所有与序列化相关的代码现在都正确地组合在`Serialization`组件内部，这可以在架构的另一个级别上逻辑地存在。`Serialization`依赖于所有类型的文档（PDF、Word、XML等），但没有文档类型依赖于`Serialization`。此外，没有一个文档知道任何其他类型的文档（正如应该的那样）。
 - en: '![cpsd 0106](assets/cpsd_0106.png)'
   id: totrans-216
   prefs: []
   type: TYPE_IMG
+  zh: '![cpsd 0106](assets/cpsd_0106.png)'
 - en: Figure 1-6\. Separation of concerns resolves the violation of the OCP
   id: totrans-217
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 1-6\. 关注点分离解决了OCP的违规问题。
 - en: “Wait a second!” you say. “In the code for the serialization, we still need
     the enumeration, don’t we? How else would I store the information about what the
     stored bytes represent?” I’m glad you’re making this observation. Yes, inside
@@ -1981,6 +1993,7 @@
   id: totrans-218
   prefs: []
   type: TYPE_NORMAL
+  zh: “等一下！”你说，“在序列化的代码中，我们仍然需要枚举，对吧？否则我怎么存储存储的字节代表什么信息？”我很高兴你提出这个观察。是的，在`Serialization`组件内，我们仍然（很可能）需要类似`DocumentType`枚举。然而，通过分离关注点，我们已经正确解决了这个依赖问题。现在不再有不同类型的文档依赖于`DocumentType`枚举。所有依赖箭头现在都从低级别（`Serialization`组件）指向高级别（`PDF`和`Word`）。而这个属性对于良好的架构是至关重要的。
 - en: “But what about adding a new type of document? Doesn’t that require a modification
     in the `Serialization` component?” Again, you are absolutely correct. Still, this
     is not a violation of OCP, which advises that we should not have to modify existing
@@ -2223,6 +2236,7 @@
   id: totrans-247
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch01.xhtml#idm45043126004560-marker)) 罗伯特·C·马丁，*干净的架构*（Addison-Wesley，2017）。
 - en: ^([6](ch01.xhtml#idm45043124440192-marker)) These are indeed my own words, as
     there is no single, common definition of software design. Consequently, you may
     have your own definition of what software design entails and that is perfectly
@@ -2231,12 +2245,14 @@
   id: totrans-248
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch01.xhtml#idm45043124440192-marker)) 这确实是我自己的话，因为软件设计没有单一的共同定义。因此，你可能有自己对软件设计内容的定义，这完全可以。然而，请注意，本书，包括对设计模式的讨论，是基于我的定义。
 - en: '^([7](ch01.xhtml#idm45043124165840-marker)) Just to be clear: computer science
     is a science (it’s in the name). Software *engineering* appears to be a hybrid
     form of science, craft, and art. And one aspect of the latter is software *design*.'
   id: totrans-249
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch01.xhtml#idm45043124165840-marker)) 明确一点：计算机科学是一门科学（名字就在那）。软件*工程*似乎是一种科学、工艺和艺术的混合形式。后者的一个方面就是软件*设计*。
 - en: ^([8](ch01.xhtml#idm45043123335424-marker)) With this metaphor, I’m not trying
     to imply that architects for buildings work at the construction site all day.
     Very likely, such an architect spends as much time in a comfy chair and in front
@@ -2244,6 +2260,7 @@
   id: totrans-250
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch01.xhtml#idm45043123335424-marker)) 用这个比喻，我并不是在暗示建筑师整天都在建筑工地工作。很可能，这样的建筑师像你我一样，在舒适的椅子前和电脑前花费大量时间。但我想你明白我的意思。
 - en: '^([9](ch01.xhtml#idm45043130422608-marker)) Substitution Failure Is Not An
     Error (SFINAE) is a basic template mechanism commonly used as a substitute for
     C++20 concepts to constrain templates. For an explanation of SFINAE and `std::enable_if`
@@ -2253,17 +2270,20 @@
   id: totrans-251
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch01.xhtml#idm45043130422608-marker)) Substitution Failure Is Not An Error（SFINAE）是一种基本的模板机制，通常用作C++20概念的替代品来约束模板。有关SFINAE和`std::enable_if`的解释，请参考您喜欢的关于C++模板的教材。如果没有，请选择《C++模板：完全指南》（Addison-Wesley）是个不错的选择。
 - en: '^([10](ch01.xhtml#idm45043124605168-marker)) For a lot more information on
     physical and logical dependency management, see John Lakos’s “dam” book, *Large-Scale
     C++ Software Development: Process and Architecture* (Addison-Wesley).'
   id: totrans-252
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch01.xhtml#idm45043124605168-marker)) 有关物理和逻辑依赖管理的更多信息，请参阅约翰·拉科斯的“dam”书籍，*大规模C++软件开发：过程与架构*（Addison-Wesley）。
 - en: ^([11](ch01.xhtml#idm45043123295968-marker)) Martin Fowler, “Who Needs an Architect?”
     *IEEE Software*, 20, no. 5 (2003), 11–13, [*https://doi.org/10.1109/MS.2003.1231144*](https://doi.org/10.1109/MS.2003.1231144).
   id: totrans-253
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch01.xhtml#idm45043123295968-marker)) 马丁·福勒，“谁需要建筑师？”*IEEE软件*，20卷，第5期（2003），11–13页，[*https://doi.org/10.1109/MS.2003.1231144*](https://doi.org/10.1109/MS.2003.1231144)。
 - en: '^([12](ch01.xhtml#idm45043124008192-marker)) A very good introduction to microservices
     can be found in Sam Newman’s book [*Building Microservices: Designing Fine-Grained
     Systems*](https://learning.oreilly.com/library/view/building-microservices-2nd/9781492034018/),
@@ -2271,12 +2291,14 @@
   id: totrans-254
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([12](ch01.xhtml#idm45043124008192-marker)) 关于微服务的非常好的介绍可以在萨姆·纽曼的书籍[*构建微服务：设计精细化系统*](https://learning.oreilly.com/library/view/building-microservices-2nd/9781492034018/)第二版（O'Reilly）中找到。
 - en: '^([13](ch01.xhtml#idm45043130766672-marker)) Mark Richards and Neal Ford, [*Fundamentals
     of Software Architecture: An Engineering Approach*](https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/)
     (O’Reilly, 2020).'
   id: totrans-255
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch01.xhtml#idm45043130766672-marker)) 马克·理查兹和尼尔·福特，《*软件架构基础：一种工程方法*》（O'Reilly，2020）。
 - en: ^([14](ch01.xhtml#idm45043131054400-marker)) The term *implementation pattern*
     was first used in Kent Beck’s book *Implementation Patterns* (Addison-Wesley).
     In this book, I’m using that term to provide a clear distinction from the term
@@ -2287,6 +2309,7 @@
   id: totrans-256
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([14](ch01.xhtml#idm45043131054400-marker)) 术语*实现模式*最早在肯特·贝克的书籍*实现模式*（Addison-Wesley）中使用。在本书中，我使用这个术语来清晰区分设计级别和实现细节级别的模式，因为术语*习惯用语*可能指软件设计级别或实现细节级别的模式。我将一贯使用这个术语来指代常用的实现细节级别的解决方案。
 - en: '^([15](ch01.xhtml#idm45043125635792-marker)) Second-favorite after this one,
     of course. If this is your only book, then you might refer to the classic *Effective
     C++: 55 Specific Ways to Improve Your Programs and Designs*, 3rd ed., by Scott
@@ -2294,6 +2317,8 @@
   id: totrans-257
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([15](ch01.xhtml#idm45043125635792-marker)) 当然，这是你的第二本最喜欢的书。如果这是你唯一的书，那么你可能会参考斯科特·迈耶斯（Scott
+    Meyers）的经典著作*Effective C++：改进程序和设计的55种具体方法*，第3版（Addison-Wesley）。
 - en: '^([16](ch01.xhtml#idm45043123823504-marker)) The Template Method and Bridge
     design patterns are 2 of the 23 classic design patterns introduced in the so-called
     Gang of Four (GoF) book by Erich Gamma et al., *Design Patterns: Elements of Reusable
@@ -2304,45 +2329,55 @@
   id: totrans-258
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([16](ch01.xhtml#idm45043123823504-marker)) 模板方法和桥接设计模式是《四人组》（GoF）一书中介绍的23种经典设计模式中的两种。我不会在本书中详细介绍模板方法，但你可以在各种教科书中找到很好的解释，包括《四人组》书本本身。然而，我会在[“指导原则28：建立桥梁以消除物理依赖关系”](ch07.xhtml#build_bridges_to_remove_physical_dependencies)中解释桥接设计模式。
 - en: ^([17](ch01.xhtml#idm45043123657936-marker)) Bjarne Stroustrup, *The C++ Programming
     Language*, 3rd ed. (Addison-Wesley, 2000).
   id: totrans-259
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([17](ch01.xhtml#idm45043123657936-marker)) 比雅尼·斯特劳斯特鲁普，*C++程序设计语言*，第3版（Addison-Wesley，2000）。
 - en: '^([18](ch01.xhtml#idm45043123631872-marker)) Kudos to John Lakos, who argues
     similarly and uses C++98 in his book, *Large-Scale C++ Software Development: Process
     and Architecture* (Addison-Wesley).'
   id: totrans-260
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([18](ch01.xhtml#idm45043123631872-marker)) 向约翰·拉科斯致敬，他在他的著作*大规模C++软件开发：过程与架构*（Addison-Wesley）中提出了类似的观点，并使用了C++98。
 - en: ^([19](ch01.xhtml#idm45043124608352-marker)) Yes, Ben and Jason, you have read
     correctly, I will not `constexpr` ALL the things. See Ben Deane and Jason Turner,
     [“constexpr ALL the things”](https://oreil.ly/Pazfb), CppCon 2017.
   id: totrans-261
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([19](ch01.xhtml#idm45043124608352-marker)) 是的，本和杰森，你们读对了，我不会`constexpr`所有东西。参见本·迪恩和杰森·特纳，[“constexpr
+    ALL the things”](https://oreil.ly/Pazfb)，CppCon 2017。
 - en: ^([20](ch01.xhtml#idm45043124044208-marker)) Michael Feathers, *Working Effectively
     with Legacy Code* (Addison-Wesley, 2013).
   id: totrans-262
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([20](ch01.xhtml#idm45043124044208-marker)) 迈克尔·菲瑟斯，*与遗留代码有效地工作*（Addison-Wesley，2013）。
 - en: '^([21](ch01.xhtml#idm45043123834288-marker)) David Thomas and Andrew Hunt,
     *The Pragmatic Programmer: Your Journey to Mastery*, 20th Anniversary Edition
     (Addison Wesley, 2019).'
   id: totrans-263
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([21](ch01.xhtml#idm45043123834288-marker)) 大卫·托马斯和安德鲁·亨特，*务实程序员：通往精通之路*，20周年纪念版（Addison
+    Wesley，2019）。
 - en: ^([22](ch01.xhtml#idm45043123832000-marker)) Tom DeMarco, *Structured Analysis
     and System Specification* (Prentice Hall, 1979).
   id: totrans-264
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([22](ch01.xhtml#idm45043123832000-marker)) 汤姆·德马科，*结构化分析与系统规格*（Prentice Hall，1979）。
 - en: '^([23](ch01.xhtml#idm45043124286736-marker)) SOLID is an acronym of acronyms,
     an abbreviation of the five principles described in the next few guidelines: SRP,
     OCP, LSP, ISP, and DIP.'
   id: totrans-265
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([23](ch01.xhtml#idm45043124286736-marker)) SOLID是一个首字母缩略词，是下面几个指导原则中描述的五个原则的缩写：SRP、OCP、LSP、ISP和DIP。
 - en: '^([24](ch01.xhtml#idm45043123403072-marker)) The first book on the SOLID principles
     was Robert C. Martin’s *Agile Software Development: Principles, Patterns, and
     Practices* (Pearson). A newer and much cheaper alternative is *Clean Architecture*,
@@ -2350,12 +2385,14 @@
   id: totrans-266
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([24](ch01.xhtml#idm45043123403072-marker)) SOLID原则的第一本书是罗伯特·C·马丁的*敏捷软件开发：原则、模式和实践*（Pearson）。一个更新且更便宜的选择是罗伯特·C·马丁的*干净架构*（Addison-Wesley）。
 - en: ^([25](ch01.xhtml#idm45043123603040-marker)) Don’t forget that the design decisions
     taken by that external library may impact your own design, which would obviously
     increase the coupling.
   id: totrans-267
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([25](ch01.xhtml#idm45043123603040-marker)) 不要忘记，外部库所做的设计决策可能会影响你自己的设计，这显然会增加耦合度。
 - en: ^([26](ch01.xhtml#idm45043124305408-marker)) That includes the classes that
     other people may have written, i.e., classes that you do not control. And no,
     the other people won’t be happy about the change. Thus, the change may be *really*
@@ -2363,6 +2400,7 @@
   id: totrans-268
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([26](ch01.xhtml#idm45043124305408-marker)) 这包括其他人可能编写的类，即你无法控制的类。而且，其他人不会对这种变化感到高兴。因此，这种变化可能会*非常*困难。
 - en: ^([27](ch01.xhtml#idm45043128374128-marker)) An enumeration seems to be an obvious
     choice, but of course there are other options as well. In the end, we need an
     agreed-upon set of values that represent the different document formats in the
@@ -2370,6 +2408,7 @@
   id: totrans-269
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([27](ch01.xhtml#idm45043128374128-marker)) 枚举看起来是一个显而易见的选择，但当然还有其他选项。最终，我们需要一组经过协商的值，这些值代表字节表示中不同的文档格式。
 - en: ^([28](ch01.xhtml#idm45043129091136-marker)) You might be wondering about the
     explicit use of the `explicit` keyword for this constructor. Then you might also
     be aware that [Core Guideline C.46](https://oreil.ly/1DPsA) advises using `explicit`
@@ -2381,6 +2420,8 @@
   id: totrans-270
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([28](ch01.xhtml#idm45043129091136-marker)) 或许你会对这个构造函数中明确使用`explicit`关键字感到奇怪。然后你可能也知道，[Core
+    Guideline C.46](https://oreil.ly/1DPsA) 建议默认为单参数构造函数使用`explicit`。这是非常好的并且强烈推荐的建议，因为它可以防止意外的、潜在的不良转换。虽然价值不如此高，但对于除了复制和移动构造函数之外的所有其他构造函数，同样的建议也是合理的，这些构造函数并不执行转换。至少这不会有害。
 - en: '^([29](ch01.xhtml#idm45043128523184-marker)) You might realize I’ve picked
     the names of the three conferences I regularly attend: [CppCon](https://cppcon.org),
     [Meeting C++](http://meetingcpp.com), and [C++ on Sea](https://cpponsea.uk). There
@@ -2393,17 +2434,26 @@
   id: totrans-271
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([29](ch01.xhtml#idm45043128523184-marker)) 你可能已经意识到我挑选了我经常参加的三个会议的名称：[CppCon](https://cppcon.org)，[Meeting
+    C++](http://meetingcpp.com)，以及[Cpp on Sea](https://cpponsea.uk)。当然还有许多其他的C++会议。例如：[ACCU](https://accu.org/conf-main/main)，[Core
+    C++](https://corecpp.org)，[pacific++](https://www.pacificplusplus.com)，[CppNorth](https://cppnorth.ca)，[emBO++](https://www.embo.io)，以及[CPPP](https://cppp.fr)。参加会议是了解C++的一个很棒且有趣的方式。确保查看[Standard
+    C++ Foundation主页](https://isocpp.org)，了解即将举行的任何会议。
 - en: ^([30](ch01.xhtml#idm45043128758896-marker)) Katerina Trajchevska, [“Becoming
     a Better Developer by Using the SOLID Design Principles”](https://oreil.ly/cwo8Y),
     Laracon EU, August 30–31, 2018.
   id: totrans-272
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([30](ch01.xhtml#idm45043128758896-marker)) Katerina Trajchevska，《“Becoming
+    a Better Developer by Using the SOLID Design Principles”》（https://oreil.ly/cwo8Y），Laracon
+    EU，2018年8月30日至31日。
 - en: '^([31](ch01.xhtml#idm45043123066176-marker)) Robert C. Martin, *Agile Software
     Development: Principles, Patterns, and Practices*.'
   id: totrans-273
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([31](ch01.xhtml#idm45043123066176-marker)) Robert C. Martin，《*Agile Software
+    Development: Principles, Patterns, and Practices*》。'
 - en: '^([32](ch01.xhtml#idm45043122620688-marker)) If you don’t have a test suite
     in place, then you have work to do. Seriously. A very coherent reference to get
     started is Ben Saks’s talk on unit tests, [“Back to Basics: Unit Tests”](https://oreil.ly/VBo9X),
@@ -2414,6 +2464,9 @@
   id: totrans-274
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([32](ch01.xhtml#idm45043122620688-marker)) 如果你没有一个完整的测试套件，那么你还有很多工作要做。认真的。一个很好的起步参考是Ben
+    Saks在CppCon 2020上关于单元测试的演讲，《“Back to Basics: Unit Tests”》（https://oreil.ly/VBo9X）。另一个非常好的参考是Jeff
+    Langr的书，《*Modern C{plus}{plus} Programming with Test-Driven Development*》（https://learning.oreilly.com/library/view/modern-c-programming/9781941222423/）（O’Reilly）。'
 - en: ^([33](ch01.xhtml#idm45043122618256-marker)) I know, “everyone agrees” is unfortunately
     far from reality. If you need proof that the seriousness of tests has not yet
     reached every project and every developer, take a look at [this issue](https://oreil.ly/NuEua)
@@ -2421,16 +2474,20 @@
   id: totrans-275
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([33](ch01.xhtml#idm45043122618256-marker)) 我知道，“每个人都同意”的情况很不幸福。如果你需要证明测试的重要性还未普及到每个项目和每个开发者，可以看看OpenFOAM问题跟踪器中的[这个问题](https://oreil.ly/NuEua)。
 - en: '^([34](ch01.xhtml#idm45043122277712-marker)) David Thomas and Andrew Hunt,
     *The Pragmatic Programmer: Your Journey to Mastery*.'
   id: totrans-276
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([34](ch01.xhtml#idm45043122277712-marker)) David Thomas 和 Andrew Hunt，《*The
+    Pragmatic Programmer: Your Journey to Mastery*》。'
 - en: ^([35](ch01.xhtml#idm45043122228608-marker)) We may even have entered the scary
     realm of undefined behavior.
   id: totrans-277
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([35](ch01.xhtml#idm45043122228608-marker)) 我们甚至可能已经进入了未定义行为的可怕领域。
 - en: ^([36](ch01.xhtml#idm45043121978352-marker)) You can find this compelling argument
     in item 23 of Scott Meyers’s *Effective C++*.
   id: totrans-278
