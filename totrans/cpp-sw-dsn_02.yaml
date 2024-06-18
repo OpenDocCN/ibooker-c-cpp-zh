@@ -1648,6 +1648,8 @@
   id: totrans-186
   prefs: []
   type: TYPE_NORMAL
+  zh: 起初，我也意识到创建架构文档的努力似乎是一项很大的工作。是一项巨大的工作。我所能做的就是鼓励你设法开始。起初，你不必在文档中展示其全部荣耀，也许你可以从只有最基本的结构决策开始。一些工具已经可以使用这些信息来比较你假设的架构状态及其实际状态。^([25](ch02.xhtml#idm45043117901616))
+    随着时间的推移，可以添加、记录甚至由工具测试更多的架构信息，这将为整个团队提供越来越普遍、已确立的智慧。
 - en: '“But how do I keep this document up to date?” you ask. Of course, you’ll have
     to maintain this document, integrate new decisions, update old decisions, etc.
     However, since this document should only contain information about the aspects
@@ -1661,6 +1663,7 @@
   id: totrans-187
   prefs: []
   type: TYPE_NORMAL
+  zh: “但是我如何保持这个文档的更新？”你问道。当然，你需要维护这个文档，整合新的决策，更新旧的决策等等。然而，由于这个文档应该只包含那些不经常变化的信息，因此没有必要经常触及和重构它。每一两周安排一次高级开发人员的简短会议来讨论架构是否发生了变化，应该足够了。因此，很难想象这个文档会成为开发过程中的瓶颈。在这方面，请将这个文档视为一个银行保险箱：当你需要时，它拥有所有积累的过去决策，保持信息安全，但你不会每天都打开它。
 - en: In summary, the benefits of having an architectural document by far outweigh
     the risks and efforts. The architectural document should be considered an essential
     part of any project and an integral part of the maintenance and communication
@@ -1669,6 +1672,7 @@
   id: totrans-188
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结来说，拥有架构文档的好处远远超过了风险和努力。架构文档应被视为任何项目的基本组成部分，并且是维护和沟通工作的一部分。它应被视为与CI环境或自动化测试同等重要的组成部分。
 - en: ^([1](ch02.xhtml#idm45043120890480-marker)) In one of my training classes several
     years ago, I was “gently” reminded that from a mathematical perspective, a square
     is not a rectangle but a rhombus. My knees still shake when I think about that
@@ -1677,11 +1681,13 @@
   id: totrans-189
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch02.xhtml#idm45043120890480-marker)) 在我几年前的培训班上，有人“轻柔地”提醒我，从数学的角度来看，正方形不是长方形而是菱形。每当我想到那堂课时，我的膝盖仍然在颤抖。因此，我特意说“似乎是”而不是“是”，来表示像我这样无知的人可能会有的幼稚印象。
 - en: ^([2](ch02.xhtml#idm45043120674128-marker)) Not mathematically, but in this
     implementation.
   id: totrans-190
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch02.xhtml#idm45043120674128-marker)) 虽然不是从数学角度，而是在这种实现中。
 - en: ^([3](ch02.xhtml#idm45043120621936-marker)) The LSP was first introduced by
     Barbara Liskov in the paper [“Data Abstraction and Hierarchy”](https://oreil.ly/Z9lu1)
     in 1988\. In 1994, it was reformulated in the paper [“A Behavioral Notion of Subtyping”](https://oreil.ly/ic7N3)
@@ -1690,11 +1696,15 @@
   id: totrans-191
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch02.xhtml#idm45043120621936-marker)) LSP最初由Barbara Liskov在1988年的论文[“数据抽象和层次结构”](https://oreil.ly/Z9lu1)中首次提出。1994年，Barbara
+    Liskov和Jeannette Wing在论文[“子类型的行为概念”](https://oreil.ly/ic7N3)中对其进行了重新表述。由于她的工作，Barbara
+    Liskov在2008年获得了图灵奖。
 - en: ^([4](ch02.xhtml#idm45043119856288-marker)) If you have a strong opinion about
     a square being a rhombus, please forgive me!
   id: totrans-192
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch02.xhtml#idm45043119856288-marker)) 如果你对正方形是菱形有强烈的看法，请原谅我！
 - en: ^([5](ch02.xhtml#idm45043119792896-marker)) And yet, in a sufficiently large
     codebase, there’s a good chance that you’ll find at least one example of this
     kind of malpractice. In my experience, it’s often the result of too little time

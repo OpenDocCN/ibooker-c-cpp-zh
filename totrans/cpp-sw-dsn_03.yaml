@@ -1,15 +1,19 @@
 - en: Chapter 3\. The Purpose of Design Patterns
+  id: totrans-0
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 第三章。设计模式的目的
 - en: '*Visitor*, *Strategy*, *Decorator*. These are all names of design patterns
     that we’ll deal with in the upcoming chapters. However, before taking a detailed
     look at each of these design patterns, I should give you an idea about the general
     purpose of a design pattern. Thus in this chapter, we will first take a look at
     the fundamental properties of design patterns, why you would want to know about
     them and use them.'
+  id: totrans-1
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Visitor*, *Strategy*, *Decorator*。这些都是我们将在接下来的章节中涉及的设计模式名称。然而，在详细讨论每种设计模式之前，我应该让你了解一下设计模式的一般目的。因此，在本章中，我们首先会看一下设计模式的基本属性，以及为什么你会想要了解它们并使用它们。'
 - en: 'In [“Guideline 1: Understand the Importance of Software Design”](ch01.xhtml#understand_the_importance_of_software_design),
     I already used the term *design pattern* and explained on which level of software
     development you use them. However, I have not yet explained in detail what a design
@@ -17,32 +21,44 @@
     of Design Patterns”](#understand_the_purpose_of_design_patterns): you will understand
     that a design pattern has a name that expresses an intent, introduces an abstraction
     that helps to decouple software entities, and has been proven over the years.'
+  id: totrans-2
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 1：理解软件设计的重要性”](ch01.xhtml#understand_the_importance_of_software_design)中，我已经使用了术语
+    *设计模式* 并解释了你在软件开发的哪个层次上使用它们。然而，我还没有详细解释设计模式 *是* 什么。这将是[“指南 11：理解设计模式的目的”](#understand_the_purpose_of_design_patterns)的主题：你将理解设计模式具有表达意图的名称，引入帮助解耦软件实体的抽象，并在多年来得到验证。
 - en: 'In [“Guideline 12: Beware of Design Pattern Misconceptions”](#beware_of_design_pattern_misconceptions),
     I will focus on several misconceptions about design patterns and explain what
     a design pattern *is not*. I will try to convince you that design patterns are
     not about implementation details and do not represent language-specific solutions
     to common problems. I will also do my best to show you that they are not limited
     to object-oriented programming nor to dynamic polymorphism.'
+  id: totrans-3
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 12：小心设计模式的误解”](#beware_of_design_pattern_misconceptions)，我将集中讨论关于设计模式的几个误解，并解释设计模式
+    *不是* 什么。我会努力说服你，设计模式不是关于实现细节，也不代表针对常见问题的特定于语言的解决方案。我还将尽力向你展示，它们不仅限于面向对象编程，也不限于动态多态性。
 - en: 'In [“Guideline 13: Design Patterns Are Everywhere”](#design_patterns_are_everywhere),
     I will demonstrate that it’s hard to avoid design patterns. They are everywhere!
     You will realize that the C++ Standard Library in particular is full of design
     patterns and makes good use of their strengths.'
+  id: totrans-4
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 13：设计模式无处不在”](#design_patterns_are_everywhere)，我将展示很难避免设计模式。它们无处不在！你将意识到特别是C++标准库充满了设计模式，并充分利用了它们的优势。
 - en: 'In [“Guideline 14: Use a Design Pattern’s Name to Communicate Intent”](#use_a_design_patterns_name_to_communicate_intent),
     I will make the point that part of the strength of a design pattern is the ability
     to communicate intent by using its name. Thus I will show you how much more information
     and meaning you can add to your code by using the name of a design pattern.'
+  id: totrans-5
   prefs: []
   type: TYPE_NORMAL
+  zh: 在[“指南 14：使用设计模式的名称来传达意图”](#use_a_design_patterns_name_to_communicate_intent)，我将强调使用设计模式名称来传达意图的重要性。因此，我将向你展示通过使用设计模式的名称，你可以为你的代码添加更多信息和意义。
 - en: 'Guideline 11: Understand the Purpose of Design Patterns'
+  id: totrans-6
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 11：理解设计模式的目的
 - en: 'There’s a good chance that you have heard about design patterns before and
     a fairly good chance that you’ve used some of them in your programming career.
     Design patterns are nothing new: they have been around at least since the Gang
@@ -51,77 +67,111 @@
     throughout the software industry. Yet, despite the long existence and importance
     of design patterns, despite all the knowledge and accumulated wisdom, there are
     many misconceptions about them, especially in the C++ community.'
+  id: totrans-7
   prefs: []
   type: TYPE_NORMAL
+  zh: 你很可能之前听说过设计模式，并且在你的编程生涯中也很可能使用了其中一些。设计模式并不新鲜：至少自从四人帮（GoF）在1994年发布了关于设计模式的书籍以来就存在了。^([1](ch03.xhtml#idm45043117876336))
+    尽管总有批评者，但它们的特殊价值已经被整个软件行业认可。然而，尽管设计模式长期存在且至关重要，尽管有着丰富的知识和积累的智慧，关于它们仍然存在许多误解，特别是在C++社区中。
 - en: 'To use design patterns productively, as a first step you need to understand
     what design patterns are. A design pattern:'
+  id: totrans-8
   prefs: []
   type: TYPE_NORMAL
+  zh: 要有效地使用设计模式，首先你需要理解设计模式是什么。一个设计模式：
 - en: Has a name
+  id: totrans-9
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 有一个名字
 - en: Carries an intent
+  id: totrans-10
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 具有一个意图
 - en: Introduces an abstraction
+  id: totrans-11
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 引入了一个抽象
 - en: Has been proven
+  id: totrans-12
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 已被证明
 - en: A Design Pattern Has a Name
+  id: totrans-13
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式有一个名字
 - en: First of all, a design pattern has a name. While this sounds very obvious and
     necessary, it is indeed a fundamental property of a design pattern. Let’s assume
     that the two of us are working on a project together and are tasked with finding
     a solution to a problem. Imagine I told you, “I would use a *Visitor* for that.”^([2](ch03.xhtml#idm45043117867680))
     Not only would this tell you what I understand to be the real problem, but it
     would also give you a precise idea about the kind of solution I’m proposing.
+  id: totrans-14
   prefs: []
   type: TYPE_NORMAL
+  zh: 首先，设计模式有一个名字。虽然这听起来非常明显和必要，但这确实是设计模式的一个基本属性。假设我们两个正在一起工作，并被要求找到一个解决问题的方案。想象一下我告诉你，“我会用*Visitor*做这个”。^([2](ch03.xhtml#idm45043117867680))
+    这不仅告诉了你我理解的真正问题，而且也让你明确了我提出的解决方案的具体想法。
 - en: 'The name of a design pattern allows us to communicate on a very high level
     and to exchange a lot of information with very few words:'
+  id: totrans-15
   prefs: []
   type: TYPE_NORMAL
+  zh: 设计模式的名字使我们能够在非常高的水平上进行交流，并用很少的话交换大量信息：
 - en: 'ME: I would use a Visitor for that.'
+  id: totrans-16
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'ME: 我会用Visitor做这个。'
 - en: ''
+  id: totrans-17
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
 - en: 'YOU: I don’t know. I thought of using a Strategy.'
+  id: totrans-18
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'YOU: 我不知道。我考虑过使用一个Strategy。'
 - en: ''
+  id: totrans-19
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
 - en: 'ME: Yes, you may have a point there. But since we’ll have to extend operations
     fairly often, we probably should consider a Decorator as well.'
+  id: totrans-20
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'ME: 是的，你可能有一点道理。但由于我们经常需要扩展操作，我们可能应该考虑使用Decorator。'
 - en: 'By just using the names *Visitor*, *Strategy*, and *Decorator*, we’ve discussed
     the evolution of the codebase, and described how we expect things to change and
     to be extended in years to come.^([3](ch03.xhtml#idm45043117861184)) Without these
     names, we would have a much harder time expressing our ideas:'
+  id: totrans-21
   prefs: []
   type: TYPE_NORMAL
+  zh: 仅仅使用*Visitor*、*Strategy*和*Decorator*的名字，我们已经讨论了代码库的演变，并描述了我们希望未来几年中事物如何变化和扩展的方式。^([3](ch03.xhtml#idm45043117861184))
+    没有这些名字，我们将更难表达我们的想法：
 - en: 'ME: I think we should create a system that allows us to extend the operations
     without the need to modify existing types again and again.'
+  id: totrans-22
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'ME: 我认为我们应该创建一个系统，使我们能够在不需要一再修改现有类型的情况下扩展操作。'
 - en: ''
+  id: totrans-23
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
@@ -130,36 +180,47 @@
     But to reduce coupling to the implementation details, which is to be expected,
     I would suggest a way to extract implementation details from existing types by
     introducing a variation point.'
+  id: totrans-24
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'YOU: 我不知道。与其说是新的操作，我更倾向于经常添加新的类型。所以我更喜欢一个能让我轻松添加类型的解决方案。但为了减少与预期的实现细节的耦合，我建议通过引入一个变化点来从现有类型中提取实现细节。'
 - en: ''
+  id: totrans-25
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
 - en: 'ME: Yes, you may have a point there. But since we’ll have to extend operations
     fairly often, we probably should consider designing the system in such a way that
     we can build on and reuse a given implementation easily.'
+  id: totrans-26
   prefs:
   - PREF_BQ
   type: TYPE_NORMAL
+  zh: 'ME: 是的，你可能有一点道理。但由于我们经常需要扩展操作，我们可能应该考虑设计系统，使得我们可以轻松地构建和重用给定的实现。'
 - en: Do you see the difference? Do you *feel* the difference? Without names, we have
     to talk about a lot more details explicitly. Obviously this kind of precise communication
     is possible only if we share the same understanding of design patterns. That is
     why it’s so important to know about design patterns and to talk about them.
+  id: totrans-27
   prefs: []
   type: TYPE_NORMAL
+  zh: 你看到了区别吗？你*感觉*到了区别吗？没有名字，我们必须明确讨论更多细节。显然，这种精确的沟通只有在我们对设计模式有相同的理解时才可能实现。这就是为什么了解设计模式并谈论它们如此重要的原因。
 - en: A Design Pattern Carries an Intent
+  id: totrans-28
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式具有一个意图
 - en: 'By using the name of a design pattern, you can express your intent concisely
     and limit possible misunderstandings. This leads to the second property of a design
     pattern: an intent. The *name* of a design pattern conveys its *intent*. If you
     use the name of a design pattern, you implicitly state what you consider to be
     the problem and what you see as a solution.'
+  id: totrans-29
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过使用设计模式的名字，你可以简洁地表达你的意图并限制可能的误解。这引出了设计模式的第二个属性：一个意图。设计模式的*名字*传达了其*意图*。如果你使用设计模式的名字，你隐含地陈述了你认为的问题以及你认为的解决方案。
 - en: 'Hopefully you realized that in our little conversion, we weren’t talking about
     any kind of implementation. We didn’t talk about implementation details, any features,
     or any particular C++ standard. We didn’t even talk about any particular programming
@@ -168,8 +229,10 @@
     pattern is about. On the contrary: the name should tell you about the structure
     that I propose, about how I plan to manage dependencies and about how I expect
     the system to evolve. That is the intent.'
+  id: totrans-30
   prefs: []
   type: TYPE_NORMAL
+  zh: 希望你意识到，在我们的小谈话中，我们并没有讨论任何具体的实现。我们没有谈论实现细节、任何特定的特性，也没有讨论任何特定的 C++ 标准。请不要认为我通过给出设计模式的名称就隐含告诉了你如何去实现解决方案。这不是设计模式的意图。相反地，这个名称应该告诉你我提出的结构，我计划如何管理依赖，以及我期望系统如何演化。这就是意图。
 - en: In fact, many design patterns have a similar structure. In the GoF book, many
     of the design patterns look very much alike, which, of course, raises a lot of
     confusion and questions. For instance, structurally, there appears to be almost
@@ -177,12 +240,17 @@
     However, their intent is very different and you would therefore use them to solve
     different problems. As you will see in various examples in the following chapters,
     there are almost always many different implementations you can choose from.
+  id: totrans-31
   prefs: []
   type: TYPE_NORMAL
+  zh: 实际上，许多设计模式都有相似的结构。在 GoF 的书中，许多设计模式看起来非常相似，这当然会引起很多混淆和问题。例如，在结构上，策略模式、*命令*模式和*桥接*模式几乎没有什么区别。^([4](ch03.xhtml#idm45043117851760))
+    但是它们的意图非常不同，因此您会用它们来解决不同的问题。正如您将在接下来的章节中的各种示例中看到的那样，几乎总是有许多不同的实现可以选择。
 - en: A Design Pattern Introduces an Abstraction
+  id: totrans-32
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式引入一个抽象
 - en: A design pattern always provides some way to reduce dependencies by introducing
     some kind of abstraction. This means that a design pattern is always concerned
     with managing the interaction between software entities and decoupling pieces
@@ -194,15 +262,24 @@
     details of the concrete strategies (`Concrete​StrategyA` and `ConcreteStrategyB`
     in the low level of your architecture). As such, Strategy fulfills the properties
     of a design pattern.^([5](ch03.xhtml#idm45043117838768))
+  id: totrans-33
   prefs: []
   type: TYPE_NORMAL
+  zh: 设计模式总是通过引入某种形式的抽象来减少依赖。这意味着设计模式始终关注于管理软件实体之间的交互并解耦软件的各个部分。例如，考虑策略设计模式，这是最初的
+    GoF 设计模式之一，在 [图 3-1](#fig_strategy_original) 中。不详细展开，策略设计模式引入了一个抽象，即 `Strategy`
+    基类。这个基类将策略使用者（在您架构的高层中的 `Context` 类）与具体策略的实现细节（在您架构的低层中的 `Concrete​StrategyA`
+    和 `ConcreteStrategyB`）解耦。因此，策略模式具备了设计模式的特性。^([5](ch03.xhtml#idm45043117838768))
 - en: '![The UML diagram of the GoF Strategy design pattern](assets/cpsd_0301.png)'
+  id: totrans-34
   prefs: []
   type: TYPE_IMG
+  zh: '![GoF 策略设计模式的 UML 图](assets/cpsd_0301.png)'
 - en: Figure 3-1\. The GoF Strategy design pattern
+  id: totrans-35
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 3-1\. GoF 策略设计模式
 - en: 'A similar example is the *Factory Method* design pattern (yet another GoF design
     pattern; see [Figure 3-2](#fig_factory_method_original)). The intent of *Factory
     Method* is to decouple from the creation of specific products. For that purpose,
@@ -212,28 +289,42 @@
     on the low level of the architecture. With this architectural structure, *Factory
     Method* also qualifies as a design pattern: it has a name, the intent to decouple,
     and it introduces abstractions.'
+  id: totrans-36
   prefs: []
   type: TYPE_NORMAL
+  zh: 一个类似的例子是*工厂方法*设计模式（又是 GoF 设计模式之一；见 [图 3-2](#fig_factory_method_original)）。*工厂方法*的意图是解耦具体产品的创建过程。为此，它引入了两个抽象：`Product`
+    和 `Creator` 基类，这些基类在架构上处于高层。具体的实现细节则通过 `ConcreteProduct` 和 `Concrete​Crea⁠tor`
+    类在架构的低层给出。有了这种架构结构，*工厂方法*也符合设计模式的定义：它有一个名称、意图是解耦，并且引入了抽象。
 - en: '![The UML diagram of the GoF _Factory Method_ design pattern](assets/cpsd_0302.png)'
+  id: totrans-37
   prefs: []
   type: TYPE_IMG
+  zh: '![GoF《工厂方法》设计模式的 UML 图](assets/cpsd_0302.png)'
 - en: Figure 3-2\. The GoF *Factory Method* design pattern
+  id: totrans-38
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 3-2\. GoF《工厂方法》设计模式
 - en: Note that the abstraction introduced by a design pattern is not necessarily
     introduced by means of a base class. As I will show you in the following sections
     and chapters, this abstraction can be introduced in many different ways, for instance,
     by means of templates or simply by function overloading. Again, a design pattern
     does not imply any specific implementation.
+  id: totrans-39
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意，设计模式引入的抽象不一定通过基类引入。正如我将在以下部分和章节中向您展示的那样，这种抽象可以通过许多不同的方式引入，例如通过模板或简单的函数重载。再次强调，设计模式不暗示任何特定的实现方式。
 - en: 'As a counter example, let us consider the `std::make_unique()` function:'
+  id: totrans-40
   prefs: []
   type: TYPE_NORMAL
+  zh: 作为反例，让我们考虑`std::make_unique()`函数：
 - en: '[PRE0]'
+  id: totrans-41
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE0]'
 - en: 'In the C++ community, we often talk about the `std::make_unique()` function
     as a *factory function*. It’s important to note that although the term *factory
     function* gives the impression that `std::make_unique()` is one example of the
@@ -245,11 +336,15 @@
     if you use `std::make_unique()`, you know that you will get a `std::unique_ptr`
     to the type you are asking for and that the instance will be created by means
     of `new`:'
+  id: totrans-42
   prefs: []
   type: TYPE_NORMAL
+  zh: 在C++社区中，我们经常将`std::make_unique()`函数称为*工厂函数*。重要的是要注意，尽管术语*工厂函数*给人的印象是`std::make_unique()`是*工厂方法*设计模式的一个示例，但这种印象是错误的。设计模式通过引入一个允许定制和推迟实现细节的抽象来帮助您解耦。特别是，《工厂方法》设计模式的意图是引入一个*定制点*用于对象实例化。`std::make_unique()`并未提供这样的*定制点*：如果您使用`std::make_unique()`，您知道您将获得一个指向您请求的类型的`std::unique_ptr`，并且实例将通过`new`创建：
 - en: '[PRE1]'
+  id: totrans-43
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE1]'
 - en: Since `std::make_unique()` doesn’t provide you with any way to customize that
     behavior, it can’t help to reduce coupling between entities, and thus it cannot
     serve the purpose of a design pattern.^([6](ch03.xhtml#idm45043117735120)) Still,
@@ -259,8 +354,11 @@
     case, the generation of an instance of `Widget`), but it does not abstract from
     what you get or how it will be created. As such, it is part of the *Implementation
     Details* level but not the *Software Design* level (refer back to [Figure 1-1](ch01.xhtml#fig_level_overview)).
+  id: totrans-44
   prefs: []
   type: TYPE_NORMAL
+  zh: 由于`std::make_unique()`不提供任何自定义行为的方式，它无法帮助减少实体之间的耦合，因此无法达到设计模式的目的。^([6](ch03.xhtml#idm45043117735120))
+    尽管如此，`std::make_unique()`是一个特定问题的常见解决方案。换句话说，它是一种模式。但是，它不是*设计模式*而是*实现模式*。它是一种流行的解决方案，用于封装实现细节（在本例中是`Widget`实例的生成），但它并未抽象出你得到什么或者如何创建它。因此，它属于*实现细节*级别而不是*软件设计*级别（参见[图 1-1](ch01.xhtml#fig_level_overview)）。
 - en: The introduction of abstractions is the key to decoupling software entities
     from one another and to designing for change and extension. There is no abstraction
     in the `std::make_unique()` function template, and thus no way for you to extend
@@ -271,19 +369,25 @@
     at a later point, without having to change existing code. Therefore, the design
     pattern helps you decouple and extend your software, while `std::make_unique()`
     is only an *implementation pattern*.
+  id: totrans-45
   prefs: []
   type: TYPE_NORMAL
+  zh: 引入抽象是将软件实体相互解耦并设计以支持变更和扩展的关键。在`std::make_unique()`函数模板中没有抽象，因此无法扩展功能（甚至无法正确重载或特化）。相反，《工厂方法》设计模式确实提供了从*创建什么*以及*如何创建*（包括实例化前后的操作）的抽象。由于这种抽象，您可以在以后编写新的工厂，而无需更改现有代码。因此，该设计模式帮助您解耦和扩展软件，而`std::make_unique()`只是一种*实现模式*。
 - en: A Design Pattern Has Been Proven
+  id: totrans-46
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 已经证明存在设计模式
 - en: Last but not least, a design pattern has been proven over the years. The Gang
     of Four did not collect all possible solutions, only solutions that were commonly
     used in different codebases to solve the same problem (although potentially with
     different implementations). Thus a solution has to demonstrate its value several
     times before it emerges as a pattern.
+  id: totrans-47
   prefs: []
   type: TYPE_NORMAL
+  zh: 最后但并非最不重要的是，设计模式经过多年的验证。四人帮并未收集所有可能的解决方案，而是收集了在不同代码库中常用于解决相同问题的解决方案（尽管可能具有不同的实现）。因此，一个解决方案必须在多次展示其价值后才能成为一个模式。
 - en: 'To summarize: a design pattern is a proven, named solution, which expresses
     a very specific intent. It introduces some kind of abstraction, which helps to
     decouple software entities and thus helps to manage the interaction between software
@@ -291,49 +395,68 @@
     dependencies and decoupling (see [“Guideline 1: Understand the Importance of Software
     Design”](ch01.xhtml#understand_the_importance_of_software_design)), we should
     use the term *Design Pattern* accurately and on purpose.'
+  id: totrans-48
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结一下：设计模式是经过验证的、命名的解决方案，表达了非常具体的意图。它引入了某种抽象，有助于解耦软件实体，从而有助于管理软件实体之间的交互。就像我们应该使用术语*设计*来表示管理依赖性和解耦的艺术（参见[“指南
+    1：理解软件设计的重要性”](ch01.xhtml#understand_the_importance_of_software_design)），我们应该精确而有目的地使用术语*设计模式*。
 - en: 'Guideline 12: Beware of Design Pattern Misconceptions'
+  id: totrans-49
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南 12：当心设计模式的误解
 - en: 'The last section focused on explaining the purpose of a design pattern: the
     combination of a name, an intent, and some form of abstraction to decouple software
     entities. However, just as it’s important to understand what a design pattern
     *is*, it’s important to understand what a design pattern *is not*. Unfortunately,
     there are several common misconceptions about design patterns:'
+  id: totrans-50
   prefs: []
   type: TYPE_NORMAL
+  zh: 上一节重点解释了设计模式的目的：将名称、意图和某种形式的抽象结合起来，以解耦软件实体。然而，理解设计模式*是*什么同样重要，理解设计模式*不是*什么也同样重要。不幸的是，关于设计模式存在几种常见的误解：
 - en: Some consider design patterns as a goal and as a guarantee for achieving good
     software quality.
+  id: totrans-51
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 有些人将设计模式视为达成良好软件质量的目标和保证。
 - en: Some argue that design patterns are based on a particular implementation and
     thus are language-specific idioms.
+  id: totrans-52
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 有人认为设计模式基于特定实现，因此是特定于语言的习语。
 - en: Some say that design patterns are limited to object-oriented programming and
     dynamic polymorphism.
+  id: totrans-53
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 有人说设计模式仅限于面向对象编程和动态多态性。
 - en: Some consider design patterns outdated or even obsolete.
+  id: totrans-54
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 有些人认为设计模式已过时甚至已经过时。
 - en: 'These misconceptions come as no surprise since we rarely talk about design
     but instead focus on features and language mechanics (see [“Guideline 1: Understand
     the Importance of Software Design”](ch01.xhtml#understand_the_importance_of_software_design)).
     For that reason, I will debunk the first three misconceptions in this guideline
     and will deal with the fourth one in the next section.'
+  id: totrans-55
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些误解并不令人惊讶，因为我们很少谈论设计，而是专注于功能和语言机制（参见[“指南 1：理解软件设计的重要性”](ch01.xhtml#understand_the_importance_of_software_design)）。因此，在本指南中，我将揭穿前三个误解，并在下一部分处理第四个。
 - en: Design Patterns Are Not a Goal
+  id: totrans-56
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式不是目标
 - en: Some developers love design patterns. They are so infatuated with them that
     they try to solve all their problems by means of design patterns, whether it is
     reasonable or not. Of course, this way of thinking potentially increases the complexity
@@ -341,8 +464,10 @@
     Consequently, this overuse of design patterns may result in frustration in other
     developers, in a bad reputation of design patterns in general, or even in rejection
     of the general idea of patterns.
+  id: totrans-57
   prefs: []
   type: TYPE_NORMAL
+  zh: 一些开发者热爱设计模式。他们对设计模式如此迷恋，以至于试图通过设计模式解决所有问题，无论是否合理。当然，这种思维方式可能增加代码的复杂性，降低可理解性，这可能会适得其反。因此，对设计模式的过度使用可能导致其他开发者的沮丧，普遍设计模式的坏名声，甚至对模式的一般理念的拒绝。
 - en: 'To spell it out: design patterns are *not* a goal. They are a means to achieve
     a goal. They may be part of the solution. But they are not a goal. As Venkat Subramaniam
     would say: if you get up in the morning, thinking “What design pattern will I
@@ -354,8 +479,11 @@
     the design pattern should help to resolve dependencies and create a better structure.
     If using a design pattern leads to higher complexity and creates problems for
     other developers, it apparently isn’t the right solution.'
+  id: totrans-58
   prefs: []
   type: TYPE_NORMAL
+  zh: 明言不讳：设计模式并*不*是目标。它们是实现目标的手段。它们可能是解决方案的一部分。但它们并非目标。正如 Venkat Subramaniam 所说的：如果你早上起来就在想“今天我要使用什么设计模式？”，那么这是一个明显的迹象，表明你没有理解设计模式的目的。⁠^([7](ch03.xhtml#idm45043117663968))
+    使用尽可能多的设计模式并不会带来奖励或奖牌。设计模式的使用不应该增加复杂性，相反，应该减少复杂性。代码应该变得更简单、更易于理解，更容易修改和维护，因为设计模式应该有助于解决依赖关系并创建更好的结构。如果使用设计模式导致更高的复杂性并给其他开发人员带来问题，显然这不是正确的解决方案。
 - en: 'Just to be clear: I’m not telling you not to use design patterns. I’m merely
     telling you not to overuse them, just as I would tell you not to overuse any other
     tool. It always depends on the problem. For instance, a hammer is a great tool,
@@ -364,12 +492,17 @@
     To properly use design patterns, to know when to use them and when *not* to use
     them, it’s so important to have a firm grasp of them, to understand their intent
     and structural properties, and to apply them wisely.'
+  id: totrans-59
   prefs: []
   type: TYPE_NORMAL
+  zh: 明确一点：我并不是告诉你不要使用设计模式。我只是告诉你不要过度使用它们，就像我告诉你不要过度使用任何其他工具一样。这总是依赖于问题本身。例如，锤子是一个很好的工具，只要你的问题是钉子。但是，一旦你的问题变成螺丝，锤子就变成了一个有点不太优雅的工具。⁠^([8](ch03.xhtml#idm45043117662480))
+    要正确使用设计模式，了解何时使用它们以及何时*不*使用它们非常重要，必须牢固掌握它们，理解它们的意图和结构特性，并明智地应用它们。
 - en: Design Patterns Are Not About Implementation Details
+  id: totrans-60
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式不是关于实现细节
 - en: One of the most common misconceptions about design patterns is that they are
     based on a specific implementation. This includes the opinion that design patterns
     are more or less language-specific idioms. This misconception is easy to understand,
@@ -377,23 +510,32 @@
     in an object-oriented setting and explained by means of object-oriented examples.
     In such a context, it’s easy to mistake the implementation details for a specific
     pattern and to assume that both are the same.
+  id: totrans-61
   prefs: []
   type: TYPE_NORMAL
+  zh: 关于设计模式最常见的误解之一是它们基于特定的实现。这包括认为设计模式或多或少是特定语言的习语。这种误解很容易理解，因为许多设计模式，特别是 GoF 模式，通常在面向对象的环境中呈现，并通过面向对象的示例来解释。在这样的背景下，很容易把实现细节误认为是特定模式，并假设它们是一样的。
 - en: Fortunately, it’s also easy to demonstrate that design patterns are *not* about
     implementation details, any particular language feature, or any C++ standard.
     Let’s take a look at different implementations of the same design pattern. And
     yes, we will start with the classic, object-oriented version of the design pattern.
+  id: totrans-62
   prefs: []
   type: TYPE_NORMAL
+  zh: 幸运的是，很容易证明设计模式*不*涉及实现细节、任何特定的语言特性或任何 C++ 标准。让我们看看同一设计模式的不同实现。是的，我们将从经典的面向对象版本开始讨论这个设计模式。
 - en: 'Consider the following scenario: we want to draw a given shape.^([9](ch03.xhtml#idm45043117656144))
     The code snippet demonstrates this by means of a circle, but of course it could
     be any other kind of shape, like a square or a triangle. For the purpose of drawing,
     the `Circle` class provides the `draw()` member function:'
+  id: totrans-63
   prefs: []
   type: TYPE_NORMAL
+  zh: 考虑以下情景：我们想要绘制给定形状。^([9](ch03.xhtml#idm45043117656144)) 代码片段通过一个圆形来演示这一点，但当然它可以是任何其他形状，比如正方形或三角形。为了绘制，`Circle`
+    类提供了 `draw()` 成员函数。
 - en: '[PRE2]'
+  id: totrans-64
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE2]'
 - en: 'It now appears self-evident that you need to implement the `draw()` function.
     Without further thought, you might do this by means of a common graphics library
     such as OpenGL, Metal, Vulcan, or any other graphics library. However, it would
@@ -401,45 +543,61 @@
     functionality itself: by implementing the `draw()` function directly, you would
     introduce a strong coupling to your chosen graphics library. This comes with a
     couple of downsides:'
+  id: totrans-65
   prefs: []
   type: TYPE_NORMAL
+  zh: 现在显而易见的是，你需要实现`draw()`函数。毫不犹豫地，你可能会通过使用诸如OpenGL、Metal、Vulcan或其他任何图形库来实现这一点。然而，如果`Circle`类本身提供`draw()`功能的实现，这将是一个很大的设计缺陷：通过直接实现`draw()`函数，你会引入对所选图形库的强耦合。这带来了一些弊端：
 - en: For every possible application of `Circle`, you would always need the graphics
     library to be available, even though you might not be interested in graphics but
     only need it as a geometric primitive.
+  id: totrans-66
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对于每个`Circle`的应用，你都需要图形库可用，即使你可能对图形不感兴趣，只需将其作为几何原语使用。
 - en: Every change to the graphics library might have an effect on the `Circle` class,
     resulting in necessary modifications, retesting, redeployment, etc.
+  id: totrans-67
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 对图形库的每一次更改都可能影响`Circle`类，导致必须进行修改、重新测试、重新部署等。
 - en: Switching to another library in the future would mean everything but a smooth
     transition.
+  id: totrans-68
   prefs:
   - PREF_UL
   type: TYPE_NORMAL
+  zh: 将来切换到另一个库意味着一切除了平稳过渡。
 - en: 'These problems all have a common source: implementing the `draw()` function
     directly within the `Circle` class violates the *Single-Responsibility Principle*
     (SRP; see [“Guideline 2: Design for Change”](ch01.xhtml#design_for_change)). The
     class wouldn’t change for a single reason anymore and would strongly depend on
     that design decision.'
+  id: totrans-69
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有这些问题都有一个共同的根源：在`Circle`类内部直接实现`draw()`函数违反了*单一责任原则*（SRP；参见[“指南 2：面向变更设计”](ch01.xhtml#design_for_change)）。该类不再为单一原因而变化，并且严重依赖于该设计决策。
 - en: The classic object-oriented solution for this problem is to extract the decision
     about how to draw the circle and introduce an abstraction for that by means of
     a base class. Introducing such a *variation point* is the effect of the Strategy
     design pattern (see [Figure 3-3](#fig_strategy_shape_1)).^([10](ch03.xhtml#idm45043117617504))
+  id: totrans-70
   prefs: []
   type: TYPE_NORMAL
+  zh: 针对这个问题的经典面向对象解决方案是提取如何绘制圆的决策，并通过基类引入一个抽象概念。引入这样一个*变化点*正是策略设计模式的效果（参见[图 3-3](#fig_strategy_shape_1)）^([10](ch03.xhtml#idm45043117617504))。
 - en: '![The UML diagram of the GoF _Strategy_ design pattern, applied to drawing
     shapes.](assets/cpsd_0303.png)'
+  id: totrans-71
   prefs: []
   type: TYPE_IMG
+  zh: '![《GoF 策略设计模式》应用于绘制形状的 UML 图示](assets/cpsd_0303.png)'
 - en: Figure 3-3\. The *Strategy* design pattern applied to drawing circles
+  id: totrans-72
   prefs:
   - PREF_H6
   type: TYPE_NORMAL
+  zh: 图 3-3\. *策略*设计模式应用于绘制圆形
 - en: 'The intent of the Strategy design pattern is to define a family of algorithms
     and encapsulate each one, therefore making them interchangeable. Strategy lets
     the algorithm vary independently from clients that use it. By introducing the
@@ -447,29 +605,39 @@
     of the given `Circle`. This also enables everyone, not just you, to implement
     a new drawing behavior without modifying existing code and to inject it from the
     outside into the `Circle`. This is what we commonly call *dependency injection*:'
+  id: totrans-73
   prefs: []
   type: TYPE_NORMAL
+  zh: 策略设计模式的意图是定义一组算法并封装每个算法，从而使它们可以互换使用。策略模式使得算法的变化独立于使用它的客户端。通过引入`DrawStrategy`基类，可以轻松地改变给定`Circle`的`draw()`实现方式。这也使得每个人，而不仅仅是你，可以在不修改现有代码的情况下实现新的绘图行为，并且可以从外部注入到`Circle`中。这就是我们通常称之为*依赖注入*：
 - en: '[PRE3]'
+  id: totrans-74
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE3]'
 - en: 'This approach vastly increases the flexibility with respect to different drawing
     behavior: it factors out all dependencies on specific libraries and other implementation
     details and thus makes the code more changeable and extensible. For instance,
     it’s now easily possible to provide a special implementation for testing purposes
     (i.e., a `TestStrategy`). This demonstrates that the improved flexibility has
     a very positive impact on the testability of the design.'
+  id: totrans-75
   prefs: []
   type: TYPE_NORMAL
+  zh: 这种方法大大增加了对不同绘图行为的灵活性：它消除了对特定库和其他实现细节的所有依赖，从而使代码更易于变更和扩展。例如，现在可以轻松地为测试目的提供一个特殊的实现（即`TestStrategy`）。这表明增强的灵活性对设计的可测试性产生了非常积极的影响。
 - en: 'The Strategy design pattern is one of the classic GoF design patterns. As such,
     it is often referred to as an object-oriented design pattern and is often considered
     to require a base class. However, the intent of Strategy is not limited to object-oriented
     programming. Just as it’s possible to use a base class for the abstraction, it
     is just as easily possible to rely on a template parameter:'
+  id: totrans-76
   prefs: []
   type: TYPE_NORMAL
+  zh: 策略设计模式是GoF设计模式之一。因此，它经常被称为面向对象的设计模式，并且通常被认为需要一个基类。然而，策略的意图不仅限于面向对象编程。就像可以使用基类来进行抽象一样，同样可以依赖于模板参数：
 - en: '[PRE4]'
+  id: totrans-77
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE4]'
 - en: 'In this form, deciding how to draw the circle happens at compile time: instead
     of writing a base class `DrawStrategy` and passing a pointer to a `DrawStrategy`
     at runtime, the implementation details for drawing are provided by means of the
@@ -478,27 +646,37 @@
     not depending on any implementation details. Therefore you have still decoupled
     the `Circle` class from the used graphics library. In comparison to the runtime
     approach, though, you will have to recompile every time the `DrawStrategy` changes.'
+  id: totrans-78
   prefs: []
   type: TYPE_NORMAL
+  zh: 在这种形式下，决定如何绘制圆圈是在编译时发生的：而不是编写一个基类`DrawStrategy`并在运行时传递一个指向`DrawStrategy`的指针，绘制的实现细节是通过`DrawStrategy`模板参数提供的。请注意，虽然模板参数允许您从外部注入实现细节，但`Circle`仍然不依赖于任何实现细节。因此，您仍然将`Circle`类与使用的图形库解耦。但与运行时方法相比，每次`DrawStrategy`更改时都必须重新编译。
 - en: While it’s true that the template-based solution fundamentally changes the properties
     of the example (i.e., no base class and no virtual functions, no runtime decisions,
     no single `Circle` class, but one `Circle` type for every concrete `DrawStrategy`),
     it still implements the intent of the Strategy design pattern perfectly. Thus
     this demonstrates that a design pattern is not restricted to a particular implementation
     or a specific form of abstraction.
+  id: totrans-79
   prefs: []
   type: TYPE_NORMAL
+  zh: 虽然基于模板的解决方案确实从根本上改变了示例的属性（即没有基类和虚函数，没有运行时决策，没有单一的`Circle`类，而是每个具体的`DrawStrategy`一个`Circle`类型），但它仍然完美地实现了策略设计模式的意图。因此，这表明设计模式并不局限于特定的实现或特定的抽象形式。
 - en: Design Patterns Are Not Limited to Object-Oriented Programming or Dynamic Polymorphism
+  id: totrans-80
   prefs:
   - PREF_H2
   type: TYPE_NORMAL
+  zh: 设计模式并不局限于面向对象编程或动态多态性
 - en: 'Let’s consider another use case for the Strategy design pattern: the Standard
     Library `accumulate()` function template from the `<numeric>` header:'
+  id: totrans-81
   prefs: []
   type: TYPE_NORMAL
+  zh: 让我们考虑策略设计模式的另一个用例：标准库`<numeric>`头文件中的`accumulate()`函数模板：
 - en: '[PRE5]'
+  id: totrans-82
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE5]'
 - en: 'By default, `std::accumulate()` sums up all elements in the given range. The
     third argument specifies the initial value for the sum. Since `std::accumulate()`
     uses the type of that argument as the return type, the type of the argument is
@@ -507,11 +685,15 @@
     can specify how elements are accumulated by providing a fourth argument to `std::accumulate()`.
     For instance, you could use `std::plus` or `std::multiplies` from the `<functional>`
     header:'
+  id: totrans-83
   prefs: []
   type: TYPE_NORMAL
+  zh: 默认情况下，`std::accumulate()`函数对给定范围内的所有元素求和。第三个参数指定了求和的初始值。由于`std::accumulate()`使用该参数的类型作为返回类型，因此该参数的类型显式地标注为`int{0}`，而不仅仅是`0`，以避免微妙的误解。然而，求和元素只是冰山一角：如果需要，您可以通过向`std::accumulate()`提供第四个参数来指定如何累加元素。例如，您可以使用来自`<functional>`头文件的`std::plus`或`std::multiplies`：
 - en: '[PRE6]'
+  id: totrans-84
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE6]'
 - en: By means of the fourth argument, `std::accumulate()` can be used for any kind
     of reduction operation, and thus the fourth argument represents the implementation
     of the reduction operation. As such, it enables us to vary the implementation
@@ -519,14 +701,18 @@
     therefore does not depend on a single, specific implementation but can be customized
     by anyone to a specific purpose. This represents exactly the intent of the Strategy
     design pattern.^([11](ch03.xhtml#idm45043117184368))
+  id: totrans-85
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过第四个参数，`std::accumulate()`可以用于任何类型的归约操作，因此第四个参数代表了归约操作的实现。因此，它使我们能够通过从外部注入归约的具体工作方式来变化实现。因此，`std::accumulate()`并不依赖于单一的、特定的实现，而是可以被任何人定制为特定目的。这正是策略设计模式的意图。^([11](ch03.xhtml#idm45043117184368))
 - en: '`std::accumulate()` draws its power from a generic form of the Strategy design
     pattern. Without the ability to change this behavior, it would be useful in only
     a very limited number of use cases. Due to the Strategy design pattern, the number
     of possible uses is endless.^([12](ch03.xhtml#idm45043117181696))'
+  id: totrans-86
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::accumulate()`从策略设计模式的通用形式中获得其能力。如果不能改变这种行为，它将只在极少数用例中有用。由于策略设计模式，可能的使用方式是无限的。^([12](ch03.xhtml#idm45043117181696))'
 - en: 'The example of `std::accumulate()` demonstrates that design patterns, even
     the classic GoF patterns, are not tied to one particular implementation and additionally
     are not limited to object-oriented programming. Clearly the intent of many of
@@ -534,35 +720,48 @@
     Therefore, design patterns are not limited to dynamic polymorphism, either. On
     the contrary: design patterns work equally well for static polymorphism and can
     therefore be used in combination with C++ templates.'
+  id: totrans-87
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::accumulate()`的例子表明，设计模式，甚至是经典的GoF模式，并不局限于一个特定的实现，而且不仅限于面向对象编程。显然，许多这些模式的意图对其他范式（如函数式或通用编程）也非常有用。^([13](ch03.xhtml#idm45043117179232))
+    因此，设计模式并不仅限于动态多态性。相反，设计模式同样适用于静态多态性，并且因此可以与C++模板结合使用。'
 - en: 'To further emphasize the point and to show you an additional example of the
     Strategy design pattern, consider the declarations for the `std::vector` and `std::set`
     class templates:'
+  id: totrans-88
   prefs: []
   type: TYPE_NORMAL
+  zh: 为了进一步强调这一点，并展示策略设计模式的另一个示例，请考虑`std::vector`和`std::set`类模板的声明：
 - en: '[PRE7]'
+  id: totrans-89
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE7]'
 - en: All containers in the Standard Library (with the exception of `std::array`)
     provide you with the opportunity to specify a custom allocator. In the case of
     `std::vector` it’s the second template argument, and for `std::set` it’s the third
     argument. All memory requests from the container are handled via the given allocator.
+  id: totrans-90
   prefs: []
   type: TYPE_NORMAL
+  zh: 在标准库中的所有容器（除了`std::array`）中，都可以指定自定义的分配器。对于`std::vector`，它是第二个模板参数；对于`std::set`，则是第三个参数。容器中的所有内存请求都通过给定的分配器处理。
 - en: By exposing a template argument for the allocator, the Standard Library containers
     give you the opportunity to customize memory allocation from the outside. They
     enable you to define a family of algorithms (in earlier case, an algorithm for
     the memory acquisition) and encapsulate each one and therefore make them interchangeable.
     Consequently you’re able to vary this algorithm independently from clients (in
     this case, the containers) that use it.^([14](ch03.xhtml#idm45043117095392))
+  id: totrans-91
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过为分配器暴露一个模板参数，标准库容器为你提供了从外部定制内存分配的机会。它们使你能够定义一系列算法（在这种情况下是内存获取算法），并将每个算法封装起来，从而使它们可以互换。因此，你能够独立地变化这个算法，而不影响使用它的客户端（在这种情况下是容器）。^([14](ch03.xhtml#idm45043117095392))
 - en: Having read that description, you should recognize the Strategy design pattern.
     In this example, Strategy is again based on static polymorphism and implemented
     by means of a template argument. Clearly, Strategy is not limited to dynamic polymorphism.
+  id: totrans-92
   prefs: []
   type: TYPE_NORMAL
+  zh: 阅读了这个描述后，你应该能够识别出策略设计模式。在这个例子中，策略再次基于静态多态性，并通过模板参数实现。显然，策略不仅限于动态多态性。
 - en: While it’s obviously true that design patterns in general aren’t limited to
     object-oriented programming or dynamic polymorphism, I should still explicitly
     state that there are some design patterns whose intent is targeted to alleviate
@@ -572,35 +771,47 @@
     (e.g., the *Curiously Recurring Template Pattern* [CRTP] and *Expression Templates*).^([16](ch03.xhtml#idm45043117014496))
     While most design patterns are not paradigm centric and their intention can be
     used in a variety of implementations, some are more specific.
+  id: totrans-93
   prefs: []
   type: TYPE_NORMAL
+  zh: 显然，设计模式不限于面向对象编程或动态多态性，但我还是要明确地指出，有些设计模式的意图是为了缓解面向对象编程中的常见问题（例如*访问者*和*原型*设计模式）。⁠^([15](ch03.xhtml#idm45043117018416))
+    当然，还有一些专注于函数式编程或通用编程的设计模式（例如*奇异递归模板模式* [CRTP] 和*表达式模板*）。^([16](ch03.xhtml#idm45043117014496))
+    大多数设计模式不限于特定范式，并且它们的意图可以用于各种实现，但有些更具体。
 - en: 'In the upcoming chapters, you’ll see examples for both categories. You will
     see design patterns that have a very general intent and are consequently of general
     usefulness. Additionally, you will see some design patterns that are more paradigm-specific
     and, due to that, will fail to be useful outside of their target domain. Still,
     they all have the main characteristics of design patterns in common: a name, an
     intent, and some form of abstraction.'
+  id: totrans-94
   prefs: []
   type: TYPE_NORMAL
+  zh: 在接下来的章节中，您将看到两类示例。您将看到具有非常一般意图并因此具有一般用途的设计模式示例。此外，您还将看到一些更具范式特定性的设计模式，由于这个原因，在其目标领域之外可能无法使用。尽管如此，它们都具有设计模式的主要特征：名称、意图和某种形式的抽象。
 - en: 'In summary: design patterns are not limited to object-oriented programming,
     nor are they limited to dynamic polymorphism. More specifically, design patterns
     are not about a particular implementation and they are not language-specific idioms.
     Instead, they are focused entirely on the intent to decouple software entities
     in a specific way.'
+  id: totrans-95
   prefs: []
   type: TYPE_NORMAL
+  zh: 总结：设计模式不仅限于面向对象编程，也不仅限于动态多态性。更具体地说，设计模式不是关于特定实现的，也不是语言特定的习语。相反，它们完全专注于以特定方式解耦软件实体的意图。
 - en: 'Guideline 13: Design Patterns Are Everywhere'
+  id: totrans-96
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指导原则13：设计模式无处不在
 - en: The previous section has demonstrated that design patterns are not limited to
     object-oriented programming or dynamic polymorphism, that they are not language-specific
     idioms, and that they are not about a particular implementation. Still, due to
     these common misconceptions and because we don’t consider C++ as solely object-oriented
     programming language anymore, some people even claim that design patterns are
     outdated or obsolete.^([17](ch03.xhtml#idm45043116999904))
+  id: totrans-97
   prefs: []
   type: TYPE_NORMAL
+  zh: 前面的部分已经证明了设计模式不仅限于面向对象编程或动态多态性，它们也不是语言特定的习语，也不是关于特定实现的。尽管如此，由于这些常见误解以及因为我们不再将C++视为纯粹的面向对象编程语言，一些人甚至声称设计模式已经过时或过时了。^([17](ch03.xhtml#idm45043116999904))
 - en: I imagine you’re now looking a little skeptical. “Obsolete? Isn’t that a little
     exaggerated?” you ask. Well, unfortunately not. To tell a little war story, in
     early 2021 I had the honor of giving a virtual talk about design patterns in a
@@ -610,8 +821,10 @@
     gave my best to make everybody see the light that knowledge about design patterns
     brings. Still, a few days after the publication of the talk on YouTube, a user
     commented on the talk with “Really? Design Patterns in 2021?”
+  id: totrans-98
   prefs: []
   type: TYPE_NORMAL
+  zh: 我想你现在可能有些怀疑了。“过时？这不是有些夸张吗？”你问道。嗯，不幸的是并不夸张。让我来讲个小故事，在2021年初，我有幸在一个德国的C++用户组中进行了一场虚拟讲座，主题是设计模式。我的主要目标是解释什么是设计模式，以及它们今天仍然被广泛使用。在讲座期间，我感觉良好，充满了使命感，希望能帮助人们看到设计模式带来的所有好处，我确实尽了最大努力让每个人都看到知识带来的光明。然而，讲座在YouTube上发布几天后，有个用户评论道：“真的吗？2021年还在讲设计模式？”
 - en: 'I very much hope that you are now shaking your head in disbelief. Yes, I could
     not believe it either, especially after having shown that there are hundreds of
     examples for design patterns in the C++ Standard Library. No, design patterns
@@ -620,11 +833,15 @@
     the updated allocators facility in the C++ Standard Library. Take a look at the
     following code example that uses allocators from the `std::pmr` (*polymorphic
     memory resource*) namespace:'
+  id: totrans-99
   prefs: []
   type: TYPE_NORMAL
+  zh: 我非常希望你现在在怀疑地摇摇头。是的，我也不敢相信，特别是在我已经展示出C++标准库中有数百个设计模式示例后。不，设计模式既不过时也不过时。与事实相去甚远。为了证明设计模式仍然非常活跃和相关，让我们看看C++标准库中更新的分配器设施。看看以下使用`std::pmr`（*多态内存资源*）命名空间中分配器的示例代码：
 - en: '[PRE8]'
+  id: totrans-100
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE8]'
 - en: This example demonstrates how to use a [`std::pmr::monotonic_buffer_resource`](https://oreil.ly/E40Dn)
     as allocator to redirect all memory allocations into a predefined byte buffer.
     Initially we are creating a buffer of 1,000 bytes in the form of a `std::array`
@@ -632,8 +849,12 @@
     to a `std::pmr::monotonic_buffer_resource` by means of passing a pointer to the
     first element (via `raw.data()`) and the size of the buffer (via `raw.size()`)
     ([![2](assets/2.png)](#code_g13_2)).
+  id: totrans-101
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个示例演示了如何使用[`std::pmr::monotonic_buffer_resource`](https://oreil.ly/E40Dn)作为分配器，将所有内存分配重定向到预定义的字节缓冲区。最初，我们创建了一个大小为1,000字节的缓冲区，其形式为`std::array`
+    ([![1](assets/1.png)](#code_g13_1))。通过将指向第一个元素的指针（通过`raw.data()`）和缓冲区的大小（通过`raw.size()`）传递给`std::pmr::monotonic_buffer_resource`，将此缓冲区提供为内存来源
+    ([![2](assets/2.png)](#code_g13_2))。
 - en: The third argument to the `monotonic_buffer_resource` represents a backup allocator,
     which is used in case the `monotonic_buffer_resource` runs out of memory. Since
     we don’t need additional memory in this case, we use the `std::pmr::null​_mem⁠ory_resource()`
@@ -641,8 +862,10 @@
     to allocate. That means that you can ask as nicely as you want, but the allocator
     returned by `std::pmr::null_memory_resource()` will always throw an exception
     when you ask for memory.
+  id: totrans-102
   prefs: []
   type: TYPE_NORMAL
+  zh: '`monotonic_buffer_resource`的第三个参数表示备用分配器，用于在`monotonic_buffer_resource`耗尽内存时使用。由于在这种情况下我们不需要额外的内存，因此我们使用`std::pmr::null_memory_resource()`函数，它会给我们一个指向始终无法分配的标准分配器的指针。这意味着，无论你多么礼貌地请求，由`std::pmr::null_memory_resource()`返回的分配器在请求内存时总是会抛出异常。'
 - en: The created buffer is passed as allocator to the `strings` vector, which will
     now acquire all its memory from the initial byte buffer ([![3](assets/3.png)](#code_g13_3)).
     Furthermore, since the vector forwards the allocator to its elements, even the
@@ -650,30 +873,42 @@
     are all too long to rely on the *Small String Optimization (SSO)*, will acquire
     all their memory from the byte buffer. Thus, no dynamic memory is used in the
     entire example; all memory will be taken from the byte array.^([18](ch03.xhtml#idm45043116755712))
+  id: totrans-103
   prefs: []
   type: TYPE_NORMAL
+  zh: 创建的缓冲区作为分配器传递给`strings`向量，该向量现在将从初始字节缓冲区获取其所有内存 ([![3](assets/3.png)](#code_g13_3))。此外，由于向量将其分配器传递给其元素，甚至通过`emplace_back()`函数添加的三个字符串，它们都太长而不能依赖*Small
+    String Optimization (SSO)*，将从字节缓冲区获取其所有内存。因此，整个示例中不使用动态内存；所有内存将来自字节数组。^([18](ch03.xhtml#idm45043116755712))
 - en: 'At first glance, this example doesn’t look like it requires any design pattern
     to work. However, the allocator functionality used in this example uses at least
     four different design patterns: the Template Method design pattern, the Decorator
     design pattern, the Adapter design pattern, and (again) the Strategy design pattern.'
+  id: totrans-104
   prefs: []
   type: TYPE_NORMAL
+  zh: 乍一看，这个示例似乎不需要任何设计模式来运行。然而，此示例中使用的分配器功能至少使用了四种不同的设计模式：模板方法设计模式、装饰者设计模式、适配器设计模式以及（再次）策略设计模式。
 - en: 'There are even five design pattern if you count the *Singleton* pattern: the
     `null​_mem⁠ory_resource()` function ([![2](assets/2.png)](#code_g13_2)) is implemented
     in terms of the *Singleton* pattern:^([19](ch03.xhtml#idm45043116749824)) it returns
     a pointer to a static storage duration object, which is used to guarantee that
     there is at most one instance of this allocator.'
+  id: totrans-105
   prefs: []
   type: TYPE_NORMAL
+  zh: 即使你考虑*Singleton*模式，这里甚至有五种设计模式：`null_memory_resource()` 函数 ([![2](assets/2.png)](#code_g13_2))
+    是基于*Singleton*模式实现的:^([19](ch03.xhtml#idm45043116749824)) 它返回一个静态存储期对象的指针，用于确保此分配器最多只有一个实例。
 - en: 'All C++ allocators from the `pmr` namespace, including the allocator returned
     by `null_memory_resource()` and the `monotonic_buffer_resource`, are derived from
     the `std::pmr::memory_resource` base class. The first design pattern becomes visible
     if you look at the `memory_resource` class definition:'
+  id: totrans-106
   prefs: []
   type: TYPE_NORMAL
+  zh: 所有来自`pmr`命名空间的C++分配器，包括由`null_memory_resource()`返回的分配器和`monotonic_buffer_resource`，都派生自`std::pmr::memory_resource`基类。如果查看`memory_resource`类的定义，就能看到第一个设计模式的显现：
 - en: '[PRE9]'
+  id: totrans-107
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE9]'
 - en: You may notice that the three functions in the `public` section of the class
     have a virtual counterpart in the `private` section of the class. Whereas the
     public `allocate()`, `deallocate()`, and `is_equal()` functions represent the
@@ -681,17 +916,23 @@
     `do_is_equal()` functions represent the interface for derived classes. This separation
     of concerns is an example of the *Non-Virtual Interface (NVI)* idiom, which itself
     is an example of the *Template Method* design pattern.^([20](ch03.xhtml#idm45043116658560))
+  id: totrans-108
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能注意到类的`public`部分有三个函数，在类的`private`部分有对应的虚拟函数。公共的`allocate()`、`deallocate()`和`is_equal()`函数代表了类的用户接口，而`do_allocate()`、`do_deallocate()`和`do_is_equal()`函数则代表了派生类的接口。这种关注点分离是*非虚拟接口（NVI）*模式的一个示例，它本身是*模板方法*设计模式的一个示例。^([20](ch03.xhtml#idm45043116658560))
 - en: 'The second design pattern we implicitly use is the Decorator design pattern.^([21](ch03.xhtml#idm45043116657552))
     Decorator helps you to build a hierarchical layer of allocators and to wrap and
     extend the functionality of one allocator to another. This idea becomes clearer
     in this line:'
+  id: totrans-109
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们隐式使用的第二种设计模式是装饰者设计模式。^([21](ch03.xhtml#idm45043116657552)) 装饰者模式帮助您构建分层的分配器，并将一个分配器的功能包装和扩展到另一个分配器。这个想法在这一行变得更加清晰：
 - en: '[PRE10]'
+  id: totrans-110
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE10]'
 - en: By passing the allocator returned by the `null_memory_resource()` function to
     the `monotonic_buffer_resource`, we decorate its functionality. Whenever we ask
     the `monotonic_buffer_resource` for memory via the `allocate()` function, it may
@@ -700,17 +941,23 @@
     memory subsystem with different layers of allocation strategies. This kind of
     combining and reusing pieces of functionality is the strength of the Decorator
     design pattern.
+  id: totrans-111
   prefs: []
   type: TYPE_NORMAL
+  zh: 通过将`null_memory_resource()`函数返回的分配器传递给`monotonic_buffer_resource`，我们装饰了它的功能。每当我们通过`allocate()`函数向`monotonic_buffer_resource`请求内存时，它可能会将调用转发给其备用分配器。这样，我们可以实现许多不同类型的分配器，这些分配器可以轻松组装成具有不同层次分配策略的完整内存子系统。这种结合和重用功能片段的能力是装饰者设计模式的优势。
 - en: 'You may have noticed that in the example code we have used `std::pmr::vector`
     and `std::pmr::string`. I assume you remember that `std::string` is just a type
     alias to `std::basic_string<char>`. Knowing that, it probably comes as no surprise
     that the two types in the `pmr` namespace are also just type aliases:'
+  id: totrans-112
   prefs: []
   type: TYPE_NORMAL
+  zh: 你可能已经注意到，在示例代码中我们使用了`std::pmr::vector`和`std::pmr::string`。我假设你记得`std::string`只是`std::basic_string<char>`的一个类型别名。了解到这一点，也许不会让你惊讶`pmr`命名空间中的这两种类型也只是类型别名：
 - en: '[PRE11]'
+  id: totrans-113
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE11]'
 - en: These type aliases still refer to the regular `std::vector` and `std::basic_string`
     classes but do not expose a template parameter for an allocator anymore. Instead,
     they employ a `std::pmr::polymorphic_allocator` as allocator. This is an example
@@ -719,28 +966,37 @@
     case, the `polymorphic_allocator` helps to transmit between the classic, static
     interface required from the classic C++ allocators and the new, dynamic allocator
     interface required by `std::pmr::memory_resource`.
+  id: totrans-114
   prefs: []
   type: TYPE_NORMAL
+  zh: 这些类型别名仍然指向常规的`std::vector`和`std::basic_string`类，但不再公开分配器的模板参数。相反，它们使用`std::pmr::polymorphic_allocator`作为分配器。这是*适配器*设计模式的一个示例。^([22](ch03.xhtml#idm45043116322624))
+    适配器的目的是帮助您将两个不匹配的接口粘合在一起。在这种情况下，`polymorphic_allocator`有助于在经典的静态接口（经典C++分配器所需的接口）与新的动态分配器接口（`std::pmr::memory_resource`所需的接口）之间进行传递。
 - en: 'The fourth and last design pattern used in our example is, again, the Strategy
     design pattern. By exposing a template argument for the allocator, Standard Library
     containers like `std::vector` and `std::string` give you the opportunity to customize
     memory allocation from outside. This is a static form of the Strategy design pattern
     and has the same intent as customizing algorithms (see also [“Guideline 12: Beware
     of Design Pattern Misconceptions”](#beware_of_design_pattern_misconceptions)).'
+  id: totrans-115
   prefs: []
   type: TYPE_NORMAL
+  zh: 我们示例中使用的第四种也是最后一种设计模式，再次是策略设计模式。通过向分配器公开模板参数，标准库容器如`std::vector`和`std::string`为您提供了从外部定制内存分配的机会。这是策略设计模式的静态形式，并且与定制算法具有相同的意图（也请参阅[“指南12：设计模式误解”](#beware_of_design_pattern_misconceptions)）。
 - en: 'This example impressively demonstrates, that design patterns are far from being
     obsolete. On closer examination, we see them everywhere: any kind of abstraction
     and any attempt to decouple software entities and introduce flexibility and extensibility
     is very likely based on some design pattern. For that reason, it definitely helps
     to know about the different design patterns and to understand their intent to
     recognize them and apply them whenever it is necessary and appropriate.'
+  id: totrans-116
   prefs: []
   type: TYPE_NORMAL
+  zh: 这个例子令人印象深刻地展示了，设计模式远非过时。仔细观察后，我们会发现它们无处不在：任何抽象和任何试图解耦软件实体并引入灵活性和可扩展性的尝试，很可能都基于某种设计模式。因此，了解不同的设计模式并理解它们的意图，无论何时何地都有助于识别并在合适时应用它们。
 - en: 'Guideline 14: Use a Design Pattern’s Name to Communicate Intent'
+  id: totrans-117
   prefs:
   - PREF_H1
   type: TYPE_NORMAL
+  zh: 指南14：使用设计模式的名称传达意图
 - en: In the last two sections, you learned what a design pattern is, what it’s not,
     and that design patterns are everywhere. You also learned that every design pattern
     has a name, which expresses a clear, concise, and unambiguous intent. Hence, the
@@ -748,23 +1004,33 @@
     a design pattern you can express what the problem is and which solution you’ve
     chosen to solve the problem, and you can describe how the code is expected to
     evolve.
+  id: totrans-118
   prefs: []
   type: TYPE_NORMAL
+  zh: 在最后两节中，您学到了什么是设计模式，它们不是什么，以及设计模式无处不在。您还了解到每个设计模式都有一个名称，这个名称表达了清晰、简洁和明确的意图。因此，名称具有意义。^([23](ch03.xhtml#idm45043116307104))通过使用设计模式的名称，您可以表达问题是什么，以及您选择了哪种解决方案来解决问题，并描述代码预期如何演变。
 - en: 'Consider, for instance, the Standard Library `accumulate()` function:'
+  id: totrans-119
   prefs: []
   type: TYPE_NORMAL
+  zh: 例如，标准库的`accumulate()`函数：
 - en: '[PRE12]'
+  id: totrans-120
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE12]'
 - en: 'The third template parameter is named `BinaryOperation`. While this does communicate
     the fact that the passed callable is required to take two arguments, the name
     does not communicate the intent of the parameter. To express the intent more clearly,
     consider calling it `BinaryReductionStrategy`:'
+  id: totrans-121
   prefs: []
   type: TYPE_NORMAL
+  zh: 第三个模板参数被命名为`BinaryOperation`。虽然这表明传递的可调用对象需要接受两个参数，但名称并未传达参数的意图。为了更清晰地表达意图，考虑将其命名为`BinaryReductionStrategy`：
 - en: '[PRE13]'
+  id: totrans-122
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE13]'
 - en: 'Both the term *Reduction* and the name *Strategy* carry meaning for every C++
     programmer. Therefore, you’ve now captured and expressed your intent much more
     clearly: the parameter enables *dependency injection* of a binary operation, which
@@ -774,46 +1040,64 @@
     the operation. You can only specify how the reduction operation works; you cannot
     redefine what `accumulate()` does. If that’s what you want to express, you should
     use the name of the *Command* design pattern:^([24](ch03.xhtml#idm45043116150400))'
+  id: totrans-123
   prefs: []
   type: TYPE_NORMAL
+  zh: '*Reduction*这个术语和*Strategy*这个名称对每位C++程序员都有意义。因此，您现在更清楚地捕捉并表达了您的意图：该参数允许*依赖注入*一个二元操作，从而允许您指定减少操作的方式。因此，该参数解决了定制化的问题。尽管如此，正如您将在[第5章](ch05.xhtml#the_strategy_and_command_design_patterns)中看到的那样，策略设计模式表明了对操作有一定的期望。您只能指定减少操作的方式；您不能重新定义`accumulate()`的功能。如果这是您想要表达的内容，您应该使用*Command*设计模式的名称：^([24](ch03.xhtml#idm45043116150400))'
 - en: '[PRE14]'
+  id: totrans-124
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE14]'
 - en: The `std::for_each()` algorithm allows you to apply any kind of unary operation
     to a range of elements. To express this intent, the second template parameter
     could be named `UnaryCommand`, which unambiguously expresses that there are (nearly)
     no expectations for the operation.
+  id: totrans-125
   prefs: []
   type: TYPE_NORMAL
+  zh: '`std::for_each()`算法允许您对元素范围应用任何类型的一元操作。为了表达这个意图，第二个模板参数可以命名为`UnaryCommand`，这明确表明对操作几乎没有期望。'
 - en: 'Another example from the Standard Library shows how much value the name of
     a design pattern can bring to a piece of code:'
+  id: totrans-126
   prefs: []
   type: TYPE_NORMAL
+  zh: 标准库的另一个示例展示了设计模式的名称能为代码带来多少价值：
 - en: '[PRE15]'
+  id: totrans-127
   prefs: []
   type: TYPE_PRE
+  zh: '[PRE15]'
 - en: In the `main()` function, we create a `std::variant` for the three alternatives
     `int`, `double`, and `std::string` ([![1](assets/1.png)](#code_g14_1)). In the
     next line, we assign a C-style string literal, which will be converted to a `std::string`
     inside the variant ([![2](assets/2.png)](#code_g14_2)). Then we print the content
     of the variant via the `std::visit()` function and the `Print` function object
     ([![3](assets/3.png)](#code_g14_3)).
+  id: totrans-128
   prefs: []
   type: TYPE_NORMAL
+  zh: 在`main()`函数中，我们为三种不同的选项`int`、`double`和`std::string`创建了一个`std::variant`（[![1](assets/1.png)](#code_g14_1)）。接下来的一行，我们分配了一个C风格的字符串字面量，它将在变体内转换为`std::string`（[![2](assets/2.png)](#code_g14_2)）。然后，我们通过`std::visit()`函数和`Print`函数对象打印了变体的内容（[![3](assets/3.png)](#code_g14_3)）。
 - en: 'Notice the name of the `std::visit()` function. The name directly refers to
     the *Visitor* design pattern and therefore clearly expresses its intent: you’re
     able to apply any operation to the closed set of types contained in the variant
     instance.^([25](ch03.xhtml#idm45043115722672)) Also, you can extend the set of
     operations nonintrusively.'
+  id: totrans-129
   prefs: []
   type: TYPE_NORMAL
+  zh: 注意`std::visit()`函数的名称。该名称直接指涉*访问者*设计模式，因此清晰地表达了其意图：您可以对包含在变体实例中的封闭类型集合应用任何操作。^([25](ch03.xhtml#idm45043115722672))
+    此外，您可以非侵入式地扩展操作集。
 - en: You see that using the name of a design pattern carries more information than
     using an arbitrary name. Still, this shouldn’t imply that naming is easy.^([26](ch03.xhtml#idm45043116055552))
     A name should primarily help you understand the code in a specific context. If
     the name of a design pattern can help with that, then consider including the design
     pattern name to express your intent.
+  id: totrans-130
   prefs: []
   type: TYPE_NORMAL
+  zh: 你会发现，使用设计模式的名称比使用任意名称包含更多信息。但这并不意味着命名是容易的。^([26](ch03.xhtml#idm45043116055552))
+    名称应该主要帮助你理解特定上下文中的代码。如果设计模式的名称可以帮助到这一点，那么考虑包含设计模式名称以表达你的意图。
 - en: '^([1](ch03.xhtml#idm45043117876336-marker)) The Gang of Four, or simply GoF,
     is a commonly used reference to the four authors Erich Gamma, Richard Helm, Ralph
     E. Johnson, and John Vlissides and their book on design patterns: *Design Patterns:
@@ -821,45 +1105,65 @@
     is, after several decades, *the* reference on design patterns. Throughout the
     rest of this book, I will refer to either the GoF book, the GoF patterns, or the
     characteristic, object-oriented GoF style.'
+  id: totrans-131
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([1](ch03.xhtml#idm45043117876336-marker)) "四人帮"，或简称GoF，通常指的是四位作者埃里希·伽马、理查德·赫尔姆、拉尔夫·约翰逊和约翰·弗利西德斯以及他们的设计模式书籍：*《设计模式：可复用面向对象软件的基础》*（Prentice
+    Hall）。数十年后，GoF 书仍然是设计模式的 *权威* 参考。本书的其余部分，我会用到GoF书、GoF模式或特征显著的面向对象的GoF风格。
 - en: ^([2](ch03.xhtml#idm45043117867680-marker)) If you do not know the *Visitor*
     design pattern yet, don’t worry. I will introduce the pattern in [Chapter 4](ch04.xhtml#the_visitor_design_pattern).
+  id: totrans-132
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([2](ch03.xhtml#idm45043117867680-marker)) 如果你还不了解*访问者*设计模式，不要担心。我会在[第 4 章](ch04.xhtml#the_visitor_design_pattern)中介绍这个模式。
 - en: ^([3](ch03.xhtml#idm45043117861184-marker)) The Strategy design pattern will
     be explained in detail in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns),
     the Decorator design pattern in [Chapter 9](ch09.xhtml#the_decorator_design_pattern).
+  id: totrans-133
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([3](ch03.xhtml#idm45043117861184-marker)) 策略设计模式将在[第 5 章](ch05.xhtml#the_strategy_and_command_design_patterns)中详细解释，装饰者设计模式将在[第
+    9 章](ch09.xhtml#the_decorator_design_pattern)中详细解释。
 - en: '^([4](ch03.xhtml#idm45043117851760-marker)) I mention only the design patterns
     that I will explain in later chapters (see the Strategy and *Command* design patterns
     in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns) and the *Bridge*
     design pattern in [“Guideline 28: Build Bridges to Remove Physical Dependencies”](ch07.xhtml#build_bridges_to_remove_physical_dependencies)).
     There are a few more design patterns that share the same structure.'
+  id: totrans-134
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([4](ch03.xhtml#idm45043117851760-marker)) 我只提到将在后续章节中解释的设计模式（参见第 5 章的策略和*命令*设计模式以及第
+    7 章“指导原则 28：建立桥梁以消除物理依赖性”的*桥接*设计模式）。还有几种设计模式共享相同的结构。
 - en: ^([5](ch03.xhtml#idm45043117838768-marker)) If you are unfamiliar with the Strategy
     design pattern, rest assured that [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns)
     will provide much more information, including several code examples.
+  id: totrans-135
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([5](ch03.xhtml#idm45043117838768-marker)) 如果你对策略设计模式不熟悉，放心，[第 5 章](ch05.xhtml#the_strategy_and_command_design_patterns)会提供更多信息，包括几个代码示例。
 - en: '^([6](ch03.xhtml#idm45043117735120-marker)) This may be a controversial example.
     Since I know the C++ community, I know that you may have a different opinion.
     However, I stand by mine: due to its definition, `std::make_unique()` is incapable
     of decoupling software entities and therefore does not play a role on the level
     of software design. It’s merely an implementation detail (but a valuable and useful
     one).'
+  id: totrans-136
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([6](ch03.xhtml#idm45043117735120-marker)) 这可能是一个有争议的例子。因为我了解C++社区，知道你可能有不同的看法。然而，我坚持我的观点：由于其定义，`std::make_unique()`无法解耦软件实体，因此在软件设计层面上并不起作用。它仅仅是一个实现细节（但却是一个宝贵和有用的细节）。
 - en: ^([7](ch03.xhtml#idm45043117663968-marker)) Venkat Subramaniam and Andrew Hunt,
     *Practices of an Agile Developer* (The Pragmatic Programmers, LLC, 2017).
+  id: totrans-137
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([7](ch03.xhtml#idm45043117663968-marker)) Venkat Subramaniam和Andrew Hunt，《敏捷开发者的实践》（The
+    Pragmatic Programmers, LLC, 2017）。
 - en: ^([8](ch03.xhtml#idm45043117662480-marker)) Well, it works, in some definition
     of “works.”
+  id: totrans-138
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([8](ch03.xhtml#idm45043117662480-marker)) 好吧，它确实“运行”了，在某种“运行”的定义下。
 - en: '^([9](ch03.xhtml#idm45043117656144-marker)) I know what you’re thinking: “You
     cannot be serious! There is so many interesting examples out there, but you select
     the oldest and most boring example in the book!” OK, I admit that might not be
@@ -869,12 +1173,16 @@
     my arguments about software design. And second, let’s agree that it’s kind of
     a tradition in computer science to start with a shape or an animal example. And,
     of course, I do not want to disappoint traditionalists.'
+  id: totrans-139
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([9](ch03.xhtml#idm45043117656144-marker)) 我知道你在想什么：“你不可能是认真的！书中有这么多有趣的例子，但你选择了最古老和最无聊的例子！”好吧，我承认这可能不是选择的最令人兴奋的例子。但是，我有两个好理由选择这个例子。首先，这个场景是如此广为人知，以至于我可以假设没有人会对此感到困惑。这意味着每个人都应该能够理解我关于软件设计的论点。其次，我们可以同意，在计算机科学中以形状或动物的例子开始是一种传统。当然，我不想让传统主义者失望。
 - en: ^([10](ch03.xhtml#idm45043117617504-marker)) [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns)
     will provide a complete and thorough introduction of the *Strategy* design pattern.
+  id: totrans-140
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([10](ch03.xhtml#idm45043117617504-marker)) [第5章](ch05.xhtml#the_strategy_and_command_design_patterns)将全面详细地介绍*策略*设计模式。
 - en: ^([11](ch03.xhtml#idm45043117184368-marker)) You may (correctly) observe that
     even without the fourth argument you could change how the accumulation works by
     providing a custom addition operator (i.e., `operator+()`) for the given type.
@@ -884,44 +1192,64 @@
     to define `operator+()` for anything other than an addition operation (or related
     operations like the concatenation of strings). Thus, relying on the addition operator
     would be limiting technically and semantically.
+  id: totrans-141
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([11](ch03.xhtml#idm45043117184368-marker)) 你可能（正确地）观察到，即使没有第四个参数，通过为给定类型提供自定义的加法操作符（即`operator+()`），也可以改变累加的工作方式。然而，这只能用于有限的情况。虽然你可以为用户定义的类型提供自定义的加法操作符，但你不能为基本类型（例如示例中的`int`）提供自定义的加法操作符。此外，定义除加法操作（或类似于字符串连接的操作）之外的`operator+()`是非常值得怀疑的。因此，依赖加法操作符在技术和语义上是有限制的。
 - en: '^([12](ch03.xhtml#idm45043117181696-marker)) In his CppCon 2016 talk [“std::accumulate:
     Exploring an Algorithmic Empire”](https://oreil.ly/P8qpA), Ben Deane has impressively
     demonstrated how powerful `std::accumulate()` is thanks to that fourth argument.'
+  id: totrans-142
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([12](ch03.xhtml#idm45043117181696-marker)) 在他2016年的CppCon演讲中，[“std::accumulate:
+    探索一个算法帝国”](https://oreil.ly/P8qpA)，Ben Deane生动展示了由于第四个参数的存在，`std::accumulate()`有多么强大。'
 - en: ^([13](ch03.xhtml#idm45043117179232-marker)) For more information about STL
     algorithms and their functional programming heritage, see Ivan Cukic’s excellent
     introduction to *Functional Programming in C++* (Manning).
+  id: totrans-143
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([13](ch03.xhtml#idm45043117179232-marker)) 欲了解更多关于STL算法及其函数式编程遗产的信息，请参阅伊万·库基奇（Ivan
+    Cukic）在《C++函数式编程》（Manning）中的精彩介绍。
 - en: '^([14](ch03.xhtml#idm45043117095392-marker)) Another commonly used name for
     that form of the Strategy design pattern is *Policy-Based Design*; see [“Guideline
     19: Use Strategy to Isolate How Things Are Done”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done).'
+  id: totrans-144
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([14](ch03.xhtml#idm45043117095392-marker)) 对于策略设计模式的这种形式，另一个常用的名称是*基于策略的设计*；请参阅[“指南19：使用策略隔离做事的方式”](ch05.xhtml#use_strategy_to_isolate_how_things_are_done)。
 - en: '^([15](ch03.xhtml#idm45043117018416-marker)) I will explain the *Visitor* design
     pattern in [Chapter 4](ch04.xhtml#the_visitor_design_pattern) and the *Prototype*
     design pattern in [“Guideline 30: Apply Prototype for Abstract Copy Operations”](ch07.xhtml#apply_prototype_for_abstract_copy_operations).'
+  id: totrans-145
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([15](ch03.xhtml#idm45043117018416-marker)) 我将在[第4章](ch04.xhtml#the_visitor_design_pattern)解释*Visitor*设计模式，并在[“Guideline
+    30: Apply Prototype for Abstract Copy Operations”](ch07.xhtml#apply_prototype_for_abstract_copy_operations)中介绍*Prototype*设计模式。'
 - en: '^([16](ch03.xhtml#idm45043117014496-marker)) Again, I’m referring you to Ivan
     Cukic’s introduction to *Functional Programming in C++*. The *CRTP* design pattern
     will be the topic of [“Guideline 26: Use CRTP to Introduce Static Type Categories”](ch06.xhtml#use_crtp_to_introduce_static_type_categories).
     For information on *Expression Templates*, a template-based pattern, refer to
     *the* C++ template reference: David Vandevoorde, Nicolai Josuttis, and Douglas
     Gregor’s *C++ Templates: The Complete Guide* (Addison-Wesley).'
+  id: totrans-146
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([16](ch03.xhtml#idm45043117014496-marker)) 再次推荐Ivan Cukic的*C++函数式编程*。*CRTP*设计模式将是[“Guideline
+    26: Use CRTP to Introduce Static Type Categories”](ch06.xhtml#use_crtp_to_introduce_static_type_categories)的主题。关于*Expression
+    Templates*，一个基于模板的模式，请参考*C++ Templates: The Complete Guide*（Addison-Wesley）中的C++模板参考：David
+    Vandevoorde，Nicolai Josuttis和Douglas Gregor。'
 - en: ^([17](ch03.xhtml#idm45043116999904-marker)) I would argue that C++ has been
     a multiparadigm programming language since the moment the first implementation
     of templates was added to the language in 1989\. The impact of templates on the
     language became clear with the addition of part of the Standard Template Library
     (STL) to the Standard Library in 1994\. Since then, C++ has provided object-oriented,
     functional, and generic capabilities.
+  id: totrans-147
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([17](ch03.xhtml#idm45043116999904-marker)) 我认为自1989年语言中首次添加模板实现以来，C++就成为了一种多范式编程语言。模板对语言的影响在1994年将标准模板库（STL）的部分添加到标准库中后变得明显。从那时起，C++提供了面向对象、函数式和泛型能力。
 - en: ^([18](ch03.xhtml#idm45043116755712-marker)) The *Small String Optimization
     (SSO)* is a common optimization for small strings. Instead of allocating dynamic
     memory on the heap via the provided allocator, the string would store the small
@@ -930,44 +1258,69 @@
     requirement but a property of common implementations of `std::string`), anything
     beyond 32 bytes will require a heap allocation. That is the case with the three
     given strings.
+  id: totrans-148
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([18](ch03.xhtml#idm45043116755712-marker)) *Small String Optimization (SSO)*
+    是小字符串的常见优化方式。字符串不再通过提供的分配器在堆上分配动态内存，而是直接将少量字符存储在字符串的栈部分。由于字符串通常在栈上占据24到32字节（这不是C++标准要求而是常见实现的特性），超过32字节的字符串将需要堆分配。这是三个给定字符串的情况。
 - en: '^([19](ch03.xhtml#idm45043116749824-marker)) *Singleton* is one of the original
     23 GoF design patterns. But I will do my best in [“Guideline 37: Treat Singleton
     as an Implementation Pattern, Not a Design Pattern”](ch10.xhtml#treat_singleton_as_an_implementation_pattern_not_a_design_pattern)
     to convince you that *Singleton* is not actually a design pattern but an implementation
     detail. For that reason, I will refer to *Singleton* not as a design pattern but
     simply as an implementation pattern.'
+  id: totrans-149
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([19](ch03.xhtml#idm45043116749824-marker)) *Singleton* 是原始的23个GoF设计模式之一。但是在[“Guideline
+    37: Treat Singleton as an Implementation Pattern, Not a Design Pattern”](ch10.xhtml#treat_singleton_as_an_implementation_pattern_not_a_design_pattern)中，我将尽力说服你，*Singleton*
+    实际上并不是设计模式，而是一种实现细节。因此，我将*Singleton*称为实现模式而非设计模式。'
 - en: ^([20](ch03.xhtml#idm45043116658560-marker)) Unfortunately, I won’t cover the
     *Template Method* design pattern in this book. This isn’t because it’s not important
     but simply due to a lack of available pages. Please refer to the GoF book for
     more details.
+  id: totrans-150
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([20](ch03.xhtml#idm45043116658560-marker)) 不幸的是，本书不会涵盖*Template Method*设计模式。这并不是因为它不重要，而仅仅是因为页数不足。请参考GoF书籍获取更多细节。
 - en: ^([21](ch03.xhtml#idm45043116657552-marker)) I will give a complete introduction
     of the Decorator design pattern in [Chapter 9](ch09.xhtml#the_decorator_design_pattern).
+  id: totrans-151
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([21](ch03.xhtml#idm45043116657552-marker)) 我将在[第9章](ch09.xhtml#the_decorator_design_pattern)全面介绍装饰器设计模式。
 - en: '^([22](ch03.xhtml#idm45043116322624-marker)) The Adapter design pattern will
     be the topic of [“Guideline 24: Use Adapters to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces).'
+  id: totrans-152
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([22](ch03.xhtml#idm45043116322624-marker)) 适配器设计模式将在[“Guideline 24: Use Adapters
+    to Standardize Interfaces”](ch06.xhtml#use_adapters_to_standardize_interfaces)中讨论。'
 - en: ^([23](ch03.xhtml#idm45043116307104-marker)) Good names always carry meaning.
     This is why they are so fundamentally important.
+  id: totrans-153
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([23](ch03.xhtml#idm45043116307104-marker)) 好的命名总是有意义的。这就是为什么它们如此基本重要的原因。
 - en: ^([24](ch03.xhtml#idm45043116150400-marker)) I will explain the *Command* design
     pattern alongside the Strategy design pattern in [Chapter 5](ch05.xhtml#the_strategy_and_command_design_patterns).
+  id: totrans-154
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([24](ch03.xhtml#idm45043116150400-marker)) 我将在 [第五章](ch05.xhtml#the_strategy_and_command_design_patterns)
+    中解释 *Command* 设计模式以及策略设计模式。
 - en: ^([25](ch03.xhtml#idm45043115722672-marker)) The *Visitor* design pattern, including
     the modern implementation with `std::variant`, will be our focus in [Chapter 4](ch04.xhtml#the_visitor_design_pattern).
+  id: totrans-155
   prefs: []
   type: TYPE_NORMAL
+  zh: ^([25](ch03.xhtml#idm45043115722672-marker)) *Visitor* 设计模式，包括现代实现方式 `std::variant`，将是我们在
+    [第四章](ch04.xhtml#the_visitor_design_pattern) 中的重点。
 - en: '^([26](ch03.xhtml#idm45043116055552-marker)) Naming is hard, as Kate Gregory
     aptly remarks in her highly recommended talk [“Naming Is Hard: Let’s Do Better”](https://oreil.ly/nyeOv)
     at CppCon 2019.'
+  id: totrans-156
   prefs: []
   type: TYPE_NORMAL
+  zh: '^([26](ch03.xhtml#idm45043116055552-marker)) 命名很难，正如Kate Gregory在她高度推荐的演讲 [“Naming
+    Is Hard: Let’s Do Better”](https://oreil.ly/nyeOv) 中在CppCon 2019上所言。'
