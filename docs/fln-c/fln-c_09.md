@@ -1,4 +1,4 @@
-# 第八章\. 模块化程序中的文件组织
+# 第八章：模块化程序中的文件组织
 
 任何实现较大软件并希望使该软件易于维护的程序员都会面临如何使软件模块化的问题。这个问题的最重要部分与软件模块之间的依赖关系有关，例如，由 Robert C. Martin 在《Clean Code: A Handbook of Agile Software Craftsmanship》（Prentice Hall，2008）中描述的 SOLID 设计原则或由 Gang of Four 在《Design Patterns: Elements of Reusable Object-Oriented Software》（Prentice Hall，1997）中描述的设计模式提供了相关答案。
 
