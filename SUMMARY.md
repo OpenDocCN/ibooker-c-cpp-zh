@@ -1,3 +1,6 @@
 +   [C++ 软件设计](docs/cpp-sw-dsn/README.md)
 +   [C 流畅编程](docs/fln-c/README.md)
++   [C++ 示例学习指南](docs/lrn-cpp-ex/README.md)
++   [C 现代指南](docs/mdn-c/README.md)
 +   [C 极简编程](docs/sml-c/README.md)
++   [微型 C 语言项目](docs/tn-c-proj/README.md)
